@@ -1,0 +1,87 @@
+<%= stylesheet_link_tag 'jive-global' %>
+
+<body class="jive-body-formpage jive-body-formpage-login">
+  <div id="jive-wrapper" class="clearfix">
+    <div class='logo'>
+    </div>
+
+    <div id="jive-body-intro">
+        <div id="jive-body-intro-content">
+            <h1>用户注册</h1>
+            <p>请输入<b>用户名信息</b>. 
+            </p>
+        </div>
+    </div>
+
+    <div id="jive-body-full">
+      <div id="jive-body-main">
+          <!-- BEGIN main body column -->
+          <div id="jive-body-maincol-container">
+              <div id="jive-body-maincol">
+
+                  <!-- BEGIN login form -->
+                  <div class="jive-standard-formblock-container jive-login-formblock">
+        
+
+                      <div class="jive-standard-formblock">
+                      <%= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
+                        <div id="jive-login-username">
+                        <label for="user_login">用户名:</label>
+                        <input type="text" name="user[login]" size="30" maxlength="150" value="" id="user_login">
+                        </div>
+
+                        <div id="jive-login-username">
+                        <label for="user_email">邮件:</label>
+                        <input type="text" name="user[email]" size="30" maxlength="150" value="" id="user_email">
+                        </div>
+
+                        <div id="jive-login-password">
+                        <label for="user_password">密码:</label>
+                        <input type="password" name="user[password]" size="30" maxlength="150" value="" id="user_password">
+                        </div>
+
+                        <div id="jive-login-password">
+                        <label for="user_password_confirmation">重复密码:</label>
+                        <input type="password" name="user[password_confirmation]" size="30" maxlength="150" value="" id="user_password_confirmation">
+                        </div>
+                        
+                        <div class="jive-form-buttons">
+                            <p><%= submit_tag '注册' %></p>
+                        </div>
+
+                    <% end %>
+                         
+                      </div>
+                  </div>
+                  <!-- END login form -->
+
+              </div>
+        <p align="center">请使用<a href="http://firefox.com.cn/download/">Firefox</a>或<a href="http://www.google.cn/chrome">Chrome</a>进行浏览！</p>
+          </div>
+          <!-- END main body column -->
+
+
+      </div>
+      <!-- END main body -->
+    </div>
+    <!-- BEGIN footer -->
+    <div id="jive-footer" class="clearfix">
+      <div class="jive-footer-nav">
+        Copyright © 2011, Brightechs, Inc.            
+          <div class="jiveVersion" style="display: none;">
+            Webgis Software Version: 33            
+          </div>
+        -  <a href="mailto:szpapas@qq.com">技术支持Email</a>
+       </div>
+
+    </div>
+    <!-- END footer -->
+
+  </div>
+
+
+
+
+
+
+

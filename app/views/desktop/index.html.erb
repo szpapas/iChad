@@ -1,0 +1,61 @@
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>激扬软件</title>
+
+    <link rel="stylesheet" type="text/css" href="/assets/mfbase/ext/resources/css/ext-all.css" />
+    <!--link rel="stylesheet" type="text/css" href="/assets/desktop/css/desktop.css" /-->
+    
+    <%= stylesheet_link_tag "/assets/desktop/css/desktop" %> 
+    <%= stylesheet_link_tag "/assets/desktop/ux/css/CheckHeader" %> 
+    
+    <%= javascript_include_tag "prototype" %> 
+    <script type="text/javascript" src="/assets/mfbase/ext/builds/ext-core.js"></script>
+    <script type="text/javascript" src="/assets/mfbase/ext/ext-all.js"></script>
+    <script type="text/javascript" src="/assets/desktop/classes.js"></script>
+    <script type="text/javascript" src="/assets/desktop/LodopFuncs.js"></script>
+    
+    
+    <%= javascript_include_tag "desktop/common" %> 
+    <%= javascript_include_tag "desktop/GridWindow" %> 
+    <%= javascript_include_tag "desktop/VideoWindow" %> 
+    <%= javascript_include_tag "desktop/BogusMenuModule" %> 
+
+    <%= javascript_include_tag "desktop/AddressMan" %>
+    <%= javascript_include_tag "desktop/ArchiveMan" %> 
+    <%= javascript_include_tag "desktop/WenshuMan" %>
+    <%= javascript_include_tag "desktop/BorrowMan" %>
+    <%= javascript_include_tag "desktop/Notepad" %> 
+    <%= javascript_include_tag "desktop/SystemMan" %>
+    <%= javascript_include_tag "desktop/SmallApps" %>
+    <%= javascript_include_tag "desktop/SystemStatus" %>
+    <%= javascript_include_tag "desktop/PrintData" %> 
+    <%= javascript_include_tag "desktop/AccordionWindow" %> 
+    
+    
+    <%= javascript_include_tag "desktop/App" %> 
+    
+    
+    <script type="text/javascript">
+        var myDesktopApp;
+        Ext.onReady(function () {
+          myDesktopApp = new MyDesktop.App();
+        });
+    </script>
+    <%= csrf_meta_tags %>
+
+  <object id="LODOP" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="install_lodop.exe"></embed>
+  </object>
+  
+</head>
+
+<body>
+
+    <a href="http://www.sencha.com" target="_blank" alt="Powered by Ext JS"
+       id="poweredby"><div></div></a>
+
+</body>
+</html>

@@ -1,0 +1,2 @@
+pid=`ps -ef | grep ruby | grep print_wizard | awk '{print $2}'`
+`kill $pid`
