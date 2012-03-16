@@ -40,9 +40,9 @@ class DesktopController < ApplicationController
       pars = node.split('|') || []
       
       if style.to_i == 1 
-        data = User.find_by_sql("select distinct cast(mlh as integer)  from archive where qzh='#{pars[0]}' order by mlh;")
+        data = User.find_by_sql("select distinct cast(mlh as integer), dalb  from archive where qzh='#{pars[0]}' order by mlh;")
         data.each do |dd|
-            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["mlh"]}", :leaf => true, :cls    => "file"}
+            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dalb"]}|#{dd["mlh"]}", :leaf => true, :cls    => "file"}
         end
       else  
         if pars.length == 1
