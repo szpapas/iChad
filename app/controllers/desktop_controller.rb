@@ -1447,7 +1447,7 @@ class DesktopController < ApplicationController
 	  if params['dh'].nil?
       txt = "{results:0,rows:[]}" 
     else  
-      dh = params['dh']
+      dh = params['dh'].gsub('|','_')
       user = User.find_by_sql("select * from timage_tj where dh like '#{dh}%' order by id;")
       size = user.size;
       if size > 0 
@@ -1589,7 +1589,7 @@ class DesktopController < ApplicationController
 	
 	def update_timage_tj
 	  dh = params['dh']
-	  ss = dh.split('-')
+	  ss = dh.split('_')
 	  qzh, dalb, mlh = ss[0], ss[1], ss[2]
 	  system("ruby ./dady/bin/update_timage_tj.rb  #{qzh} #{dalb} #{mlh}")
 	  render :text => 'Success'

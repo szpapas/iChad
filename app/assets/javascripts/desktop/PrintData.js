@@ -652,30 +652,44 @@ Ext.define('MyDesktop.PrintData', {
       columns: [
         //{ text : 'file_name', flex : 1, sortable : true, dataIndex: 'level4'},
         //{ text : 'file_size',  width : 75, sortable : true, dataIndex: 'file_size'}
-        { text : 'id',  width : 75, sortable : true, dataIndex: 'id', hidden:true},
+        { text : 'id',   width : 75, sortable : true, dataIndex: 'id', hidden:true},
         { text : '打印状态', width : 75, sortable : true, dataIndex: 'dyzt', renderer : printStatus },
-        { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
-        { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
+        { text : '档号',   width : 75, sortable : true, dataIndex: 'dh'},
+        { text : '单位代码', width : 75, sortable : true, dataIndex: 'dwdm'},
         { text : '案件号',  width : 75, sortable : true, dataIndex: 'ajh'},
-        { text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
+        { text : '标题名称', width : 175, sortable : true, dataIndex: 'tm'},
         { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
-        { text : '年度',  width : 75, sortable : true, dataIndex: 'nd'},
-        { text : '件数',  width : 75, sortable : true, dataIndex: 'js'},
-        { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
-        { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
+        { text : '年度',   width : 75, sortable : true, dataIndex: 'nd'},
+        { text : '件数',   width : 75, sortable : true, dataIndex: 'js'},
+        { text : '页数',   width : 75, sortable : true, dataIndex: 'ys'},
+        { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
         { text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
         { text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
         { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
         { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
-        { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
+        { text : '备注',   flex : 1, sortable : true, dataIndex: 'bz'}
         ],
       width : 800,
-      //height : 300,
+      columnLines: true,
+      layout:'fit',
+      //height : 350,
       //selType:'checkboxmodel',
 			//multiSelect:true,
       viewConfig: {
         stripeRows:true
-      }
+      },
+      bbar:[
+        new Ext.PagingToolbar({
+          store: archive_store,
+          pageSize: 25,
+          width : 350,
+          border : false,
+          displayInfo: true,
+          displayMsg: '{0} - {1} of {2}',
+          emptyMsg: "没有找到！",
+          prependButtons: true
+        })
+      ]
     });
     
     Ext.regModel('document_model', {
@@ -723,6 +737,7 @@ Ext.define('MyDesktop.PrintData', {
       ],
       width : 800,
       //height : 300,
+      layout: 'fit',
       viewConfig: {
         stripeRows:true
       }
@@ -734,6 +749,11 @@ Ext.define('MyDesktop.PrintData', {
       if (data.leaf) {
         archive_store.proxy.extraParams.query=data.id;
         archive_store.load();
+        
+        var dh = data.id;
+        mulu_store.proxy.extraParams = {dh:dh};
+        mulu_store.load();
+        
       }
     });
     
@@ -756,6 +776,101 @@ Ext.define('MyDesktop.PrintData', {
       Ext.getCmp('timage_combo').lastQuery = null; 
 
     });
+    
+    
+    Ext.regModel('mulu_model', {
+      fields: [
+        {name: 'id',    type: 'integer'},
+        {name: 'dh',    type: 'string'},
+        {name: 'ajh',   type: 'string'},
+        {name: 'ajys',  type: 'string'},
+        {name: 'ml00',  type: 'string'},
+        {name: 'mlbk',  type: 'string'},
+        {name: 'mljn',  type: 'string'},
+        {name: 'jn00',  type: 'string'},
+        {name: 'jnbk',  type: 'string'},
+        {name: 'jnjn',  type: 'string'},
+        {name: 'smyx',  type: 'string'},
+        {name: 'a3',    type: 'string'},
+        {name: 'a4',    type: 'string'},
+        {name: 'dt',    type: 'string'},
+        {name: 'zt',    type: 'string'}
+      ]
+    });
+
+    mulu_store = Ext.create('Ext.data.Store', {
+      model : 'mulu_model',
+      proxy: {
+        type: 'ajax',
+        url : '/desktop/get_mulu_store',
+        extraParams: {dh:""},
+        reader: {
+          type: 'json',
+          root: 'rows',
+          totalProperty: 'results'
+        }
+      }
+    });
+    
+    var zeroRenderer = function(val) {
+      if (val > 0) {
+          return '<span style="color:green;">' + val + '</span>';
+      } else if (val == 0) {
+          return '<span style="color:red;">' + val + '</span>';
+      }
+      return val;
+    }
+    
+    var muluStaticGrid = new Ext.grid.GridPanel({
+      id: 'mulu-stat-grid',
+      store: mulu_store,
+      columns: [
+        { text : 'id', align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+        { text : '档号', align:"left", width : 100, sortable : true, dataIndex: 'dh'},
+        { text : '页数', align:"right", width : 50, sortable : true, dataIndex: 'ajys'},
+        { text : 'A3', align:"right", width : 50, sortable : true, dataIndex: 'a3'},
+        { text : 'A4', align:"right", width : 50, sortable : true, dataIndex: 'a4'},
+        { text : '大',  align:"right", width : 50, sortable : true, dataIndex:  'dt'},
+        { text : '小计', align:"right", width : 50, sortable : true, dataIndex:  'xj'},
+        { text : '封',  align:"right", width : 50, sortable : true, dataIndex: 'ml00'},
+        { text : '卷',  align:"right", width : 50, sortable : true, dataIndex: 'mljn'},
+        { text : '正文', align:"right", width : 50, sortable : true, dataIndex: 'smyx', renderer:zeroRenderer},
+        { text : '备',  align:"right", width : 50, sortable : true, dataIndex: 'mlbk'},
+        { text : '旧封', align:"right", width : 50, sortable : true, dataIndex: 'jn00'},
+        { text : '旧卷', align:"right", width : 50, sortable : true, dataIndex: 'jnjn'},
+        { text : '旧备', align:"right", width : 50, sortable : true, dataIndex: 'jnbk'},
+        { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt'}
+      ],
+      width :  800,
+      height : 350,
+      columnLines: true,
+      layout: 'fit',
+      viewConfig: {
+        stripeRows:true,
+        //getRowClass: function(rec, rowIdx, params, store) {
+        //  return rec.get('zt').length == 0 ? 'red-row' : '';
+        //}
+        getRowClass: function(record, rowIndex, rowParams, store){
+          return 'x-grid-back-red';
+        }
+      }
+    });
+    
+    muluStaticGrid.hide();
+    
+    // muluStaticGrid.getStore().on('load',function(s,records){
+    //   var girdcount=0;
+    //   s.each(function(r){
+    //       if(r.get('zt')=='空卷'){
+    //           muluStaticGrid.getView().getRow(girdcount).style.backgroundColor='#FFFF00';
+    //       }else if(r.get('zy')=='本年累计'){
+    //          // grid.getView().getRow(girdcount).style.backgroundColor='#FF1493';
+    //       }else if(r.get('zy')=='期初余额'){
+    //         // grid.getView().getRow(girdcount).style.backgroundColor='#DCDCDC';
+    //       }
+    //       girdcount=girdcount+1;
+    //   });
+    // });
     
     /*
     archiveGrid.on("select", function(node){
@@ -840,9 +955,10 @@ Ext.define('MyDesktop.PrintData', {
               border: false,
               items:[{
                 region:"center",
-                //title:"Grid",
+                id : "center_grid",
                 layout:"fit",
                 autoScroll : true,
+                /*
                 bbar:[
                   new Ext.PagingToolbar({
                     store: archive_store,
@@ -855,185 +971,13 @@ Ext.define('MyDesktop.PrintData', {
                     prependButtons: true
                   })
                 ],
+                */
                 tbar:[
                   {
                     text:'虚拟打印',
                     tooltip:'',
                     iconCls:'print',
                     handler: function() {
-                      /*
-                      var dqaj = -1 ;
-                      var pr_task = {
-                        run: function(){
-                          var panel = Ext.getCmp('print_panel_id');
-                          if (panel == undefined) {
-                            Ext.TaskManager.stop(pr_task);
-                          } 
-                          else 
-                          {
-                            var form = Ext.getCmp('print_panel_id').getForm();
-                            pars = form.getValues();
-                            new Ajax.Request("/desktop/get_print_status", { 
-                              method: "POST",
-                              parameters: pars,
-                              onComplete:  function(request) {
-                                var p = Ext.getCmp('print_progressbar_id');
-
-                                // ss = 12/10/15/msg
-                                var ss = request.responseText.split('|');
-                                if (parseInt(ss[0]) > dqaj) {
-                                  p.updateProgress((ss[0]-ss[1])/(ss[2]-ss[1]+1), "正在打印卷 "+ss[0]);
-                                  dqaj = parseInt(ss[0]);
-                                }
-
-                                if (ss[3] == '打印完成') {
-                                  Ext.TaskManager.stop(pr_task);
-                                  var form =Ext.getCmp('print_panel_id').getForm();
-                                  form.findField('progress_text_id').setValue("");
-                                  p.updateProgress(1);
-                                  p.updateText('打印完成!');
-                                }  
-                              }
-                            });
-                          } 
-                        },
-                        interval: 1000 //1 second
-                      }
-                      var print_wizard = function() {
-
-                        var printPanel = new Ext.form.FormPanel({
-                          id : 'print_panel_id',
-                          labelWidth:40,
-                          //bodyStyle:"padding:35px;",
-                          bodyPadding: 10,
-                          items:[
-                          {
-                            xtype:"textfield",
-                            name:"qzh",
-                            fieldLabel:"全宗号",
-                            anchor:"95%"
-                          },{
-                            xtype:"textfield",
-                            name:"mlh",
-                            fieldLabel:"目录号",
-                            anchor:"95%"
-                          },{
-                            xtype:"textfield",
-                            name:"dalb",
-                            fieldLabel:"档案类别",
-                            anchor:"95%"
-                          },{
-                            xtype:"textfield",
-                            name:"qajh",
-                            fieldLabel:"始案件号",
-                            anchor:"95%"
-                          },{
-                            xtype:"textfield",
-                            name:"zajh",
-                            fieldLabel:"止案件号",
-                            anchor:"95%"
-                          },{
-                            xtype: 'checkboxgroup',
-                            fieldLabel: '打印范围',
-                            // Arrange radio buttons into two columns, distributed vertically
-                            columns: 4,
-                            name:"dyfw",
-                            //height: 50,
-                            vertical: true,
-                            anchor:"95%",
-                            items: [
-                              { boxLabel: '封面', name: 'dylb-1',  checked: true},
-                              { boxLabel: '卷内', name: 'dylb-2',  checked: true},
-                              { boxLabel: '图像', name: 'dylb-3',  checked: false},
-                              { boxLabel: '备考', name: 'dylb-4',  checked: true}
-                            ]
-                          },{
-                            xtype: 'displayfield',
-                            //value: '请稍等...',
-                            name : 'progress_text_id',
-                            anchor: '95%'
-                          },{
-                            xtype: 'progressbar',
-                            value: 0.0,
-                            id : 'print_progressbar_id',
-                            anchor:"95%"
-                          }
-                          ]        
-                        });
-
-                        var printWin = new Ext.Window({
-                          id : 'print_wizard_win',
-                          iconCls : 'print',
-                          title: '打印向导',
-                          floating: true,
-                          shadow: true,
-                          draggable: true,
-                          //closeAction:'hide',
-                          //minimizable:true,
-                          //closable: false,
-                          modal: false,
-                          width: 400,
-                          height: 300,
-                          layout: 'fit',
-                          plain: true,
-                          items:printPanel,
-                          buttons: [{
-                            text: '确认',
-                            handler: function() {
-                              var dqaj = 0;
-
-                              var p = Ext.getCmp('print_progressbar_id');
-                              var form = Ext.getCmp('print_panel_id').getForm();
-                              pars = form.getValues();
-                              new Ajax.Request("/desktop/print_wizard", { 
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  Ext.TaskManager.start(pr_task);
-                                }
-                              });
-
-                            }
-                          },{
-                            text: '隐藏',
-                            handler : function() {
-                              Ext.getCmp('print_wizard_win').hide();
-                              Ext.TaskManager.stop(pr_task);
-                            }
-                          }]
-                        });
-
-                        printWin.show();
-
-                      };
-                      select = archiveGrid.selModel.selected.items[0];
-                      if (select == undefined) {
-                        msg('提示','请先选择一个案卷');
-                      } else {
-                        if (Ext.getCmp('print_wizard_win') != undefined) {
-                          Ext.getCmp('print_wizard_win').show();
-                          Ext.TaskManager.start(pr_task);
-                        } 
-                        else 
-                        {                       
-                          print_wizard();
-
-                          //设置
-                          var data = archiveGrid.selModel.selected.items[0].data;
-
-                          //get
-                          var form =Ext.getCmp('print_panel_id').getForm();
-                          form.findField('qzh').setValue(data.qzh);
-                          form.findField('mlh').setValue(data.mlh);
-                          form.findField('dalb').setValue(data.dalb);
-
-                          form.findField('qajh').setValue("1");
-                          form.findField('zajh').setValue(archive_store.totalCount);
-                        } 
-                        //form.findField('progress_text_id').setValue("请稍等...");
-                      }
-                      */
-                      
                       var tree = Ext.getCmp('pd_treepanel_id');
                       var node = tree.getSelectionModel().selected;
                       
@@ -1481,192 +1425,7 @@ Ext.define('MyDesktop.PrintData', {
                     tooltip:'',
                     iconCls:'import',
                     handler: function() {
-                      
-                      /*
-                      var tree = Ext.getCmp('pd_treepanel_id');
-                      var node = tree.getSelectionModel().selected;
-                      if (node.items.size() == 0) {
-                        msg('提示', '请先选择一个目录！');
-                      } else {
-                        var data = node.items[0].data; // data.id, data.parent, data.text, data.leaf
-                        //tree_id = data.id;
-                        if (data.leaf) {
-                          //show windows
-                          if (Ext.getCmp('add_yx_win_id') != undefined){
-                            Ext.getCmp('add_yx_win_id').show();
-                          } 
-                          else 
-                          {
-                          //popup a dialog box, let user decide -- qzh_mlh /share/江宁国土/qzh_mlh/images 
-                            var add_yxwin = function () {
-                              var yx_win = new Ext.Window({
-                                id : 'add_yx_win_id',
-                                iconCls : 'add',
-                                title: '新增影像',
-                                floating: true,
-                                shadow: true,
-                                draggable: true,
-                                closable: true,
-                                modal: true,
-                                width: 400,
-                                height: 250,
-                                layout: 'fit',
-                                plain: true,
-                                items:  [{
-                                  id : 'yx_panel_id',
-                                  labelWidth:30,
-                                  bodyStyle:"padding:25px;",
-                                  xtype:'form',
-                                  items:[{
-                                      xtype: 'displayfield',
-                                      value: '请将文件复制到下面目录...',
-                                      anchor:"95%"
-                                    },{
-                                      xtype:"textfield",
-                                      name:"yxwz",
-                                      fieldLabel:"影像位置",
-                                      width: 330
-                                    },{
-                                      xtype:"textarea",
-                                      name:"ysml",
-                                      fieldLabel:"映射命令",
-                                      width: 330,
-                                      height: 50
-                                    },{
-                                      xtype: 'displayfield',
-                                      name:'yx_prompt_text_id',
-                                      value: '文件复制进度',
-                                      anchor:"95%"
-                                    },{
-                                      xtype: 'progressbar',
-                                      id : 'yx_progressbar_id',
-                                      fieldLabel:"当前进度",
-                                      value: 0.0,
-                                      width: 330
-                                    },{
-                                      xtype: 'textfield',
-                                      name: 'dwdm',
-                                      hidden:true
-                                    },{
-                                      xtype: 'textfield',
-                                      name: 'ztps',  //zong tu pian shu
-                                      hidden:true
-                                    }]    
-                                }],
-                                buttons: [{
-                                  text: '查询',
-                                  handler: function() {
-                                    current_img = -1;
-                                    var form = Ext.getCmp('yx_panel_id').getForm();
 
-                                    if(form.isValid()){
-                                      pars = form.getValues();
-                                      new Ajax.Request("/desktop/get_upload_status", { 
-                                        method: "POST",
-                                        parameters: pars,
-                                        onComplete:  function(request) {
-                                          var p = Ext.getCmp('yx_progressbar_id');
-                                          var ss = request.responseText.split('|');
-                                          if (parseInt(ss[0]) > current_img) {
-                                            p.updateProgress(ss[0]/ss[1], "正在复制"+ss[0]+"/"+ss[1]);
-                                            current_img = parseInt(ss[0]);
-                                          }  
-                                        }
-                                      });
-                                    }
-                                  }
-                                },{
-                                  text: '入库',
-                                  handler: function() {
-                                    var node = Ext.getCmp('pd_treepanel_id').selModel.getSelection();
-                                    if (node.size() > 0) {
-                                      pars = {id:node[0].data.id};
-                                      //可能是一个目录，也可能是多个目录
-                                      new Ajax.Request("/desktop/prepare_upload_info", { 
-                                        method: "POST",
-                                        parameters: pars,
-                                        onComplete:  function(request) {
- 
-                                        }
-                                      });
-                                    }
-                                  }
-                                },{
-                                  text: '隐藏',
-                                  handler: function() {
-                                    Ext.getCmp('add_yx_win_id').hide();
-                                  }
-                                }]
-                              });
-
-
-                              yx_win.show();
-
-                              var pars={id:archive_id};
-                              new Ajax.Request("/desktop/get_upload_info", {
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  var dd = eval(request.responseText)[0];
-                                  var form = Ext.getCmp('yx_panel_id').getForm();
-                                  form.findField('yxwz').setValue(dd.save_path);
-                                  form.findField('dwdm').setValue(dd.dwdm);
-                                  form.findField('ztps').setValue(dd.total_pics);
-                                  form.findField('ysml').setValue('net use z: \\\\'+dd.map_ip+'\\share jy123 /user:jyuser');
-                                }
-                              });                       
-
-                            }
-
-                            var current_img = -1;
-                            var yx_task = {
-                              run: function(){
-                                if (Ext.getCmp('yx_panel_id') == undefined) {
-                                  Ext.TaskManager.stop(yx_task);
-                                } 
-                                else
-                                { 
-                                  var form = Ext.getCmp('yx_panel_id').getForm()
-                                  if(form.isValid()){
-                                    pars = form.getValues();
-
-                                    if (pars.dwdm != "") {
-                                      new Ajax.Request("/desktop/get_upload_status", { 
-                                        method: "POST",
-                                        parameters: pars,
-                                        onComplete:  function(request) {
-                                          var p = Ext.getCmp('yx_progressbar_id');
-                                          var ss = request.responseText.split('|');
-                                          if (parseInt(ss[0]) > current_img) {
-                                            p.updateProgress(ss[0]/ss[1], "正在复制"+ss[0]+"/"+ss[1]);
-                                            current_img = parseInt(ss[0]);
-                                          } 
-
-                                          if (ss[0] == ss[1]) {
-                                            Ext.TaskManager.stop(yx_task);
-                                            var form =Ext.getCmp('yx_panel_id').getForm();
-                                            form.findField('yx_prompt_text_id').setValue("");
-                                            p.updateProgress(1);
-                                            p.updateText('上传完成!');
-                                          } 
-                                      }
-                                    });
-                                    }
-                                  }
-                                }
-                              },
-                              interval: 5000 //1 second
-                            }
-                            add_yxwin();
-                            Ext.TaskManager.start(yx_task);
-                          } 
-
-                        } else {
-                          msg('提示', '请先选择一个目录！');
-                        }                     
-                      }
-                      */
-                      
                       var import_status = function() {
                         
                         Ext.regModel('drzt_model', {
@@ -1882,6 +1641,7 @@ Ext.define('MyDesktop.PrintData', {
                   },'-', {
                     text:'单卷生成',
                     tooltip:'',
+                    hidden: true,
                     iconCls:'x-tree-icon-leaf',
                     handler: function() {
                       var pars={id:archive_id};
@@ -1898,8 +1658,9 @@ Ext.define('MyDesktop.PrintData', {
                         }
                       });
                     }
-                  },'-', {
-                    text:'打印输出',
+                  },
+                  {
+                    text:'封面套打',
                     tooltip:'',
                     iconCls:'x-tree-icon-leaf',
                     handler: function() {
@@ -2216,151 +1977,44 @@ Ext.define('MyDesktop.PrintData', {
                       print_setting();
 
                     }                    
-                  },{
+                  },'-',
+                  {
                     text:'目录统计',
                     tooltip:'',
                     iconCls:'x-tree-icon-leaf',
                     handler: function() {
                       
-                      var show_mulu_statistic = function() {
-                        Ext.regModel('mulu_model', {
-                          fields: [
-                            {name: 'id',    type: 'integer'},
-                            {name: 'dh',    type: 'string'},
-                            {name: 'ajh',   type: 'string'},
-                            {name: 'ajys',  type: 'string'},
-                            {name: 'ml00',  type: 'string'},
-                            {name: 'mlbk',  type: 'string'},
-                            {name: 'mljn',  type: 'string'},
-                            {name: 'jn00',  type: 'string'},
-                            {name: 'jnbk',  type: 'string'},
-                            {name: 'jnjn',  type: 'string'},
-                            {name: 'smyx',  type: 'string'},
-                            {name: 'a3',    type: 'string'},
-                            {name: 'a4',    type: 'string'},
-                            {name: 'dt',    type: 'string'},
-                            {name: 'zt',    type: 'string'}
-                          ]
-                        });
-
-                        mulu_store = Ext.create('Ext.data.Store', {
-                          model : 'mulu_model',
-                          proxy: {
-                            type: 'ajax',
-                            url : '/desktop/get_mulu_store',
-                            extraParams: {dh:""},
-                            reader: {
-                              type: 'json',
-                              root: 'rows',
-                              totalProperty: 'results'
-                            }
-                          }
-                        });
-                        
-                        var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
-                        
-                        mulu_store.proxy.extraParams = {dh:dh};
-                        mulu_store.load();
-                                                  
-                        var muluStaticGrid = new Ext.grid.GridPanel({
-                          id: 'mulu-stat-grid',
-                          store: mulu_store,
-                          columns: [
-                            { text : 'id',  width : 15, sortable : true, dataIndex: 'id', hidden: true},
-                            { text : '档号',  width : 80, sortable : true, dataIndex: 'dh'},
-                            { text : '页数',  width : 40, sortable : true, dataIndex: 'ajys'},
-                            { text : 'A3',  width : 40, sortable : true, dataIndex: 'a3'},
-                            { text : 'A4',  width : 40, sortable : true, dataIndex: 'a4'},
-                            { text : '大',   width : 40, sortable : true, dataIndex:  'dt'},
-                            { text : '小计',  width : 40, sortable : true, dataIndex:  'xj'},
-                            { text : '封',   width : 40, sortable : true, dataIndex: 'ml00'},
-                            { text : '卷',   width : 40, sortable : true, dataIndex: 'mljn'},
-                            { text : '正文',  width : 40, sortable : true, dataIndex: 'smyx'},
-                            { text : '备',   width : 40, sortable : true, dataIndex: 'mlbk'},
-                            { text : '旧封',  width : 40, sortable : true, dataIndex: 'jn00'},
-                            { text : '旧卷',  width : 40, sortable : true, dataIndex: 'jnjn'},
-                            { text : '旧备',  width : 40, sortable : true, dataIndex: 'jnbk'},
-                            { text : '状态',  width : 40, sortable : true, dataIndex: 'zt'}
-                          ],
-                          width : 630,
-                          layout: 'fit',
-                          height : 330,
-                          viewConfig: {
-                            stripeRows:true,
-                            //getRowClass: function(rec, rowIdx, params, store) {
-                            //  return rec.get('zt').length == 0 ? 'red-row' : '';
-                            //}
-                            getRowClass: function(record, rowIndex, rowParams, store){
-                              return 'x-grid-back-red';
-                            }
-                          }
-                        });
-                        
-                        
-                       // muluStaticGrid.getStore().on('load',function(s,records){
-                       //   var girdcount=0;
-                       //   s.each(function(r){
-                       //       if(r.get('zt')=='空卷'){
-                       //           muluStaticGrid.getView().getRow(girdcount).style.backgroundColor='#FFFF00';
-                       //       }else if(r.get('zy')=='本年累计'){
-                       //          // grid.getView().getRow(girdcount).style.backgroundColor='#FF1493';
-                       //       }else if(r.get('zy')=='期初余额'){
-                       //         // grid.getView().getRow(girdcount).style.backgroundColor='#DCDCDC';
-                       //       }
-                       //       girdcount=girdcount+1;
-                       //   });
-                       // });
-                        
-                        var muluPanel = new Ext.form.FormPanel({
-                          id : 'stats_panel_id',
-                          labelWidth:40,
-                          //bodyStyle:"padding:35px;",
-                          bodyPadding: 3,
-                          layout : 'fit',
-                          items:muluStaticGrid      
-                        });
-
-                        var muluStatWin = new Ext.Window({
-                          id : 'show_mulu_stat_win',
-                          iconCls : 'print',
-                          title: '目录统计',
-                          floating: true,
-                          shadow: true,
-                          draggable: true,
-                          //closeAction:'hide',
-                          //minimizable:true,
-                          //closable: false,
-                          modal: false,
-                          width: 650,
-                          height: 400,
-                          layout: 'fit',
-                          plain: true,
-                          items:[muluPanel],
-                          buttons: [{
-                            text: '统计',
-                            handler : function() {
-                              pars = {dh:dh};
-                              new Ajax.Request("/desktop/update_timage_tj", { 
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  Ext.TaskManager.start(pr_task);
-                                }
-                              });
-                            }
-                          },{
-                            text: '关闭',
-                            handler : function() {
-                              Ext.getCmp('show_mulu_stat_win').close();
-                            }
-                          }]
-                        });
-                        muluStatWin.show();
+                      if (muluStaticGrid.isVisible()) {
+                        muluStaticGrid.hide();
+                        archiveGrid.show();
+                        archiveGrid.width  = archiveGrid.up().getWidth();
+                        archiveGrid.height = archiveGrid.up().getHeight();
+                        documentGrid.width = archiveGrid.up().getWidth();
+                      } else {
+                        archiveGrid.hide();
+                        muluStaticGrid.show();
+                        muluStaticGrid.width = muluStaticGrid.up().getWidth();
+                        muluStaticGrid.height = muluStaticGrid.up().getHeight();
                       }
-                      
-                      show_mulu_statistic();
-                      
                     }
+                  },
+                  {
+                    //text:'目录更新',
+                    tooltip:'',
+                    iconCls:'x-tbar-loading',
+                    //iconCls:'x-tree-icon-leaf',
+                    handler: function() {
+                      var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
+                      var pars={dh:dh};
+                      new Ajax.Request("/desktop/update_timage_tj", {
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          mulu_store.proxy.extraParams = {dh:dh};
+                          mulu_store.load();
+                        }
+                      });
+                    }                   
                   },'->',
                   new Ext.form.TextField({
                     width:200,
@@ -2378,7 +2032,7 @@ Ext.define('MyDesktop.PrintData', {
                 ],
                 items:[{
                   layout:"fit",
-                  items: archiveGrid, 
+                  items: [archiveGrid, muluStaticGrid], 
                   border : false
                 }]
                 },{
