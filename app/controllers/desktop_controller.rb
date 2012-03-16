@@ -1555,17 +1555,31 @@ class DesktopController < ApplicationController
     dylb += 2 if !params['dylb-3'].nil?
     dylb += 1 if !params['dylb-4'].nil?
     
-    users = User.find_by_sql("select distinct mlh from archive where qzh='#{qzh}' and dalb='#{dalb}' order by mlh;")
-    
-    for k in 0..users.size-1 
-      mlh = users[k].mlh
-      dydh = "#{qzh}_#{dalb}_#{mlh}"
-      User.find_by_sql("delete from  p_status where dydh='#{dydh}';")
+    if (dalb=='*') 
+      users = User.find_by_sql("select distinct mlh, dalb from archive where qzh='#{qzh}' order by mlh;")
+
+      for k in 0..users.size-1 
+        mlh, dalb = users[k].mlh, users[k].dalb
+        dydh = "#{qzh}_#{dalb}_#{mlh}"
+        User.find_by_sql("delete from  p_status where dydh='#{dydh}';")
+
+        User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '1', '5', '未打印', '#{sprintf("%02b", dylb)}');")
+      end
       
-      user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
-      data =user[0]
-      User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '#{data['min']}', '#{data['max']}', '未打印', '#{sprintf("%02b", dylb)}');")
-    end 
+    else
+      
+      users = User.find_by_sql("select distinct mlh from archive where qzh='#{qzh}' and dalb='#{dalb}' order by mlh;")
+    
+      for k in 0..users.size-1 
+        mlh = users[k].mlh
+        dydh = "#{qzh}_#{dalb}_#{mlh}"
+        User.find_by_sql("delete from  p_status where dydh='#{dydh}';")
+      
+        user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
+        data =user[0]
+        User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '#{data['min']}', '#{data['max']}', '未打印', '#{sprintf("%02b", dylb)}');")
+      end 
+    end
     
     render :text => 'Success'
 	end

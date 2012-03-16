@@ -814,10 +814,17 @@ Ext.define('MyDesktop.PrintData', {
     
     var zeroRenderer = function(val) {
       if (val > 0) {
-          return '<span style="color:green;">' + val + '</span>';
+          return '<span style="color:blue;">' + val + '</span>';
       } else if (val == 0) {
-          return '<span style="color:red;">' + val + '</span>';
+          return '<span style="color:gray;">' + val + '</span>';
       }
+      return val;
+    }
+    
+    var ztRenderer = function(val) {
+      if (val == "空卷") {
+          return '<span style="color:red;">' + val + '</span>';
+      } 
       return val;
     }
     
@@ -826,33 +833,33 @@ Ext.define('MyDesktop.PrintData', {
       store: mulu_store,
       columns: [
         { text : 'id', align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
-        { text : '档号', align:"left", width : 100, sortable : true, dataIndex: 'dh'},
-        { text : '页数', align:"right", width : 50, sortable : true, dataIndex: 'ajys'},
-        { text : 'A3', align:"right", width : 50, sortable : true, dataIndex: 'a3'},
-        { text : 'A4', align:"right", width : 50, sortable : true, dataIndex: 'a4'},
-        { text : '大',  align:"right", width : 50, sortable : true, dataIndex:  'dt'},
-        { text : '小计', align:"right", width : 50, sortable : true, dataIndex:  'xj'},
-        { text : '封',  align:"right", width : 50, sortable : true, dataIndex: 'ml00'},
-        { text : '卷',  align:"right", width : 50, sortable : true, dataIndex: 'mljn'},
-        { text : '正文', align:"right", width : 50, sortable : true, dataIndex: 'smyx', renderer:zeroRenderer},
-        { text : '备',  align:"right", width : 50, sortable : true, dataIndex: 'mlbk'},
-        { text : '旧封', align:"right", width : 50, sortable : true, dataIndex: 'jn00'},
-        { text : '旧卷', align:"right", width : 50, sortable : true, dataIndex: 'jnjn'},
-        { text : '旧备', align:"right", width : 50, sortable : true, dataIndex: 'jnbk'},
-        { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt'}
+        { text : '档号', align:"left", width : 90, sortable : true, dataIndex: 'dh'},
+        { text : '页数', align:"right", width : 40, sortable : true, dataIndex: 'ajys'},
+        { text : 'A3', align:"right", width : 40, sortable : true, dataIndex: 'a3',   renderer:zeroRenderer},
+        { text : 'A4', align:"right", width : 40, sortable : true, dataIndex: 'a4',   renderer:zeroRenderer},
+        { text : '大',  align:"right", width : 40, sortable : true, dataIndex:  'dt',  renderer:zeroRenderer},
+        { text : '小计', align:"right", width : 40, sortable : true, dataIndex:  'xj'},
+        { text : '封',  align:"right", width : 40, sortable : true, dataIndex: 'ml00', renderer:zeroRenderer},
+        { text : '卷',  align:"right", width : 40, sortable : true, dataIndex: 'mljn', renderer:zeroRenderer},
+        { text : '正文', align:"right", width : 40, sortable : true, dataIndex: 'smyx', renderer:zeroRenderer},
+        { text : '备',  align:"right", width : 40, sortable : true, dataIndex: 'mlbk', renderer:zeroRenderer},
+        { text : '旧封', align:"right", width : 40, sortable : true, dataIndex: 'jn00'},
+        { text : '旧卷', align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
+        { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
+        { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
       ],
       width :  800,
       height : 350,
       columnLines: true,
       layout: 'fit',
       viewConfig: {
-        stripeRows:true,
+        stripeRows:true
         //getRowClass: function(rec, rowIdx, params, store) {
         //  return rec.get('zt').length == 0 ? 'red-row' : '';
         //}
-        getRowClass: function(record, rowIndex, rowParams, store){
-          return 'x-grid-back-red';
-        }
+        //getRowClass: function(record, rowIndex, rowParams, store){
+        //  return 'x-grid-back-red';
+        //}
       }
     });
     
@@ -945,1222 +952,1255 @@ Ext.define('MyDesktop.PrintData', {
         items: [{
           layout:"border",
           items:[{
-            region:"center",
-            //title:"Center",
-            layout:"fit",
-            border: false,
-            split:true,
-            items:[{
-              layout:"border",
+              region:"center",
+              layout:"fit",
               border: false,
+              split:true,
               items:[{
-                region:"center",
-                id : "center_grid",
-                layout:"fit",
-                autoScroll : true,
-                /*
-                bbar:[
-                  new Ext.PagingToolbar({
-                    store: archive_store,
-                    pageSize: 25,
-                    width : 350,
-                    border : false,
-                    displayInfo: true,
-                    displayMsg: '{0} - {1} of {2}',
-                    emptyMsg: "没有找到！",
-                    prependButtons: true
-                  })
-                ],
-                */
-                tbar:[
-                  {
-                    text:'虚拟打印',
-                    tooltip:'',
-                    iconCls:'print',
-                    handler: function() {
-                      var tree = Ext.getCmp('pd_treepanel_id');
-                      var node = tree.getSelectionModel().selected;
+                layout:"border",
+                border: false,
+                items:[{
+                  region:"center",
+                  id : "center_grid",
+                  layout:"fit",
+                  autoScroll : true,
+                  tbar:[{
+                      text:'虚拟打印',
+                      tooltip:'',
+                      iconCls:'print',
+                      handler: function() {
+                        var tree = Ext.getCmp('pd_treepanel_id');
+                        var node = tree.getSelectionModel().selected;
                       
-                      var print_status = function() {
+                        var print_status = function() {
                         
-                        Ext.regModel('dyzt_model', {
-                          fields: [
-                            {name: 'id',     type: 'integer'},
-                            {name: 'dydh',     type: 'string'},
-                            {name: 'mlh',     type: 'string'},
-                            {name: 'dqjh',     type: 'string'},
-                            {name: 'qajh',     type: 'string'},
-                            {name: 'zajh',     type: 'string'},
-                            {name: 'dylb',     type: 'string'},
-                            {name: 'dyzt',     type: 'string'}
-                          ]
-                        });
+                          Ext.regModel('dyzt_model', {
+                            fields: [
+                              {name: 'id',     type: 'integer'},
+                              {name: 'dydh',     type: 'string'},
+                              {name: 'mlh',     type: 'string'},
+                              {name: 'dqjh',     type: 'string'},
+                              {name: 'qajh',     type: 'string'},
+                              {name: 'zajh',     type: 'string'},
+                              {name: 'dylb',     type: 'string'},
+                              {name: 'dyzt',     type: 'string'}
+                            ]
+                          });
                         
-                        var dyzt_store =  Ext.create('Ext.data.Store', {
-                          model : 'dyzt_model',
-                          proxy: {
-                            type: 'ajax',
-                            url : '/desktop/get_dyzt_store',
-                            extraParams: {id:""},
-                            reader: {
-                              type: 'json',
-                              root: 'rows',
-                              totalProperty: 'results'
+                          var dyzt_store =  Ext.create('Ext.data.Store', {
+                            model : 'dyzt_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_dyzt_store',
+                              extraParams: {id:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
                             }
-                          }
-                        });
+                          });
                         
-                        dyzt_store.load();
+                          dyzt_store.load();
                         
-                        var dyzt_grid = new Ext.grid.GridPanel({
-                             // more config options clipped //,
-                             title: '状态列表',
-                             store: dyzt_store,
-                             id : 'dyzt_grid_id',
-                             columns: [{
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'id',
-                                 hidden: true
+                          var dyztRender = function(val) {
+                            if (val == "未打印") {
+                                return '<span style="color:red;">' + val + '</span>';
+                            } else if (val == "正在打印") {
+                                return '<span style="color:blue;">' + val + '</span>';
+                            } else {
+                               return '<span style="color:gray;">' + val + '</span>';
+                            }
+                            return val;                          
+                          };
+                        
+                          var dyzt_grid = new Ext.grid.GridPanel({
+                               // more config options clipped //,
+                               title: '状态列表',
+                               store: dyzt_store,
+                               id : 'dyzt_grid_id',
+                               columns: [{
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'id',
+                                   hidden: true
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'dydh',
+                                   text: '档号',
+                                   width: 60
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'mlh',
+                                   text: '目录号',
+                                   width: 60
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'qajh',
+                                   text: '起案件号',
+                                   width: 60
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'zajh',
+                                   text: '止案件号',
+                                   width: 60
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'dqjh',
+                                   text: '当前件号',
+                                   width: 60
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'dylb',
+                                   text: '打印选项',
+                                   width: 60
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'dyzt',
+                                   text: '打印状态',
+                                   width: 60,
+                                   renderer : dyztRender
+                               }],
+                               //selModel : {selType:'cellmodel'},
+                               selType:'checkboxmodel',
+                               multiSelect:true,
+                               viewConfig: {
+                                 stripeRows:true
                                },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'dydh',
-                                 text: '档号',
-                                 width: 60
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'mlh',
-                                 text: '目录号',
-                                 width: 60
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'qajh',
-                                 text: '起案件号',
-                                 width: 60
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'zajh',
-                                 text: '止案件号',
-                                 width: 60
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'dqjh',
-                                 text: '当前件号',
-                                 width: 60,
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'dylb',
-                                 text: '打印选项',
-                                 width: 60,
-                               },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'dyzt',
-                                 text: '打印状态',
-                                 width: 60,
-                             }],
-                             //selModel : {selType:'cellmodel'},
-                             selType:'checkboxmodel',
-                             multiSelect:true,
-                             viewConfig: {
-                               stripeRows:true
-                             },
-                             tbar : [{
-                                 text : '添加任务',
-                                 handler : function() {
-                                   select = archiveGrid.selModel.selected.items[0];
-                                   if (select == undefined) {
-                                     msg('提示','请先选择一个案卷');
-                                   } else {
-                                      
-                                      var add_print_task = function() {
-
-                                        var printPanel = new Ext.form.FormPanel({
-                                          id : 'print_panel_id',
-                                          labelWidth:40,
-                                          //bodyStyle:"padding:35px;",
-                                          bodyPadding: 10,
-                                          items:[
-                                          {
-                                            xtype:"textfield",
-                                            name:"qzh",
-                                            fieldLabel:"全宗号",
-                                            anchor:"95%"
-                                          },{
-                                            xtype:"textfield",
-                                            name:"mlh",
-                                            fieldLabel:"目录号",
-                                            anchor:"95%"
-                                          },{
-                                            xtype:"textfield",
-                                            name:"dalb",
-                                            fieldLabel:"档案类别",
-                                            anchor:"95%"
-                                          },{
-                                            xtype:"textfield",
-                                            name:"qajh",
-                                            fieldLabel:"始案件号",
-                                            anchor:"95%"
-                                          },{
-                                            xtype:"textfield",
-                                            name:"zajh",
-                                            fieldLabel:"止案件号",
-                                            anchor:"95%"
-                                          },{
-                                            xtype: 'checkboxgroup',
-                                            fieldLabel: '打印范围',
-                                            // Arrange radio buttons into two columns, distributed vertically
-                                            columns: 4,
-                                            name:"dyfw",
-                                            //height: 50,
-                                            vertical: true,
-                                            anchor:"95%",
-                                            items: [
-                                              { boxLabel: '封面', name: 'dylb-1',  checked: true},
-                                              { boxLabel: '卷内', name: 'dylb-2',  checked: true},
-                                              { boxLabel: '图像', name: 'dylb-3',  checked: false},
-                                              { boxLabel: '备考', name: 'dylb-4',  checked: true}
-                                            ]
-                                          }
-                                          ]        
-                                        });
-
-                                        var addPrintWin = new Ext.Window({
-                                          id : 'print_wizard_win',
-                                          iconCls : 'print',
-                                          title: '打印向导',
-                                          floating: true,
-                                          shadow: true,
-                                          draggable: true,
-                                          //closeAction:'hide',
-                                          //minimizable:true,
-                                          //closable: false,
-                                          modal: false,
-                                          width: 400,
-                                          height: 300,
-                                          layout: 'fit',
-                                          plain: true,
-                                          items:printPanel,
-                                          tbar : [{
-                                              text : '下一个目录',
-                                              handler : function() {
-                                                var form = Ext.getCmp('print_panel_id').getForm();
-                                                pars = form.getValues();
-                                                new Ajax.Request("/desktop/get_next_mulu", { 
-                                                  method: "POST",
-                                                  parameters: pars,
-                                                  onComplete:  function(request) {
-                                                    data = eval(request.responseText);
-                                                    if (data.zajh > 0) {
-                                                      form.findField('dalb').setValue(data.dalb);
-                                                      form.findField('mlh').setValue(data.mlh);
-                                                      form.findField('qajh').setValue(data.qajh);
-                                                      form.findField('zajh').setValue(data.zajh);
-                                                    }
-                                                  }
-                                                });
-                                              }
-                                            },'-',{
-                                              text : '上一个目录',
-                                              hander : function() {
-                                                var form = Ext.getCmp('print_panel_id').getForm();
-                                                pars = form.getValues();
-                                                new Ajax.Request("/desktop/get_prev_mulu", { 
-                                                  method: "POST",
-                                                  parameters: pars,
-                                                  onComplete:  function(request) {
-
-                                                  }
-                                                });
-                                              }
-                                          }],
-                                          buttons: [{
-                                            text: '添加目录',
-                                            handler: function() {
-                                              var form = Ext.getCmp('print_panel_id').getForm();
-                                              pars = form.getValues();
-                                              new Ajax.Request("/desktop/add_print_task", { 
-                                                method: "POST",
-                                                parameters: pars,
-                                                onComplete:  function(request) {
-                                                  dyzt_store.load();
-                                                }
-                                              });
-                                            }
-                                          },{
-                                            text: '添加全部',
-                                            handler : function () {
-                                              var form = Ext.getCmp('print_panel_id').getForm();
-                                              pars = form.getValues();
-                                              new Ajax.Request("/desktop/add_print_task_all", { 
-                                                method: "POST",
-                                                parameters: pars,
-                                                onComplete:  function(request) {
-                                                  dyzt_store.load();
-                                                }
-                                              });
-                                            }
-                                          },{
-                                            text: '关闭',
-                                            handler : function() {
-                                              Ext.getCmp('print_wizard_win').close();
-                                              dyzt_store.load();
-                                            }
-                                          }]
-                                        });
-                                        addPrintWin.show();
-                                      };
-                                      
-                                      add_print_task();
-                                      
-                                      //设置
-                                      var node = archiveGrid.selModel.selected;
-                                      
-                                      if (node.length > 0) {
-                                        data = node.items[0].data;
-                                        //get
-                                        var form =Ext.getCmp('print_panel_id').getForm();
-                                        form.findField('qzh').setValue(data.qzh);
-                                        form.findField('mlh').setValue(data.mlh);
-                                        form.findField('dalb').setValue(data.dalb);
-
-                                        form.findField('qajh').setValue("1");
-                                        form.findField('zajh').setValue(archive_store.totalCount);
-                                        
-                                      }
-
-                                   }
-                                 }
-                               },'-',{
-                                 text : '删除选择',
-                                 handler : function() {
-                                   items = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items;
-                                   id_str = '';
-                                   for (var i=0; i < items.length; i ++) {
-                                     if (i==0) {
-                                       id_str = id_str+items[i].data.id 
+                               tbar : [{
+                                   text : '添加任务',
+                                   handler : function() {
+                                     select = archiveGrid.selModel.selected.items[0];
+                                     if (select == undefined) {
+                                       msg('提示','请先选择一个案卷');
                                      } else {
-                                       id_str = id_str + ',' +items[i].data.id 
+                                      
+                                        var add_print_task = function() {
+
+                                          var printPanel = new Ext.form.FormPanel({
+                                            id : 'print_panel_id',
+                                            labelWidth:40,
+                                            //bodyStyle:"padding:35px;",
+                                            bodyPadding: 10,
+                                            items:[
+                                            {
+                                              xtype:"textfield",
+                                              name:"qzh",
+                                              fieldLabel:"全宗号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"mlh",
+                                              fieldLabel:"目录号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"dalb",
+                                              fieldLabel:"档案类别",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"qajh",
+                                              fieldLabel:"始案件号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"zajh",
+                                              fieldLabel:"止案件号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype: 'checkboxgroup',
+                                              fieldLabel: '打印范围',
+                                              // Arrange radio buttons into two columns, distributed vertically
+                                              columns: 4,
+                                              name:"dyfw",
+                                              //height: 50,
+                                              vertical: true,
+                                              anchor:"95%",
+                                              items: [
+                                                { boxLabel: '封面', name: 'dylb-1',  checked: true},
+                                                { boxLabel: '卷内', name: 'dylb-2',  checked: true},
+                                                { boxLabel: '图像', name: 'dylb-3',  checked: false},
+                                                { boxLabel: '备考', name: 'dylb-4',  checked: true}
+                                              ]
+                                            }
+                                            ]        
+                                          });
+
+                                          var addPrintWin = new Ext.Window({
+                                            id : 'print_wizard_win',
+                                            iconCls : 'print',
+                                            title: '打印向导',
+                                            floating: true,
+                                            shadow: true,
+                                            draggable: true,
+                                            //closeAction:'hide',
+                                            //minimizable:true,
+                                            //closable: false,
+                                            modal: false,
+                                            width: 400,
+                                            height: 300,
+                                            layout: 'fit',
+                                            plain: true,
+                                            items:printPanel,
+                                            tbar : [{
+                                                text : '下一个目录',
+                                                handler : function() {
+                                                  var form = Ext.getCmp('print_panel_id').getForm();
+                                                  pars = form.getValues();
+                                                  new Ajax.Request("/desktop/get_next_mulu", { 
+                                                    method: "POST",
+                                                    parameters: pars,
+                                                    onComplete:  function(request) {
+                                                      data = eval(request.responseText);
+                                                      if (data.zajh > 0) {
+                                                        form.findField('dalb').setValue(data.dalb);
+                                                        form.findField('mlh').setValue(data.mlh);
+                                                        form.findField('qajh').setValue(data.qajh);
+                                                        form.findField('zajh').setValue(data.zajh);
+                                                      }
+                                                    }
+                                                  });
+                                                }
+                                              },'-',{
+                                                text : '上一个目录',
+                                                hander : function() {
+                                                  var form = Ext.getCmp('print_panel_id').getForm();
+                                                  pars = form.getValues();
+                                                  new Ajax.Request("/desktop/get_prev_mulu", { 
+                                                    method: "POST",
+                                                    parameters: pars,
+                                                    onComplete:  function(request) {
+
+                                                    }
+                                                  });
+                                                }
+                                            }],
+                                            buttons: [{
+                                              text: '添加目录',
+                                              handler: function() {
+                                                var form = Ext.getCmp('print_panel_id').getForm();
+                                                pars = form.getValues();
+                                                new Ajax.Request("/desktop/add_print_task", { 
+                                                  method: "POST",
+                                                  parameters: pars,
+                                                  onComplete:  function(request) {
+                                                    dyzt_store.load();
+                                                  }
+                                                });
+                                              }
+                                            },{
+                                              text: '添加全部',
+                                              handler : function () {
+                                                var form = Ext.getCmp('print_panel_id').getForm();
+                                                pars = form.getValues();
+                                                new Ajax.Request("/desktop/add_print_task_all", { 
+                                                  method: "POST",
+                                                  parameters: pars,
+                                                  onComplete:  function(request) {
+                                                    dyzt_store.load();
+                                                  }
+                                                });
+                                              }
+                                            },{
+                                              text: '关闭',
+                                              handler : function() {
+                                                Ext.getCmp('print_wizard_win').close();
+                                                dyzt_store.load();
+                                              }
+                                            }]
+                                          });
+                                          addPrintWin.show();
+                                        };
+                                      
+                                        add_print_task();
+                                      
+                                        //设置
+                                        var node = archiveGrid.selModel.selected;
+                                      
+                                        if (node.length > 0) {
+                                          data = node.items[0].data;
+                                          //get
+                                          var form =Ext.getCmp('print_panel_id').getForm();
+                                          form.findField('qzh').setValue(data.qzh);
+                                          form.findField('mlh').setValue(data.mlh);
+                                          form.findField('dalb').setValue(data.dalb);
+
+                                          form.findField('qajh').setValue("1");
+                                          form.findField('zajh').setValue(archive_store.totalCount);
+                                        
+                                        }
+
                                      }
-                                     
                                    }
-                                   pars = {id:id_str};
-                                   new Ajax.Request("/desktop/delete_print_task", { 
-                                     method: "POST",
-                                     parameters: pars,
-                                     onComplete:  function(request) {
-                                       dyzt_store.load();
-                                     }
-                                   });
-                                 }
-                               },'-',{
-                                 text : '删除完成',
-                                 handler : function() {
-                                   //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                   pars = {}
-                                   new Ajax.Request("/desktop/delete_all_print_task", { 
-                                     method: "POST",
-                                     parameters: pars,
-                                     onComplete:  function(request) {
-                                       dyzt_store.load();
-                                     }
-                                   });
-                                 }
-                               },'-', {
-                                 text : '刷新',
-                                 iconCls : 'x-tbar-loading',
-                                 handler : function() {
-                                   dyzt_store.load();
-                                 }                                 
-                             }]
-                        }); 
-                        
-                        /*
-                        dyzt_store.on('load', function(){
-                          if (dyzt_store.data.length > 0)
-                            dyzt_grid.getSelectionModel().select(0);
-                        });
-                        */
-                        
-                        var dyztPanel = new Ext.form.FormPanel({
-                          id : 'dyzt_panel_id',
-                          labelWidth:40,
-                          //bodyStyle:"padding:35px;",
-                          bodyPadding: 3,
-                          items:[{
-                              xtype: 'tabpanel',
-                              height: 280,
-                              activeTab: 0,
-                              items: [dyzt_grid,{
-
-                              },{
-
-                              }]
-                          }]        
-                        });
-
-                        var dyztWin = new Ext.Window({
-                          id : 'dyzt_win',
-                          iconCls : 'print',
-                          title: '打印状态',
-                          floating: true,
-                          shadow: true,
-                          draggable: true,
-                          //closeAction:'hide',
-                          //minimizable:true,
-                          //closable: false,
-                          modal: false,
-                          width: 500,
-                          height: 350,
-                          layout: 'fit',
-                          plain: true,
-                          items:dyztPanel,
-                          buttons: [{
-                            text: '打印',
-                            handler: function() {
-                              var pars={id:archive_id};
-                              new Ajax.Request("/desktop/start_print_task", { 
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  dyzt_store.load();
-                                }
-                              });
-                            }
-                          },{
-                            text: '关闭',
-                            handler : function() {
-                              Ext.getCmp('dyzt_win').close();
-                            }
-                          }]
-                        });
-
-                        dyztWin.show();
-                        
-                      }
-
-                      print_status();
-                      
-                    }
-                  },'-',
-                  {
-                    text:'封面',
-                    tooltip:'',
-                    iconCls:'add',
-                    hidden:true,
-                    handler: function() {
-                      var pars={id:archive_id};
-                      new Ajax.Request("/desktop/generate_fm", 
-                        { method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            var path = request.responseText;
-                            if (path != '') { 
-                              Ext.getCmp('preview_img').getEl().dom.src = path;
-                            }
-                          }
-                        }); 
-                    }
-                  },{
-                    text:'卷内',
-                    tooltip:'',
-                    iconCls:'add',
-                    hidden:true,
-                    handler: function() {
-                      var pars={id:archive_id};
-                      new Ajax.Request("/desktop/generate_jn", 
-                        { method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            var path = request.responseText;
-                            if (path != '') { 
-                              Ext.getCmp('preview_img').getEl().dom.src = path;
-                            }
-                          }
-                        });
-                    }
-                  },{
-                    text:'备考',
-                    tooltip:'',
-                    iconCls:'add',
-                    hidden:true,
-                    handler: function() {
-                      var pars={id:archive_id};
-                      new Ajax.Request("/desktop/generate_bk", 
-                        { method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            var path = request.responseText;
-                            if (path != '') { 
-                              Ext.getCmp('preview_img').getEl().dom.src = path;
-                            }
-                          }
-                        });
-                    }
-                  },{
-                    text:'内页',
-                    tooltip:'',
-                    iconCls:'add',
-                    hidden:true,
-                    handler: function() {
-                      var pars={id:archive_id};
-                      new Ajax.Request("/desktop/generate_sm", { 
-                        method: "POST",
-                        parameters: pars,
-                        onComplete:  function(request) {
-                          var path = request.responseText;
-                          if (path != '') { 
-                            Ext.getCmp('preview_img').getEl().dom.src = path;
-                          }
-                        }
-                      });
-                    }
-                  },{
-                    text:'导入图像',
-                    tooltip:'',
-                    iconCls:'import',
-                    handler: function() {
-
-                      var import_status = function() {
-                        
-                        Ext.regModel('drzt_model', {
-                          fields: [
-                            {name: 'id',     type: 'integer'},
-                            {name: 'drdh',     type: 'string'},
-                            {name: 'mlh',     type: 'string'},
-                            {name: 'mltp',     type: 'string'},
-                            {name: 'drny',     type: 'string'},
-                            {name: 'drqt',     type: 'string'},
-                            {name: 'drzt',     type: 'string'}
-                          ]
-                        });
-                        
-                        var drzt_store =  Ext.create('Ext.data.Store', {
-                          model : 'drzt_model',
-                          proxy: {
-                            type: 'ajax',
-                            url : '/desktop/get_drzt_store',
-                            extraParams: {id:""},
-                            reader: {
-                              type: 'json',
-                              root: 'rows',
-                              totalProperty: 'results'
-                            }
-                          }
-                        });
-                        
-                        drzt_store.load();
-                        
-                        var drzt_grid = new Ext.grid.GridPanel({
-                             title: '状态列表',
-                             store: drzt_store,
-                             id : 'drzt_grid_id',
-                             columns :[
-                             	 { text : 'id',	width : 0, sortable : true, dataIndex: 'id', hidden: true},
-                             	 { text : '档号',	width : 6, sortable : true, dataIndex: 'drdh'},
-                             	 { text : '目录号',	width : 60, sortable : true, dataIndex: 'mlh'},
-                             	 { text : '目录图片',	width : 60, sortable : true, dataIndex: 'mltp'},
-                             	 { text : '导入内页',	width : 60, sortable : true, dataIndex: 'drny'},
-                             	 { text : '导入其它',	width : 60, sortable : true, dataIndex: 'drqt'},
-                             	 { text : '导入状态',	width : 60, sortable : true, dataIndex: 'drzt'}
-                             ],
-                             selType:'checkboxmodel',
-                             multiSelect:true,
-                             viewConfig: {
-                               stripeRows:true
-                             },
-                             tbar : [{
-                                 text : '全部添加',
-                                 handler : function() {
-                                   select = archiveGrid.selModel.selected.items[0];
-                                   //var tree = Ext.getCmp('pd_treepanel_id');
-                                   //var node = tree.getSelectionModel().selected;
-                                   if (select == undefined) {
-                                     msg('提示','请先选择一个目录');
-                                   } else {
+                                 },'-',{
+                                   text : '删除选择',
+                                   handler : function() {
+                                     items = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
                                      
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/delete_print_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         dyzt_store.load();
+                                       }
+                                     });
                                    }
-                                 }
-                               },'-',{
-                                 text : '删除选择',
-                                 iconCls : 'delete',
-                                 handler : function() {
-                                   id = Ext.getCmp('drzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                   pars = {id:id}
-                                   new Ajax.Request("/desktop/delete_import_task", { 
-                                     method: "POST",
-                                     parameters: pars,
-                                     onComplete:  function(request) {
-                                       drzt_store.load();
-                                     }
-                                   });
-                                 }
-                               },'-',{
-                                 text : '删除完成',
-                                 handler : function() {
-                                   //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                   pars = {}
-                                   new Ajax.Request("/desktop/delete_all_import_task", { 
-                                     method: "POST",
-                                     parameters: pars,
-                                     onComplete:  function(request) {
-                                       dyzt_store.load();
-                                     }
-                                   });
-                                 }
-                               },'-', {
-                                 text : '刷新目录',
-                                 iconCls : 'x-tbar-loading',
-                                 handler : function() {
-                                   drzt_store.load();
-                                 }                                 
-                             }]
-                        }); 
+                                 },'-',{
+                                   text : '删除完成',
+                                   handler : function() {
+                                     //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
+                                     pars = {}
+                                     new Ajax.Request("/desktop/delete_all_print_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         dyzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-', {
+                                   text : '刷新',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     dyzt_store.load();
+                                   }                                 
+                               }]
+                          }); 
                         
-                        drzt_store.on('load', function(){
-                          if (drzt_store.data.length > 0)
-                            drzt_grid.getSelectionModel().select(0);
-                        });
+                          /*
+                          dyzt_store.on('load', function(){
+                            if (dyzt_store.data.length > 0)
+                              dyzt_grid.getSelectionModel().select(0);
+                          });
+                          */
                         
-                        var drztPanel = new Ext.form.FormPanel({
-                          id : 'drzt_panel_id',
-                          labelWidth:40,
-                          //bodyStyle:"padding:35px;",
-                          bodyPadding: 3,
-                          items:[{
-                              xtype: 'tabpanel',
-                              height: 280,
-                              activeTab: 0,
-                              items: [drzt_grid,
-                                {
+                          var dyztPanel = new Ext.form.FormPanel({
+                            id : 'dyzt_panel_id',
+                            labelWidth:40,
+                            //bodyStyle:"padding:35px;",
+                            bodyPadding: 3,
+                            items:[{
+                                xtype: 'tabpanel',
+                                height: 280,
+                                activeTab: 0,
+                                items: [dyzt_grid,{
 
                                 },{
 
-                              }]
-                          }]        
-                        });
+                                }]
+                            }]        
+                          });
 
-                        var drztWin = new Ext.Window({
-                          id : 'drzt_win',
-                          iconCls : 'print',
-                          title: '导入图像',
-                          floating: true,
-                          shadow: true,
-                          draggable: true,
-                          //closeAction:'hide',
-                          //minimizable:true,
-                          //closable: false,
-                          modal: false,
-                          width: 500,
-                          height: 350,
-                          layout: 'fit',
-                          plain: true,
-                          items:drztPanel,
-                          buttons: [{
-                            text: '导入',
-                            handler: function() {
-                              var pars={id:archive_id};
-                              new Ajax.Request("/desktop/start_import_task", { 
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  drzt_store.load();
-                                }
-                              });
-                            }
-                          },{
-                            text: '关闭',
-                            handler : function() {
-                              Ext.getCmp('drzt_win').close();
-                            }
-                          }]
-                        });
+                          var dyztWin = new Ext.Window({
+                            id : 'dyzt_win',
+                            iconCls : 'print',
+                            title: '打印状态',
+                            floating: true,
+                            shadow: true,
+                            draggable: true,
+                            //closeAction:'hide',
+                            //minimizable:true,
+                            //closable: false,
+                            modal: false,
+                            width: 500,
+                            height: 350,
+                            layout: 'fit',
+                            plain: true,
+                            items:dyztPanel,
+                            buttons: [{
+                              text: '打印',
+                              handler: function() {
+                                var pars={id:archive_id};
+                                new Ajax.Request("/desktop/start_print_task", { 
+                                  method: "POST",
+                                  parameters: pars,
+                                  onComplete:  function(request) {
+                                    dyzt_store.load();
+                                  }
+                                });
+                              }
+                            },{
+                              text: '关闭',
+                              handler : function() {
+                                Ext.getCmp('dyzt_win').close();
+                              }
+                            }]
+                          });
 
-                        drztWin.show();
+                          dyztWin.show();
                         
+                        }
+
+                        print_status();
+                      
                       }
-
-                      import_status();
-                      
-
-                    }
-                                        
-                  },'-',{
-                    text:'导出图像',
-                    tooltip:'',
-                    iconCls:'export',
-                    handler: function() {
-                      var pars={id:archive_id};
-
-                      var printWin = new Ext.Window({
-                        xtype: 'window',
-                        width: 300,
-                        height: 150,
-                        title : '图像导出',
-                        items: [
-                          {
-                            xtype: 'form',
-                            height: 120,
-                            labelWidth:30,
-                            bodyStyle:"padding:30px;",
-                            items: [
-                              {
-                                xtype: 'box',
-                                id : 'download_wait_id',
-                                html: '<div id="waitPadding">&nbsp;&nbsp;<img src="/assets/189047.gif"/><br />请稍等...</div>',
-                                anchor: '95%'
-                              },
-                              {
-                                xtype: 'box', //或者xtype: 'component',
-                                id: 'download_link_id',
-                                anchor: '90%',
-                                height:50,
-                                html: ''
-                              }
-                            ]
-                          }
-                        ]
-                      });
-                      printWin.show();
-                      new Ajax.Request("/desktop/export_image", {
-                        method: "POST",
-                        parameters: pars,
-                        onComplete:  function(request) {
-                          var path = request.responseText;
-                              Ext.getCmp('download_wait_id').getEl().dom.innerHTML = "请点击下面链接下载";
-                              Ext.getCmp('download_link_id').getEl().dom.innerHTML = '<a href="'+ path+'">点击下载</a>';
-                        }
-                      });
-                      
-                    }
-                  },'-', {
-                    text:'单卷生成',
-                    tooltip:'',
-                    hidden: true,
-                    iconCls:'x-tree-icon-leaf',
-                    handler: function() {
-                      var pars={id:archive_id};
-                      new Ajax.Request("/desktop/generate_all", {
-                        method: "POST",
-                        parameters: pars,
-                        onComplete:  function(request) {
-                          var path = request.responseText;
-                          if (path != '') { 
-                            //Ext.getCmp('preview_img').getEl().dom.src = path;
-                            timage_store.proxy.extraParams.dh=data.dh;
-                            timage_store.load();
-                          }
-                        }
-                      });
-                    }
-                  },
-                  {
-                    text:'封面套打',
-                    tooltip:'',
-                    iconCls:'x-tree-icon-leaf',
-                    handler: function() {
-
-                      var print_setting = function() {
-                        
-                        
-                        Ext.regModel('ptemplate_model', {
-                          fields: [
-                            {name: 'mbmc',     type: 'string'}
-                          ]
-                        });
-
-                        var ptemplate_store =  Ext.create('Ext.data.Store', {
-                          model : 'ptemplate_model',
-                          proxy: {
-                            type: 'ajax',
-                            url : '/desktop/get_p_template',
-                            extraParams: {},
-                            reader: {
-                              type: 'json',
-                              root: 'rows',
-                              totalProperty: 'results'
-                            }
-                          }
-                        });
-
-                        ptemplate_store.on('load',function(ds,records,o){
-                          combo = Ext.getCmp('psetting_combo');
-                          combo.setValue(records[0].data.mbmc);
-                          
-                          p_setting_store.proxy.extraParams.mbmc=records[0].data.mbmc;
-                          p_setting_store.load();
-                        });
-                        
-                        
-                        Ext.regModel('p_setting_model', {
-                          fields: [
-                            {name: 'id',    type: 'integer'},
-                            {name: 'mbmc',    type: 'string'},
-                            {name: 'mblb',    type: 'string'},
-                            {name: 'zdmc',   type: 'string'},
-                            {name: 'ztdx',   type: 'string'},
-                            {name: 'sptz',   type: 'string'},
-                            {name: 'cztz',    type: 'string'},
-                            {name: 'locx',   type: 'string'},
-                            {name: 'locy',    type: 'string'},
-                            {name: 'dy',      type: 'bool'}
-                          ]
-                        });
-                        
-                        p_setting_store = Ext.create('Ext.data.Store', {
-                          model : 'p_setting_model',
-                          proxy: {
-                            type: 'ajax',
-                            url : '/desktop/get_p_setting',
-                            extraParams: {mbmc:""},
-                            reader: {
-                              type: 'json',
-                              root: 'rows',
-                              totalProperty: 'results'
-                            }
-                          }
-                        });
-                        
-                        ptemplate_store.load();
-                        
-                        var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-                            clicksToEdit: 1
-                        });
-                        
-                        
-                        var p_grid = new Ext.grid.GridPanel({
-                             // more config options clipped //,
-                             title: '封面设置',
-                             store: p_setting_store,
-                             columns: [{
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'mbmc',
-                                 text: '模板名称',
-                                 width: 60, 
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'mblb',
-                                 text: '模板类别',
-                                 width: 60, 
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'zdmc',
-                                 text: '字段名称',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'ztdx',
-                                 text: '字体大小',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },                                  
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'sptz',
-                                 text: '水平调整',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'cztz',
-                                 text: '垂直调整',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'locx',
-                                 text: '水平位置',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },
-                               {
-                                 xtype: 'gridcolumn',
-                                 dataIndex: 'locy',
-                                 text: '垂直位置',
-                                 width: 60,
-                                 editor: {
-                                   allowBlank: false
-                                 }
-                               },                                  
-                               {
-                                 xtype: 'datecolumn',
-                                 dataIndex: 'date',
-                                 text: 'Date',
-                                 hidden : true,
-                                 editor: {
-                                     xtype: 'datefield',
-                                     format: 'm/d/y',
-                                     minValue: '01/01/06',
-                                     disabledDays: [0, 6],
-                                     disabledDaysText: 'Plants are not available on the weekends'
-                                 }
-                               },
-                               {
-                                 xtype: 'checkcolumn',
-                                 dataIndex: 'dy',
-                                 width : 50,
-                                 text: '打印?'
-                             }],
-                             selModel : {selType:'cellmodel'},
-                             viewConfig: {
-                               stripeRows:true
-                             },
-                             tbar : [{
-                               xtype: 'combo',
-                               x: 130,
-                               y: 190,
-                               width: 100,
-                               name: 'yxbh',
-                               id: 'psetting_combo',
-                               store: ptemplate_store,
-                               emptyText:'请选择',
-                               mode: 'local',
-                               minChars : 2,
-                               valueField:'mbmc',
-                               displayField:'mbmc',
-                               triggerAction:'all',
-                               listeners:{
-                                 select:function(combo, record, index) {
-                                   var pars={mbbc: record[0].data.mbbc};
-                                 }
-                               }
-                             },{
-                               text: '增加字段',
-                               handler : function(){
-                                   var r = Ext.create('p_setting_model', {
-                                       mbmc: '新模板',
-                                       mblb: '封面',
-                                       zdmc: '',
-                                       ztdx: '48',
-                                       sptz: '0',
-                                       cztz: '0',
-                                       locx: '0',
-                                       locy: '0',
-                                       dy: true
-                                   });
-                                   p_setting_store.insert(0, r);
-                                   cellEditing.startEditByPosition({row: 0, column: 0});
-                               }
-                             },{
-                                 text:'新增模板',
-                                 tooltip:'',
-                                 iconCls:'add',
-                                 handler: function() {
-                                   add_muluwin();
-
-                                   if (tree_id != 0) {
-                                     ss = tree_id.split('|');
-                                     var form =Ext.getCmp('mulu_panel_id').getForm();
-                                     form.findField('qzh').setValue(ss[0]);
-                                     form.findField('dwdm').setValue(ss[0]);
-                                     form.findField('dalb').setValue(ss[1]);
-                                   }  
-                                 }
-                             }],
-                             plugins:[cellEditing],
-                             listeners: {
-                               afteredit: function(e){
-                                 if (e.field == 'director' && e.value == 'Mel Gibson'){
-                                   Ext.Msg.alert('Error','Mel Gibson movies not allowed');
-                                   e.record.reject();
-                                 }else{
-                                   e.record.commit();
-                                 }
-                              }
-                            }
-                        }); 
-                        
-                        
-                        var printPanel = new Ext.form.FormPanel({
-                          id : 'print_panel_id',
-                          labelWidth:40,
-                          //bodyStyle:"padding:35px;",
-                          bodyPadding: 3,
-                          items:[{
-                              xtype: 'tabpanel',
-                              height: 250,
-                              activeTab: 0,
-                              items: [p_grid,{
-
-                              },{
-
-                              }]
-                          }]        
-                        });
-                        
-                        
-                        //this.el.on("keypress", keyPress, this);
-                        p_grid.on("afteredit", function(e){
-                          pars = {id:e.record.id, field:e.field, value:e.value};
-                          new Ajax.Request("/desktop/update_p_field", { 
-                            method: "POST",
+                    },'-',
+                    { 
+                      text:'封面',
+                      tooltip:'',
+                      iconCls:'add',
+                      hidden:true,
+                      handler: function() {
+                        var pars={id:archive_id};
+                        new Ajax.Request("/desktop/generate_fm", 
+                          { method: "POST",
                             parameters: pars,
                             onComplete:  function(request) {
-
+                              var path = request.responseText;
+                              if (path != '') { 
+                                Ext.getCmp('preview_img').getEl().dom.src = path;
+                              }
+                            }
+                          }); 
+                      }
+                    },{
+                      text:'卷内',
+                      tooltip:'',
+                      iconCls:'add',
+                      hidden:true,
+                      handler: function() {
+                        var pars={id:archive_id};
+                        new Ajax.Request("/desktop/generate_jn", 
+                          { method: "POST",
+                            parameters: pars,
+                            onComplete:  function(request) {
+                              var path = request.responseText;
+                              if (path != '') { 
+                                Ext.getCmp('preview_img').getEl().dom.src = path;
+                              }
                             }
                           });
-                        }, this);
-                        
-                        var printWin = new Ext.Window({
-                          id : 'print_output_win',
-                          iconCls : 'print',
-                          title: '打印输出',
-                          floating: true,
-                          shadow: true,
-                          draggable: true,
-                          //closeAction:'hide',
-                          //minimizable:true,
-                          //closable: false,
-                          modal: false,
-                          width: 400,
-                          height: 300,
-                          layout: 'fit',
-                          plain: true,
-                          items:printPanel,
-                          buttons: [{
-                            text: '打印',
-                            handler: function() {
-                              var dqaj = 0;
-
-                              var p = Ext.getCmp('print_progressbar_id');
-                              var form = Ext.getCmp('print_panel_id').getForm();
-                              pars = form.getValues();
-                              new Ajax.Request("/desktop/print_wizard", { 
-                                method: "POST",
-                                parameters: pars,
-                                onComplete:  function(request) {
-                                  Ext.TaskManager.start(pr_task);
-                                }
-                              });
-
-                            }
-                          },{
-                            text: '隐藏',
-                            handler : function() {
-                              Ext.getCmp('print_output_win').hide();
-                              Ext.TaskManager.stop(pr_task);
-                            }
-                          }]
-                        });
-                        
-                        printWin.show();
                       }
-                      
-                      //call print_setting()
-                      print_setting();
+                    },{
+                      text:'备考',
+                      tooltip:'',
+                      iconCls:'add',
+                      hidden:true,
+                      handler: function() {
+                        var pars={id:archive_id};
+                        new Ajax.Request("/desktop/generate_bk", 
+                          { method: "POST",
+                            parameters: pars,
+                            onComplete:  function(request) {
+                              var path = request.responseText;
+                              if (path != '') { 
+                                Ext.getCmp('preview_img').getEl().dom.src = path;
+                              }
+                            }
+                          });
+                      }
+                    },{
+                      text:'内页',
+                      tooltip:'',
+                      iconCls:'add',
+                      hidden:true,
+                      handler: function() {
+                        var pars={id:archive_id};
+                        new Ajax.Request("/desktop/generate_sm", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            var path = request.responseText;
+                            if (path != '') { 
+                              Ext.getCmp('preview_img').getEl().dom.src = path;
+                            }
+                          }
+                        });
+                      }
+                    },{
+                      text:'导入图像',
+                      tooltip:'',
+                      iconCls:'import',
+                      handler: function() {
 
-                    }                    
-                  },'-',
-                  {
-                    text:'目录统计',
-                    tooltip:'',
-                    iconCls:'x-tree-icon-leaf',
-                    handler: function() {
+                        var import_status = function() {
+                        
+                          Ext.regModel('drzt_model', {
+                            fields: [
+                              {name: 'id',     type: 'integer'},
+                              {name: 'drdh',     type: 'string'},
+                              {name: 'mlh',     type: 'string'},
+                              {name: 'mltp',     type: 'string'},
+                              {name: 'drny',     type: 'string'},
+                              {name: 'drqt',     type: 'string'},
+                              {name: 'drzt',     type: 'string'}
+                            ]
+                          });
+                        
+                          var drzt_store =  Ext.create('Ext.data.Store', {
+                            model : 'drzt_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_drzt_store',
+                              extraParams: {id:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+                        
+                          drzt_store.load();
+                        
+                          var drzt_grid = new Ext.grid.GridPanel({
+                               title: '状态列表',
+                               store: drzt_store,
+                               id : 'drzt_grid_id',
+                               columns :[
+                               	 { text : 'id',	width : 0, sortable : true, dataIndex: 'id', hidden: true},
+                               	 { text : '档号',	width : 6, sortable : true, dataIndex: 'drdh'},
+                               	 { text : '目录号',	width : 60, sortable : true, dataIndex: 'mlh'},
+                               	 { text : '目录图片',	width : 60, sortable : true, dataIndex: 'mltp'},
+                               	 { text : '导入内页',	width : 60, sortable : true, dataIndex: 'drny'},
+                               	 { text : '导入其它',	width : 60, sortable : true, dataIndex: 'drqt'},
+                               	 { text : '导入状态',	width : 60, sortable : true, dataIndex: 'drzt'}
+                               ],
+                               selType:'checkboxmodel',
+                               multiSelect:true,
+                               viewConfig: {
+                                 stripeRows:true
+                               },
+                               tbar : [{
+                                   text : '全部添加',
+                                   handler : function() {
+                                     select = archiveGrid.selModel.selected.items[0];
+                                     //var tree = Ext.getCmp('pd_treepanel_id');
+                                     //var node = tree.getSelectionModel().selected;
+                                     if (select == undefined) {
+                                       msg('提示','请先选择一个目录');
+                                     } else {
+                                     
+                                     }
+                                   }
+                                 },'-',{
+                                   text : '删除选择',
+                                   iconCls : 'delete',
+                                   handler : function() {
+                                     id = Ext.getCmp('drzt_grid_id').getSelectionModel().selected.items[0].data.id;
+                                     pars = {id:id}
+                                     new Ajax.Request("/desktop/delete_import_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         drzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
+                                   text : '删除完成',
+                                   handler : function() {
+                                     //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
+                                     pars = {}
+                                     new Ajax.Request("/desktop/delete_all_import_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         dyzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-', {
+                                   text : '刷新目录',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     drzt_store.load();
+                                   }                                 
+                               }]
+                          }); 
+                        
+                          drzt_store.on('load', function(){
+                            if (drzt_store.data.length > 0)
+                              drzt_grid.getSelectionModel().select(0);
+                          });
+                        
+                          var drztPanel = new Ext.form.FormPanel({
+                            id : 'drzt_panel_id',
+                            labelWidth:40,
+                            //bodyStyle:"padding:35px;",
+                            bodyPadding: 3,
+                            items:[{
+                                xtype: 'tabpanel',
+                                height: 280,
+                                activeTab: 0,
+                                items: [drzt_grid,
+                                  {
+
+                                  },{
+
+                                }]
+                            }]        
+                          });
+
+                          var drztWin = new Ext.Window({
+                            id : 'drzt_win',
+                            iconCls : 'print',
+                            title: '导入图像',
+                            floating: true,
+                            shadow: true,
+                            draggable: true,
+                            //closeAction:'hide',
+                            //minimizable:true,
+                            //closable: false,
+                            modal: false,
+                            width: 500,
+                            height: 350,
+                            layout: 'fit',
+                            plain: true,
+                            items:drztPanel,
+                            buttons: [{
+                              text: '导入',
+                              handler: function() {
+                                var pars={id:archive_id};
+                                new Ajax.Request("/desktop/start_import_task", { 
+                                  method: "POST",
+                                  parameters: pars,
+                                  onComplete:  function(request) {
+                                    drzt_store.load();
+                                  }
+                                });
+                              }
+                            },{
+                              text: '关闭',
+                              handler : function() {
+                                Ext.getCmp('drzt_win').close();
+                              }
+                            }]
+                          });
+
+                          drztWin.show();
+                        
+                        }
+
+                        import_status();
                       
-                      if (muluStaticGrid.isVisible()) {
-                        muluStaticGrid.hide();
-                        archiveGrid.show();
-                        archiveGrid.width  = archiveGrid.up().getWidth();
-                        archiveGrid.height = archiveGrid.up().getHeight();
-                        documentGrid.width = archiveGrid.up().getWidth();
+
+                      }
+                                        
+                    },'-',{
+                      text:'导出图像',
+                      tooltip:'',
+                      iconCls:'export',
+                      handler: function() {
+                        var pars={id:archive_id};
+
+                        var printWin = new Ext.Window({
+                          xtype: 'window',
+                          width: 300,
+                          height: 150,
+                          title : '图像导出',
+                          items: [
+                            {
+                              xtype: 'form',
+                              height: 120,
+                              labelWidth:30,
+                              bodyStyle:"padding:30px;",
+                              items: [
+                                {
+                                  xtype: 'box',
+                                  id : 'download_wait_id',
+                                  html: '<div id="waitPadding">&nbsp;&nbsp;<img src="/assets/189047.gif"/><br />请稍等...</div>',
+                                  anchor: '95%'
+                                },
+                                {
+                                  xtype: 'box', //或者xtype: 'component',
+                                  id: 'download_link_id',
+                                  anchor: '90%',
+                                  height:50,
+                                  html: ''
+                                }
+                              ]
+                            }
+                          ]
+                        });
+                        printWin.show();
+                        new Ajax.Request("/desktop/export_image", {
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            var path = request.responseText;
+                                Ext.getCmp('download_wait_id').getEl().dom.innerHTML = "请点击下面链接下载";
+                                Ext.getCmp('download_link_id').getEl().dom.innerHTML = '<a href="'+ path+'">点击下载</a>';
+                          }
+                        });
+                      
+                      }
+                    },'-', {
+                      text:'单卷生成',
+                      tooltip:'',
+                      hidden: true,
+                      iconCls:'x-tree-icon-leaf',
+                      handler: function() {
+                        var pars={id:archive_id};
+                        new Ajax.Request("/desktop/generate_all", {
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            var path = request.responseText;
+                            if (path != '') { 
+                              //Ext.getCmp('preview_img').getEl().dom.src = path;
+                              timage_store.proxy.extraParams.dh=data.dh;
+                              timage_store.load();
+                            }
+                          }
+                        });
+                      }
+                    },
+                    {
+                      text:'封面套打',
+                      tooltip:'',
+                      iconCls:'x-tree-icon-leaf',
+                      handler: function() {
+
+                        var print_setting = function() {
+                        
+                        
+                          Ext.regModel('ptemplate_model', {
+                            fields: [
+                              {name: 'mbmc',     type: 'string'}
+                            ]
+                          });
+
+                          var ptemplate_store =  Ext.create('Ext.data.Store', {
+                            model : 'ptemplate_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_p_template',
+                              extraParams: {},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+
+                          ptemplate_store.on('load',function(ds,records,o){
+                            combo = Ext.getCmp('psetting_combo');
+                            combo.setValue(records[0].data.mbmc);
+                          
+                            p_setting_store.proxy.extraParams.mbmc=records[0].data.mbmc;
+                            p_setting_store.load();
+                          });
+                        
+                        
+                          Ext.regModel('p_setting_model', {
+                            fields: [
+                              {name: 'id',    type: 'integer'},
+                              {name: 'mbmc',    type: 'string'},
+                              {name: 'mblb',    type: 'string'},
+                              {name: 'zdmc',   type: 'string'},
+                              {name: 'ztdx',   type: 'string'},
+                              {name: 'sptz',   type: 'string'},
+                              {name: 'cztz',    type: 'string'},
+                              {name: 'locx',   type: 'string'},
+                              {name: 'locy',    type: 'string'},
+                              {name: 'dy',      type: 'bool'}
+                            ]
+                          });
+                        
+                          p_setting_store = Ext.create('Ext.data.Store', {
+                            model : 'p_setting_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_p_setting',
+                              extraParams: {mbmc:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+                        
+                          ptemplate_store.load();
+                        
+                          var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+                              clicksToEdit: 1
+                          });
+                        
+                        
+                          var p_grid = new Ext.grid.GridPanel({
+                               // more config options clipped //,
+                               title: '封面设置',
+                               store: p_setting_store,
+                               columns: [{
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'mbmc',
+                                   text: '模板名称',
+                                   width: 60, 
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'mblb',
+                                   text: '模板类别',
+                                   width: 60, 
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'zdmc',
+                                   text: '字段名称',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'ztdx',
+                                   text: '字体大小',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },                                  
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'sptz',
+                                   text: '水平调整',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'cztz',
+                                   text: '垂直调整',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'locx',
+                                   text: '水平位置',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },
+                                 {
+                                   xtype: 'gridcolumn',
+                                   dataIndex: 'locy',
+                                   text: '垂直位置',
+                                   width: 60,
+                                   editor: {
+                                     allowBlank: false
+                                   }
+                                 },                                  
+                                 {
+                                   xtype: 'datecolumn',
+                                   dataIndex: 'date',
+                                   text: 'Date',
+                                   hidden : true,
+                                   editor: {
+                                       xtype: 'datefield',
+                                       format: 'm/d/y',
+                                       minValue: '01/01/06',
+                                       disabledDays: [0, 6],
+                                       disabledDaysText: 'Plants are not available on the weekends'
+                                   }
+                                 },
+                                 {
+                                   xtype: 'checkcolumn',
+                                   dataIndex: 'dy',
+                                   width : 50,
+                                   text: '打印?'
+                               }],
+                               selModel : {selType:'cellmodel'},
+                               viewConfig: {
+                                 stripeRows:true
+                               },
+                               tbar : [{
+                                 xtype: 'combo',
+                                 x: 130,
+                                 y: 190,
+                                 width: 100,
+                                 name: 'yxbh',
+                                 id: 'psetting_combo',
+                                 store: ptemplate_store,
+                                 emptyText:'请选择',
+                                 mode: 'local',
+                                 minChars : 2,
+                                 valueField:'mbmc',
+                                 displayField:'mbmc',
+                                 triggerAction:'all',
+                                 listeners:{
+                                   select:function(combo, record, index) {
+                                     var pars={mbbc: record[0].data.mbbc};
+                                   }
+                                 }
+                               },{
+                                 text: '增加字段',
+                                 handler : function(){
+                                     var r = Ext.create('p_setting_model', {
+                                         mbmc: '新模板',
+                                         mblb: '封面',
+                                         zdmc: '',
+                                         ztdx: '48',
+                                         sptz: '0',
+                                         cztz: '0',
+                                         locx: '0',
+                                         locy: '0',
+                                         dy: true
+                                     });
+                                     p_setting_store.insert(0, r);
+                                     cellEditing.startEditByPosition({row: 0, column: 0});
+                                 }
+                               },{
+                                   text:'新增模板',
+                                   tooltip:'',
+                                   iconCls:'add',
+                                   handler: function() {
+                                     add_muluwin();
+
+                                     if (tree_id != 0) {
+                                       ss = tree_id.split('|');
+                                       var form =Ext.getCmp('mulu_panel_id').getForm();
+                                       form.findField('qzh').setValue(ss[0]);
+                                       form.findField('dwdm').setValue(ss[0]);
+                                       form.findField('dalb').setValue(ss[1]);
+                                     }  
+                                   }
+                               }],
+                               plugins:[cellEditing],
+                               listeners: {
+                                 afteredit: function(e){
+                                   if (e.field == 'director' && e.value == 'Mel Gibson'){
+                                     Ext.Msg.alert('Error','Mel Gibson movies not allowed');
+                                     e.record.reject();
+                                   }else{
+                                     e.record.commit();
+                                   }
+                                }
+                              }
+                          }); 
+                        
+                        
+                          var printPanel = new Ext.form.FormPanel({
+                            id : 'print_panel_id',
+                            labelWidth:40,
+                            //bodyStyle:"padding:35px;",
+                            bodyPadding: 3,
+                            items:[{
+                                xtype: 'tabpanel',
+                                height: 250,
+                                activeTab: 0,
+                                items: [p_grid,{
+
+                                },{
+
+                                }]
+                            }]        
+                          });
+                        
+                        
+                          //this.el.on("keypress", keyPress, this);
+                          p_grid.on("afteredit", function(e){
+                            pars = {id:e.record.id, field:e.field, value:e.value};
+                            new Ajax.Request("/desktop/update_p_field", { 
+                              method: "POST",
+                              parameters: pars,
+                              onComplete:  function(request) {
+
+                              }
+                            });
+                          }, this);
+                        
+                          var printWin = new Ext.Window({
+                            id : 'print_output_win',
+                            iconCls : 'print',
+                            title: '打印输出',
+                            floating: true,
+                            shadow: true,
+                            draggable: true,
+                            //closeAction:'hide',
+                            //minimizable:true,
+                            //closable: false,
+                            modal: false,
+                            width: 400,
+                            height: 300,
+                            layout: 'fit',
+                            plain: true,
+                            items:printPanel,
+                            buttons: [{
+                              text: '打印',
+                              handler: function() {
+                                var dqaj = 0;
+
+                                var p = Ext.getCmp('print_progressbar_id');
+                                var form = Ext.getCmp('print_panel_id').getForm();
+                                pars = form.getValues();
+                                new Ajax.Request("/desktop/print_wizard", { 
+                                  method: "POST",
+                                  parameters: pars,
+                                  onComplete:  function(request) {
+                                    Ext.TaskManager.start(pr_task);
+                                  }
+                                });
+
+                              }
+                            },{
+                              text: '隐藏',
+                              handler : function() {
+                                Ext.getCmp('print_output_win').hide();
+                                Ext.TaskManager.stop(pr_task);
+                              }
+                            }]
+                          });
+                        
+                          printWin.show();
+                        }
+                      
+                        //call print_setting()
+                        print_setting();
+
+                      }                    
+                    },'-',
+                    {
+                      text:'目录统计',
+                      tooltip:'',
+                      iconCls:'x-tree-icon-leaf',
+                      handler: function() {
+                      
+                        if (muluStaticGrid.isVisible()) {
+                          muluStaticGrid.hide();
+                          archiveGrid.show();
+                          archiveGrid.width  = archiveGrid.up().getWidth();
+                          archiveGrid.height = archiveGrid.up().getHeight();
+                          documentGrid.width = archiveGrid.up().getWidth();
+                        } else {
+                          archiveGrid.hide();
+                          muluStaticGrid.show();
+                          muluStaticGrid.width = muluStaticGrid.up().getWidth();
+                          muluStaticGrid.height = muluStaticGrid.up().getHeight();
+                        }
+                      }
+                    },
+                    {
+                      //text:'目录更新',
+                      tooltip:'',
+                      iconCls:'x-tbar-loading',
+                      handler: function() {
+                        var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
+                        var pars={dh:dh};
+                        new Ajax.Request("/desktop/update_timage_tj", {
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            mulu_store.proxy.extraParams = {dh:dh};
+                            mulu_store.load();
+                          }
+                        });
+                      }                   
+                    },'->',
+                    new Ext.form.TextField({
+                      width:200,
+                      enableKeyEvents: true,
+                      hidden : true, 
+                      initEvents: function() { 
+                        var keyPress = function(e){ 
+                          if (e.getKey() == e.ENTER) { 
+                            //Ext.getCmp('czxx-view').reloadStore();
+                          }
+                        }; 
+                        this.el.on("keypress", keyPress, this);
+                      }
+                    }),
+                  ],
+                  items:[{
+                    layout:"fit",
+                    items: [archiveGrid, muluStaticGrid], 
+                    border : false
+                  }]
+                },
+                {
+                    region:"south",
+                    height:200,
+                    layout:"fit",
+                    split:true,
+                    collapsible:true,
+                    autoScroll : true,
+                    collapseMode:'mini',
+    								hideCollapseTool:true,
+                    items:[{
+                      layout:"fit",
+                      items: documentGrid, 
+                      border : false
+                    }]
+                  }]
+              }]
+            },
+            {
+              region:"west",
+              title:"档案目录",
+              width:200,
+              border: false,
+              split:true,
+              layout:"fit",
+              margins: '0 0 0 5',
+              items:[{
+                layout:"border",
+                border: false,
+                items:[
+                {
+                  region:"center",
+                  layout:"fit",
+                  //height:800,
+                  split:true,
+                  tbar :[{
+                    text:'新增档案',
+                    tooltip:'',
+                    iconCls:'add',
+                    handler: function() {
+                      add_muluwin();
+                      if (tree_id != 0) {
+                        ss = tree_id.split('|');
+                        var form =Ext.getCmp('mulu_panel_id').getForm();
+                        form.findField('qzh').setValue(ss[0]);
+                        form.findField('dwdm').setValue(ss[0]);
+                        form.findField('dalb').setValue(ss[1]);
+                      }  
+                    }
+                  }, {
+                    xtype:"textfield",
+                    id:"tree_panel_style",
+                    hidden:true,
+                    value : '0'                 
+                  },'-', {
+                    text:'',
+                    iconCls:'x-tbar-loading',
+                    handler : function () {
+                      if (Ext.getCmp('tree_panel_style').getValue() == '0') {
+                        Ext.getCmp('tree_panel_style').setValue("1");
+                        tree_store.getRootNode().removeAll();
+                        tree_store.proxy.extraParams.style="1";
+                        tree_store.load();
                       } else {
-                        archiveGrid.hide();
-                        muluStaticGrid.show();
-                        muluStaticGrid.width = muluStaticGrid.up().getWidth();
-                        muluStaticGrid.height = muluStaticGrid.up().getHeight();
+                        Ext.getCmp('tree_panel_style').setValue("0");
+                        tree_store.getRootNode().removeAll();
+                        tree_store.proxy.extraParams.style="0";
+                        tree_store.load();
                       }
                     }
                   },
                   {
-                    //text:'目录更新',
+                    text:'上传影像',
                     tooltip:'',
-                    iconCls:'x-tbar-loading',
-                    //iconCls:'x-tree-icon-leaf',
+                    iconCls:'add',
+                    hidden:true,
                     handler: function() {
-                      var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
-                      var pars={dh:dh};
-                      new Ajax.Request("/desktop/update_timage_tj", {
-                        method: "POST",
-                        parameters: pars,
-                        onComplete:  function(request) {
-                          mulu_store.proxy.extraParams = {dh:dh};
-                          mulu_store.load();
-                        }
-                      });
-                    }                   
-                  },'->',
-                  new Ext.form.TextField({
-                    width:200,
-                    enableKeyEvents: true,
-                    hidden : true, 
-                    initEvents: function() { 
-                      var keyPress = function(e){ 
-                        if (e.getKey() == e.ENTER) { 
-                          //Ext.getCmp('czxx-view').reloadStore();
-                        }
-                      }; 
-                      this.el.on("keypress", keyPress, this);
-                    }
-                  })
-                ],
-                items:[{
-                  layout:"fit",
-                  items: [archiveGrid, muluStaticGrid], 
-                  border : false
-                }]
-                },{
-                region:"south",
-                //title:"属性",
-                height:200,
-                layout:"fit",
-                autoScroll : true,
-                items:[{
-                  layout:"fit",
-                  items: documentGrid, 
-                  border : false
-                }]
-                }]
-              }]
-            },{
-            region:"west",
-            title:"档案目录",
-            width:200,
-            border: false,
-            split:true,
-            layout:"fit",
-            margins: '0 0 0 5',
-            items:[{
-              layout:"border",
-              border: false,
-              items:[
-              //{
-              //  region:"center",
-              //  title:"Detail",
-              //  border : false,
-              //  layout: 'absolute',
-              //  items:[
-              //  {
-              //    x: 0,
-              //    y: 0,
-              //    width: 200,
-              //    height: 100,
-              //    autoScroll : true,
-              //    border : false,
-              //    items:myuploadform
-              //  }]
-              //},
-              {
-                region:"center",
-                layout:"fit",
-                //height:800,
-                split:true,
-                tbar :[{
-                  text:'新增档案',
-                  tooltip:'',
-                  iconCls:'add',
-                  handler: function() {
-                    add_muluwin();
+                      //add_jumpLoader();
+                      show_origin();
                     
-                    if (tree_id != 0) {
-                      ss = tree_id.split('|');
-                      var form =Ext.getCmp('mulu_panel_id').getForm();
-                      form.findField('qzh').setValue(ss[0]);
-                      form.findField('dwdm').setValue(ss[0]);
-                      form.findField('dalb').setValue(ss[1]);
-                    }  
-                  }
-                }, {
-                  xtype:"textfield",
-                  id:"tree_panel_style",
-                  hidden:true,
-                  value : '0'                 
-                },'-', {
-                  text:'',
-                  iconCls:'x-tbar-loading',
-                  handler : function () {
-                    if (Ext.getCmp('tree_panel_style').getValue() == '0') {
-                      Ext.getCmp('tree_panel_style').setValue("1");
-                      tree_store.getRootNode().removeAll();
-                      tree_store.proxy.extraParams.style="1";
-                      tree_store.load();
-                    } else {
-                      Ext.getCmp('tree_panel_style').setValue("0");
-                      tree_store.getRootNode().removeAll();
-                      tree_store.proxy.extraParams.style="0";
-                      tree_store.load();
-                    }
-                  }
-                },
-                {
-                  text:'上传影像',
-                  tooltip:'',
-                  iconCls:'add',
-                  hidden:true,
-                  handler: function() {
-                    //add_jumpLoader();
-                    show_origin();
-                    
-                    var draw = function(scale, translatePos, imageObj){
-                      var canvas = document.getElementById("myCanvas");
-                      var context = canvas.getContext("2d");
+                      var draw = function(scale, translatePos, imageObj){
+                        var canvas = document.getElementById("myCanvas");
+                        var context = canvas.getContext("2d");
 
-                      // clear canvas
-                      context.clearRect(0, 0, canvas.width, canvas.height);
-                      context.save();
+                        // clear canvas
+                        context.clearRect(0, 0, canvas.width, canvas.height);
+                        context.save();
 
-                      context.translate(translatePos.x, translatePos.y);
-                      context.scale(scale, scale);
+                        context.translate(translatePos.x, translatePos.y);
+                        context.scale(scale, scale);
                       
-                      imageObj.onload = function(){
-                        var centerX = translatePos.x + canvas.width / 2, centerY = translatePos.y + canvas.height / 2;
+                        imageObj.onload = function(){
+                          var centerX = translatePos.x + canvas.width / 2, centerY = translatePos.y + canvas.height / 2;
+                          imgW = imageObj.width;
+                          imgH = imageObj.height;
+                          context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+                        
+                          // inverse Photo
+                          /*
+                          var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
+                          var pixels = imageData.data;
+                          var numPixels = pixels.length/8;
+                        
+                          for (var i=0; i < numPixels; i ++) {
+                            pixels[i*4] = 255-pixels[i*4];
+                            pixels[i*4+1] = 255-pixels[i*4+1];
+                            pixels[i*4+2] = 255-pixels[i*4+2];
+                          }
+                        
+                          context.putImageData(imageData, 0, 0);
+                          */
+                        
+                          //tiles
+                       
+                          var imageData = context.getImageData(0,0, imgW, imgH);
+                          var pixels = imageData.data;
+                          //context.clearRect(0, 0, imgW*scale, imgH*scale);
+                          var numTileRows = 80; 
+                          var numTileCols = 53;
+                          var tileWidth = imageData.width/numTileCols; 
+                          var tileHeight = imageData.height/numTileRows;
+                          for (var r = 0; r < numTileRows; r++) {
+                            for (var c = 0; c < numTileCols; c++) {
+                              var x = (c*tileWidth)+(tileWidth/2); 
+                              var y = (r*tileHeight)+(tileHeight/2);
+                              var pos = (Math.floor(y)*(imageData.width*4))+(Math.floor(x)*4);
+                              var red = pixels[pos];
+                              var green = pixels[pos+1]; 
+                              var blue = pixels[pos+2];
+                              context.fillStyle = "rgb("+red+", "+green+", "+blue+")"; 
+                            
+                              context.beginPath();
+                              context.arc(x, y, tileWidth/2, 0, Math.PI*2, false); context.closePath();
+                              context.fill();
+                            
+                              //context.fillRect(x-(tileWidth/2), y-(tileHeight/2), tileWidth, tileHeight);
+                            }; 
+                          };
+                       
+                        };
+
                         imgW = imageObj.width;
                         imgH = imageObj.height;
+                        var centerX = canvas.width / scale / 2, centerY = canvas.height / scale / 2;
                         context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
-                        
+                      
                         // inverse Photo
                         /*
                         var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
                         var pixels = imageData.data;
                         var numPixels = pixels.length/8;
-                        
+                      
                         for (var i=0; i < numPixels; i ++) {
                           pixels[i*4] = 255-pixels[i*4];
                           pixels[i*4+1] = 255-pixels[i*4+1];
                           pixels[i*4+2] = 255-pixels[i*4+2];
                         }
-                        
+                      
                         context.putImageData(imageData, 0, 0);
                         */
-                        
+                      
                         //tiles
-                       
+                        //tiles
+                     
                         var imageData = context.getImageData(0,0, imgW, imgH);
                         var pixels = imageData.data;
                         //context.clearRect(0, 0, imgW*scale, imgH*scale);
@@ -2177,159 +2217,110 @@ Ext.define('MyDesktop.PrintData', {
                             var green = pixels[pos+1]; 
                             var blue = pixels[pos+2];
                             context.fillStyle = "rgb("+red+", "+green+", "+blue+")"; 
-                            
+                          
                             context.beginPath();
                             context.arc(x, y, tileWidth/2, 0, Math.PI*2, false); context.closePath();
                             context.fill();
-                            
+                          
                             //context.fillRect(x-(tileWidth/2), y-(tileHeight/2), tileWidth, tileHeight);
                           }; 
                         };
-                       
-                      };
-
-                      imgW = imageObj.width;
-                      imgH = imageObj.height;
-                      var centerX = canvas.width / scale / 2, centerY = canvas.height / scale / 2;
-                      context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
                       
-                      // inverse Photo
-                      /*
-                      var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
-                      var pixels = imageData.data;
-                      var numPixels = pixels.length/8;
-                      
-                      for (var i=0; i < numPixels; i ++) {
-                        pixels[i*4] = 255-pixels[i*4];
-                        pixels[i*4+1] = 255-pixels[i*4+1];
-                        pixels[i*4+2] = 255-pixels[i*4+2];
+                        context.restore();
                       }
-                      
-                      context.putImageData(imageData, 0, 0);
-                      */
-                      
-                      //tiles
-                      //tiles
-                     
-                      var imageData = context.getImageData(0,0, imgW, imgH);
-                      var pixels = imageData.data;
-                      //context.clearRect(0, 0, imgW*scale, imgH*scale);
-                      var numTileRows = 80; 
-                      var numTileCols = 53;
-                      var tileWidth = imageData.width/numTileCols; 
-                      var tileHeight = imageData.height/numTileRows;
-                      for (var r = 0; r < numTileRows; r++) {
-                        for (var c = 0; c < numTileCols; c++) {
-                          var x = (c*tileWidth)+(tileWidth/2); 
-                          var y = (r*tileHeight)+(tileHeight/2);
-                          var pos = (Math.floor(y)*(imageData.width*4))+(Math.floor(x)*4);
-                          var red = pixels[pos];
-                          var green = pixels[pos+1]; 
-                          var blue = pixels[pos+2];
-                          context.fillStyle = "rgb("+red+", "+green+", "+blue+")"; 
-                          
-                          context.beginPath();
-                          context.arc(x, y, tileWidth/2, 0, Math.PI*2, false); context.closePath();
-                          context.fill();
-                          
-                          //context.fillRect(x-(tileWidth/2), y-(tileHeight/2), tileWidth, tileHeight);
-                        }; 
-                      };
-                      
-                      context.restore();
-                    }
                     
                     
-                    var canvas = document.getElementById("myCanvas");
-                    var context = canvas.getContext("2d");
+                      var canvas = document.getElementById("myCanvas");
+                      var context = canvas.getContext("2d");
 
-                    var translatePos = {
-                      x: 0, //canvas.width / 2,
-                      y: 0 //canvas.height / 2
-                    };
-
-                    var scale = 1.0;
-                    var scaleMultiplier = 0.8;
-                    var startDragOffset = {};
-                    var mouseDown = false;
-
-                    var imageObj = new Image();
-                    var image_id = 14; 
-                    imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
-
-                    // add button event listeners
-                    document.getElementById("plus").addEventListener("click", function(){
-                      scale /= scaleMultiplier;
-                      draw(scale, translatePos, imageObj);
-                    }, false);
-
-                    document.getElementById("minus").addEventListener("click", function(){
-                      scale *= scaleMultiplier;
-                      draw(scale, translatePos, imageObj);
-                    }, false);
-
-                    document.getElementById("next").addEventListener("click", function(){
-                      if (image_id < 20) {
-                        image_id = image_id + 1;
-                        imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
-                        scale = 1.0;
-                        //translatePos = {x:0, y:0};
-                        draw(scale, translatePos, imageObj);
-                      }
-                    }, false);
-
-                    document.getElementById("prev").addEventListener("click", function(){
-                      if (image_id > 13) {
-                        image_id = image_id - 1;
-                        scale = 1.0;
-                        //translatePos = {x:0, Y:0};
-                        imageObj.src ="/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
-                        draw(scale, translatePos, imageObj);
+                      var translatePos = {
+                        x: 0, //canvas.width / 2,
+                        y: 0 //canvas.height / 2
                       };
-                    }, false);
 
-                    // add event listeners to handle screen drag
-                    canvas.addEventListener("mousedown", function(evt){
-                      mouseDown = true;
-                      startDragOffset.x = evt.clientX - translatePos.x;
-                      startDragOffset.y = evt.clientY - translatePos.y;
-                    });
+                      var scale = 1.0;
+                      var scaleMultiplier = 0.8;
+                      var startDragOffset = {};
+                      var mouseDown = false;
 
-                    canvas.addEventListener("mouseup", function(evt){
-                      mouseDown = false;
-                    });
+                      var imageObj = new Image();
+                      var image_id = 14; 
+                      imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
 
-                    canvas.addEventListener("mouseover", function(evt){
-                      mouseDown = false;
-                    });
-
-                    canvas.addEventListener("mouseout", function(evt){
-                      mouseDown = false;
-                    });
-
-                    canvas.addEventListener("mousemove", function(evt){
-                      if (mouseDown) {
-                        translatePos.x = evt.clientX - startDragOffset.x;
-                        translatePos.y = evt.clientY - startDragOffset.y;
+                      // add button event listeners
+                      document.getElementById("plus").addEventListener("click", function(){
+                        scale /= scaleMultiplier;
                         draw(scale, translatePos, imageObj);
-                      }
-                    });
+                      }, false);
 
-                    draw(scale, translatePos,imageObj);
+                      document.getElementById("minus").addEventListener("click", function(){
+                        scale *= scaleMultiplier;
+                        draw(scale, translatePos, imageObj);
+                      }, false);
 
-                  }                  
-                }],
-                items:[{
-                  //title: '平望',
-                  //tbar: favorBar,
-                  layout:"fit",
-                  autoScroll : true,
-                  items: treePanel, 
-                  border : false
+                      document.getElementById("next").addEventListener("click", function(){
+                        if (image_id < 20) {
+                          image_id = image_id + 1;
+                          imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
+                          scale = 1.0;
+                          //translatePos = {x:0, y:0};
+                          draw(scale, translatePos, imageObj);
+                        }
+                      }, false);
+
+                      document.getElementById("prev").addEventListener("click", function(){
+                        if (image_id > 13) {
+                          image_id = image_id - 1;
+                          scale = 1.0;
+                          //translatePos = {x:0, Y:0};
+                          imageObj.src ="/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
+                          draw(scale, translatePos, imageObj);
+                        };
+                      }, false);
+
+                      // add event listeners to handle screen drag
+                      canvas.addEventListener("mousedown", function(evt){
+                        mouseDown = true;
+                        startDragOffset.x = evt.clientX - translatePos.x;
+                        startDragOffset.y = evt.clientY - translatePos.y;
+                      });
+
+                      canvas.addEventListener("mouseup", function(evt){
+                        mouseDown = false;
+                      });
+
+                      canvas.addEventListener("mouseover", function(evt){
+                        mouseDown = false;
+                      });
+
+                      canvas.addEventListener("mouseout", function(evt){
+                        mouseDown = false;
+                      });
+
+                      canvas.addEventListener("mousemove", function(evt){
+                        if (mouseDown) {
+                          translatePos.x = evt.clientX - startDragOffset.x;
+                          translatePos.y = evt.clientY - startDragOffset.y;
+                          draw(scale, translatePos, imageObj);
+                        }
+                      });
+
+                      draw(scale, translatePos,imageObj);
+
+                    }                  
+                  }],
+                  items:[{
+                    //title: '平望',
+                    //tbar: favorBar,
+                    layout:"fit",
+                    autoScroll : true,
+                    items: treePanel, 
+                    border : false
+                  }]
+                  }]
                 }]
-                }]
-              }]
-            },{
+            },
+            {
             region:"east",
             title:"图片预览",
             width:350,
