@@ -67,7 +67,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}..."
   puts "insert file: #{path}  size: #{width}, #{height} ..."
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixels) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
   
   #count = $conn.exec("select count(*) from timage where dh='#{dh}' and yxbh='#{yxbh}';")[0]['count']
   #
