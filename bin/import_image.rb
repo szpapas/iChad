@@ -35,9 +35,9 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       meta, meta_tz = "", 0
       
       pixels = width * height
-      if pixels > 600000
+      if pixels > 6000000
         meta_tz = 2
-      elsif pixels > 400000
+      elsif pixels > 4000000
         meta_tz = 1
       else
         meta_tz = 0    
@@ -51,9 +51,9 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     meta = ""
     width, height = fo[31].to_i*256+fo[30].to_i,fo[43].to_i*256+fo[40].to_i
     pixels = width * height
-    if pixels > 600000
+    if pixels > 6000000
      meta_tz = 2
-    elsif pixels > 400000
+    elsif pixels > 4000000
      meta_tz = 1
     else
      meta_tz = 0    
