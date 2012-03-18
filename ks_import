@@ -188,3 +188,4 @@ ruby ./dady/bin/upload_mulu.rb 9用地档案aj.txt             昆山市国土�
 #ruby ./dady/bin/upload_mulu.rb 2010定期-10年文档一体化aj.txt   昆山市国土资源局 5
 #ruby ./dady/bin/upload_mulu.rb 2010定期-30年文档一体化aj.txt   昆山市国土资源局 5
 #ruby ./dady/bin/upload_mulu.rb 2010永久文档一体化aj.txt       昆山市国土资源局 5
+

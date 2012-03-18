@@ -18,6 +18,8 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 qzh, mlh, dalb, path = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 
+$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%';)
+
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 def save2timage(id, yxbh, path, dh, yx_prefix)
   #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
@@ -49,15 +51,20 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   
   elsif yxbh.include?'TIF'
     meta = ""
-    width, height = fo[31].to_i*256+fo[30].to_i,fo[43].to_i*256+fo[40].to_i
+    width, height = fo[31].to_i*256+fo[30].to_i,fo[43].to_i*256+fo[42].to_i
     pixels = width * height
-    if pixels > 6000000
-     meta_tz = 2
-    elsif pixels > 4000000
-     meta_tz = 1
+    
+    if width > 10000
+      meta_tz = 0 
     else
-     meta_tz = 0    
-    end
+      if pixels > 6000000
+        meta_tz = 2
+      elsif pixels > 4000000
+        meta_tz = 1
+      else
+        meta_tz = 0    
+      end
+    end  
   end
   
   yxdx = fo.size

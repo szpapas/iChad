@@ -19,12 +19,12 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 def update_timage(qzh, dalb, mlh)
   $conn.exec("delete from timage_tj where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  archives = $conn.exec("select distinct dh, cast (mlh as integer), ajh, ys from archive where dh like '#{qzh}_%_#{mlh}%' order by mlh, ajh;")
+  archives = $conn.exec("select distinct dh,ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
   
   puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
   for k in 0..archives.count-1
     ar = archives[k]
-    $conn.exec("insert into timage_tj(dh, ajys) values ('#{ar['dh']}', #{ar['ys']});")
+    $conn.exec("insert into timage_tj(dh, ajh, ajys) values ('#{ar['dh']}','#{ar['ajh']}', #{ar['ys']});")
   end
   
   puts "update ML00..."
@@ -97,6 +97,7 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='空卷'  where  smyx = 0 and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   $conn.exec("update timage_tj set zt='缺漏页' where  smyx > 0  and smyx != ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   
+  $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
 end 
 
 update_timage(qzh, dalb, mlh)
