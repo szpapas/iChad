@@ -13,7 +13,7 @@ class DesktopController < ApplicationController
   end
   
   def get_mulu 
-    user =  User.find_by_sql("select * from mulu order by id;")
+    user =   User.find_by_sql("select * from mulu order by id;")
     size = user.size;
     if size > 0 
       txt = "{results:#{size},rows:["
