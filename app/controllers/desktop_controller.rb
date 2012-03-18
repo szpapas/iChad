@@ -1608,5 +1608,14 @@ class DesktopController < ApplicationController
 	  system("ruby ./dady/bin/update_timage_tj.rb  #{qzh} #{dalb} #{mlh}")
 	  render :text => 'Success'
 	end
+	
+	def print_timage_tj
+	  dh = params['dh']
+	  ss = dh.split('_')
+	  qzh, dalb, mlh = ss[0], ss[1], ss[2]
+	  system("ruby ./dady/bin/print_mulu_tj.rb  #{qzh} #{dalb} #{mlh}")
+	  render :text => 'Success'
+	  
+	end
 
 end

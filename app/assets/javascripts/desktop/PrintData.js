@@ -2004,6 +2004,22 @@ Ext.define('MyDesktop.PrintData', {
                     {
                       //text:'目录更新',
                       tooltip:'',
+                      iconCls:'x-tree-icon-leaf',
+                      handler: function() {
+                        var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
+                        var pars={dh:dh};
+                        new Ajax.Request("/desktop/print_timage_tj", {
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            Ext.Msg.alert('完成','目录汇总数据生成OK!');
+                          }
+                        });
+                      }                   
+                    },
+                    {
+                      text:'目录打印',
+                      tooltip:'',
                       iconCls:'x-tbar-loading',
                       handler: function() {
                         var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
@@ -2016,7 +2032,7 @@ Ext.define('MyDesktop.PrintData', {
                             mulu_store.load();
                           }
                         });
-                      }                   
+                      }                      
                     },'->',
                     new Ext.form.TextField({
                       width:200,

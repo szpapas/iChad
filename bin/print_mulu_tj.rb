@@ -72,10 +72,11 @@ for k in 0..user.count-1 do
     xj[0] = "小计"
     os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ")  + xj[7].rjust(6," ") + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[10].rjust(6," ") + xj[11].rjust(6," ")
     convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-    convert_str = convert_str + " ./timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
+    convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
     puts "generate file  for #{k+1} : timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
     system convert_str
     
+    #new begining page
     convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '昆山市国土资源局 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
   end 
   
@@ -97,7 +98,7 @@ if ( (k % 50) > 0 && k > 1 )
   os = tj[1].rjust(6," ") + tj[2].rjust(6," ") + tj[3].rjust(6," ")  +  tj[4].rjust(6," ") + tj[5].rjust(6," ") + tj[6].rjust(6," ") + tj[7].rjust(6," ")   + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[10].rjust(6," ") + xj[11].rjust(6," ") + tj[12].rjust(6," ")
   convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
   
-  convert_str = convert_str + " ./timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
+  convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
   system convert_str
 end   
 
