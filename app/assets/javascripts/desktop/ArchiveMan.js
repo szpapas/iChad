@@ -80,53 +80,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 
 		// Go ahead and create the TreePanel now so that we can use it below
 		var AjListFn = function(title,text) {
-			Ext.regModel('archive_model', {
-				fields: [
-					{name: 'id',		type: 'integer'},
-					{name: 'dwdm',		type: 'string'},
-					{name: 'dh',		type: 'string'},
-					{name: 'qzh',		type: 'string'},
-					{name: 'mlh',		type: 'string'},
-					{name: 'ajh',		type: 'string'},
-					{name: 'tm',		type: 'string'},
-					{name: 'flh',		type: 'string'},
-					{name: 'nd',		type: 'string'},
-					{name: 'qrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
-					{name: 'zrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
-					{name: 'js',		type: 'string'},
-					{name: 'ys',		type: 'string'},
-					{name: 'bgqx',		type: 'string'},
-					{name: 'mj',		type: 'string'},
-					{name: 'xh',		type: 'string'},
-					{name: 'cfwz',		type: 'string'},
-					{name: 'bz',		type: 'string'},
-					{name: 'boxstr',	type: 'string'},
-					{name: 'boxrfid',	type: 'string'},
-					{name: 'rfidstr',	type: 'string'},
-					{name: 'qny',		type: 'string'},
-					{name: 'zny',		type: 'string'},
-					{name: 'dalb',		type: 'string'}
-				]
-			});
-
-			var archive_store = Ext.create('Ext.data.Store', {
-				id:'archive_store',
-				model : 'archive_model',
-				proxy: {
-					type: 'ajax',
-					url : '/desktop/get_archive',
-					extraParams: {query:title},
-					reader: {
-						type: 'json',
-						root: 'rows',
-						totalProperty: 'results'
-					}
-				}
-				//sortInfo:{field: 'level4', direction: "ASC"},
-				//baseParams: {start:0, limit:25, query:""}
-			});
 			
-			archive_store.load();
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -251,112 +205,147 @@ Ext.define('MyDesktop.ArchiveMan', {
 					stripeRows:true
 				}
 			});
+			Ext.regModel('archive_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'dwdm',		type: 'string'},
+					{name: 'dh',		type: 'string'},
+					{name: 'qzh',		type: 'string'},
+					{name: 'mlh',		type: 'string'},
+					{name: 'ajh',		type: 'string'},
+					{name: 'tm',		type: 'string'},
+					{name: 'flh',		type: 'string'},
+					{name: 'nd',		type: 'string'},
+					{name: 'qrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
+					{name: 'zrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
+					{name: 'js',		type: 'string'},
+					{name: 'ys',		type: 'string'},
+					{name: 'bgqx',		type: 'string'},
+					{name: 'mj',		type: 'string'},
+					{name: 'xh',		type: 'string'},
+					{name: 'cfwz',		type: 'string'},
+					{name: 'bz',		type: 'string'},
+					{name: 'boxstr',	type: 'string'},
+					{name: 'boxrfid',	type: 'string'},
+					{name: 'rfidstr',	type: 'string'},
+					{name: 'qny',		type: 'string'},
+					{name: 'zny',		type: 'string'},
+					{name: 'dalb',		type: 'string'}
+				]
+			});
 			
+			var archive_store = Ext.create('Ext.data.Store', {
+							id:'archive_store',
+							model : 'archive_model',
+							proxy: {
+								type: 'ajax',
+								url : '/desktop/get_archive',
+								extraParams: {query:title},
+								reader: {
+									type: 'json',
+									root: 'rows',
+									totalProperty: 'results'
+								}
+							}
+							//sortInfo:{field: 'level4', direction: "ASC"},
+							//baseParams: {start:0, limit:25, query:""}
+						});
+
+						archive_store.load();
 			var archiveGrid = new Ext.grid.GridPanel({
 				id : 'archive_grid',
 				store: archive_store,
-				bbar:['->',
-					new Ext.PagingToolbar({
-						store: archive_store,
-						pageSize: 25,
-						width : 350,
-						border : false,
-						displayInfo: true,
-						displayMsg: '{0} - {1} of {2}',
-						emptyMsg: "没有找到！",
-						prependButtons: true
-					})
-				],
+				
 				tbar:[
-					{xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
-						handler: function() {
+									{xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
+										handler: function() {
 
-							var grid = Ext.getCmp('archive_grid');
-							var records = grid.getSelectionModel().getSelection();
-							var record = records[0];
-							DispAj(record,true);
-						}
-					},
-					{xtype:'button',text:'删除',tooltip:'删除案卷信息',id:'delete',iconCls:'remove',
-						handler: function() {
-
-							var grid = Ext.getCmp('archive_grid');
-							var records = grid.getSelectionModel().getSelection();
-							var record = records[0];
-
-							var pars="id="+record.data.id;
-							Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-										if(id=="yes"){
-											new Ajax.Request("/desktop/delete_archive", { 
-												method: "POST",
-												parameters: pars,
-												onComplete:	 function(request) {
-													Ext.getCmp('archive_grid').store.load();
-												}
-											});
-										}else{
-											//alert('O,no');
+											var grid = Ext.getCmp('archive_grid');
+											var records = grid.getSelectionModel().getSelection();
+											var record = records[0];
+											DispAj(record,true);
 										}
-									
-								});
-							
-						}
-					},
-					{xtype:'button',text:'修改',tooltip:'显示或修改案卷信息',id:'save',iconCls:'option',
-						handler: function() {
-							var grid = Ext.getCmp('archive_grid');
-							var records = grid.getSelectionModel().getSelection();
-							var record = records[0];
-							DispAj(record,false);
-						}
-					},	
-					'->',
-					{
-						xtype: 'combo',
-						name: 'aj_select',
-						store: aj_where_field_store,
-						emptyText:'案卷标题',
-						mode: 'local',
-						minChars : 2,
-						valueField:'text',
-						displayField:'text',
-						triggerAction:'all',
-						id:'aj_select_field'
-					},
-					'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-					{
-						xtype:'textfield',
-						id:'query_text',
-						
-						enableKeyEvents: true, 
-						initEvents: function() { 
-							var keyPress = function(e){ 
-								if (e.getKey() == e.ENTER) { 
-								    console.log(Ext.getCmp('query_text').getValue());
-									if(Ext.getCmp('query_text').getValue() != null ){
-										var grid = Ext.getCmp('archive_grid');
-										grid.store.proxy.url="/desktop/get_archive_where";
-										archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-										archive_store.load();
-									}
-								}
-							}; 
-							this.el.on("keypress", keyPress, this);
-						}
-						
-					},				  
-					{	xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-						handler: function() {
-							console.log(Ext.getCmp('query_text').value);
-							if(Ext.getCmp('query_text').value != null ){
-								var grid = Ext.getCmp('archive_grid');
-								grid.store.proxy.url="/desktop/get_archive_where";
-								archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-								archive_store.load();
-							}
-						}
-					}
-				],
+									}	,
+										{xtype:'button',text:'删除',tooltip:'删除案卷信息',id:'delete',iconCls:'remove',
+											handler: function() {
+
+												var grid = Ext.getCmp('archive_grid');
+												var records = grid.getSelectionModel().getSelection();
+												var record = records[0];
+
+												var pars="id="+record.data.id;
+												Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+															if(id=="yes"){
+																new Ajax.Request("/desktop/delete_archive", { 
+																	method: "POST",
+																	parameters: pars,
+																	onComplete:	 function(request) {
+																		Ext.getCmp('archive_grid').store.load();
+																	}
+																});
+															}else{
+																//alert('O,no');
+															}
+
+													});
+
+											}
+										},
+										{xtype:'button',text:'修改',tooltip:'显示或修改案卷信息',id:'save',iconCls:'option',
+											handler: function() {
+												var grid = Ext.getCmp('archive_grid');
+												var records = grid.getSelectionModel().getSelection();
+												var record = records[0];
+												DispAj(record,false);
+											}
+										}		,	
+												'->',
+												{
+													xtype: 'combo',
+													name: 'aj_select',
+													store: aj_where_field_data,
+													emptyText:'案卷标题',
+													mode: 'local',
+													minChars : 2,
+													valueField:'text',
+													displayField:'text',
+													triggerAction:'all',
+													id:'aj_select_field'
+												}	,
+												'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+												{
+													xtype:'textfield',
+													id:'query_text',
+                                            // 
+											//  	enableKeyEvents: true, 
+											//  	initEvents: function() { 
+											//  		var keyPress = function(e){ 
+											//  			if (e.getKey() == e.ENTER) { 
+											//  			    console.log(Ext.getCmp('query_text').getValue());
+											//  				if(Ext.getCmp('query_text').getValue() != null ){
+											//  					var grid = Ext.getCmp('archive_grid');
+											//  					grid.store.proxy.url="/desktop/get_archive_where";
+											//  					archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+											//  					archive_store.load();
+											//  				}
+											//  			}
+											//  		}; 
+											//  		this.el.on("keypress", keyPress, this);
+											//  	}
+
+												}	,				  
+												{	xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+													handler: function() {
+														console.log(Ext.getCmp('query_text').value);
+														if(Ext.getCmp('query_text').value != null ){
+															var grid = Ext.getCmp('archive_grid');
+															grid.store.proxy.url="/desktop/get_archive_where";
+															archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+															archive_store.load();
+														}
+													}
+												}
+								],
 				columns: [
 					//{ text : 'file_name', flex : 1,	sortable : true, dataIndex: 'level4'},
 					//{ text : 'file_size',	 width : 75, sortable : true, dataIndex: 'file_size'}
@@ -381,6 +370,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 					{ text : '地籍号',	 width : 75, sortable : true, dataIndex: 'djh'},
 					{ text : '备注',	flex : 1, sortable : true, dataIndex: 'bz'}
 					],
+					selType:'checkboxmodel',
+					multiSelect:true,
 					listeners:{
 						itemdblclick:{
 							fn:function(v,r,i,n,e,b){
@@ -395,7 +386,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});
+			});			
+
 				
 			archiveGrid.on("select",function(node){
 				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf
@@ -428,7 +420,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 						split: true,
 						collapsible: true,
 						title: '卷内目录',
-						items: documentGrid, 
+						items: documentGrid
 
 					}]
 			});
