@@ -1617,5 +1617,17 @@ class DesktopController < ApplicationController
 	  render :text => 'Success'
 	  
 	end
+  #新增全宗信息
+      def insert_qz
+        user=User.find_by_sql("select * from d_dwdm where  dwdm='#{params['dwdm']}';")
+        size = user.size
+        if size == 0
+          User.find_by_sql("insert into d_dwdm(dwdm, dwjc) values ('#{params['dwdm']}', '#{params['dwjc']}');")
+          txt='success'
+        else
+          txt= '全宗名称已经存在，请重新输入全宗名称。'
+        end
+        render :text => txt
+      end
 
 end
