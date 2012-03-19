@@ -34,7 +34,7 @@ Ext.define('MyDesktop.SystemMan', {
 
 	init : function(){
 		this.launcher = {
-			text: '权限管理',
+			text: '系统设置',
 			iconCls:'systemman',
 			handler : this.createWindow,
 			scope: this
