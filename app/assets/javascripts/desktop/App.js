@@ -32,12 +32,13 @@ Ext.define('MyDesktop.App', {
         'MyDesktop.TabWindow',
         'MyDesktop.AccordionWindow',
         'MyDesktop.BogusMenuModule',
+    //    'MyDesktop.BogusModule',
 
         'MyDesktop.Notepad',
         'MyDesktop.PrintData',
         'MyDesktop.ArchiveMan',
         'MyDesktop.AddressMan',
-
+		'MyDesktop.SystemMan',
         'MyDesktop.Settings'
     ],
 
@@ -61,7 +62,7 @@ Ext.define('MyDesktop.App', {
             new MyDesktop.PrintData(),
             new MyDesktop.SystemStatus(),
 
-         //  new MyDesktop.SystemMan(),
+           new MyDesktop.SystemMan(),
          //  new MyDesktop.SmallApps(),
 
          //   new MyDesktop.BogusModule(),
@@ -92,7 +93,7 @@ Ext.define('MyDesktop.App', {
                     { name: '编研利用', iconCls: 'notepad-shortcut',     module: 'notepad' },
                     { name: '影像打印', iconCls: 'printdata-shortcut',   module: 'printdata' },
                     { name: '档案统计', iconCls: 'cpu-shortcut',         module: 'systemstatus'},
-                  //  { name: '系统管理', iconCls: 'systemman-shortcut',   module: 'systemman' },
+                   	{ name: '系统管理', iconCls: 'systemman-shortcut',   module: 'systemman' },
                   //  { name: '应用程序', iconCls: 'smallapps-shortcut',   module: 'smallapps' }
                   //  { name: '亲朋好友', iconCls: 'accordion-shortcut', module: 'acc-win' },
                 ]
@@ -146,17 +147,7 @@ Ext.define('MyDesktop.App', {
     },
 
     onLogout: function () {
-      Ext.Msg.confirm('退出', '确定要退出登录?', 
-        function(btn){
-          if (btn=='yes') {
-            window.location = "/sign_out";                                        
-          }
-          else {
-            field.startValue='';
-            field.setValue('');
-          }
-        }
-      );
+        Ext.Msg.confirm('退出', '确定要退出登录?');
     },
 
     onSettings: function () {
