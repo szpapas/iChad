@@ -286,7 +286,7 @@ if ifname.include?('aj')
   
   outfile = rand(36**8).to_s(36)
   decode_file("./dady/tmp/#{ifname}", "./dady/tmp/#{outfile}")
-  data = File.open("./dady/tmp/#{outfile}").read
+  data = File.open("./dady/tmp/#{outfile}").read.gsub("\000","")
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)
   system ("rm -rf ./dady/tmp/#{outfile}")
   
