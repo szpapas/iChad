@@ -1617,5 +1617,402 @@ system("ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh}")
 render :text => 'Success'
 
 end
+  #获得用户目录权限树
+def get_ml_qx_tree
+  node, style = params["node"], params['style']
+   if node == "root"
+  #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
+       #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
+       data = User.find_by_sql("select * from  d_dwdm order by id;")
+       text="["
+      data.each do |dd|
+       # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
+       text=text+"{'text':'#{dd['dwdm']}','id' :'#{dd['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+       # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
+       #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
+       dalb=User.find_by_sql("select * from  d_dw_lb where dwid= #{dd['id']} order by id;")
+       dalb.each do |lb|
+         text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+         dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
+         dalbml.each do |lbml|
+           text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+           text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+           text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+           text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+           text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+           text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+           text=text+"]},"
+         end
+         text=text+"]},"
+       end
+       text=text+"]},"
+      end
+      text=text + "]"
 
+      render :text => text
+   end
+end
+  #获得用户菜单树
+def get_cd_qx_tree
+  node, style = params["node"], params['style']
+   if node == "root"
+  #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
+       #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
+       data = User.find_by_sql("select * from  d_cd order by id;")
+       text="["
+       data.each do |dd|
+       # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
+          text=text+"{'text':'#{dd['cdmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'},"
+       # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
+       #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
+      end
+      text=text + "]"
+
+      render :text => text
+   end
+end
+#获得用户列表
+def  get_user_grid
+  user = User.find_by_sql("select * from  users order by id;")
+
+  size = user.size;
+  if size > 0 
+   txt = "{results:#{size},rows:["
+   for k in 0..user.size-1
+     txt = txt + user[k].to_json + ','
+   end
+   txt = txt[0..-2] + "]}"
+  else
+   txt = "{results:0,rows:[]}"  
+  end  
+  render :text => txt
+end
+	  #获得用户树
+ def get_user_tree
+   node, style = params["node"], params['style']
+    if node == "root"
+   #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
+        #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
+        data = User.find_by_sql("select * from  users order by id;")
+        text="["
+        data.each do |dd|
+        # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
+        text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
+        #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
+       end
+       text=text + "]"
+
+       render :text => text
+    end
+ end
+ 	  #获得档案类别树
+ def get_lb_tree
+   node, style = params["node"], params['style']
+    if node == "root"
+
+        data = User.find_by_sql("select * from  d_dalb order by id;")
+        text="[{'text':'档案类别','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':["
+        data.each do |dd|
+        
+          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        
+       end
+       text=text + "]}]"
+
+       render :text => text
+    end
+ end
+ 	  #获得全宗档案类别树
+ def get_qz_lb_tree
+   
+    if !(params['id'].nil?)
+      if (params['id']=='')
+         data = User.find_by_sql("select * from  d_dw_lb  order by id;")
+         text="["
+         data.each do |dd|
+       
+           text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+       
+        end
+        text=text + "]"
+
+        render :text => text         
+      else
+      
+          data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
+          text="["
+          data.each do |dd|
+        
+            text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        
+         end
+         text=text + "]"
+
+         render :text => text
+       end
+    end
+ end
+  #获得全宗档案类别目录树
+ def get_qz_lb_ml_tree
+   
+    if !(params['id'].nil?)
+      if (params['id']=='')
+         data = User.find_by_sql("select * from  d_dw_lb_ml  order by id;")
+         text="["
+         data.each do |dd|
+       
+           text=text+"{'text':'#{dd['mlhjc']}_#{dd['mlh']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+       
+        end
+        text=text + "]"
+
+        render :text => text         
+      else
+      
+          data = User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid = #{params['id']} order by id;")
+          text="["
+          data.each do |dd|
+        
+            text=text+"{'text':'#{dd['mlhjc']}_#{dd['mlh']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        
+         end
+         text=text + "]"
+
+         render :text => text
+       end
+    end
+ end
+ 	  #获得全宗档案类别
+ def get_qz_lb
+    data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
+    text=""
+    data.each do |dd|
+      if text==""
+        text="#{dd['lbid']}" 
+      else
+        text=text+"|#{dd['lbid']}" 
+      end
+    end
+    render :text => text      
+ end
+ #保存用户目录菜单权限
+ def insert_qz_lb
+   User.find_by_sql("delete from d_dw_lb where dwid = #{params['qzid']};")
+   ss = params['insert_qx'].split('$')
+   for k in 0..ss.length-1
+     qx=ss[k].split(';')       
+     if qx[0]=="root1"  
+     else
+       User.find_by_sql("insert into d_dw_lb(dwid, lbid, lbmc) values ('#{params['qzid']}', '#{qx[0]}','#{qx[1]}');")
+     end
+   end
+     
+    render :text => 'success'
+ end
+
+ #保存全宗档案类别目录
+ def insert_qz_lb_ml
+   user=User.find_by_sql("select *  from d_dw_lb_ml where d_dw_lbid = #{params['d_dw_lbid']}  and (mlhjc='#{params['mlhjc']}' or mlh='#{params['mlh']}');")
+   size = user.size;
+   if size == 0
+   
+       User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{params['d_dw_lbid']}', '#{params['mlhjc']}','#{params['mlh']}');")
+       
+       render :text => 'success'
+   else
+       render :text => '同一全宗档案类别下的目录号说明或目录号不能有重复，请重新输入目录号说明和目录。'
+   end
+     
+    
+ end
+ #初使化全宗档案类别目录，根据archive表中的信息初使化全宗档案类别目录
+ def ini_qz_lb_ml
+   user=User.find_by_sql("select distinct qzh,dalb, mlh from archive order by qzh,dalb, mlh;")
+   size = user.size;
+   if size > 0
+     user.each do |dd|
+        data=User.find_by_sql("select * from d_dw_lb where dwid='#{dd['qzh']}' and lbid='#{dd['dalb']}';")
+        size1 = data.size;
+        if size1 > 0
+          User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{data[0]['id']}', '目录号#{dd['mlh']}','#{dd['mlh']}');")
+        end
+     end
+       
+       
+     render :text => 'success'
+   else
+     render :text => 'archive表中无数据。'
+   end
+     
+    
+ end
+ #获得用户权限
+ def get_user_qx
+    data = User.find_by_sql("select * from  qx_mlqx where user_id = #{params['userid']} order by id;")
+    text=""
+    data.each do |dd|
+      if text==""
+        text="#{dd['qxdm']}" + ";" +"#{dd['qxlb']}"
+      else
+        text=text+"|#{dd['qxdm']}" + ";" +"#{dd['qxlb']}"
+      end
+    end
+    render :text => text      
+ end
+ #保存用户目录菜单权限
+ def insert_user_qx
+   User.find_by_sql("delete from qx_mlqx where user_id = #{params['userid']};")
+   ss = params['insert_qx'].split('$')
+   for k in 0..ss.length-1
+     qx=ss[k].split(';')
+     ids=qx[0].split('_')
+     if qx[2]=="0"
+       if ids.length==4
+         id=ids[ids.length-2]
+         User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb,qx) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1},'#{ids[ids.length-1]}');")
+       else
+         id=ids[ids.length-1]
+         User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1});")
+       end
+     else
+       User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{qx[0]}',4);")
+     end
+   end
+     
+    render :text => 'success'
+ end
+ #更新用户信息
+ def update_user
+   user=User.find_by_sql("select * from users where id <> #{params['id']} and email='#{params['email']}';")
+   size = user.size
+   if size == 0
+     User.find_by_sql("update users set email='#{params['email']}', encrypted_password='#{params['encrypted_password']}' where id = #{params['id']};")
+     txt='success'
+   else
+     txt= '用户名称已经存在，请重新输入用户名称。'
+   end
+   render :text => txt
+ end
+  #新增用户信息
+  def insert_user
+    user=User.find_by_sql("select * from users where  email='#{params['email']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("insert into users(email, encrypted_password) values ('#{params['email']}', '#{params['encrypted_password']}');")
+      txt='success'
+    else
+      txt= '用户名称已经存在，请重新输入用户名称。'
+    end
+    render :text => txt
+  end
+  #删除用户信息
+  def delete_user
+    user=User.find_by_sql("delete from users where  id=#{params['id']};")
+
+    
+    render :text => 'success'
+  end
+  #删除档案类别目录信息
+  def delete_qz_lb_ml
+    user=User.find_by_sql("SELECT  d_dw_lb.dwid,d_dw_lb_ml.mlh,d_dw_lb.lbid FROM  d_dw_lb_ml, d_dw_lb WHERE  d_dw_lb.id = d_dw_lb_ml.d_dw_lbid and d_dw_lb_ml.id=#{params['id']};")   
+    size = user.size;
+    txt="";
+    if size > 0 
+      data=User.find_by_sql("select count(*) from archive where mlh='#{user[0]['mlh']}' and qzh='#{user[0]['dwid']}' and dalb='#{user[0]['lbid']}'")
+      size1 = data[0]['count'];
+
+      if size1.to_i > 0
+        txt= '此目录号里面有数据。无法删除。'
+      else
+        User.find_by_sql("delete from d_dw_lb_ml where  id=#{params['id']};")
+        txt= 'success'
+      end
+      
+    else
+      txt= '此目录号信息有问题。不能删除。'
+    end
+    render :text =>txt
+  end
+  #删除全宗信息
+  def delete_qz
+    user=User.find_by_sql("delete from d_dwdm where  id=#{params['id']};")
+
+    
+    render :text => 'success'
+  end
+  #获得全宗列表
+  def  get_qz_grid
+    user = User.find_by_sql("select * from  d_dwdm order by id;")
+
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  #更新全宗信息
+  def update_qz
+    user=User.find_by_sql("select * from d_dwdm where id <> #{params['id']} and dwdm='#{params['dwdm']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}' where id = #{params['id']};")
+      txt='success'
+    else
+      txt= '全宗名称已经存在，请重新输入全宗名称。'
+    end
+    render :text => txt
+  end
+   #新增全宗信息
+   def insert_qz
+     user=User.find_by_sql("select * from d_dwdm where  dwdm='#{params['dwdm']}';")
+     size = user.size
+     if size == 0
+       User.find_by_sql("insert into d_dwdm(dwdm, dwjc) values ('#{params['dwdm']}', '#{params['dwjc']}');")
+       txt='success'
+     else
+       txt= '全宗名称已经存在，请重新输入全宗名称。'
+     end
+     render :text => txt
+   end
+   def check_jylist
+     jyid=""
+     if !(params['jy_aj_list']=='')
+       user = User.find_by_sql("select daid,jyid from jylist where  hdsj IS NULL and daid in (#{params['jy_aj_list']});")
+       jyid=user[0]["jyid"]
+       size = user.size;
+       if size > 0
+         txt = ""
+         for k in 0..user.size-1
+             if !(txt=='')
+               txt = txt +"," + user[k]["daid"] 
+             else
+               txt =  user[k]["daid"] 
+             end
+         end
+         user = User.find_by_sql("select dh from archive where  id in (#{txt});")
+         txt=""
+         for k in 0..user.size-1
+             if !(txt=='')
+               txt = txt +"," + user[k]["dh"] 
+             else
+               txt =  user[k]["dh"] 
+             end
+         end
+         user = User.find_by_sql("select jyr from jylc where  id = #{jyid};")
+         render :text => "档号为：" + txt+ "已被" +user[0]["jyr"] + "借走，请重新借阅。"
+       else
+         render :text => "success"
+       end
+     else
+       render :text => "检查失败。"
+     end
+
+   end
 end
