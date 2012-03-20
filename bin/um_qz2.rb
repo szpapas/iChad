@@ -23,6 +23,13 @@ def get_dalb(ifname)
   hh[key]   
 end
 
+if ARGV.count < 3 
+  puts "usages : ruby um_qz2.rb {aj_file} {dwdm} {qzh}"
+  puts "         ruby um_qz2.rb ks_aj 泰州市国土资源局 4"
+  exit
+end  
+
+
 ajlist, dwdm, qzh = ARGV[0], ARGV[1], ARGV[2]
 File.open(ajlist).each_line do |line|
   dalb = get_dalb(line)

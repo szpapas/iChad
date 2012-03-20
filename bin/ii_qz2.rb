@@ -22,6 +22,13 @@ def get_dalb(ifname)
   hh[key]   
 end
 
+if ARGV.count < 3 
+  puts "usages : ruby ii_qz2.rb {aj_file} {qzh}  {image_path}"
+  puts "         ruby ii_qz2.rb ks_aj 4 /share/tz"
+  exit
+end  
+  
+
 ajlist, qzh, path = ARGV[0], ARGV[1], ARGV[2]
 File.open(ajlist).each_line do |line|
   mlh = /(\d+)(.*)/.match(line)[1]
