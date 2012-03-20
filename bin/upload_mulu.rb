@@ -6,10 +6,6 @@ require 'active_support'
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-#ystem ("./dady/bin/upload_mulu.rb  ./dady/#{v.original_filename}  #{dwdm} #{qzh} #{dalb} &")
-#ifname, dwdm, qzh, dalb = ARGV[0], ARGV[1],ARGV[2],ARGV[3]
-
-
 #2综合档案aj.txt
 def get_dalb(ifname) 
   key = /(\d+)(.*)(aj|jr)/.match(ifname)[2]
@@ -35,16 +31,16 @@ def get_dalb(ifname)
 end
 
 
-def decode_file (infile, outfile)
+def decode_file (infile, outfile, path)
   newfile = rand(36**8).to_s(36)
-  puts "iconv -t UTF-8 -f GB18030 #{infile} > ./dady/tmp/#{newfile}"
-  system("iconv -t UTF-8 -f GB18030 #{infile} > ./dady/tmp/#{newfile}")
-  ss = File.open("./dady/tmp/#{newfile}").read
+  puts "iconv -t UTF-8 -f GB18030  #{path}/#{infile} > #{path}/#{newfile}"
+  system("iconv -t UTF-8 -f GB18030  #{path}/#{infile} > #{path}/#{newfile}")
+  ss = File.open("#{path}/#{newfile}").read
   x= ActiveSupport::JSON.encode(ss).gsub(/\\n/, '').gsub("'","\"").gsub(/\\r/,'')
-  ff = File.open("#{outfile}","w+")
+  ff = File.open("#{path}/#{outfile}","w+")
   ff.write(x[1..-2])
   ff.close
-  system("rm ./dady/tmp/#{newfile}")
+  system("rm #{path}/#{newfile}")
 end
 
 def update_owner
@@ -271,9 +267,17 @@ end
 #
 #*********************************************************************************************
 #ruby ./dady/bin/upload_mulu.rb  10用地档案jr.txt 泰州市国土资源局 4 17 &
-ifname, dwdm, qzh = ARGV[0], ARGV[1], ARGV[2]
+
+if ARGV.count < 4 
+  puts "usages : ruby ./dady/bin/upload_mulu.rb {aj_file} {dwdm} {qzh} {path}"
+  puts "         ruby ./dady/bin/upload_mulu.rb 10用地档案aj.txt 泰州市国土资源局 4 tz"
+  exit
+end
+
+ifname, dwdm, qzh, pp = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 mlh = /(\d+)(.*)/.match(ifname)[1]
 dalb = get_dalb(ifname)
+path = "./dady/tmp1/#{pp}"
 
 if ifname.include?('aj')
   
@@ -285,16 +289,20 @@ if ifname.include?('aj')
   $conn.exec("delete from document where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
-  decode_file("./dady/tmp/#{ifname}", "./dady/tmp/#{outfile}")
-  data = File.open("./dady/tmp/#{outfile}").read.gsub("\000","")
+  decode_file("#{ifname}", "#{outfile}", path)
+  data = File.open("#{path}/#{outfile}").read.gsub("\000","")
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)
-  system ("rm -rf ./dady/tmp/#{outfile}")
+  system ("rm -rf #{path}/#{outfile}")
+  
+  
+  puts "delete from document where dh like '#{dh}'; "
+  $conn.exec("delete from document where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
-  decode_file("./dady/tmp/#{ifname.gsub('aj','jr')}", "./dady/tmp/#{outfile}")
-  data = File.open("./dady/tmp/#{outfile}").read
+  decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
+  data = File.open("#{path}/#{outfile}").read
   set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)
-  system ("rm -rf ./dady/tmp/#{outfile}")
+  system ("rm -rf #{path}/#{outfile}")
   
   update_owner
   
@@ -307,10 +315,10 @@ elsif ifname.include?('jr')
   $conn.exec("delete from document where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
-  decode_file("./dady/tmp/#{ifname}", "./dady/tmp/#{outfile}")
-  data = File.open("./dady/tmp/#{outfile}").read
+  decode_file("#{path}/#{ifname}", "#{path}/#{outfile}")
+  data = File.open("#{path}/#{outfile}").read
   set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb)
-  system ("rm -rf ./dady/tmp/#{outfile}")
+  system ("rm -rf #{path}/#{outfile}")
   
   update_owner
 end 

@@ -612,17 +612,17 @@ class DesktopController < ApplicationController
 
   def upload_file
     params.each do |k,v|
-logger.debug("K: #{k} ,V: #{v}")
-if k.include?("ext")
-   logger.debug("#{v.original_filename}")
-   logger.debug("#{v.tempfile.path}")
-   logger.debug("#{v.content_type}")
-   ff = File.new("./dady/#{v.original_filename}","w+")
-   ff.write(v.tempfile.read)
-   ff.close
-   break
-   end
-end
+      logger.debug("K: #{k} ,V: #{v}")
+      if k.include?("ext")
+        logger.debug("#{v.original_filename}")
+        logger.debug("#{v.tempfile.path}")
+        logger.debug("#{v.content_type}")
+        ff = File.new("./dady/#{v.original_filename}","w+")
+        ff.write(v.tempfile.read)
+        ff.close
+        break
+      end
+    end
     render :text => "{success:true}"
   end
   
@@ -652,51 +652,51 @@ end
   #jumpLoader
   def upload_images
     params.each do |k,v|
-logger.debug("K: #{k} ,V: #{v}")
-end
-render :text => "success"
+      logger.debug("K: #{k} ,V: #{v}")
+    end
+    render :text => "success"
   end
   
-#查询卷内目录
-def get_archive_where
+  #查询卷内目录
+  def get_archive_where
     if (params['query'].nil?)
-txt = "{results:0,rows:[]}"
-else
-   user = User.find_by_sql("select count(*) from archive where tm like '%#{params['query']}%';")[0]
-   size = user.count.to_i;
-   if size > 0
-   txt = "{results:#{size},rows:["
-   user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' limit #{params['limit']};")
-   for k in 0..user.size-1
-   txt = txt + user[k].to_json + ','
-   end
-   txt = txt[0..-2] + "]}"
-   else
-   txt = "{results:0,rows:[]}"
-   end
-   end
-render :text => txt
-end
+      txt = "{results:0,rows:[]}"
+    else
+      user = User.find_by_sql("select count(*) from archive where tm like '%#{params['query']}%';")[0]
+      size = user.count.to_i;
+      if size > 0
+        txt = "{results:#{size},rows:["
+        user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' limit #{params['limit']};")
+        for k in 0..user.size-1
+          txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+      else
+        txt = "{results:0,rows:[]}"
+      end
+    end
+    render :text => txt
+  end
 
-#查询卷内目录
-def get_document_where
+  #查询卷内目录
+  def get_document_where
     if (params['query'].nil?)
-txt = "{results:0,rows:[]}"
-else
-   user = User.find_by_sql("select * from document where tm like '%#{params['query']}%' limit #{params['limit']};")
-   size = user.size;
-   if size > 0
-   txt = "{results:#{size},rows:["
-   for k in 0..user.size-1
-   txt = txt + user[k].to_json + ','
-   end
-   txt = txt[0..-2] + "]}"
-   else
-   txt = "{results:0,rows:[]}"
-   end
-   end
-render :text => txt
-end
+      txt = "{results:0,rows:[]}"
+    else
+      user = User.find_by_sql("select * from document where tm like '%#{params['query']}%' limit #{params['limit']};")
+      size = user.size;
+      if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+          txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+      else
+        txt = "{results:0,rows:[]}"
+      end
+    end
+    render :text => txt
+  end
 
   def set_documents(tt, qzh, dalb)
     for k in 0..tt.size-1
@@ -1008,10 +1008,9 @@ end
   #
   #************************************************************************************************
   def upload_files
-
     params.each do |k,v|
-logger.debug("K: #{k} ,V: #{v}")
-end
+      logger.debug("K: #{k} ,V: #{v}")
+    end
     
     ff = params['ajb'].original_filename
     
@@ -1024,8 +1023,7 @@ end
       end
     end
     
-qzh = params['qzh']
-    #mlh = params['mlh']
+    qzh = params['qzh']
     dalb = params['dalb']
     
     dh = "#{qzh}_#{dalb}_#{mlh}_%"
@@ -1037,48 +1035,19 @@ qzh = params['qzh']
     user = User.find_by_sql("select * from d_dwdm where id=#{qzh};")[0]
     dwdm = user.dwdm # find by sql query
 
-v = params['jnb']
+    v = params['jnb']
     ff = File.new("./dady/tmp/#{v.original_filename}","w+")
-ff.write(v.tempfile.read)
-ff.close
+    ff.write(v.tempfile.read)
+    ff.close
 
     v = params['ajb']
     ff = File.new("./dady/tmp/#{v.original_filename}","w+")
-ff.write(v.tempfile.read)
-ff.close
+    ff.write(v.tempfile.read)
+    ff.close
     
     logger.debug "ruby ./dady/bin/upload_mulu.rb #{v.original_filename} #{dwdm} #{qzh} #{dalb} &"
     system ("ruby ./dady/bin/upload_mulu.rb #{v.original_filename} #{dwdm} #{qzh} #{dalb} &")
     
-    #processing aj
-    #v = params['ajb']
-    #ff = File.new("./dady/#{v.original_filename}","w+")
-#ff.write(v.tempfile.read)
-#ff.close
-
-#decode_file("./dady/#{v.original_filename}")
-#data = File.open("./dady/decoded").read
-#set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb)
-#
-##processing jn
-#v = params['jnb']
-    #ff = File.new("./dady/#{v.original_filename}","w+")
-#ff.write(v.tempfile.read)
-#ff.close
-    
-    #system ("./dady/bin/upload_mulu.rb ./dady/#{v.original_filename} #{dwdm} #{qzh} #{dalb} aj &")
-    #
-    #
-#decode_file("./dady/#{v.original_filename}")
-#data = File.open("./dady/decoded").read
-    #set_documents(ActiveSupport::JSON.decode(data), qzh, dalb)
-    #
-    #system ("./dady/bin/upload_mulu.rb ./dady/#{v.original_filename} #{dwdm} #{qzh} #{dalb} jn &")
-    #
-#
-##update ownder_id
-#update_owner
-
     render :text => "{success:true}"
   end
   
@@ -1097,76 +1066,72 @@ ff.close
   
   
   #查询借阅流程
-def get_jydjlc_jyzt
+  def get_jydjlc_jyzt
     if (params['query'].nil?)
-txt = "{results:0,rows:[]}"
-else
-jyzt=params['query']
-if (jyzt=='')
-txt = "{results:0,rows:[]}"
+      txt = "{results:0,rows:[]}"
+    else
+      jyzt=params['query']
+      if (jyzt=='')
+        txt = "{results:0,rows:[]}"
       else
-     #user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' limit #{params['limit']};")
-     user = User.find_by_sql("select count(*) from jylc where jyzt = #{params['query']};")[0]
-     size = user.count.to_i;
-     if size > 0
-     txt = "{results:#{size},rows:["
-     user = User.find_by_sql("select * from jylc where jyzt = #{params['query']};")
-     for k in 0..user.size-1
-     txt = txt + user[k].to_json + ','
-     end
-     txt = txt[0..-2] + "]}"
-     else
-     txt = "{results:0,rows:[]}"
-     end
-    
-    
-   end
-   end
-render :text => txt
-end
-#查询借阅流程
-def get_jydjlist
+        user = User.find_by_sql("select count(*) from jylc where jyzt = #{params['query']};")[0]
+        size = user.count.to_i;
+        if size > 0
+          txt = "{results:#{size},rows:["
+          user = User.find_by_sql("select * from jylc where jyzt = #{params['query']};")
+          for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+        else
+          txt = "{results:0,rows:[]}"
+        end
+      end
+    end
+    render :text => txt
+  end
+
+  #查询借阅流程
+  def get_jydjlist
     if (params['id'].nil?)
-txt = "{results:0,rows:[]}"
-else
-ids=params['jyzt']
-if (ids=='')
-txt = "{results:0,rows:[]}"
+      txt = "{results:0,rows:[]}"
+    else
+      ids=params['jyzt']
+      if (ids=='')
+        txt = "{results:0,rows:[]}"
       else
         if (ids=='2')
-       #user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' limit #{params['limit']};")
-       user = User.find_by_sql("select count(*) from archive where id in (select daid from jylist where jyid=#{params['id']} and hdsj IS NULL);")[0]
-       size = user.count.to_i;
-       if size > 0
-       txt = "{results:#{size},rows:["
-       user = User.find_by_sql("select * from archive where id in (select daid from jylist where jyid=#{params['id']} and hdsj IS NULL);")
-        for k in 0..user.size-1
-        txt = txt + user[k].to_json + ','
+          user = User.find_by_sql("select count(*) from archive where id in (select daid from jylist where jyid=#{params['id']} and hdsj IS NULL);")[0]
+          size = user.count.to_i;
+          
+          if size > 0
+            txt = "{results:#{size},rows:["
+            user = User.find_by_sql("select * from archive where id in (select daid from jylist where jyid=#{params['id']} and hdsj IS NULL);")
+            for k in 0..user.size-1
+              txt = txt + user[k].to_json + ','
+            end
+            txt = txt[0..-2] + "]}"
+          else
+            txt = "{results:0,rows:[]}"
+          end
+        else
+          user = User.find_by_sql("select count(*) from archive where id in (select daid from jylist where jyid=#{params['id']} );")[0]
+          size = user.count.to_i;
+          if size > 0
+            txt = "{results:#{size},rows:["
+            user = User.find_by_sql("select * from archive where id in (select daid from jylist where jyid=#{params['id']} );")
+            for k in 0..user.size-1
+              txt = txt + user[k].to_json + ','
+            end
+            txt = txt[0..-2] + "]}"
+          else
+            txt = "{results:0,rows:[]}"
+          end
         end
-        txt = txt[0..-2] + "]}"
-        
-     else
-       txt = "{results:0,rows:[]}"
-       end
-       else
-     user = User.find_by_sql("select count(*) from archive where id in (select daid from jylist where jyid=#{params['id']} );")[0]
-       size = user.count.to_i;
-       if size > 0
-       txt = "{results:#{size},rows:["
-       user = User.find_by_sql("select * from archive where id in (select daid from jylist where jyid=#{params['id']} );")
-        for k in 0..user.size-1
-        txt = txt + user[k].to_json + ','
-        end
-        txt = txt[0..-2] + "]}"
-
-     else
-       txt = "{results:0,rows:[]}"
-       end
-       end
-     end
-   end
-render :text => txt
-end
+      end
+    end
+    render :text => txt
+  end
 
   #quh, dwdm, dwjc
   def add_qzh
@@ -1191,65 +1156,70 @@ end
   
   def archive_query_jygl
     cx_tj=''
+    
     if !(params['mlh'].nil?)
       cx_tj="archive.mlh='#{params['mlh']}'"
     end
+    
     if !(params['ajh'].nil?)
 
-if (cx_tj!='')
-cx_tj=cx_tj + " and archive.ajh='#{params['ajh']}'"
-else
-cx_tj=" archive.ajh='#{params['ajh']}'"
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.ajh='#{params['ajh']}'"
+      else
+        cx_tj=" archive.ajh='#{params['ajh']}'"
       end
     end
+    
     if !(params['ajtm'].nil?)
-      
-if (cx_tj!='')
-cx_tj=cx_tj + " and archive.tm like '%#{params['ajtm']}%'"
-else
-cx_tj="archive.tm like '%#{params['ajtm']}%'"
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.tm like '%#{params['ajtm']}%'"
+      else
+        cx_tj="archive.tm like '%#{params['ajtm']}%'"
       end
     end
+    
     jn_cx_tj=''
     if !(params['wh'].nil?)
       jn_cx_tj="wh like '%#{params['wh']}%'"
     end
     if !(params['zrz'].nil?)
 
-if (jn_cx_tj!='')
-jn_cx_tj=jn_cx_tj + " and zrz like '%#{params['zrz']}%'"
-else
-jn_cx_tj=" zrz like '%#{params['zrz']}%'"
+      if (jn_cx_tj!='')
+        jn_cx_tj=jn_cx_tj + " and zrz like '%#{params['zrz']}%'"
+      else
+        jn_cx_tj=" zrz like '%#{params['zrz']}%'"
       end
     end
+    
     if !(params['tm'].nil?)
-      
-if (jn_cx_tj!='')
-jn_cx_tj=jn_cx_tj + " and document.tm like '%#{params['tm']}%'"
-else
-jn_cx_tj="document.tm like '%#{params['tm']}%'"
+      if (jn_cx_tj!='')
+        jn_cx_tj=jn_cx_tj + " and document.tm like '%#{params['tm']}%'"
+      else
+        jn_cx_tj="document.tm like '%#{params['tm']}%'"
       end
     end
+    
     dj_cx_tj=''
     if !(params['djh'].nil?)
       dj_cx_tj="djh like '%#{params['djh']}%'"
     end
+    
     if !(params['tdzl'].nil?)
-
-if (dj_cx_tj!='')
-dj_cx_tj=dj_cx_tj + " and tdzl like '%#{params['tdzl']}%'"
-else
-dj_cx_tj=" zrz like '%#{params['tdzl']}%'"
+      if (dj_cx_tj!='')
+        dj_cx_tj=dj_cx_tj + " and tdzl like '%#{params['tdzl']}%'"
+      else
+        dj_cx_tj=" zrz like '%#{params['tdzl']}%'"
       end
     end
+    
     if !(params['qlr'].nil?)
-      
-if (dj_cx_tj!='')
-dj_cx_tj=dj_cx_tj + " and qlrmc like '%#{params['qlr']}%'"
-else
-dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
+      if (dj_cx_tj!='')
+        dj_cx_tj=dj_cx_tj + " and qlrmc like '%#{params['qlr']}%'"
+      else
+        dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
       end
     end
+
     jy_select=''
     if (jn_cx_tj!='')
       if (cx_tj!='')
@@ -1281,6 +1251,7 @@ dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
         
       end
     end
+    
     if (jy_select!='')
       user = User.find_by_sql(" #{jy_select}")
       size = user.size;
@@ -1298,7 +1269,6 @@ dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
     end
     render:text=>txt
   end
-  
   
   def insert_jylc
       if !(params['jylx'].nil?)
@@ -1342,6 +1312,7 @@ dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
       render :text => "success"
     
   end
+  
   def update_jylc
     if !(params['jylx'].nil?)
       jylx=params['jylx']
@@ -1383,15 +1354,18 @@ dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
     end
     render :text => 'success'
   end
+  
   def delete_jylc
     user = User.find_by_sql("delete from jylc where id = #{params['id']};")
     render :text => 'success'
   end
+  
   def qbhd_jylc
     rq=Time.now.strftime("%Y-%m-%d")
     user = User.find_by_sql("update jylc set hdsj='#{rq}',jyzt='4' where id = #{params['id']};")
     render :text => 'success'
   end
+  
   def xjhd_jylc
     rq=Time.now.strftime("%Y-%m-%d")
     ss = params['ids'].split(',')
@@ -1400,15 +1374,14 @@ dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
     end
     user = User.find_by_sql("select * from jylist where jyid=#{params['id']} and hdsj IS NULL;")
 
-if user.size==0
-user = User.find_by_sql("update jylc set hdsj='#{rq}',jyzt='4' where id = #{params['id']};")
-end
+    if user.size==0
+      user = User.find_by_sql("update jylc set hdsj='#{rq}',jyzt='4' where id = #{params['id']};")
+    end
     #user = User.find_by_sql("update jylc set hdsj='#{rq}',jyzt='4' where id = #{params['id']};")
     render :text => 'success'
   end
   
   def get_p_setting
-    
     if params['mbmc'].nil?
       txt = "{results:0,rows:[]}"
     else
@@ -1416,21 +1389,21 @@ end
       user = User.find_by_sql("select * from p_setting where mbmc='#{mbmc}';")
       size = user.size;
       if size > 0
-          txt = "{results:#{size},rows:["
-          for k in 0..user.size-1
-              txt = txt + user[k].to_json + ','
-          end
-          txt = txt[0..-2] + "]}"
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+          txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
       else
-          txt = "{results:0,rows:[]}"
+        txt = "{results:0,rows:[]}"
       end
     end
     render :text => txt
-end
+  end
 
   def get_p_template
-  user = User.find_by_sql("select distinct mbmc from p_setting order by mbmc;")
-  size = user.size
+    user = User.find_by_sql("select distinct mbmc from p_setting order by mbmc;")
+    size = user.size
     if size > 0
         txt = "{results:#{size},rows:["
         for k in 0..size-1
@@ -1441,32 +1414,31 @@ end
         txt = "{results:0,rows:[]}"
     end
     render :text => txt
-end
+  end
 
-def get_mulu_store
-if params['dh'].nil?
+  def get_mulu_store
+    if params['dh'].nil?
       txt = "{results:0,rows:[]}"
     else
       dh = params['dh'].gsub('|','_')
       user = User.find_by_sql("select * from timage_tj where dh like '#{dh}%' order by id;")
       size = user.size;
       if size > 0
-          txt = "{results:#{size},rows:["
-          for k in 0..user.size-1
-              txt = txt + user[k].to_json + ','
-          end
-          txt = txt[0..-2] + "]}"
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
       else
-          txt = "{results:0,rows:[]}"
+        txt = "{results:0,rows:[]}"
       end
     end
     render :text => txt
-end
+  end
 
-
-def cal_image(path)
-k = 0
-Find.find(path) do |path|
+  def cal_image(path)
+    k = 0
+    Find.find(path) do |path|
       if path.include?'jpg'
         k = k+1
       end
@@ -1474,32 +1446,28 @@ Find.find(path) do |path|
     k
   end
 
-def prepare_upload_info
-#"id"=>"4|0|1" 全宗号，分类号，目录号
-#"/share/#{dd.dwdm}/目录#{dd.mlh}"
-
-ss = id.split('|')
+  def prepare_upload_info
+    ss = id.split('|')
     user = User.find_by_sql("select id, dwdm from d_dwdm whre id='#{ss[0]}';")
     dwdm = user[0].dwdm
-if ss.size == 3
-qzh, dalb, mlh = ss[0], ss[1], ss[2]
-path = "/share/#{dwdm}/目录#{mlh}"
+    if ss.size == 3
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      path = "/share/#{dwdm}/目录#{mlh}"
 
-tpsl = Dir["#{path}/*.jpg"].size
-user = User.find_by_sql("select count(*) as count from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-txt = "{results:1,rows:["
-txt = txt + "{mlh:'#{mlh}', tpsl:'#{tpsl}', drtp:'#{user[0].count}'}]}"
+      tpsl = Dir["#{path}/*.jpg"].size
+      user = User.find_by_sql("select count(*) as count from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+      txt = "{results:1,rows:["
+      txt = txt + "{mlh:'#{mlh}', tpsl:'#{tpsl}', drtp:'#{user[0].count}'}]}"
 
-elsif ss.size == 2
-
-end
-dd = User.find_by_sql("select qzh, dwdm, dalb, mlh from archive where id = #{params['id']};")[0]
+    elsif 
+      ss.size == 2
+    end
+    dd = User.find_by_sql("select qzh, dwdm, dalb, mlh from archive where id = #{params['id']};")[0]
     user = User.find_by_sql("select sum(ys) as zys from archive where qzh = '#{dd.qzh}' and dalb = '#{dd.dalb}' and mlh = '#{dd.mlh}';")
+    render :text => 'Success'
+  end
 
-render :text => 'Success'
-end
-
-def get_dyzt_store
+  def get_dyzt_store
     user = User.find_by_sql("select id, dydh, cast (mlh as integer), dqjh, qajh, zajh, dyzt, dylb from p_status order by mlh;")
     size = user.size;
     if size > 0
@@ -1512,49 +1480,47 @@ def get_dyzt_store
         txt = "{results:0,rows:[]}"
     end
     render :text => txt
-end
+  end
 
-#qzh=4&mlh=1&dalb=0&qajh=1&zajh=337&dylb-1=on&dylb-2=on&dylb-4=on
-def get_next_mulu
-qzh, mlh, dalb = params['qzh'], params['mlh'].to_i+1, params['dalb']
-user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
-data = user[0]
-txt = "({mlh:'#{mlh}', qajh:'#{data.min.to_i}', zajh:'#{data.max.to_i}', dalb:'#{data.dalb}'})"
-render :text => txt
-end
+  #qzh=4&mlh=1&dalb=0&qajh=1&zajh=337&dylb-1=on&dylb-2=on&dylb-4=on
+  def get_next_mulu
+    qzh, mlh, dalb = params['qzh'], params['mlh'].to_i+1, params['dalb']
+    user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
+    data = user[0]
+    txt = "({mlh:'#{mlh}', qajh:'#{data.min.to_i}', zajh:'#{data.max.to_i}', dalb:'#{data.dalb}'})"
+    render :text => txt
+  end
 
-def get_prev_mulu
+  def get_prev_mulu
+    render :text => 'Success'
+  end
 
-render :text => 'Success'
-end
+  #qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
+  def add_print_task
+    qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
 
-#qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
-def add_print_task
-qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
-
-dylb = 0
+    dylb = 0
     dylb += 8 if !params['dylb-1'].nil?
     dylb += 4 if !params['dylb-2'].nil?
     dylb += 2 if !params['dylb-3'].nil?
     dylb += 1 if !params['dylb-4'].nil?
-    
+  
     dydh = "#{qzh}_#{dalb}_#{mlh}"
     User.find_by_sql("delete from p_status where dydh='#{dydh}';")
     User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '#{qajh}', '#{qajh}', '#{zajh}', '未打印', '#{sprintf("%02b", dylb)}');")
-    
+  
     render :text => 'Success'
-end
+  end
 
-#qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
-def add_print_task_all
-qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
-
-dylb = 0
+  #qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
+  def add_print_task_all
+    qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
+    dylb = 0
     dylb += 8 if !params['dylb-1'].nil?
     dylb += 4 if !params['dylb-2'].nil?
     dylb += 2 if !params['dylb-3'].nil?
     dylb += 1 if !params['dylb-4'].nil?
-    
+  
     if (dalb=='*')
       users = User.find_by_sql("select distinct mlh, dalb from archive where qzh='#{qzh}' order by mlh;")
 
@@ -1562,229 +1528,201 @@ dylb = 0
         mlh, dalb = users[k].mlh, users[k].dalb
         dydh = "#{qzh}_#{dalb}_#{mlh}"
         User.find_by_sql("delete from p_status where dydh='#{dydh}';")
-
-        User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '1', '5', '未打印', '#{sprintf("%02b", dylb)}');")
+      
+        if zajh.to_i == -1
+          user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
+          data =user[0]
+          User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '#{data['min']}', '#{data['max']}', '未打印', '#{sprintf("%02b", dylb)}');")
+        else  
+          User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '1', '5', '未打印', '#{sprintf("%02b", dylb)}');")
+        end
       end
-      
     else
-      
       users = User.find_by_sql("select distinct mlh from archive where qzh='#{qzh}' and dalb='#{dalb}' order by mlh;")
-    
       for k in 0..users.size-1
         mlh = users[k].mlh
         dydh = "#{qzh}_#{dalb}_#{mlh}"
         User.find_by_sql("delete from p_status where dydh='#{dydh}';")
-      
+    
         user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
         data =user[0]
         User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '0', '#{data['min']}', '#{data['max']}', '未打印', '#{sprintf("%02b", dylb)}');")
       end
     end
-    
     render :text => 'Success'
-end
+  end
 
-def delete_print_task
-User.find_by_sql("delete from p_status where id in (#{params['id']});")
-render :text => 'Success'
-end
+  def delete_print_task
+    User.find_by_sql("delete from p_status where id in (#{params['id']});")
+    render :text => 'Success'
+  end
 
-def delete_all_print_task
-User.find_by_sql("delete from p_status where dyzt = '打印完成';")
-render :text => 'Success'
-end
+  def delete_all_print_task
+    User.find_by_sql("delete from p_status where dyzt = '打印完成';")
+    render :text => 'Success'
+  end
 
 
-def start_print_task
-system './dady/bin/start_print_wizard4.sh &'
-#system 'ruby ./dady/bin/call_print_wizard.rb'
-render :text => 'Success'
-end
+  def start_print_task
+    system './dady/bin/start_print_wizard4.sh &'
+    #system 'ruby ./dady/bin/call_print_wizard.rb'
+    render :text => 'Success'
+  end
 
-def update_timage_tj
-dh = params['dh']
-ss = dh.split('_')
-qzh, dalb, mlh = ss[0], ss[1], ss[2]
-system("ruby ./dady/bin/update_timage_tj.rb #{qzh} #{dalb} #{mlh}")
-render :text => 'Success'
-end
+  def update_timage_tj
+    dh = params['dh']
+    ss = dh.split('_')
+    qzh, dalb, mlh = ss[0], ss[1], ss[2]
+    system("ruby ./dady/bin/update_timage_tj.rb #{qzh} #{dalb} #{mlh}")
+    render :text => 'Success'
+  end
 
-def print_timage_tj
-dh = params['dh']
-ss = dh.split('_')
-qzh, dalb, mlh = ss[0], ss[1], ss[2]
-system("ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh}")
-render :text => 'Success'
+  def print_timage_tj
+    dh = params['dh']
+    ss = dh.split('_')
+    qzh, dalb, mlh = ss[0], ss[1], ss[2]
+    system("ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh}")
+    render :text => 'Success'
+  end
 
-end
   #获得用户目录权限树
-def get_ml_qx_tree
-  node, style = params["node"], params['style']
-   if node == "root"
-  #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
-       #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
-       data = User.find_by_sql("select * from  d_dwdm order by id;")
-       text="["
-      data.each do |dd|
-       # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
-       text=text+"{'text':'#{dd['dwdm']}','id' :'#{dd['id']}','leaf':false,'checked':false,'cls':'folder','children':["
-       # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
-       #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
-       dalb=User.find_by_sql("select * from  d_dw_lb where dwid= #{dd['id']} order by id;")
-       dalb.each do |lb|
-         text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
-         dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
-         dalbml.each do |lbml|
-           text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
-           text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
-           text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
-           text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
-           text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
-           text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+  def get_ml_qx_tree
+    node, style = params["node"], params['style']
+      if node == "root"
+        data = User.find_by_sql("select * from  d_dwdm order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['dwdm']}','id' :'#{dd['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+
+          dalb=User.find_by_sql("select * from  d_dw_lb where dwid= #{dd['id']} order by id;")
+          dalb.each do |lb|
+            text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+            dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
+            dalbml.each do |lbml|
+              text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+              text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+              text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+              text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+              text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+              text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+              text=text+"]},"
+           end
            text=text+"]},"
          end
          text=text+"]},"
-       end
-       text=text+"]},"
-      end
-      text=text + "]"
-
-      render :text => text
-   end
-end
-  #获得用户菜单树
-def get_cd_qx_tree
-  node, style = params["node"], params['style']
-   if node == "root"
-  #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
-       #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
-       data = User.find_by_sql("select * from  d_cd order by id;")
-       text="["
-       data.each do |dd|
-       # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
-          text=text+"{'text':'#{dd['cdmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'},"
-       # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
-       #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
-      end
-      text=text + "]"
-
-      render :text => text
-   end
-end
-#获得用户列表
-def  get_user_grid
-  user = User.find_by_sql("select * from  users order by id;")
-
-  size = user.size;
-  if size > 0 
-   txt = "{results:#{size},rows:["
-   for k in 0..user.size-1
-     txt = txt + user[k].to_json + ','
-   end
-   txt = txt[0..-2] + "]}"
-  else
-   txt = "{results:0,rows:[]}"  
-  end  
-  render :text => txt
-end
-	  #获得用户树
- def get_user_tree
-   node, style = params["node"], params['style']
-    if node == "root"
-   #text <<{:text=>"用户树",:id=>"0",:checked=>"false",:leaf=>"false",:cls=>"folder"}
-        #text = "[{'text':'用户树','id':'0','checked':false,'leaf':false,'cls':'folder','children':["
-        data = User.find_by_sql("select * from  users order by id;")
-        text="["
-        data.each do |dd|
-        # text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','checked':false,'cls':'folder'},"
-        text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-        # text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>"false",:cls  => "folder"}
-        #text << {:text => "#{dd['email']}", :id => dd["id"],:checked=>false,:leaf=>true,:cls  => "folder"}
-       end
-       text=text + "]"
-
-       render :text => text
-    end
- end
- 	  #获得档案类别树
- def get_lb_tree
-   node, style = params["node"], params['style']
-    if node == "root"
-
-        data = User.find_by_sql("select * from  d_dalb order by id;")
-        text="[{'text':'档案类别','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':["
-        data.each do |dd|
-        
-          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-        
-       end
-       text=text + "]}]"
-
-       render :text => text
-    end
- end
- 	  #获得全宗档案类别树
- def get_qz_lb_tree
-   
-    if !(params['id'].nil?)
-      if (params['id']=='')
-         data = User.find_by_sql("select * from  d_dw_lb  order by id;")
-         text="["
-         data.each do |dd|
-       
-           text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-       
         end
         text=text + "]"
+        render :text => text
+     end
+  end
 
+  #获得用户菜单树
+  def get_cd_qx_tree
+    node, style = params["node"], params['style']
+    if node == "root"
+    data = User.find_by_sql("select * from  d_cd order by id;")
+    text="["
+    data.each do |dd|
+      text=text+"{'text':'#{dd['cdmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'},"
+    end
+    text=text + "]"
+    render :text => text
+    end
+  end
+
+  #获得用户列表
+  def  get_user_grid
+    user = User.find_by_sql("select * from  users order by id;")
+
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
+  #获得用户树
+  def get_user_tree
+    node, style = params["node"], params['style']
+    if node == "root"
+      data = User.find_by_sql("select * from  users order by id;")
+      text="["
+      data.each do |dd|
+      text=text+"{'text':'#{dd['email']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+    end
+      text=text + "]"
+      render :text => text
+    end
+  end
+ 
+  #获得档案类别树
+  def get_lb_tree
+    node, style = params["node"], params['style']
+    if node == "root"
+      data = User.find_by_sql("select * from  d_dalb order by id;")
+      text="[{'text':'档案类别','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':["
+      data.each do |dd|
+          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+      end
+      text=text + "]}]"
+      render :text => text
+    end
+  end
+ 	
+ 	#获得全宗档案类别树
+  def get_qz_lb_tree
+    if !(params['id'].nil?)
+      if (params['id']=='')
+        data = User.find_by_sql("select * from  d_dw_lb  order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        end
+        text=text + "]"
         render :text => text         
       else
-      
-          data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
-          text="["
-          data.each do |dd|
-        
-            text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-        
-         end
-         text=text + "]"
-
-         render :text => text
-       end
+        data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        end
+        text=text + "]"
+        render :text => text
+      end
     end
- end
+  end
+  
   #获得全宗档案类别目录树
- def get_qz_lb_ml_tree
-   
+  def get_qz_lb_ml_tree
     if !(params['id'].nil?)
       if (params['id']=='')
          data = User.find_by_sql("select * from  d_dw_lb_ml  order by id;")
          text="["
          data.each do |dd|
-       
            text=text+"{'text':'#{dd['mlhjc']}_#{dd['mlh']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-       
         end
         text=text + "]"
-
         render :text => text         
       else
-      
-          data = User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid = #{params['id']} order by id;")
-          text="["
-          data.each do |dd|
-        
-            text=text+"{'text':'#{dd['mlhjc']}_#{dd['mlh']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-        
-         end
-         text=text + "]"
-
-         render :text => text
+        data = User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid = #{params['id']} order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['mlhjc']}_#{dd['mlh']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+        end
+        text=text + "]"
+        render :text => text
        end
     end
- end
- 	  #获得全宗档案类别
- def get_qz_lb
+  end
+ 
+  #获得全宗档案类别
+  def get_qz_lb
     data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
     text=""
     data.each do |dd|
@@ -1795,60 +1733,54 @@ end
       end
     end
     render :text => text      
- end
- #保存用户目录菜单权限
- def insert_qz_lb
-   User.find_by_sql("delete from d_dw_lb where dwid = #{params['qzid']};")
-   ss = params['insert_qx'].split('$')
-   for k in 0..ss.length-1
-     qx=ss[k].split(';')       
-     if qx[0]=="root1"  
-     else
-       User.find_by_sql("insert into d_dw_lb(dwid, lbid, lbmc) values ('#{params['qzid']}', '#{qx[0]}','#{qx[1]}');")
-     end
-   end
-     
+  end
+ 
+  #保存用户目录菜单权限
+  def insert_qz_lb
+    User.find_by_sql("delete from d_dw_lb where dwid = #{params['qzid']};")
+    ss = params['insert_qx'].split('$')
+    for k in 0..ss.length-1
+      qx=ss[k].split(';')       
+      if qx[0]=="root1"  
+      else
+        User.find_by_sql("insert into d_dw_lb(dwid, lbid, lbmc) values ('#{params['qzid']}', '#{qx[0]}','#{qx[1]}');")
+      end
+    end
     render :text => 'success'
- end
+  end
 
- #保存全宗档案类别目录
- def insert_qz_lb_ml
-   user=User.find_by_sql("select *  from d_dw_lb_ml where d_dw_lbid = #{params['d_dw_lbid']}  and (mlhjc='#{params['mlhjc']}' or mlh='#{params['mlh']}');")
-   size = user.size;
-   if size == 0
-   
-       User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{params['d_dw_lbid']}', '#{params['mlhjc']}','#{params['mlh']}');")
-       
-       render :text => 'success'
-   else
-       render :text => '同一全宗档案类别下的目录号说明或目录号不能有重复，请重新输入目录号说明和目录。'
-   end
-     
-    
- end
- #初使化全宗档案类别目录，根据archive表中的信息初使化全宗档案类别目录
- def ini_qz_lb_ml
+  #保存全宗档案类别目录
+  def insert_qz_lb_ml
+    user=User.find_by_sql("select *  from d_dw_lb_ml where d_dw_lbid = #{params['d_dw_lbid']}  and (mlhjc='#{params['mlhjc']}' or mlh='#{params['mlh']}');")
+    size = user.size;
+    if size == 0
+      User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{params['d_dw_lbid']}', '#{params['mlhjc']}','#{params['mlh']}');")
+      render :text => 'success'
+    else
+      render :text => '同一全宗档案类别下的目录号说明或目录号不能有重复，请重新输入目录号说明和目录。'
+    end
+  end
+ 
+  #初使化全宗档案类别目录，根据archive表中的信息初使化全宗档案类别目录
+  def ini_qz_lb_ml
    user=User.find_by_sql("select distinct qzh,dalb, mlh from archive order by qzh,dalb, mlh;")
    size = user.size;
    if size > 0
      user.each do |dd|
-        data=User.find_by_sql("select * from d_dw_lb where dwid='#{dd['qzh']}' and lbid='#{dd['dalb']}';")
-        size1 = data.size;
-        if size1 > 0
-          User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{data[0]['id']}', '目录号#{dd['mlh']}','#{dd['mlh']}');")
-        end
+      data=User.find_by_sql("select * from d_dw_lb where dwid='#{dd['qzh']}' and lbid='#{dd['dalb']}';")
+      size1 = data.size;
+      if size1 > 0
+        User.find_by_sql("insert into d_dw_lb_ml(d_dw_lbid, mlhjc, mlh) values ('#{data[0]['id']}', '目录号#{dd['mlh']}','#{dd['mlh']}');")
+      end
      end
-       
-       
      render :text => 'success'
    else
      render :text => 'archive表中无数据。'
    end
-     
-    
- end
- #获得用户权限
- def get_user_qx
+  end
+ 
+  #获得用户权限
+  def get_user_qx
     data = User.find_by_sql("select * from  qx_mlqx where user_id = #{params['userid']} order by id;")
     text=""
     data.each do |dd|
@@ -1859,9 +1791,10 @@ end
       end
     end
     render :text => text      
- end
- #保存用户目录菜单权限
- def insert_user_qx
+  end
+ 
+  #保存用户目录菜单权限
+  def insert_user_qx
    User.find_by_sql("delete from qx_mlqx where user_id = #{params['userid']};")
    ss = params['insert_qx'].split('$')
    for k in 0..ss.length-1
@@ -1879,11 +1812,11 @@ end
        User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{qx[0]}',4);")
      end
    end
-     
     render :text => 'success'
- end
- #更新用户信息
- def update_user
+  end
+
+  #更新用户信息
+  def update_user
    user=User.find_by_sql("select * from users where id <> #{params['id']} and email='#{params['email']}';")
    size = user.size
    if size == 0
@@ -1893,7 +1826,8 @@ end
      txt= '用户名称已经存在，请重新输入用户名称。'
    end
    render :text => txt
- end
+  end
+  
   #新增用户信息
   def insert_user
     user=User.find_by_sql("select * from users where  email='#{params['email']}';")
@@ -1906,6 +1840,7 @@ end
     end
     render :text => txt
   end
+  
   #删除用户信息
   def delete_user
     user=User.find_by_sql("delete from users where  id=#{params['id']};")
@@ -1913,6 +1848,7 @@ end
     
     render :text => 'success'
   end
+  
   #删除档案类别目录信息
   def delete_qz_lb_ml
     user=User.find_by_sql("SELECT  d_dw_lb.dwid,d_dw_lb_ml.mlh,d_dw_lb.lbid FROM  d_dw_lb_ml, d_dw_lb WHERE  d_dw_lb.id = d_dw_lb_ml.d_dw_lbid and d_dw_lb_ml.id=#{params['id']};")   
@@ -1934,17 +1870,16 @@ end
     end
     render :text =>txt
   end
+  
   #删除全宗信息
   def delete_qz
     user=User.find_by_sql("delete from d_dwdm where  id=#{params['id']};")
-
-    
     render :text => 'success'
   end
-  #获得全宗列表
-  def  get_qz_grid
-    user = User.find_by_sql("select * from  d_dwdm order by id;")
 
+  #获得全宗列表
+  def get_qz_grid
+    user = User.find_by_sql("select * from  d_dwdm order by id;")
     size = user.size;
     if size > 0 
      txt = "{results:#{size},rows:["
@@ -1957,6 +1892,7 @@ end
     end  
     render :text => txt
   end
+  
   #更新全宗信息
   def update_qz
     user=User.find_by_sql("select * from d_dwdm where id <> #{params['id']} and dwdm='#{params['dwdm']}';")
@@ -1969,50 +1905,52 @@ end
     end
     render :text => txt
   end
-   #新增全宗信息
-   def insert_qz
-     user=User.find_by_sql("select * from d_dwdm where  dwdm='#{params['dwdm']}';")
-     size = user.size
-     if size == 0
-       User.find_by_sql("insert into d_dwdm(dwdm, dwjc) values ('#{params['dwdm']}', '#{params['dwjc']}');")
-       txt='success'
-     else
-       txt= '全宗名称已经存在，请重新输入全宗名称。'
-     end
-     render :text => txt
-   end
-   def check_jylist
-     jyid=""
-     if !(params['jy_aj_list']=='')
-       user = User.find_by_sql("select daid,jyid from jylist where  hdsj IS NULL and daid in (#{params['jy_aj_list']});")
-       jyid=user[0]["jyid"]
-       size = user.size;
-       if size > 0
-         txt = ""
-         for k in 0..user.size-1
-             if !(txt=='')
-               txt = txt +"," + user[k]["daid"] 
-             else
-               txt =  user[k]["daid"] 
-             end
-         end
-         user = User.find_by_sql("select dh from archive where  id in (#{txt});")
-         txt=""
-         for k in 0..user.size-1
-             if !(txt=='')
-               txt = txt +"," + user[k]["dh"] 
-             else
-               txt =  user[k]["dh"] 
-             end
-         end
-         user = User.find_by_sql("select jyr from jylc where  id = #{jyid};")
-         render :text => "档号为：" + txt+ "已被" +user[0]["jyr"] + "借走，请重新借阅。"
-       else
-         render :text => "success"
-       end
-     else
-       render :text => "检查失败。"
-     end
-
-   end
+  
+  #新增全宗信息
+  def insert_qz
+    user=User.find_by_sql("select * from d_dwdm where  dwdm='#{params['dwdm']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("insert into d_dwdm(dwdm, dwjc) values ('#{params['dwdm']}', '#{params['dwjc']}');")
+      txt='success'
+    else
+      txt= '全宗名称已经存在，请重新输入全宗名称。'
+    end
+    render :text => txt
+  end
+  
+  def check_jylist
+    jyid=""
+    if !(params['jy_aj_list']=='')
+      user = User.find_by_sql("select daid,jyid from jylist where  hdsj IS NULL and daid in (#{params['jy_aj_list']});")
+      jyid=user[0]["jyid"]
+      size = user.size;
+      if size > 0
+        txt = ""
+        for k in 0..user.size-1
+          if !(txt=='')
+            txt = txt +"," + user[k]["daid"] 
+          else
+            txt =  user[k]["daid"] 
+          end
+        end
+        user = User.find_by_sql("select dh from archive where  id in (#{txt});")
+        txt=""
+        for k in 0..user.size-1
+          if !(txt=='')
+            txt = txt +"," + user[k]["dh"] 
+          else
+            txt =  user[k]["dh"] 
+          end
+        end
+        user = User.find_by_sql("select jyr from jylc where  id = #{jyid};")
+        render :text => "档号为：" + txt+ "已被" +user[0]["jyr"] + "借走，请重新借阅。"
+      else
+        render :text => "success"
+      end
+    else
+      render :text => "检查失败。"
+    end
+  end
+  
 end
