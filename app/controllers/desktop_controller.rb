@@ -1564,8 +1564,7 @@ class DesktopController < ApplicationController
 
 
   def start_print_task
-    system './dady/bin/start_print_wizard4.sh &'
-    #system 'ruby ./dady/bin/call_print_wizard.rb'
+    system 'ruby ./dady/bin/call_print_wizard.rb &'
     render :text => 'Success'
   end
 
@@ -1953,4 +1952,10 @@ class DesktopController < ApplicationController
     end
   end
   
+  def export
+    headers['Content-Type'] = "application/vnd.ms-excel"
+    headers['Content-Disposition'] = 'attachment; filename="report.xls"'
+    headers['Cache-Control'] = ''
+    @users = User.find(:all)
+  end
 end

@@ -275,6 +275,8 @@ if ARGV.count < 4
 end
 
 ifname, dwdm, qzh, pp = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
+puts "#{ifname}\t#{dwdm}\t#{qzh}\t#{pp}"
+
 mlh = /(\d+)(.*)/.match(ifname)[1]
 dalb = get_dalb(ifname)
 path = "./dady/tmp1/#{pp}"
@@ -289,6 +291,7 @@ if ifname.include?('aj')
   $conn.exec("delete from document where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
+  puts "#{ifname}\t#{outfile}\t#{path}"
   decode_file("#{ifname}", "#{outfile}", path)
   data = File.open("#{path}/#{outfile}").read.gsub("\000","")
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)

@@ -61,7 +61,11 @@ for k in 0..user.count-1 do
   
   os = ajh.rjust(6," ") + ajys.rjust(6," ") + jnts.rjust(6," ") + ml00.rjust(6," ")  +  mljn.rjust(6," ") + smyx.rjust(6," ") + mlbk.rjust(6," ") + jn00.rjust(6," ")  + jnjn.rjust(6," ") + jnbk.rjust(6," ") + a3.rjust(6," ") + a4.rjust(6," ") + dt.rjust(6," ")
   
-  convert_str =  convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos} '#{os}' \" -font ./dady/STZHONGS.ttf  -fill red -draw \"text 1250, #{y_pos-2}  #{zt} \" "
+  if zt != '' 
+    convert_str =  convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos} '#{os}' \" -font ./dady/STZHONGS.ttf -draw \"text 1250, #{y_pos-2}  #{zt} \" "
+  else 
+    convert_str =  convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos} '#{os}' \" -font ./dady/STZHONGS.ttf -draw \"text 1250, #{y_pos-2}  #{zt} \" "
+  end 
   
   if ((k % 50) == 49)
     puts "enter here : #{k}..."
@@ -77,7 +81,7 @@ for k in 0..user.count-1 do
     system convert_str
     
     #new begining page
-    convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '昆山市国土资源局 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+    convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '昆山市国土资源局 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
   end 
   
 end

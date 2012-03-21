@@ -25,7 +25,7 @@ end
 
 if ARGV.count < 4 
   puts "usages : ruby um_qz2.rb {aj_file} {dwdm} {tz} {qzh}"
-  puts "         ruby um_qz2.rb ks_aj 泰州市国土资源局 tz 4 "
+  puts "         ruby um_qz2.rb tz_aj 泰州市国土资源局 tz 4 "
   exit
 end  
 
@@ -33,5 +33,5 @@ end
 ajlist, dwdm, pp, qzh = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 File.open(ajlist).each_line do |line|
   dalb = get_dalb(line)
-  puts "ruby ./dady/bin/upload_mulu.rb #{line.chomp} #{dwdm} #{qzh} #{dalb} #{pp}"
+  puts "ruby ./dady/bin/upload_mulu.rb #{line.chomp} #{dwdm} #{qzh} #{pp}"
 end
