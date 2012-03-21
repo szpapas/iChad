@@ -1,0 +1,26 @@
+ruby ./dady/bin/import_image.rb 4 9 10 /mnt/data1/TZ/9/
+ruby ./dady/bin/import_image.rb 4 14 10 /mnt/data1/TZ/14/
+ruby ./dady/bin/import_image.rb 4 15 10 /mnt/data1/TZ/15/
+ruby ./dady/bin/import_image.rb 4 16 10 /mnt/data1/TZ/16/
+ruby ./dady/bin/import_image.rb 4 17 10 /mnt/data1/TZ/17/
+ruby ./dady/bin/import_image.rb 4 18 10 /mnt/data1/TZ/18/
+ruby ./dady/bin/import_image.rb 4 19 10 /mnt/data1/TZ/19/
+ruby ./dady/bin/import_image.rb 4 26 10 /mnt/data1/TZ/26/
+ruby ./dady/bin/import_image.rb 4 40 3 /mnt/data1/TZ/40/
+ruby ./dady/bin/import_image.rb 4 41 3 /mnt/data1/TZ/41/
+ruby ./dady/bin/import_image.rb 4 42 3 /mnt/data1/TZ/42/
+ruby ./dady/bin/import_image.rb 4 43 3 /mnt/data1/TZ/43/
+ruby ./dady/bin/import_image.rb 4 44 3 /mnt/data1/TZ/44/
+ruby ./dady/bin/import_image.rb 4 45 3 /mnt/data1/TZ/45/
+ruby ./dady/bin/import_image.rb 4 46 3 /mnt/data1/TZ/46/
+ruby ./dady/bin/import_image.rb 4 47 3 /mnt/data1/TZ/47/
+ruby ./dady/bin/import_image.rb 4 48 3 /mnt/data1/TZ/48/
+ruby ./dady/bin/import_image.rb 4 49 3 /mnt/data1/TZ/49/
+ruby ./dady/bin/import_image.rb 4 50 3 /mnt/data1/TZ/50/
+ruby ./dady/bin/import_image.rb 4 51 3 /mnt/data1/TZ/51/
+ruby ./dady/bin/import_image.rb 4 52 3 /mnt/data1/TZ/52/
+ruby ./dady/bin/import_image.rb 4 53 3 /mnt/data1/TZ/53/
+ruby ./dady/bin/import_image.rb 4 54 3 /mnt/data1/TZ/54/
+ruby ./dady/bin/import_image.rb 4 55 3 /mnt/data1/TZ/55/
+ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/
+
