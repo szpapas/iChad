@@ -348,25 +348,36 @@ Ext.define('MyDesktop.BorrowMan', {
 								//alert(ids);
 								Ext.getCmp('jyzt').setValue('2');
 								Ext.getCmp('jy_aj_list').setValue(ids);
-								new Ajax.Request("/desktop/insert_jylc", { 
+								new Ajax.Request("/desktop/check_jylist", { 
 									method: "POST",
 									parameters: Ext.getCmp('jydj_form').getValues(),
 									onComplete:	 function(request) {
 										if (request.responseText=='success'){
-											alert("登记成功。");
-											Ext.getCmp('jyr').setValue('');
-											Ext.getCmp('jydw').setValue('');
-											Ext.getCmp('lyxg').setValue('');
-											Ext.getCmp('bz').setValue('');
-											Ext.getCmp('cdlr').setValue('');
-											Ext.getCmp('zj').setValue('');
-											Ext.getCmp('fyys').setValue('0');
-											Ext.getCmp('zcys').setValue('');
+											new Ajax.Request("/desktop/insert_jylc", { 
+												method: "POST",
+												parameters: Ext.getCmp('jydj_form').getValues(),
+												onComplete:	 function(request) {
+													if (request.responseText=='success'){
+														alert("登记成功。");
+														Ext.getCmp('jyr').setValue('');
+														Ext.getCmp('jydw').setValue('');
+														Ext.getCmp('lyxg').setValue('');
+														Ext.getCmp('bz').setValue('');
+														Ext.getCmp('cdlr').setValue('');
+														Ext.getCmp('zj').setValue('');
+														Ext.getCmp('fyys').setValue('0');
+														Ext.getCmp('zcys').setValue('');
+													}else{
+														alert("登记失败，请重新登记。");
+													}
+												}
+											});
 										}else{
-											alert("登记失败，请重新登记。");
+											alert(request.responseText);
 										}
 									}
 								});
+								
 								
 							}
 						}
@@ -380,7 +391,7 @@ Ext.define('MyDesktop.BorrowMan', {
 								var data=grid.getSelectionModel().getSelection();
 								//alert(data.length);
 								if (data.length==0){
-									alert("您最少要选择一条案卷进行登记。");
+									alert("您最少要选择一条案卷进行阅览。");
 								}else{
 									var ids=[];
 									Ext.Array.each(data,function(record){
@@ -389,22 +400,32 @@ Ext.define('MyDesktop.BorrowMan', {
 									});
 									Ext.getCmp('jyzt').setValue('4');
 									Ext.getCmp('jy_aj_list').setValue(ids);
-									new Ajax.Request("/desktop/insert_jylc", { 
+									new Ajax.Request("/desktop/check_jylist", { 
 										method: "POST",
 										parameters: Ext.getCmp('jydj_form').getValues(),
 										onComplete:	 function(request) {
 											if (request.responseText=='success'){
-												alert("登记成功。");
-												Ext.getCmp('jyr').setValue('');
-												Ext.getCmp('jydw').setValue('');
-												Ext.getCmp('lyxg').setValue('');
-												Ext.getCmp('bz').setValue('');
-												Ext.getCmp('cdlr').setValue('');
-												Ext.getCmp('zj').setValue('');
-												Ext.getCmp('fyys').setValue('0');
-												Ext.getCmp('zcys').setValue('');
+												new Ajax.Request("/desktop/insert_jylc", { 
+													method: "POST",
+													parameters: Ext.getCmp('jydj_form').getValues(),
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															alert("阅览成功。");
+															Ext.getCmp('jyr').setValue('');
+															Ext.getCmp('jydw').setValue('');
+															Ext.getCmp('lyxg').setValue('');
+															Ext.getCmp('bz').setValue('');
+															Ext.getCmp('cdlr').setValue('');
+															Ext.getCmp('zj').setValue('');
+															Ext.getCmp('fyys').setValue('0');
+															Ext.getCmp('zcys').setValue('');
+														}else{
+															alert("阅览失败，请重新阅览。");
+														}
+													}
+												});
 											}else{
-												alert("登记失败，请重新登记。");
+												alert(request.responseText);
 											}
 										}
 									});
@@ -639,631 +660,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					            ]}],
 				
 			});
-			var jydj_jyqq_form= new Ext.FormPanel({
-					id : 'jydj_jyqq_form',
-					fileUpload: true,
-					width: 200,
-					height : 180,
-					autoHeight: true,
-					bodyStyle: 'padding: 5px 5px 5px 5px;',
-					labelWidth: 0,
-					defaults: {
-						anchor: '95%',
-						allowBlank: false,
-						msgTarget: 'side'
-					},
-					layout : 'absolute',
-					tbar:[							  
-						{	
-							xtype:'button',text:'借阅申请',tooltip:'借阅申请',id:'jyqq_sq',iconCls:'tyqq',
-							handler: function() {
-									
-								Ext.getCmp('jydj_jyqq_jyzt').setValue('1');
-								if (jyqq_add_change=='1'){
-									new Ajax.Request("/desktop/insert_jylc", { 
-										method: "POST",
-										parameters: Ext.getCmp('jydj_jyqq_form').getValues(),
-										onComplete:	 function(request) {
-											if (request.responseText=='success'){
-												alert("申请成功。");
-												Ext.getCmp('jyqq_win').close();
-												var grid = Ext.getCmp('jydjlc_grid');
-												grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-												jydjlc_store.proxy.extraParams.query=jydj_jyzt;
-												jydjlc_store.load();
-											}else{
-												alert("申请失败，请重新申请。");
-											}
-										}
-									});
-
-								}else
-								{
-									new Ajax.Request("/desktop/update_jylc", { 
-										method: "POST",
-										parameters: Ext.getCmp('jydj_jyqq_form').getValues(),
-										onComplete:	 function(request) {
-											if (request.responseText=='success'){
-												alert("修改成功。");
-												Ext.getCmp('jyqq_win').close();
-												var grid = Ext.getCmp('jydjlc_grid');
-												grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-												jydjlc_store.proxy.extraParams.query=jydj_jyzt;
-												jydjlc_store.load();
-											}else{
-												alert("修改失败，请重新修改。");
-											}
-										}
-									});
-								}
-							}
-						},
-						{	
-							xtype:'button',text:'退出',tooltip:'退出',id:'jyqq_tc',iconCls:'exit',
-
-
-								handler: function() {
-									
-										Ext.getCmp('jyqq_win').close();
-
-									}
-															
-
-						}
-
-					],
-					items: [{
-						width: 370,
-						height: 180,
-						xtype:'form',
-						border:false,
-						layout: 'absolute',
-						//id : 'jydj_form',
-						items: [		{
-											xtype:'textfield',
-											width:300,
-											hidden:true,
-											name:'id',
-											id:'js_jyqq_id',
-
-										},
-										{
-											xtype:'textfield',
-											width:300,
-											hidden:true,
-											name:'jytj',
-											id:'js_jyqq_jytj',
-
-										},	
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'jyzt' ,
-											id:'jydj_jyqq_jyzt'										
-										},
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'czrid' ,
-											id:'jydj_jyqq_czrid'										
-										},
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'jy_aj_list' ,
-											id:'jydj_jyqq_jy_aj_list'										
-										},
-						                {
-						                    xtype: 'textfield',
-						                    name: 'jyr',
-						                    fieldLabel: '',
-											id:'jydj_jyqq_jyr',
-						                    x: 75,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'jydw',
-											id:'jydj_jyqq_jydw',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'fyys',
-											id:'jydj_jyqq_fyys',
-						                    fieldLabel: '',
-						                    x: 75,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'zj',
-											id:'jydj_jyqq_zj',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'jylx',
-						                    store: jydj_jylx_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'text',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'lymd',
-						                    store: jydj_lymd_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'text',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'cdlr',
-											id:'jydj_jyqq_cdlr',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'lyxg',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 55,
-						                    text: '借阅人：',
-						                    x: 15,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '借阅单位：',
-						                    x: 230,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'jyqx',
-						                    store: jydj_jyqx_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'value',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '借阅类型：',
-						                    x: 15,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '利用目的：',
-						                    x: 15,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 70,
-						                    text: '借阅期限：',
-						                    x: 15,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 60,
-						                    text: '证件：',
-						                    x: 230,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 60,
-						                    text: '查档内容：',
-						                    x: 230,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '利用效果：',
-						                    x: 230,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '复印页数：',
-						                    x: 15,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '摘抄页数：',
-						                    x: 230,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 55,
-						                    text: '备注：',
-						                    x: 455,
-						                    y: 110
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'zcys',
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'bz',
-						                    width: 260,
-						                    fieldLabel: '',
-						                    x: 500,
-						                    y: 105
-						                }
-						            ]}],
-
-				});
-			var jydj_clqq_form= new Ext.FormPanel({
-					id : 'jydj_clqq_form',
-					fileUpload: true,
-					width: 200,
-					height : 180,
-					autoHeight: true,
-					bodyStyle: 'padding: 5px 5px 5px 5px;',
-					labelWidth: 0,
-					defaults: {
-						anchor: '95%',
-						allowBlank: false,
-						msgTarget: 'side'
-					},
-					layout : 'absolute',
-					tbar:[							  
-						{	
-							xtype:'button',text:'同意',tooltip:'同意',id:'clqq_ty',iconCls:'tyqq',
-							handler: function() {
-								var grid = Ext.getCmp('jydj_clqq_grid');
-								var data=grid.getSelectionModel().getSelection();
-								//alert(data.length);
-								if (data.length==0){
-									alert("您最少要选择一条案卷进行处理。");
-								}else{
-									var ids=[];
-									Ext.Array.each(data,function(record){
-										ids.push(record.get("id"));
-
-									});
-									Ext.getCmp('jydj_clqq_jyzt').setValue('2');
-									Ext.getCmp('jydj_clqq_jy_aj_list').setValue(ids);
-									new Ajax.Request("/desktop/update_jylc", { 
-										method: "POST",
-										parameters: Ext.getCmp('jydj_clqq_form').getValues(),
-										onComplete:	 function(request) {
-											if (request.responseText=='success'){
-												alert("借阅申请处理成功。");
-												Ext.getCmp('clqq_win').hide();
-												var grid = Ext.getCmp('jydjlc_grid');
-												grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-												jydjlc_store.proxy.extraParams.query=jydj_jyzt;
-												jydjlc_store.load();
-											}else{
-												alert("借阅申请处理失败，请重新处理。");
-											}
-										}
-									});
-
-								}
-							}
-						},
-						{	
-							xtype:'button',text:'打回',tooltip:'打回',id:'clqq_dh',iconCls:'dh',
-
-
-								handler: function() {
-									Ext.getCmp('jydj_clqq_jyzt').setValue('3');
-									
-									new Ajax.Request("/desktop/update_jylc", { 
-										method: "POST",
-										parameters: Ext.getCmp('jydj_clqq_form').getValues(),
-										onComplete:	 function(request) {
-											if (request.responseText=='success'){
-												alert("打回成功。");
-												Ext.getCmp('clqq_win').hide();
-												var grid = Ext.getCmp('jydjlc_grid');
-												grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-												jydjlc_store.proxy.extraParams.query='1';
-												jydjlc_store.load();
-											}else{
-												alert("打回失败，请重新打回。");
-											}
-										}
-									});
-									
-								}							
-
-						},
-						{	
-							xtype:'button',text:'退出',tooltip:'退出',id:'clqq_tc',iconCls:'exit',
-							handler: function() {
-								Ext.getCmp('clqq_win').close();
-
-							}
-						},
-
-					],
-					items: [{
-						width: 370,
-						height: 180,
-						xtype:'form',
-						border:false,
-						layout: 'absolute',
-						//id : 'jydj_form',
-						items: [		
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'id' ,
-											id:'jydj_clqq_id'										
-										},{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'jytj' ,
-											id:'jydj_clqq_jytj'										
-										},{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'jyzt' ,
-											id:'jydj_clqq_jyzt'										
-										},
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'czrid' ,
-											id:'jydj_clqq_czrid'										
-										},
-										{
-											xtype: 'textfield',
-											hidden : true,
-											name : 'jy_aj_list' ,
-											id:'jydj_clqq_jy_aj_list'										
-										},
-						                {
-						                    xtype: 'textfield',
-						                    name: 'jyr',
-						                    fieldLabel: '',
-						                    x: 75,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'jydw',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'fyys',
-						                    fieldLabel: '',
-						                    x: 75,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'zj',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'jylx',
-						                    store: jydj_jylx_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'text',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'lymd',
-						                    store: jydj_lymd_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'text',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'cdlr',
-											id:'jydj_clqq_cdlr',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'lyxg',
-						                    width: 465,
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 55,
-						                    text: '借阅人：',
-						                    x: 15,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '借阅单位：',
-						                    x: 230,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'combobox',
-						                    name: 'jyqx',
-						                    store: jydj_jyqx_store,
-											emptyText:'请选择',
-											mode: 'remote',
-											minChars : 2,
-											valueField:'value',
-											displayField:'text',
-											triggerAction:'all',
-						                    x: 75,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '借阅类型：',
-						                    x: 15,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '利用目的：',
-						                    x: 15,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 70,
-						                    text: '借阅期限：',
-						                    x: 15,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 60,
-						                    text: '证件：',
-						                    x: 230,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 60,
-						                    text: '查档内容：',
-						                    x: 230,
-						                    y: 80
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '利用效果：',
-						                    x: 230,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 65,
-						                    text: '复印页数：',
-						                    x: 15,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '摘抄页数：',
-						                    x: 230,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 55,
-						                    text: '备注：',
-						                    x: 455,
-						                    y: 110
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'zcys',
-						                    fieldLabel: '',
-						                    x: 295,
-						                    y: 105
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    name: 'bz',
-						                    width: 260,
-						                    fieldLabel: '',
-						                    x: 500,
-						                    y: 105
-						                }
-						            ]}],
-
-				});			
+			
+		
 		  var qwjsform= new Ext.FormPanel({
 				id : 'qwjs_form',
 				fileUpload: true,
@@ -1545,288 +943,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					                }
 					            ]}]
 			});
-			var js_jyqq_form= new Ext.FormPanel({
-					id : 'js_jyqq_form',
-					fileUpload: true,
-					width: 200,
-					height : 100,
-					autoHeight: true,
-					bodyStyle: 'padding: 5px 5px 5px 5px;',
-					labelWidth: 0,
-					defaults: {
-						anchor: '95%',
-						allowBlank: false,
-						msgTarget: 'side'
-					},
-					layout : 'absolute',
 
-					items: [{
-						width: 370,
-						height: 100,
-						xtype:'form',
-						border:false,
-						layout: 'absolute',
-						//id : 'daglaj_form',
-						items: [		
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_mlh',
-											name:'mlh',
-						                    width: 140,
-						                    fieldLabel: '',
-						                    x: 65,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_ajh',
-											name:'ajh',
-						                    width: 145,
-						                    fieldLabel: '',
-						                    x: 270,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_ajtm',
-											name:'ajtm',
-						                    width: 185,
-						                    fieldLabel: '',
-						                    x: 495,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_wh',
-											name:'wh',
-						                    width: 140,
-						                    fieldLabel: '',
-						                    x: 65,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_zrz',
-											name:'zrz',
-						                    width: 145,
-						                    fieldLabel: '',
-						                    x: 270,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_tm',
-											name:'tm',
-						                    width: 185,
-						                    fieldLabel: '',
-						                    x: 495,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'button',
-						                    height: 70,
-						                    id: 'js_jyqq_ss',
-						                    width: 75,
-						                    text: '获取条件',
-						                    x: 690,
-						                    y: 5,
-											handler: function() {
-												var pars=this.up('panel').getForm().getValues();
-												//var form = Ext.getCmp('qwjs_form').getForm();
-												//pars = form.getValues('tm');
-												var cx_tj;
-												var cdlr;
-												cx_tj='';
-												if(pars['djh']!=''){
-													cx_tj="{djh:" + pars['djh'] + "";
-													cdlr="地籍号："+ pars['djh'];
-												};
-												if(pars['qlr']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",qlr:" + pars['qlr']+ "";
-														cdlr=cdlr + ",权利人名称："+ pars['qlr'];
-													}else{
-														cx_tj="{qlr:" + pars['qlr']+ "";
-														cdlr="权利人名称："+ pars['qlr'];
-													}
-												};
-												if(pars['tdzl']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",tdzl:" + pars['tdzl']+ "";
-														cdlr=cdlr + ",土地座落："+ pars['tdzl'];
-													}else{
-														cx_tj="{tdzl:" + pars['tdzl']+ "";
-														cdlr="土地座落："+ pars['tdzl'];
-													}
-												};
-												if(pars['zrz']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",zrz:" + pars['rzr']+ "";
-														cdlr=cdlr + ",责任者："+ pars['rzr'];
-													}else{
-														cx_tj="{rzr:" + pars['zrz']+ "";
-														cdlr="责任者："+ pars['rzr'];
-													}
-												};
-												if(pars['wh']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",wh:" + pars['wh']+ "";
-														cdlr=cdlr + ",文号："+ pars['wh'];
-													}else{
-														cx_tj="{wh:" + pars['wh']+ "";
-														cdlr="文号："+ pars['wh'];
-													}
-												};
-												if(pars['tm']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",tm:" + pars['tm']+ "";
-														cdlr=cdlr + ",题名："+ pars['tm'];
-													}else{
-														cx_tj="{tm:" + pars['tm']+ "";
-														cdlr="题名："+ pars['tm'];
-													}
-												};
-												if(pars['ajtm']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",ajtm:" + pars['ajtm']+ "";
-														cdlr=cdlr + ",案卷标题："+ pars['ajtm'];
-													}else{
-														cx_tj="{ajtm:" + pars['ajtm']+ "";
-														cdlr="案卷标题："+ pars['ajtm'];
-													}
-												};
-												if(pars['mlh']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",mlh:" + pars['mlh']+ "";
-														cdlr=cdlr +",目录号："+ pars['mlh'];
-													}else{
-														cx_tj="{mlh:" + pars['mlh']+ "";
-														cdlr="目录号："+ pars['mlh'];
-													}
-												};
-												if(pars['ajh']!=''){
-													if (cx_tj!=''){
-														cx_tj=cx_tj + ",ajh:" + pars['ajh']+ "";
-														cdlr=cdlr+ ",案卷号："+ pars['ajh'];
-													}else{
-														cx_tj="{ajh:" + pars['ajh']+ "";
-														cdlr="案卷号："+ pars['ajh'];
-													}
-												};
-												if (cx_tj!=''){
-													cx_tj="(" + cx_tj + "})";
-													//var grid = Ext.getCmp('archive_grid');
-													//grid.store.proxy.url="/desktop/archive_query_jygl";
-
-													//archive_store.proxy.extraParams=eval(cx_tj);
-													//archive_store.proxy.extraParams=Ext.getCmp('qwjs_form').getValues();
-													//archive_store.load();
-													Ext.getCmp('js_jyqq_jytj').setValue(cx_tj);
-													Ext.getCmp('jydj_jyqq_cdlr').setValue(cdlr);
-												};
-
-											}
-
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '目录号：',
-						                    x: 15,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    text: '文      号：',
-						                    x: 15,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '案卷号：',
-						                    x: 210,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 55,
-						                    text: '责任者：',
-						                    x: 210,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 65,
-						                    text: '案卷标题：',
-						                    x: 425,
-						                    y: 5
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 25,
-						                    width: 50,
-						                    text: '题名：',
-						                    x: 425,
-						                    y: 30
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_djh',
-
-						                    width: 140,
-						                    fieldLabel: '',
-											name:'djh',
-						                    x: 65,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_tdzl',
-											name:'tdzl',
-						                    width: 145,
-						                    fieldLabel: '',
-						                    x: 270,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'textfield',
-						                    id: 'js_jyqq_qlr',
-											name:'qlr',
-						                    width: 185,
-						                    fieldLabel: '',
-						                    x: 495,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    text: '地籍号：',
-						                    x: 15,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    width: 60,
-						                    text: '土地座落：',
-						                    x: 210,
-						                    y: 55
-						                },
-						                {
-						                    xtype: 'label',
-						                    height: 20,
-						                    text: '权利人名称：',
-						                    x: 425,
-						                    y: 55
-						                }
-						            ]}]
-				});
 			Ext.regModel('archive_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
@@ -2098,139 +1215,626 @@ Ext.define('MyDesktop.BorrowMan', {
 					stripeRows:true
 				}
 			});	
-			Ext.regModel('jydj_clqq_model', {
-				fields: [
-					{name: 'id',		type: 'integer'},
-					{name: 'dwdm',		type: 'string'},
-					{name: 'dh',		type: 'string'},
-					{name: 'qzh',		type: 'string'},
-					{name: 'mlh',		type: 'string'},
-					{name: 'ajh',		type: 'string'},
-					{name: 'tm',		type: 'string'},
-					{name: 'flh',		type: 'string'},
-					{name: 'nd',		type: 'string'},
-					{name: 'qrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
-					{name: 'zrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
-					{name: 'js',		type: 'string'},
-					{name: 'ys',		type: 'string'},
-					{name: 'bgqx',		type: 'string'},
-					{name: 'mj',		type: 'string'},
-					{name: 'xh',		type: 'string'},
-					{name: 'cfwz',		type: 'string'},
-					{name: 'bz',		type: 'string'},
-					{name: 'boxstr',	type: 'string'},
-					{name: 'boxrfid',	type: 'string'},
-					{name: 'rfidstr',	type: 'string'},
-					{name: 'qny',		type: 'string'},
-					{name: 'zny',		type: 'string'},
-					{name: 'dalb',		type: 'string'}
-				
-				]
-			});
-			var jydj_clqq_store = Ext.create('Ext.data.Store', {
-				id:'jydj_clqq_store',
-				model : 'jydj_clqq_model',
-				proxy: {
-					type: 'ajax',
-					url : '/desktop/get_jydjlist',
-					extraParams: {query:''},
-					reader: {
-						type: 'json',
-						root: 'rows',
-						totalProperty: 'results'
-					}
-				}
-				//sortInfo:{field: 'level4', direction: "ASC"},
-				//baseParams: {start:0, limit:25, query:""}
-			});
-			var jydj_clqq_grid = new Ext.grid.GridPanel({
-				id : 'jydj_clqq_grid',
-				store: jydj_clqq_store,
-				
-				
-				columns: [
-					//{ text : 'file_name', flex : 1,	sortable : true, dataIndex: 'level4'},
-					//{ text : 'file_size',	 width : 75, sortable : true, dataIndex: 'file_size'}
-					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-					{ text : 'dalb',	width : 0, sortable : true, dataIndex: 'dalb'},
-					{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
-					{ text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
-					
-					{ text : '分类号',	 width : 75, sortable : true, dataIndex: 'flh'},
-					{ text : '案件号',	 width : 75, sortable : true, dataIndex: 'ajh'},
-					{ text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
-					
-					{ text : '年度',	width : 75, sortable : true, dataIndex: 'nd'},
-					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
-					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
-					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
-					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
-					{ text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
-					{ text : '地籍号',	 width : 75, sortable : true, dataIndex: 'djh'},
-					{ text : '备注',	flex : 1, sortable : true, dataIndex: 'bz'}
-					
-					],
-					selType:'checkboxmodel',
-					multiSelect:true,
-					listeners:{
-						itemdblclick:{
-							fn:function(v,r,i,n,e,b){
-								var tt=r.get("zrq");
-								//showContactForm();
-								DispAj(r,false);
-							}
-						}
-					},
-				//width : 800,
-				//height : 300,
-				viewConfig: {
-					stripeRows:true
-				}
-			});
+
 			var jyqq = function(recordad){//add_change 1代表新增，２代表修改
+				var js_jyqq_form= new Ext.FormPanel({
+						id : 'js_jyqq_form',
+						fileUpload: true,
+						width: 200,
+						height : 100,
+						autoHeight: true,
+						bodyStyle: 'padding: 5px 5px 5px 5px;',
+						labelWidth: 0,
+						defaults: {
+							anchor: '100%',
+							allowBlank: false,
+							msgTarget: 'side'
+						},
+						layout : 'absolute',
+
+						items: [{
+							width: 370,
+							height: 100,
+							xtype:'form',
+							border:false,
+							layout: 'absolute',
+							//id : 'daglaj_form',
+							items: [		
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_mlh',
+												name:'mlh',
+							                    width: 140,
+							                    fieldLabel: '',
+							                    x: 65,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_ajh',
+												name:'ajh',
+							                    width: 145,
+							                    fieldLabel: '',
+							                    x: 270,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_ajtm',
+												name:'ajtm',
+							                    width: 185,
+							                    fieldLabel: '',
+							                    x: 495,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_wh',
+												name:'wh',
+							                    width: 140,
+							                    fieldLabel: '',
+							                    x: 65,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_zrz',
+												name:'zrz',
+							                    width: 145,
+							                    fieldLabel: '',
+							                    x: 270,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_tm',
+												name:'tm',
+							                    width: 185,
+							                    fieldLabel: '',
+							                    x: 495,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'button',
+							                    height: 70,
+							                    id: 'js_jyqq_ss',
+							                    width: 75,
+							                    text: '获取条件',
+							                    x: 690,
+							                    y: 5,
+												handler: function() {
+													var pars=this.up('panel').getForm().getValues();
+													//var form = Ext.getCmp('qwjs_form').getForm();
+													//pars = form.getValues('tm');
+													var cx_tj;
+													var cdlr;
+													cx_tj='';
+													if(pars['djh']!=''){
+														cx_tj="{djh:" + pars['djh'] + "";
+														cdlr="地籍号："+ pars['djh'];
+													};
+													if(pars['qlr']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",qlr:" + pars['qlr']+ "";
+															cdlr=cdlr + ",权利人名称："+ pars['qlr'];
+														}else{
+															cx_tj="{qlr:" + pars['qlr']+ "";
+															cdlr="权利人名称："+ pars['qlr'];
+														}
+													};
+													if(pars['tdzl']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",tdzl:" + pars['tdzl']+ "";
+															cdlr=cdlr + ",土地座落："+ pars['tdzl'];
+														}else{
+															cx_tj="{tdzl:" + pars['tdzl']+ "";
+															cdlr="土地座落："+ pars['tdzl'];
+														}
+													};
+													if(pars['zrz']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",zrz:" + pars['rzr']+ "";
+															cdlr=cdlr + ",责任者："+ pars['rzr'];
+														}else{
+															cx_tj="{rzr:" + pars['zrz']+ "";
+															cdlr="责任者："+ pars['rzr'];
+														}
+													};
+													if(pars['wh']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",wh:" + pars['wh']+ "";
+															cdlr=cdlr + ",文号："+ pars['wh'];
+														}else{
+															cx_tj="{wh:" + pars['wh']+ "";
+															cdlr="文号："+ pars['wh'];
+														}
+													};
+													if(pars['tm']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",tm:" + pars['tm']+ "";
+															cdlr=cdlr + ",题名："+ pars['tm'];
+														}else{
+															cx_tj="{tm:" + pars['tm']+ "";
+															cdlr="题名："+ pars['tm'];
+														}
+													};
+													if(pars['ajtm']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",ajtm:" + pars['ajtm']+ "";
+															cdlr=cdlr + ",案卷标题："+ pars['ajtm'];
+														}else{
+															cx_tj="{ajtm:" + pars['ajtm']+ "";
+															cdlr="案卷标题："+ pars['ajtm'];
+														}
+													};
+													if(pars['mlh']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",mlh:" + pars['mlh']+ "";
+															cdlr=cdlr +",目录号："+ pars['mlh'];
+														}else{
+															cx_tj="{mlh:" + pars['mlh']+ "";
+															cdlr="目录号："+ pars['mlh'];
+														}
+													};
+													if(pars['ajh']!=''){
+														if (cx_tj!=''){
+															cx_tj=cx_tj + ",ajh:" + pars['ajh']+ "";
+															cdlr=cdlr+ ",案卷号："+ pars['ajh'];
+														}else{
+															cx_tj="{ajh:" + pars['ajh']+ "";
+															cdlr="案卷号："+ pars['ajh'];
+														}
+													};
+													if (cx_tj!=''){
+														cx_tj="(" + cx_tj + "})";
+														//var grid = Ext.getCmp('archive_grid');
+														//grid.store.proxy.url="/desktop/archive_query_jygl";
+
+														//archive_store.proxy.extraParams=eval(cx_tj);
+														//archive_store.proxy.extraParams=Ext.getCmp('qwjs_form').getValues();
+														//archive_store.load();
+														Ext.getCmp('js_jyqq_jytj').setValue(cx_tj);
+														Ext.getCmp('jydj_jyqq_cdlr').setValue(cdlr);
+													};
+
+												}
+
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '目录号：',
+							                    x: 15,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    text: '文      号：',
+							                    x: 15,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '案卷号：',
+							                    x: 210,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 55,
+							                    text: '责任者：',
+							                    x: 210,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '案卷标题：',
+							                    x: 425,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 50,
+							                    text: '题名：',
+							                    x: 425,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_djh',
+
+							                    width: 140,
+							                    fieldLabel: '',
+												name:'djh',
+							                    x: 65,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_tdzl',
+												name:'tdzl',
+							                    width: 145,
+							                    fieldLabel: '',
+							                    x: 270,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    id: 'js_jyqq_qlr',
+												name:'qlr',
+							                    width: 185,
+							                    fieldLabel: '',
+							                    x: 495,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    text: '地籍号：',
+							                    x: 15,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 60,
+							                    text: '土地座落：',
+							                    x: 210,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    text: '权利人名称：',
+							                    x: 425,
+							                    y: 55
+							                }
+							            ]}]
+					});
+					var jydj_jyqq_form= new Ext.FormPanel({
+							id : 'jydj_jyqq_form',
+							fileUpload: true,
+							width: 200,
+							height : 180,
+							autoHeight: true,
+							bodyStyle: 'padding: 5px 5px 5px 5px;',
+							labelWidth: 0,
+							defaults: {
+								anchor: '100%',
+								allowBlank: false,
+								msgTarget: 'side'
+							},
+							layout : 'absolute',
+							tbar:[							  
+								{	
+									xtype:'button',text:'借阅申请',tooltip:'借阅申请',id:'jyqq_sq',iconCls:'tyqq',
+									handler: function() {
+
+										Ext.getCmp('jydj_jyqq_jyzt').setValue('1');
+										if (jyqq_add_change=='1'){
+
+
+														new Ajax.Request("/desktop/insert_jylc", { 
+															method: "POST",
+															parameters: Ext.getCmp('jydj_jyqq_form').getValues(),
+															onComplete:	 function(request) {
+																if (request.responseText=='success'){
+
+																	alert("申请成功。");
+																	Ext.getCmp('jyqq_win').close();
+																	var grid = Ext.getCmp('jydjlc_grid');
+																	grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
+																	jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+																	jydjlc_store.load();
+																}else{
+																	alert("阅览失败，请重新阅览。");
+																}
+															}
+														});
+
+
+
+										}else
+										{
+											new Ajax.Request("/desktop/update_jylc", { 
+												method: "POST",
+												parameters: Ext.getCmp('jydj_jyqq_form').getValues(),
+												onComplete:	 function(request) {
+													if (request.responseText=='success'){
+														alert("修改成功。");
+														Ext.getCmp('jyqq_win').close();
+														var grid = Ext.getCmp('jydjlc_grid');
+														grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
+														jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+														jydjlc_store.load();
+													}else{
+														alert("修改失败，请重新修改。");
+													}
+												}
+											});
+										}
+									}
+								},
+								{	
+									xtype:'button',text:'退出',tooltip:'退出',id:'jyqq_tc',iconCls:'exit',
+
+
+										handler: function() {
+
+												Ext.getCmp('jyqq_win').close();
+
+											}
+
+
+								}
+
+							],
+							items: [{
+								width: 370,
+								height: 180,
+								xtype:'form',
+								border:false,
+								layout: 'absolute',
+								//id : 'jydj_form',
+								items: [		{
+													xtype:'textfield',
+													width:300,
+													hidden:true,
+													name:'id',
+													id:'js_jyqq_id',
+
+												},
+												{
+													xtype:'textfield',
+													width:300,
+													hidden:true,
+													name:'jytj',
+													id:'js_jyqq_jytj',
+
+												},	
+												{
+													xtype: 'textfield',
+													hidden : true,
+													name : 'jyzt' ,
+													id:'jydj_jyqq_jyzt'										
+												},
+												{
+													xtype: 'textfield',
+													hidden : true,
+													name : 'czrid' ,
+													id:'jydj_jyqq_czrid'										
+												},
+												{
+													xtype: 'textfield',
+													hidden : true,
+													name : 'jy_aj_list' ,
+													id:'jydj_jyqq_jy_aj_list'										
+												},
+								                {
+								                    xtype: 'textfield',
+								                    name: 'jyr',
+								                    fieldLabel: '',
+													id:'jydj_jyqq_jyr',
+								                    x: 75,
+								                    y: 5
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'jydw',
+													id:'jydj_jyqq_jydw',
+								                    width: 465,
+								                    fieldLabel: '',
+								                    x: 295,
+								                    y: 5
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'fyys',
+													id:'jydj_jyqq_fyys',
+								                    fieldLabel: '',
+								                    x: 75,
+								                    y: 105
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'zj',
+													id:'jydj_jyqq_zj',
+								                    width: 465,
+								                    fieldLabel: '',
+								                    x: 295,
+								                    y: 30
+								                },
+								                {
+								                    xtype: 'combobox',
+								                    name: 'jylx',
+								                    store: jydj_jylx_store,
+													emptyText:'请选择',
+													mode: 'remote',
+													minChars : 2,
+													valueField:'text',
+													displayField:'text',
+													triggerAction:'all',
+								                    x: 75,
+								                    y: 30
+								                },
+								                {
+								                    xtype: 'combobox',
+								                    name: 'lymd',
+								                    store: jydj_lymd_store,
+													emptyText:'请选择',
+													mode: 'remote',
+													minChars : 2,
+													valueField:'text',
+													displayField:'text',
+													triggerAction:'all',
+								                    x: 75,
+								                    y: 55
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'cdlr',
+													id:'jydj_jyqq_cdlr',
+								                    width: 465,
+								                    fieldLabel: '',
+								                    x: 295,
+								                    y: 80
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'lyxg',
+								                    width: 465,
+								                    fieldLabel: '',
+								                    x: 295,
+								                    y: 55
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 55,
+								                    text: '借阅人：',
+								                    x: 15,
+								                    y: 5
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 65,
+								                    text: '借阅单位：',
+								                    x: 230,
+								                    y: 5
+								                },
+								                {
+								                    xtype: 'combobox',
+								                    name: 'jyqx',
+								                    store: jydj_jyqx_store,
+													emptyText:'请选择',
+													mode: 'remote',
+													minChars : 2,
+													valueField:'value',
+													displayField:'text',
+													triggerAction:'all',
+								                    x: 75,
+								                    y: 80
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 25,
+								                    width: 65,
+								                    text: '借阅类型：',
+								                    x: 15,
+								                    y: 30
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 65,
+								                    text: '利用目的：',
+								                    x: 15,
+								                    y: 55
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 70,
+								                    text: '借阅期限：',
+								                    x: 15,
+								                    y: 80
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 25,
+								                    width: 60,
+								                    text: '证件：',
+								                    x: 230,
+								                    y: 30
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 25,
+								                    width: 60,
+								                    text: '查档内容：',
+								                    x: 230,
+								                    y: 80
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 25,
+								                    width: 65,
+								                    text: '利用效果：',
+								                    x: 230,
+								                    y: 55
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 25,
+								                    width: 65,
+								                    text: '复印页数：',
+								                    x: 15,
+								                    y: 105
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 65,
+								                    text: '摘抄页数：',
+								                    x: 230,
+								                    y: 105
+								                },
+								                {
+								                    xtype: 'label',
+								                    height: 20,
+								                    width: 55,
+								                    text: '备注：',
+								                    x: 455,
+								                    y: 110
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'zcys',
+								                    fieldLabel: '',
+								                    x: 295,
+								                    y: 105
+								                },
+								                {
+								                    xtype: 'textfield',
+								                    name: 'bz',
+								                    width: 260,
+								                    fieldLabel: '',
+								                    x: 500,
+								                    y: 105
+								                }
+								            ]}],
+
+						});
 				var win = Ext.getCmp('jyqq_win');
-				if (win==null) {
+				
+				if (win==undefined) {
 					win = new Ext.Window({
 						id : 'jyqq_win',
 						title: '借阅请求',
 						iconCls:'jyqq',
 						layout: 'border',
 						modal: true,
-						width:850,
-			            height:340,
+						width:800,
+			            height:320,
 						items:[{
 								
 								region: 'north',
 								height: 100,
 								layout: 'fit',
 								
-								//split:true,
-								//collapsible: true,
-								//collapsed:true,
-								//collapsible: true,
-								//title: '高级查询',
-								//collapseMode:'mini',
-								//hideCollapseTool:true,
+
 								items: js_jyqq_form
 							},
-					   //	,{
-					   //		region:'center',
-					   //		//height: 100,
-					   //		height: 30,
-					   //		layout: 'fit',
-					   //		tbar:[				
-					   //			'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查档内容</span>:&nbsp;&nbsp;',
-					   //			{
-					   //				xtype:'textfield',
-					   //				width:300,
-					   //				name:'jytj',
-					   //				id:'js_jyqq_jytj',
-                       //
-					   //			}]
-					   //	},
+
 							{
 								region: 'center',
 								//iconCls:'icon-grid',
@@ -2254,6 +1858,8 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 				if (jyqq_add_change==2){
 					Ext.getCmp('jyqq_sq').text="修改申请";
+					Ext.getCmp('jyqq_win').title="修改请求";
+					Ext.getCmp('jyqq_win').iconCls="xgqq";
 					Ext.getCmp('jydj_jyqq_form').getForm().setValues(recordad.data);
 				}else
 				{
@@ -2262,6 +1868,424 @@ Ext.define('MyDesktop.BorrowMan', {
 				win.show();
 			};	
 			var clqq = function(recordad){
+				Ext.regModel('jydj_clqq_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'dwdm',		type: 'string'},
+						{name: 'dh',		type: 'string'},
+						{name: 'qzh',		type: 'string'},
+						{name: 'mlh',		type: 'string'},
+						{name: 'ajh',		type: 'string'},
+						{name: 'tm',		type: 'string'},
+						{name: 'flh',		type: 'string'},
+						{name: 'nd',		type: 'string'},
+						{name: 'qrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
+						{name: 'zrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
+						{name: 'js',		type: 'string'},
+						{name: 'ys',		type: 'string'},
+						{name: 'bgqx',		type: 'string'},
+						{name: 'mj',		type: 'string'},
+						{name: 'xh',		type: 'string'},
+						{name: 'cfwz',		type: 'string'},
+						{name: 'bz',		type: 'string'},
+						{name: 'boxstr',	type: 'string'},
+						{name: 'boxrfid',	type: 'string'},
+						{name: 'rfidstr',	type: 'string'},
+						{name: 'qny',		type: 'string'},
+						{name: 'zny',		type: 'string'},
+						{name: 'dalb',		type: 'string'}
+
+					]
+				});
+				var jydj_clqq_store = Ext.create('Ext.data.Store', {
+					id:'jydj_clqq_store',
+					model : 'jydj_clqq_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_jydjlist',
+						extraParams: {query:''},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+					//sortInfo:{field: 'level4', direction: "ASC"},
+					//baseParams: {start:0, limit:25, query:""}
+				});
+				var jydj_clqq_grid = new Ext.grid.GridPanel({
+					id : 'jydj_clqq_grid',
+					store: jydj_clqq_store,
+
+
+					columns: [
+						//{ text : 'file_name', flex : 1,	sortable : true, dataIndex: 'level4'},
+						//{ text : 'file_size',	 width : 75, sortable : true, dataIndex: 'file_size'}
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+						{ text : 'dalb',	width : 0, sortable : true, dataIndex: 'dalb'},
+						{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+						{ text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
+
+						{ text : '分类号',	 width : 75, sortable : true, dataIndex: 'flh'},
+						{ text : '案件号',	 width : 75, sortable : true, dataIndex: 'ajh'},
+						{ text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
+
+						{ text : '年度',	width : 75, sortable : true, dataIndex: 'nd'},
+						{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
+						{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
+						{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
+						{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+						{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+						{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
+						{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
+						{ text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
+						{ text : '地籍号',	 width : 75, sortable : true, dataIndex: 'djh'},
+						{ text : '备注',	flex : 1, sortable : true, dataIndex: 'bz'}
+
+						],
+						selType:'checkboxmodel',
+						multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									var tt=r.get("zrq");
+									//showContactForm();
+									DispAj(r,false);
+								}
+							}
+						},
+					//width : 800,
+					//height : 300,
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+				var jydj_clqq_form= new Ext.FormPanel({
+						id : 'jydj_clqq_form',
+						fileUpload: true,
+						width: 850,
+						height : 180,
+						autoHeight: true,
+						bodyStyle: 'padding: 5px 5px 5px 5px;',
+						labelWidth: 0,
+						defaults: {
+							anchor: '100%',
+							allowBlank: false,
+							msgTarget: 'side'
+						},
+						layout : 'absolute',
+						tbar:[							  
+							{	
+								xtype:'button',text:'同意',tooltip:'同意',id:'clqq_ty',iconCls:'tyqq',
+								handler: function() {
+									var grid = Ext.getCmp('jydj_clqq_grid');
+									var data=grid.getSelectionModel().getSelection();
+									//alert(data.length);
+									if (data.length==0){
+										alert("您最少要选择一条案卷进行处理。");
+									}else{
+										var ids=[];
+										Ext.Array.each(data,function(record){
+											ids.push(record.get("id"));
+
+										});
+										Ext.getCmp('jydj_clqq_jyzt').setValue('2');
+										Ext.getCmp('jydj_clqq_jy_aj_list').setValue(ids);
+										new Ajax.Request("/desktop/check_jylist", { 
+											method: "POST",
+											parameters: Ext.getCmp('jydj_clqq_form').getValues(),
+											onComplete:	 function(request) {
+												if (request.responseText=='success'){
+													new Ajax.Request("/desktop/update_jylc", { 
+														method: "POST",
+														parameters: Ext.getCmp('jydj_clqq_form').getValues(),
+														onComplete:	 function(request) {
+															if (request.responseText=='success'){
+																alert("借阅申请处理成功。");
+																Ext.getCmp('clqq_win').close();
+																var grid = Ext.getCmp('jydjlc_grid');
+																grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
+																jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+																jydjlc_store.load();
+															}else{
+																alert("借阅申请处理失败，请重新处理。");
+															}
+														}
+													});
+												}else{
+													alert(request.responseText);
+												}
+											}
+										});
+
+
+									}
+								}
+							},
+							{	
+								xtype:'button',text:'打回',tooltip:'打回',id:'clqq_dh',iconCls:'dh',
+
+
+									handler: function() {
+										Ext.getCmp('jydj_clqq_jyzt').setValue('3');
+
+										new Ajax.Request("/desktop/update_jylc", { 
+											method: "POST",
+											parameters: Ext.getCmp('jydj_clqq_form').getValues(),
+											onComplete:	 function(request) {
+												if (request.responseText=='success'){
+													alert("打回成功。");
+													Ext.getCmp('clqq_win').close();
+													var grid = Ext.getCmp('jydjlc_grid');
+													grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
+													jydjlc_store.proxy.extraParams.query='1';
+													jydjlc_store.load();
+												}else{
+													alert("打回失败，请重新打回。");
+												}
+											}
+										});
+
+									}							
+
+							},
+							{	
+								xtype:'button',text:'退出',tooltip:'退出',id:'clqq_tc',iconCls:'exit',
+								handler: function() {
+									Ext.getCmp('clqq_win').close();
+
+								}
+							},
+
+						],
+						items: [{
+							width: 850,
+							height: 180,
+							xtype:'form',
+							border:false,
+							layout: 'absolute',
+							//id : 'jydj_form',
+							items: [		
+											{
+												xtype: 'textfield',
+												hidden : true,
+												name : 'id' ,
+												id:'jydj_clqq_id'										
+											},{
+												xtype: 'textfield',
+												hidden : true,
+												name : 'jytj' ,
+												id:'jydj_clqq_jytj'										
+											},{
+												xtype: 'textfield',
+												hidden : true,
+												name : 'jyzt' ,
+												id:'jydj_clqq_jyzt'										
+											},
+											{
+												xtype: 'textfield',
+												hidden : true,
+												name : 'czrid' ,
+												id:'jydj_clqq_czrid'										
+											},
+											{
+												xtype: 'textfield',
+												hidden : true,
+												name : 'jy_aj_list' ,
+												id:'jydj_clqq_jy_aj_list'										
+											},
+							                {
+							                    xtype: 'textfield',
+							                    name: 'jyr',
+							                    fieldLabel: '',
+							                    x: 75,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'jydw',
+							                    width: 465,
+							                    fieldLabel: '',
+							                    x: 295,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'fyys',
+							                    fieldLabel: '',
+							                    x: 75,
+							                    y: 105
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'zj',
+							                    width: 465,
+							                    fieldLabel: '',
+							                    x: 295,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'combobox',
+							                    name: 'jylx',
+							                    store: jydj_jylx_store,
+												emptyText:'请选择',
+												mode: 'remote',
+												minChars : 2,
+												valueField:'text',
+												displayField:'text',
+												triggerAction:'all',
+							                    x: 75,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'combobox',
+							                    name: 'lymd',
+							                    store: jydj_lymd_store,
+												emptyText:'请选择',
+												mode: 'remote',
+												minChars : 2,
+												valueField:'text',
+												displayField:'text',
+												triggerAction:'all',
+							                    x: 75,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'cdlr',
+												id:'jydj_clqq_cdlr',
+							                    width: 465,
+							                    fieldLabel: '',
+							                    x: 295,
+							                    y: 80
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'lyxg',
+							                    width: 465,
+							                    fieldLabel: '',
+							                    x: 295,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 55,
+							                    text: '借阅人：',
+							                    x: 15,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '借阅单位：',
+							                    x: 230,
+							                    y: 5
+							                },
+							                {
+							                    xtype: 'combobox',
+							                    name: 'jyqx',
+							                    store: jydj_jyqx_store,
+												emptyText:'请选择',
+												mode: 'remote',
+												minChars : 2,
+												valueField:'value',
+												displayField:'text',
+												triggerAction:'all',
+							                    x: 75,
+							                    y: 80
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 65,
+							                    text: '借阅类型：',
+							                    x: 15,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '利用目的：',
+							                    x: 15,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 70,
+							                    text: '借阅期限：',
+							                    x: 15,
+							                    y: 80
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 60,
+							                    text: '证件：',
+							                    x: 230,
+							                    y: 30
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 60,
+							                    text: '查档内容：',
+							                    x: 230,
+							                    y: 80
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 65,
+							                    text: '利用效果：',
+							                    x: 230,
+							                    y: 55
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 25,
+							                    width: 65,
+							                    text: '复印页数：',
+							                    x: 15,
+							                    y: 105
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 65,
+							                    text: '摘抄页数：',
+							                    x: 230,
+							                    y: 105
+							                },
+							                {
+							                    xtype: 'label',
+							                    height: 20,
+							                    width: 55,
+							                    text: '备注：',
+							                    x: 455,
+							                    y: 110
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'zcys',
+							                    fieldLabel: '',
+							                    x: 295,
+							                    y: 105
+							                },
+							                {
+							                    xtype: 'textfield',
+							                    name: 'bz',
+							                    width: 260,
+							                    fieldLabel: '',
+							                    x: 500,
+							                    y: 105
+							                }
+							            ]}],
+
+					});
 				var win = Ext.getCmp('clqq_win');
 				if (win==null) {
 					win = new Ext.Window({
@@ -2491,7 +2515,7 @@ Ext.define('MyDesktop.BorrowMan', {
 												var jyzt=record.data.jyzt;
 												if (record.data.jyzt==1 || record.data.jyzt==3){
 													jyqq_add_change='2';
-												
+													
 													jyqq(record);
 													
 												}else{
