@@ -1,0 +1,10 @@
+<table border="1">
+  <tr>
+    <th>Name</th>
+  </tr>
+  <% @users.each do |u| %>
+  <tr>
+   <td><%= u.login %></td>
+  <% end %>
+ </tr>
+</table>
