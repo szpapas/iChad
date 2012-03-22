@@ -239,7 +239,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 							model : 'archive_model',
 							proxy: {
 								type: 'ajax',
-								url : '/desktop/get_archive',
+								url : '/desktop/get_archive_qxdm',
 								extraParams: {query:title},
 								reader: {
 									type: 'json',
@@ -950,8 +950,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 				autoLoad: true,
 				proxy: {
 						type: 'ajax',
-						url: 'desktop/get_tree',
-						extraParams: {
+						url: 'desktop/get_treeForuserid',
+						extraParams: {node:"root",userid:"1"
 						//		mode: 'getTree'
 						},
 						actionMethods: 'POST'
@@ -963,8 +963,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 			rootVisible: false,
 			useArrows: true,
 			singleExpand: true,
-			width: 200,
-			height: 300
+			width: 200
+			
 		});
 
 		treePanel.on("select",function(node){ 

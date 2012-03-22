@@ -1958,4 +1958,73 @@ class DesktopController < ApplicationController
     headers['Cache-Control'] = ''
     @users = User.find(:all)
   end
+  #通过用户id来获得此用户可查看的目录tree
+  def get_treeForuserid
+    text = []
+    node, style = params["node"], params['style']
+   
+
+      if node == "root"
+        data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
+
+          dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
+          dalb.each do |lb|
+            text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
+            dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
+            dalbml.each do |lbml|
+              text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
+              
+
+           end
+           text=text+"]},"
+         end
+         text=text+"]},"
+        end
+        text=text + "]"
+        
+     end
+
+    render :text => text
+  end
+  #通过权限代码来获得archive
+  def get_archive_qxdm
+    if (params['query'].nil?)
+      txt = "{results:0,rows:[]}"
+    else
+      ss = params['query'].split('_')
+      
+        data=User.find_by_sql("select * from d_dw_lb_ml where id = '#{ss[2]}';")
+        size = data.size;
+      
+        if size>0
+          dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{data[0]['d_dw_lbid']}';")
+          size = dalb.size;
+          if size>0 
+            user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}';")
+            size = user[0].count;
+  
+            if size.to_i > 0
+                txt = "{results:#{size},rows:["
+                user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+                size = user.size;
+                for k in 0..user.size-1
+                    txt = txt + user[k].to_json + ','
+                end
+                txt = txt[0..-2] + "]}"
+            else
+                txt = "{results:0,rows:[]}"
+            end
+          else
+            txt = "{results:0,rows:[]}"
+          end
+        else
+          txt = "{results:0,rows:[]}"
+        end
+      
+    end
+    render :text => txt
+  end
 end
