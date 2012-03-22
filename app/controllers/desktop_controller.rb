@@ -1762,6 +1762,8 @@ class DesktopController < ApplicationController
  
   #初使化全宗档案类别目录，根据archive表中的信息初使化全宗档案类别目录
   def ini_qz_lb_ml
+    User.find_by_sql("delete from d_dw_lb_ml;")
+    User.find_by_sql("delete from qx_mlqx;")
    user=User.find_by_sql("select distinct qzh,dalb, mlh from archive order by qzh,dalb, mlh;")
    size = user.size;
    if size > 0
