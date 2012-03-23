@@ -18,9 +18,18 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 qzh, mlh, dalb, path = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 
-$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxmc not like 'ML%';")
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
+
+def getimgsize(fname)
+  outfile = rand(36**6).to_s(36)
+  system "gdalinfo '#{fname}' | grep 'Lower Right' > #{outfile}"
+  ss = File.open(outfile).read.split(/\(|\)/)[1]
+  system "rm #{outfile}"
+  ss
+end
+
 def save2timage(id, yxbh, path, dh, yx_prefix)
   #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
   
@@ -35,7 +44,6 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   
     if meta.nil?
       meta, meta_tz = "", 0
-      
       pixels = width * height
       if pixels > 6000000
         meta_tz = 2
@@ -46,12 +54,20 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       end
       
     else 
-      meta_tz = meta.split("\;")[2].to_i 
+      mm = meta.split("\;")
+      pixels = width * height
+      if mm.size > 1 
+        meta_tz = meta.split("\;")[2].to_i
+      else
+        puts "Tags error: #{meta}"
+        meta, meta_tz = "", 0
+      end     
     end
   
   elsif yxbh.include?'TIF'
     meta = ""
-    width, height = fo[31].to_i*256+fo[30].to_i,fo[43].to_i*256+fo[42].to_i
+    wh = getimgsize(path).split(",")
+    width, height = wh[0].to_i, wh[1].to_i
     pixels = width * height
     
     if width > 10000
@@ -73,7 +89,10 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   #yxmc="#{mlh}\$#{flh}\$#{ajh}\$#{yxbh}"
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}..."
-  puts "insert file: #{path}  size: #{width}, #{height} ..."
+  puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
+  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
+  
+    #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
   
   #count = $conn.exec("select count(*) from timage where dh='#{dh}' and yxbh='#{yxbh}';")[0]['count']
