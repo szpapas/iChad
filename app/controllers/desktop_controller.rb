@@ -549,12 +549,12 @@ class DesktopController < ApplicationController
       user = User.find_by_sql("select id, yxmc, data from timage where id='#{params['gid']}';")
       ss = user[0]["data"] #already escaped
       tt = user[0]["yxmc"].gsub('$', '_')
-      local_filename = './dady/'+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
-      small_filename = './dady/'+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+      local_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
+      small_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       File.open(local_filename, 'w') {|f| f.write(ss) }
       system("convert -resize 20% -quality 75 #{local_filename} #{small_filename}")
       #system("rm #{local_filename}")
-      txt = "/assets/dady/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+      txt = "/assets/dady/img_tmp/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
     end
     render :text => txt
   end
