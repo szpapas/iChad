@@ -86,7 +86,7 @@ for k in 0..user.count-1 do
     end
     
     xj[0] = "小计"
-    os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ")  + xj[7].rjust(6," ") + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") + xj[12].rjust(6," ")
+    os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ") + xj[8].rjust(6," ")  + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") + xj[12].rjust(6," ")
     convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
     convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
     puts "generate file  for #{k+1} : timage_#{dh}_#{k/50}.jpg"
