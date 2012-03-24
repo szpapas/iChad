@@ -490,7 +490,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				autoLoad: true,
 				proxy: {
 						type: 'ajax',
-						url: 'desktop/get_treeForuserid',
+						url: 'desktop/get_treeforuserid',
 						extraParams: {node:"root",userid:"1"
 						//		mode: 'getTree'
 						},

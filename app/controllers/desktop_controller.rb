@@ -2006,7 +2006,7 @@ class DesktopController < ApplicationController
   end
   
   #通过用户id来获得此用户可查看的目录tree
-  def get_treeForuserid
+  def get_treeforuserid
     text = "[]"
     node, style = params["node"], params['style']
    
