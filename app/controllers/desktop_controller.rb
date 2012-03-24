@@ -545,7 +545,7 @@ class DesktopController < ApplicationController
         puts "select id, dh, yxmc, yxdx, yxbh from timage_tjtx where dh = '#{dh}';"
         user =  User.find_by_sql("select id, dh, yxmc, yxdx, yxbh  from timage_tjtx where dh = '#{dh}';")
         if user.size > 0 
-          txt = "{results:#{size},rows:["
+          txt = "{results:#{user.size},rows:["
           for k in 0..user.size-1
               txt = txt + user[k].to_json + ','
           end
@@ -559,10 +559,11 @@ class DesktopController < ApplicationController
   end
   
   def get_timage_from_db
+    type = params['type'].to_i
     if (params['gid'].nil?)
       txt = ""
     else
-      if type.to_i = 0
+      if type == 0
         user = User.find_by_sql("select id, yxmc, data from timage where id='#{params['gid']}';")
       else
         user = User.find_by_sql("select id, yxmc, data from timage_tjtx where id='#{params['gid']}';")
@@ -573,7 +574,7 @@ class DesktopController < ApplicationController
       local_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
       small_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       File.open(local_filename, 'w') {|f| f.write(ss) }
-      system("convert -resize 20% -quality 75 #{local_filename} #{small_filename}")
+      system("convert -resize 40% -quality 75 #{local_filename} #{small_filename}")
       #system("rm #{local_filename}")
       txt = "/assets/dady/img_tmp/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
     end

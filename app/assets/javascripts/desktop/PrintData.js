@@ -904,7 +904,6 @@ Ext.define('MyDesktop.PrintData', {
     timage_store.on('load',function(ds,records,o){
       combo = Ext.getCmp('timage_combo');
       combo.setValue(records[0].data.id);
-      timage_store.proxy.extraParams
       var pars={gid:records[0].data.id, type:timage_store.proxy.extraParams.type};
       new Ajax.Request("/desktop/get_timage_from_db", {
         method: "POST",
@@ -2349,7 +2348,7 @@ Ext.define('MyDesktop.PrintData', {
                 triggerAction:'all',
                 listeners:{
                   select:function(combo, record, index) {
-                    var pars={gid: record[0].data.id};
+                    var pars={gid:records[0].data.id, type:timage_store.proxy.extraParams.type};
                     new Ajax.Request("/desktop/get_timage_from_db", {
                       method: "POST",
                       parameters: pars,
@@ -2371,7 +2370,7 @@ Ext.define('MyDesktop.PrintData', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id')
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
@@ -2392,7 +2391,7 @@ Ext.define('MyDesktop.PrintData', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id')
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
