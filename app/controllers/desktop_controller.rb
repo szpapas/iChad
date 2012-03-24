@@ -1594,7 +1594,7 @@ class DesktopController < ApplicationController
     dh = params['dh']
     ss = dh.split('_')
     qzh, dalb, mlh = ss[0], ss[1], ss[2]
-    system("ruby ./dady/bin/update_timage_tj.rb #{qzh} #{dalb} #{mlh}")
+    system("ruby ./dady/bin/update_timage_tj.rb #{qzh} #{dalb} #{mlh} &")
     render :text => 'Success'
   end
 

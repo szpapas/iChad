@@ -98,6 +98,7 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='缺漏页' where  smyx > 0  and smyx != ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
+  
 end 
 
 update_timage(qzh, dalb, mlh)
