@@ -2006,36 +2006,30 @@ class DesktopController < ApplicationController
   end
   
   #通过用户id来获得此用户可查看的目录tree
-  def get_treeForuserid
-    text = []
+  def get_tree_for_userid
+    text="[]"
     node, style = params["node"], params['style']
-   
-
-      if node == "root"
-        data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
-        text="["
-        data.each do |dd|
-          text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
-
-          dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
-          dalb.each do |lb|
-            text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-            dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
-            dalbml.each do |lbml|
-              text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
-              
-
-           end
-           text=text+"]},"
-         end
-         text=text+"]},"
+    if node == "root"
+      data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
+      text="["
+      data.each do |dd|
+        text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
+        dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
+        dalb.each do |lb|
+          text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
+          dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
+          dalbml.each do |lbml|
+            text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
+          end
+          text=text+"]},"
         end
-        text=text + "]"
-        
-     end
-
+        text=text+"]},"
+      end
+      text=text + "]}]"
+    end
     render :text => text
   end
+  
   #通过权限代码来获得archive
   def get_archive_qxdm
     if (params['query'].nil?)
