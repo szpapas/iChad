@@ -576,7 +576,7 @@ class DesktopController < ApplicationController
       File.open(local_filename, 'w') {|f| f.write(ss) }
       system("convert -resize 40% -quality 75 #{local_filename} #{small_filename}")
       #system("rm #{local_filename}")
-      txt = "/assets/dady/img_tmp/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+      txt = "/assets/dady/img_tmp/#{user[0]["yxmc"].gsub('$', '_')}".gsub('TIF','JPG')
     end
     render :text => txt
   end
@@ -2006,8 +2006,8 @@ class DesktopController < ApplicationController
   end
   
   #通过用户id来获得此用户可查看的目录tree
-  def get_tree_for_userid
-    text="[]"
+  def get_treeforuserid
+    text = "[]"
     node, style = params["node"], params['style']
     if node == "root"
       data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
