@@ -44,7 +44,31 @@ Ext.define('MyDesktop.ArchiveMan', {
 	createWindow : function(){
 		var desktop = this.app.getDesktop();
 		var win = desktop.getWindow('archiveman');
-		
+		Ext.regModel('timage_model', {
+	      fields: [
+	        {name: 'id',     type: 'integer'},
+	        {name: 'dh',     type: 'string'},
+	        {name: 'yxmc',     type: 'string'},
+	        {name: 'yxdx',     type: 'string'},
+	        {name: 'yxbh',     type: 'string'},
+	      ]
+	    });
+
+	    var timage_store =  Ext.create('Ext.data.Store', {
+	      model : 'timage_model',
+	      proxy: {
+	        type: 'ajax',
+	        url : '/desktop/get_timage',
+	        extraParams: {dh:"",type:"0"},
+	        reader: {
+	          type: 'json',
+	          root: 'rows',
+	          totalProperty: 'results'
+	        }
+	      }
+	      //sortInfo:{field: 'level4', direction: "ASC"},
+	      //baseParams: {start:0, limit:25, query:""}
+	    });
 		var tabPanel = new Ext.TabPanel({
 			activeTab : 0,//默认激活第一个tab页
 			animScroll : true,//使用动画滚动效果
@@ -405,14 +429,26 @@ Ext.define('MyDesktop.ArchiveMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});			
-
+			});	
+				
+			documentGrid.on("select", function(node){
+		      data = node.selected.items[0].data;
+		      timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
+		      timage_store.load();
+		    });
 				
 			archiveGrid.on("select",function(node){
 				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
+				
+			      
+
+			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+			      timage_store.load();
+
+			      Ext.getCmp('timage_combo').lastQuery = null;
 			});
 			
 								
@@ -486,7 +522,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			win = desktop.createWindow({
 				id: 'archiveman',
 				title:'档案管理',
-				width:1000,
+				width:1200,
 				height:600,
 				iconCls: 'archiveman',
 				animCollapse:false,
@@ -527,9 +563,113 @@ Ext.define('MyDesktop.ArchiveMan', {
 							margins: '5 0 0 0',
 							cmargins: '5 5 0 0',
 							split:true,
-							width: 175,
+							width: 300,
 							minSize: 100,
-							maxSize: 250
+							maxSize: 250,
+							bbar:[
+				              {
+				                text:'图像列表',
+				                tooltip:'',
+				                //iconCls:'add',
+				                handler: function() {
+				                  timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+				                  timage_store.load();
+				                }
+				              },{
+				                xtype: 'combo',
+				                x: 130,
+				                y: 190,
+				                width: 100,
+				                name: 'yxbh',
+				                id: 'timage_combo',
+				                store: timage_store,
+				                emptyText:'请选择',
+				                mode: 'local',
+				                minChars : 2,
+				                valueField:'id',
+				                displayField:'yxbh',
+				                triggerAction:'all',
+				                listeners:{
+				                  select:function(combo, record, index) {
+				                    var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type};
+				                    new Ajax.Request("/desktop/get_timage_from_db", {
+				                      method: "POST",
+				                      parameters: pars,
+				                      onComplete:  function(request) {
+				                        var path = request.responseText;
+				                        if (path != '') { 
+				                          Ext.getCmp('preview_img').getEl().dom.src = path;
+				                        }
+				                      }
+				                    });
+				                  }
+				                }
+				              },
+				              {
+				                text: '上一个',
+				                handler: function(){
+				                  combo = Ext.getCmp('timage_combo')
+				                  var currentImage = combo.getStore().getById(combo.getValue());
+				                  var currentStoreIndex = combo.getStore().indexOf(currentImage);
+				                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id')
+				                  combo.setValue(nextStoreValue);
+				                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+				                  new Ajax.Request("/desktop/get_timage_from_db", {
+				                    method: "POST",
+				                    parameters: pars,
+				                    onComplete:  function(request) {
+				                      var path = request.responseText;
+				                      if (path != '') { 
+				                        Ext.getCmp('preview_img').getEl().dom.src = path;
+				                      }
+				                    }
+				                  });
+				                }
+				              },
+				              {
+				                text: '下一个',
+				                handler: function(){
+				                  combo = Ext.getCmp('timage_combo')
+				                  var currentImage = combo.getStore().getById(combo.getValue());
+				                  var currentStoreIndex = combo.getStore().indexOf(currentImage);
+				                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id')
+				                  combo.setValue(nextStoreValue);
+				                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+				                  new Ajax.Request("/desktop/get_timage_from_db", {
+				                    method: "POST",
+				                    parameters: pars,
+				                    onComplete:  function(request) {
+				                      var path = request.responseText;
+				                      if (path != '') { 
+				                        Ext.getCmp('preview_img').getEl().dom.src = path;
+				                      }
+				                    }
+				                  });             
+				                }
+				              },
+				              {
+				                text: '打印图像',
+				                handler : function() {
+				                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   
+				                  LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_打印图片2");
+				                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+				                  image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+				                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+				                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+				                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+				                  LODOP.PREVIEW();
+				                }
+				              }
+				            ],
+				            items:[{
+				              xtype: 'box', //或者xtype: 'component',
+				              id: 'preview_img',
+				              width: 350, //图片宽度
+				              autoEl: {
+				                tag: 'img',    //指定为img标签
+				                alt: ''      //指定url路径
+				              }
+				            }]
 						}
 				]
 			});
