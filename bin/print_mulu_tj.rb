@@ -86,7 +86,6 @@ for k in 0..user.count-1 do
   end 
   
   if ((k % 50) == 49)
-    puts "enter here : #{k}..."
     for kk in 0..xj.size-1 
       xj[kk] = xj[kk].to_s
     end
