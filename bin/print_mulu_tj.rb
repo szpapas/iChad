@@ -93,7 +93,13 @@ for k in 0..user.count-1 do
     
     xj[0] = "小计"
     os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ") + xj[8].rjust(6," ")  + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") + xj[12].rjust(6," ")
-    convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
+    
+    if xj[1] != xj[5]
+      convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
+    else
+      convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
+    end
+      
     convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
     puts "generate file  for #{k+1} : timage_#{dh}_#{k/50}.jpg"
     system convert_str
@@ -112,16 +118,26 @@ if ( (k % 50) > 0 && k > 1 )
   end
   xj[0] = '小计'
   os = xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ")   + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") +  xj[12].rjust(6," ")
-  convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, #{y_pos+34.2} '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, #{y_pos+34.2} '#{xj[0]}' \" "
-
+    
+  if xj[1] != xj[5]
+    convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, #{y_pos+34.2} '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, #{y_pos+34.2} '#{xj[0]}' \" "
+  else
+    convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, #{y_pos+34.2} '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, #{y_pos+34.2} '#{xj[0]}' \" "
+  end
+  
   for kk in 0..tj.size-1 
     tj[kk] = tj[kk].to_s
   end
   
   tj[0] = '合计'
-  os = tj[1].rjust(6," ") + tj[2].rjust(6," ") + tj[3].rjust(6," ")  +  tj[4].rjust(6," ") + tj[5].rjust(6," ") + tj[6].rjust(6," ") + tj[7].rjust(6," ")   + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") + tj[12].rjust(6," ")
-  convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-  
+  os = tj[1].rjust(6," ") + tj[2].rjust(6," ") + tj[3].rjust(6," ")  +  tj[4].rjust(6," ") + tj[5].rjust(6," ") + tj[6].rjust(6," ") + tj[7].rjust(6," ")   + tj[8].rjust(6," ") + tj[9].rjust(6," ") + tj[11].rjust(6," ") + tj[10].rjust(6," ") + tj[12].rjust(6," ")
+ 
+  if tj[1] != tj[5]
+    convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
+  else
+    convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
+  end
+    
   convert_str = convert_str + " /share/timage_#{dh}_#{k/50}.jpg"
   system convert_str
   
