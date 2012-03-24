@@ -95,9 +95,12 @@ def update_timage(qzh, dalb, mlh)
   puts "update 状态"
   
   $conn.exec("update timage_tj set zt='空卷'  where  smyx = 0 and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  $conn.exec("update timage_tj set zt='缺漏页' where  smyx > 0  and smyx != ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+  $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+  $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+  #$conn.exec("update timage_tj set zt='漏页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
+  
 end 
 
 update_timage(qzh, dalb, mlh)

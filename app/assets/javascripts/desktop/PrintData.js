@@ -770,7 +770,7 @@ Ext.define('MyDesktop.PrintData', {
       document_store.proxy.extraParams.query=data.id;
       document_store.load();
       
-      timage_store.proxy.extraParams.dh=data.dh;
+      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
       timage_store.load();
       
       Ext.getCmp('timage_combo').lastQuery = null; 
@@ -865,36 +865,15 @@ Ext.define('MyDesktop.PrintData', {
     
     muluStaticGrid.hide();
     
-    // muluStaticGrid.getStore().on('load',function(s,records){
-    //   var girdcount=0;
-    //   s.each(function(r){
-    //       if(r.get('zt')=='空卷'){
-    //           muluStaticGrid.getView().getRow(girdcount).style.backgroundColor='#FFFF00';
-    //       }else if(r.get('zy')=='本年累计'){
-    //          // grid.getView().getRow(girdcount).style.backgroundColor='#FF1493';
-    //       }else if(r.get('zy')=='期初余额'){
-    //         // grid.getView().getRow(girdcount).style.backgroundColor='#DCDCDC';
-    //       }
-    //       girdcount=girdcount+1;
-    //   });
-    // });
-    
-    /*
-    archiveGrid.on("select", function(node){
-      data = node.selected.items[0].data;  // file_size,  file_title:"1$A$0054$0015.tif", level4: "0015.tif"
-      var pars = {file_title:data.file_title};
-      new Ajax.Request("/get_file_url", 
-        { method: "POST",
-          parameters: pars,
-          onComplete:  function(request) {
-            var path = request.responseText;
-            if (path != '') { 
-              Ext.getCmp('center_img').getEl().dom.src = path;
-            } 
-          }
-        });
+    muluStaticGrid.getStore().on('load',function(s,records){
+      archiveGrid.getSelectionModel().select(0);
     });
-    */
+
+    muluStaticGrid.on("select", function(node){
+      data = node.selected.items[0].data;
+      timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
+      timage_store.load();
+    });
     
     Ext.regModel('timage_model', {
       fields: [
@@ -911,7 +890,7 @@ Ext.define('MyDesktop.PrintData', {
       proxy: {
         type: 'ajax',
         url : '/desktop/get_timage',
-        extraParams: {dh:""},
+        extraParams: {dh:"",type:"0"},
         reader: {
           type: 'json',
           root: 'rows',
@@ -925,7 +904,7 @@ Ext.define('MyDesktop.PrintData', {
     timage_store.on('load',function(ds,records,o){
       combo = Ext.getCmp('timage_combo');
       combo.setValue(records[0].data.id);
-      var pars={gid:records[0].data.id};
+      var pars={gid:records[0].data.id, type:timage_store.proxy.extraParams.type};
       new Ajax.Request("/desktop/get_timage_from_db", {
         method: "POST",
         parameters: pars,
@@ -1655,7 +1634,7 @@ Ext.define('MyDesktop.PrintData', {
                             var path = request.responseText;
                             if (path != '') { 
                               //Ext.getCmp('preview_img').getEl().dom.src = path;
-                              timage_store.proxy.extraParams.dh=data.dh;
+                              timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
                               timage_store.load();
                             }
                           }
@@ -2350,7 +2329,7 @@ Ext.define('MyDesktop.PrintData', {
                 tooltip:'',
                 //iconCls:'add',
                 handler: function() {
-                  timage_store.proxy.extraParams.dh=data.dh;
+                  timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
                   timage_store.load();
                 }
               },{
@@ -2369,7 +2348,7 @@ Ext.define('MyDesktop.PrintData', {
                 triggerAction:'all',
                 listeners:{
                   select:function(combo, record, index) {
-                    var pars={gid: record[0].data.id};
+                    var pars={gid:records[0].data.id, type:timage_store.proxy.extraParams.type};
                     new Ajax.Request("/desktop/get_timage_from_db", {
                       method: "POST",
                       parameters: pars,
@@ -2391,7 +2370,7 @@ Ext.define('MyDesktop.PrintData', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id')
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
@@ -2412,7 +2391,7 @@ Ext.define('MyDesktop.PrintData', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id')
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
