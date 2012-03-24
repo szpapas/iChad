@@ -520,23 +520,39 @@ class DesktopController < ApplicationController
     if (params['dh'].nil?)
       txt = "{results:0,rows:[]}"
     else
-      user = User.find_by_sql("select count(*) from timage where dh = '#{params['dh']}';")
-      size = user[0].count;
-  
-      if size.to_i > 0
+      if params['type'].to_i == 0
+        user = User.find_by_sql("select count(*) from timage where dh = '#{params['dh']}';")
+        size = user[0].count;
+
+        if size.to_i > 0
+            txt = "{results:#{size},rows:["
+            count = User.find_by_sql("select count(*) from timage where dh = '#{params['dh']}' and yxbh like '%ML%';")[0].count.to_i
+            user = User.find_by_sql("select id, dh, yxmc, yxdx, yxbh from timage where dh = '#{params['dh']}' order by yxbh;")
+            size = user.size;
+            for k in size-count..size-1
+                txt = txt + user[k].to_json + ','
+            end
+            for k in 0..size-count-1
+                txt = txt + user[k].to_json + ','
+            end
+            txt = txt[0..-2] + "]}"
+        else
+            txt = "{results:0,rows:[]}"
+        end
+      else 
+        ss = params['dh'].split("_")
+        dh = "#{ss[0]}_#{ss[1]}_#{ss[2]}"
+        puts "select id, dh, yxmc, yxdx, yxbh from timage_tjtx where dh = '#{dh}';"
+        user =  User.find_by_sql("select id, dh, yxmc, yxdx, yxbh  from timage_tjtx where dh = '#{dh}';")
+        if user.size > 0 
           txt = "{results:#{size},rows:["
-          count = User.find_by_sql("select count(*) from timage where dh = '#{params['dh']}' and yxbh like '%ML%';")[0].count.to_i
-          user = User.find_by_sql("select id, dh, yxmc, yxdx, yxbh from timage where dh = '#{params['dh']}' order by yxbh;")
-          size = user.size;
-          for k in size-count..size-1
-              txt = txt + user[k].to_json + ','
-          end
-          for k in 0..size-count-1
+          for k in 0..user.size-1
               txt = txt + user[k].to_json + ','
           end
           txt = txt[0..-2] + "]}"
-      else
+        else
           txt = "{results:0,rows:[]}"
+        end
       end
     end
     render :text => txt
@@ -546,7 +562,12 @@ class DesktopController < ApplicationController
     if (params['gid'].nil?)
       txt = ""
     else
-      user = User.find_by_sql("select id, yxmc, data from timage where id='#{params['gid']}';")
+      if type.to_i = 0
+        user = User.find_by_sql("select id, yxmc, data from timage where id='#{params['gid']}';")
+      else
+        user = User.find_by_sql("select id, yxmc, data from timage_tjtx where id='#{params['gid']}';")
+      end
+
       ss = user[0]["data"] #already escaped
       tt = user[0]["yxmc"].gsub('$', '_')
       local_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
@@ -1583,7 +1604,29 @@ class DesktopController < ApplicationController
     system("ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh}")
     render :text => 'Success'
   end
-
+  
+  
+  def get_timage_tj_from_db
+    if (params['gid'].nil?)
+      txt = ""
+    else
+      if type.to_i = 0
+        user = User.find_by_sql("select id, yxmc, data from timage_tjtx where id='#{params['gid']}';")
+      else
+        user = User.find_by_sql("select id, yxmc, data from timage_tjtx where id='#{params['gid']}';")
+      end  
+      ss = user[0]["data"] #already escaped
+      tt = user[0]["yxmc"]
+      local_filename = './dady/img_tmp/'+user[0]["yxmc"]
+      small_filename = './dady/img_tmp/'+user[0]["yxmc"]
+      File.open(local_filename, 'w') {|f| f.write(ss) }
+      system("convert -resize 20% -quality 75 #{local_filename} #{small_filename}")
+      txt = "/assets/dady/img_tmp/#{user[0]['yxmc']}"
+    end
+    render :text => txt    
+  end
+  
+    
   #获得用户目录权限树
   def get_ml_qx_tree
     node, style = params["node"], params['style']
@@ -1960,6 +2003,7 @@ class DesktopController < ApplicationController
     headers['Cache-Control'] = ''
     @users = User.find(:all)
   end
+  
   #通过用户id来获得此用户可查看的目录tree
   def get_treeForuserid
     text = []

@@ -4,6 +4,16 @@ $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
+
+def save2timage(yxbh, path, dh, yx_prefix)
+  yxdx=File.open(path).read.size
+  edata=PGconn.escape_bytea(File.open(path).read) 
+  yxmc="#{yx_prefix}_#{yxbh}.jpg"
+  $conn.exec("delete from timage_tjtx where dh='#{dh}' and yxbh='#{yxbh}';")
+  $conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
+end
+
+
 # ********************************************************************************************
 #
 #   main fucntions 
@@ -17,14 +27,17 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 qzh, dalb, mlh = ARGV[0], ARGV[1], ARGV[2] 
 
-dh = "#{qzh}_#{dalb}_#{mlh}_%"
+dh = "#{qzh}_#{dalb}_#{mlh}"
 #puts  "=====Started At #{Time.now}===="
 
 dateStr = Time.now.strftime("%Y 年 %m 月 %d 日")
 
-convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '昆山市国土资源局 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+user = $conn.exec("select id, dwdm from d_dwdm where id = #{qzh};")
+dwdm = user[0]['dwdm']
 
-user = $conn.exec("select * from timage_tj where dh like '#{dh}' order by ajh;")
+convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+
+user = $conn.exec("select * from timage_tj where dh like '#{dh}_%' order by ajh;")
 
 #xj, tj, xj_2, tj_2 = [], [], [], []
 for k in 0..user.count-1 do
@@ -57,8 +70,6 @@ for k in 0..user.count-1 do
   
   y_pos = 395 + 34.2*(k % 50)
   
-  #os = ajh.center(6," ") + ajys.center(6," ") + jnts.center(6," ") + ml00.center(6," ")  +  mljn.center(6," ") + smyx.center(6," ") + mlbk.center(6," ") + jn00.center(6," ")  + jnjn.center(6," ") + jnbk.center(6," ") + a3.center(6," ") + a4.center(6," ") + dt.center(6," ") 
-  
   os = ajh.rjust(6," ") + ajys.rjust(6," ") + jnts.rjust(6," ") + ml00.rjust(6," ")  +  mljn.rjust(6," ") + smyx.rjust(6," ") + mlbk.rjust(6," ") + jn00.rjust(6," ")  + jnjn.rjust(6," ") + jnbk.rjust(6," ") + a3.rjust(6," ") + a4.rjust(6," ") + dt.rjust(6," ")
   
   if zt != '' 
@@ -77,11 +88,13 @@ for k in 0..user.count-1 do
     os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ")  + xj[7].rjust(6," ") + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[10].rjust(6," ") + xj[11].rjust(6," ")
     convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
     convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
-    puts "generate file  for #{k+1} : timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
+    puts "generate file  for #{k+1} : timage_#{dh}_#{k/50}.jpg"
     system convert_str
-    
+    puts " save to file  /share/timage_#{dh}_#{k/50}.jpg"
+    save2timage("#{k/50}", "/share/timage_#{dh}_#{k/50}.jpg", dh, "timage_#{dh}")
+
     #new begining page
-    convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '昆山市国土资源局 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+    convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
   end 
   
 end
@@ -102,8 +115,11 @@ if ( (k % 50) > 0 && k > 1 )
   os = tj[1].rjust(6," ") + tj[2].rjust(6," ") + tj[3].rjust(6," ")  +  tj[4].rjust(6," ") + tj[5].rjust(6," ") + tj[6].rjust(6," ") + tj[7].rjust(6," ")   + xj[8].rjust(6," ") + xj[9].rjust(6," ") + xj[10].rjust(6," ") + xj[11].rjust(6," ") + tj[12].rjust(6," ")
   convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
   
-  convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
+  convert_str = convert_str + " /share/timage_#{dh}_#{k/50}.jpg"
   system convert_str
+  
+  puts " save to file  /share/timage_#{dh}_#{k/50}.jpg"
+  save2timage("#{k/50}", "/share/timage_#{dh}_#{k/50}.jpg", dh, "timage_#{dh}")
 end   
 
 $conn.close
