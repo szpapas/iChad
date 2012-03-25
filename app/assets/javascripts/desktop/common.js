@@ -242,121 +242,122 @@ var vsprintf = function(fmt, argv) {
 	return sprintf.apply(null, argv);
 };
 
-Ext.regModel('com_document_model', {
-	fields: [
-			{name: 'id',		type: 'integer'},
-			{name: 'tm',		type: 'string'},
-			{name: 'sxh',		type: 'string'},
-			{name: 'yh',		type: 'string'},
-			{name: 'wh',		type: 'string'},
-			{name: 'zrz',		type: 'string'},
-			{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
-			{name: 'bz',		type: 'string'},
-			{name: 'dh',		type: 'string'},
-			{name: 'ownerid',		type: 'integer'}
-	]
-});
 
-var com_document_store = Ext.create('Ext.data.Store', {
-	model : 'com_document_model',
-	proxy: {
-		type: 'ajax',
-		url : '/desktop/get_document',
-		extraParams: {query:""},
-		reader: {
-			type: 'json',
-			root: 'rows',
-			totalProperty: 'results'
-		}
-	}
-});
-
-var documentGrid = new Ext.grid.GridPanel({
-	//id: title,
-	id : 'com_document_grid',
-	store: com_document_store,
-	tbar:[
-		{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
-			handler: function() {
-				var grid = Ext.getCmp('archive_grid');
-				var records = grid.getSelectionModel().getSelection();
-				var record = records[0];
-				DispJr(record,true);
-				
-			}
-		},
-		{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
-			handler: function() {
-
-				var grid = Ext.getCmp('com_document_grid');
-				var records = grid.getSelectionModel().getSelection();
-				var record = records[0];
-
-				var pars="id="+record.data.id;
-				Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
-							if(id=="yes"){
-								new Ajax.Request("/desktop/delete_document", { 
-									method: "POST",
-									parameters: pars,
-									onComplete:	 function(request) {
-										Ext.getCmp('com_document_grid').store.load();
-
-									}
-								});
-							}else{
-								//alert('O,no');
-							}
-						
-					});
-				
-			}},
-		{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
-		handler: function() {
-			var grid  = this.ownerCt.ownerCt;
-			//alert(grid);
-				var store = grid.getStore(); 
-				var records = grid.getSelectionModel().getSelection();
-				var data = [];
-				Ext.Array.each(records,function(model){
-					data.push(Ext.JSON.encode(model.get('id')));
-					DispJr(model,false);
-				});
-			}
-		}
-		
-	],
-	columns: [
-		{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-		{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
-		{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
-		{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
-		{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
-		{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
-		{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
-
-		{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-		{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
-		{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
-		],
-	listeners:{
-			itemdblclick:{
-				fn:function(v,r,i,n,e,b){
-					var tt=r.get("zrq");
-					//showContactForm();
-					DispJr(r,false);
-					//alert(tt);
-				}
-			}
-		},
-	//width : 800,
-	//height : 300,
-	viewConfig: {
-		stripeRows:true
-	}
-});
 
 var DispAj_Zh = function(record,add_new){
 	var win = Ext.getCmp('archive_detail_win');
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+		tbar:[
+			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+				handler: function() {
+					var grid = Ext.getCmp('archive_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+					DispJr(record,true);
+
+				}
+			},
+			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+				handler: function() {
+
+					var grid = Ext.getCmp('com_document_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+
+					var pars="id="+record.data.id;
+					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+								if(id=="yes"){
+									new Ajax.Request("/desktop/delete_document", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											Ext.getCmp('com_document_grid').store.load();
+
+										}
+									});
+								}else{
+									//alert('O,no');
+								}
+
+						});
+
+				}},
+			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+			handler: function() {
+				var grid  = this.ownerCt.ownerCt;
+				//alert(grid);
+					var store = grid.getStore(); 
+					var records = grid.getSelectionModel().getSelection();
+					var data = [];
+					Ext.Array.each(records,function(model){
+						data.push(Ext.JSON.encode(model.get('id')));
+						DispJr(model,false);
+					});
+				}
+			}
+
+		],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
 	if (win==null) {
 		win = new Ext.Window({
 			id : 'archive_detail_win',
@@ -381,7 +382,7 @@ var DispAj_Zh = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}else{
@@ -390,7 +391,7 @@ var DispAj_Zh = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}
@@ -402,7 +403,7 @@ var DispAj_Zh = function(record,add_new){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_detail_win').hide();
+						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
 			items: [{
@@ -612,6 +613,118 @@ var DispAj_Zh = function(record,add_new){
 };
 var DispAj_Cw = function(record,add_new){
 	var win = Ext.getCmp('archive_detail_win');
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+		tbar:[
+			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+				handler: function() {
+					var grid = Ext.getCmp('archive_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+					DispJr(record,true);
+
+				}
+			},
+			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+				handler: function() {
+
+					var grid = Ext.getCmp('com_document_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+
+					var pars="id="+record.data.id;
+					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+								if(id=="yes"){
+									new Ajax.Request("/desktop/delete_document", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											Ext.getCmp('com_document_grid').store.load();
+
+										}
+									});
+								}else{
+									//alert('O,no');
+								}
+
+						});
+
+				}},
+			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+			handler: function() {
+				var grid  = this.ownerCt.ownerCt;
+				//alert(grid);
+					var store = grid.getStore(); 
+					var records = grid.getSelectionModel().getSelection();
+					var data = [];
+					Ext.Array.each(records,function(model){
+						data.push(Ext.JSON.encode(model.get('id')));
+						DispJr(model,false);
+					});
+				}
+			}
+
+		],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
 	if (win==null) {
 		win = new Ext.Window({
 			id : 'archive_detail_win',
@@ -636,7 +749,7 @@ var DispAj_Cw = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}else{
@@ -645,7 +758,7 @@ var DispAj_Cw = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}
@@ -657,7 +770,7 @@ var DispAj_Cw = function(record,add_new){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_detail_win').hide();
+						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
 			items: [{
@@ -887,6 +1000,118 @@ var DispAj_Cw = function(record,add_new){
 };
 var DispAj_Tddj = function(record,add_new){
 	var win = Ext.getCmp('archive_detail_win');
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+		tbar:[
+			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+				handler: function() {
+					var grid = Ext.getCmp('archive_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+					DispJr(record,true);
+
+				}
+			},
+			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+				handler: function() {
+
+					var grid = Ext.getCmp('com_document_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+
+					var pars="id="+record.data.id;
+					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+								if(id=="yes"){
+									new Ajax.Request("/desktop/delete_document", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											Ext.getCmp('com_document_grid').store.load();
+
+										}
+									});
+								}else{
+									//alert('O,no');
+								}
+
+						});
+
+				}},
+			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+			handler: function() {
+				var grid  = this.ownerCt.ownerCt;
+				//alert(grid);
+					var store = grid.getStore(); 
+					var records = grid.getSelectionModel().getSelection();
+					var data = [];
+					Ext.Array.each(records,function(model){
+						data.push(Ext.JSON.encode(model.get('id')));
+						DispJr(model,false);
+					});
+				}
+			}
+
+		],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
 	if (win==null) {
 		win = new Ext.Window({
 			id : 'archive_detail_win',
@@ -911,7 +1136,7 @@ var DispAj_Tddj = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}else{
@@ -920,7 +1145,7 @@ var DispAj_Tddj = function(record,add_new){
 								parameters: pars,
 								onComplete:	 function(request) {
 									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').hide();
+									Ext.getCmp('archive_detail_win').close();
 								}
 							});
 						}
@@ -932,7 +1157,7 @@ var DispAj_Tddj = function(record,add_new){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_detail_win').hide();
+						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
 			items: [{
@@ -1101,6 +1326,8 @@ var DispAj_Tddj = function(record,add_new){
 	                    xtype: 'combobox',
 	                    fieldLabel: '权属性质',
 	                    labelWidth: 60,
+						name: 'qsxz',
+						id: 'tddj_qsxz',
 	                    x: 10,
 	                    y: 40
 	                },
@@ -1129,8 +1356,8 @@ var DispAj_Tddj = function(record,add_new){
 	                    width: 655,
 	                    fieldLabel: '土地座落',
 	                    labelWidth: 60,
-						name: 'zl',
-						id: 'tddj_zl',
+						name: 'tdzl',
+						id: 'tddj_tdzl',
 	                    x: 10,
 	                    y: 70
 	                },
@@ -1139,8 +1366,8 @@ var DispAj_Tddj = function(record,add_new){
 	                    width: 655,
 	                    fieldLabel: '权  利  人',
 	                    labelWidth: 60,
-						name: 'qlr',
-						id: 'tddj_qlr',
+						name: 'qlrmc',
+						id: 'tddj_qlrmc',
 	                    x: 10,
 	                    y: 100
 	                },
@@ -1361,7 +1588,7 @@ var DispJr = function(recordad,add_new){
 									parameters: pars,
 									onComplete:	 function(request) {
 										Ext.getCmp('document_grid').store.load();
-										Ext.getCmp('document_detail_win').hide();
+										Ext.getCmp('document_detail_win').close();
 									}
 								});}
 							else{
@@ -1370,7 +1597,7 @@ var DispJr = function(recordad,add_new){
 									parameters: pars,
 									onComplete:	 function(request) {
 										Ext.getCmp('document_grid').store.load();
-										Ext.getCmp('document_detail_win').hide();
+										Ext.getCmp('document_detail_win').close();
 									}
 								});
 							}
@@ -1381,8 +1608,8 @@ var DispJr = function(recordad,add_new){
 						cls: 'contactBtn',
 						text:'退出',
 						handler: function() {
-							//this.up('window').hide();
-							Ext.getCmp('document_detail_win').hide();
+							//this.up('window').close();
+							Ext.getCmp('document_detail_win').close();
 						}
 					}]
 			}]

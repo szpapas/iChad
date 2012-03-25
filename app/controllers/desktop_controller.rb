@@ -68,20 +68,22 @@ class DesktopController < ApplicationController
       txt = "{results:0,rows:[]}"
     else
       ss = params['query'].split('|')
-      user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}';")
-      size = user[0].count;
+      
+        user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}';")
+        size = user[0].count;
   
-      if size.to_i > 0
-          txt = "{results:#{size},rows:["
-          user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}' order by ajh limit #{params['limit']} offset #{params['start']};")
-          size = user.size;
-          for k in 0..user.size-1
-              txt = txt + user[k].to_json + ','
-          end
-          txt = txt[0..-2] + "]}"
-      else
-          txt = "{results:0,rows:[]}"
-      end
+        if size.to_i > 0
+            txt = "{results:#{size},rows:["
+            user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}' order by ajh limit #{params['limit']} offset #{params['start']};")
+            size = user.size;
+            for k in 0..user.size-1
+                txt = txt + user[k].to_json + ','
+            end
+            txt = txt[0..-2] + "]}"
+        else
+            txt = "{results:0,rows:[]}"
+        end
+      
     end
     render :text => txt
   end
@@ -2009,34 +2011,54 @@ class DesktopController < ApplicationController
   def get_treeforuserid
     text = "[]"
     node, style = params["node"], params['style']
-    if node == "root"
-      data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
-      text="["
-      data.each do |dd|
-        text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
-        dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
-        dalb.each do |lb|
-          text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-          dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
-          dalbml.each do |lbml|
-            text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
-          end
-          text=text+"]},"
+   
+
+      if node == "root"
+        data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
+        text="["
+        data.each do |dd|
+          text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
+
+          dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
+          dalb.each do |lb|
+            text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
+            dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
+            dalbml.each do |lbml|
+              text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
+              
+
+           end
+           text=text+"]},"
+         end
+         text=text+"]},"
         end
-        text=text+"]},"
-      end
-      text=text + "]}]"
-    end
+        text=text + "]"
+        
+     end
+
     render :text => text
   end
-  
+  #根据dw_lbid 获得档案类别
+ 
+  def get_dalb
+    ss = params['dalb'].split('_')
+       txt=""
+       dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
+       size = dalb.size;
+       if size>0
+         txt=dalb[0]['lbid']
+       else
+         txt="0"
+       end
+       render :text => txt
+  end
   #通过权限代码来获得archive
   def get_archive_qxdm
     if (params['query'].nil?)
       txt = "{results:0,rows:[]}"
     else
       ss = params['query'].split('_')
-      
+      if ss.length==3
         data=User.find_by_sql("select * from d_dw_lb_ml where id = '#{ss[2]}';")
         size = data.size;
       
@@ -2049,7 +2071,21 @@ class DesktopController < ApplicationController
   
             if size.to_i > 0
                 txt = "{results:#{size},rows:["
-                user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+                case (dalb[0]['lbid']) 
+									when "0"
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+									 
+									when "2"
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										
+									when "3"
+										user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' and archive.id=a_tddj.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
+									
+									else
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										
+								end
+                
                 size = user.size;
                 for k in 0..user.size-1
                     txt = txt + user[k].to_json + ','
@@ -2064,7 +2100,42 @@ class DesktopController < ApplicationController
         else
           txt = "{results:0,rows:[]}"
         end
-      
+      else
+        dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
+        size = dalb.size;
+        if size>0 
+          user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{dalb[0]['lbid']}' ;")
+          size = user[0].count;
+
+          if size.to_i > 0
+              txt = "{results:#{size},rows:["
+              case (dalb[0]['lbid']) 
+								when "0"
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									
+								when "2"
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									
+								when "3" 
+									user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  and archive.id=a_tddj.ownerid order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									
+								else
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									
+							  end
+              
+              size = user.size;
+              for k in 0..user.size-1
+                  txt = txt + user[k].to_json + ','
+              end
+              txt = txt[0..-2] + "]}"
+          else
+              txt = "{results:0,rows:[]}"
+          end
+        else
+          txt = "{results:0,rows:[]}"
+        end
+      end
     end
     render :text => txt
   end
