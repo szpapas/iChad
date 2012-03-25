@@ -19,7 +19,8 @@ def update_timage(qzh, dalb, mlh)
   puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
   for k in 0..archives.count-1
     ar = archives[k]
-    $conn.exec("insert into timage_tj(dh, ajh, ajys) values ('#{ar['dh']}','#{ar['ajh']}', #{ar['ys']});")
+    dh_prefix = ar['dh'].split('_')[0..2].join('_')
+    $conn.exec("insert into timage_tj(dh, ajh, ajys, dh_prefix) values ('#{ar['dh']}','#{ar['ajh']}', #{ar['ys']}, '#{dh_prefix}');")
   end
   
   puts "update ML00..."

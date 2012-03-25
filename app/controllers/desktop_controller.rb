@@ -2068,4 +2068,12 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
+
+  def scan_aj
+    qz_path = params['qz_path']
+    if !qz_path.nil?
+      system("./dady/bin/scan_aj.rb ./dady/tmp1/#{qz_path}")
+    end
+    render :text => 'Success'
+  end  
 end
