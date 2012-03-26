@@ -162,5 +162,8 @@ Find.find(path) do |path|
   end
 end
 
+$conn.exec("update timage set dh_prefix = split_part(dh, '_', 1) || '_' || split_part(dh, '_', 2)  ||  '_' || split_part(dh, '_', 3) where dh_prefix is null;")
+$conn.close
+
 #save2timage(archive_id, "ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
 
