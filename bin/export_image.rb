@@ -15,15 +15,24 @@ t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-qzh, mlh, dalb = ARGV[0], ARGV[1], ARGV[2] 
+ss = ARGV[0].split('_')
+qzh, dalb, mlh = ss[0], ss[1], ss[2]
+option = ARGV[1]
 
-#user = $conn.exec("select qzh, mlh, dalb from archive where id = #{ARGV[0]}");
-#data = user[0]
 
+if option.to_i == 0
+  imgs = $conn.exec("select id, dh from timage where dh like '#{dh}' order by id;")
+elsif option.to_i == 1
+  imgs = $conn.exec("select id, dh from timage where dh like '#{dh}' and yxmc like '[ML|JN]%' order by id;")
+else
+  
+end
+
+  
 dh = "#{qzh}_#{dalb}_#{mlh}_%"
-imgs = $conn.exec("select id, dh from timage where dh like '#{dh}' order by id;")
+savePath = ARGV[2].nil? ? './dady/export' : ARGV[2] 
+outPath = "#{savePath}/#{qzh}/#{mlh}"
 
-outPath = "./dady/export/#{qzh}/#{mlh}_#{dalb}"
 if File.exists?(outPath)
   system "rm -rf #{outPath}"
 end 
@@ -34,8 +43,6 @@ for k in 0..imgs.count - 1 do
   dd = imgs[k]
   user = $conn.exec("select * from timage where id='#{dd['id']}';")
   ss=PGconn.unescape_bytea(ss = user[0]["data"]) 
-  #tt = user[0]["yxmc"].gsub('$', '_')
-  #local_filename = "#{outPath}/"+user[0]["yxmc"].gsub('$', '_')
   local_filename = "#{outPath}/"+user[0]["yxmc"]
   File.open(local_filename, 'w') {|f| f.write(ss) }
 end

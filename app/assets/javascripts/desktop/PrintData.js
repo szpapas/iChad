@@ -944,7 +944,7 @@ Ext.define('MyDesktop.PrintData', {
                   layout:"fit",
                   autoScroll : true,
                   tbar:[{
-                      text:'虚拟打印',
+                      text:'任务管理',
                       tooltip:'',
                       iconCls:'print',
                       handler: function() {
@@ -965,7 +965,8 @@ Ext.define('MyDesktop.PrintData', {
                               {name: 'dyzt',     type: 'string'}
                             ]
                           });
-                        
+                          
+                          // 虚拟打印状态Grid
                           var dyzt_store =  Ext.create('Ext.data.Store', {
                             model : 'dyzt_model',
                             proxy: {
@@ -995,9 +996,10 @@ Ext.define('MyDesktop.PrintData', {
                         
                           var dyzt_grid = new Ext.grid.GridPanel({
                                // more config options clipped //,
-                               title: '状态列表',
+                               title: '虚拟打印',
                                store: dyzt_store,
                                id : 'dyzt_grid_id',
+                               iconCls:'print',
                                columns: [{
                                    xtype: 'gridcolumn',
                                    dataIndex: 'id',
@@ -1261,7 +1263,227 @@ Ext.define('MyDesktop.PrintData', {
                                    }                                 
                                }]
                           }); 
-                        
+                          
+                          //图像导入态Grid
+                          Ext.regModel('drzt_model', {
+                            fields: [
+                              {name: 'id',     type: 'integer'},
+                              {name: 'dh',     type: 'string'},
+                              {name: 'mlh',    type: 'string'},
+                              {name: 'lj',     type: 'string'},
+                              {name: 'dqz',    type: 'string'},
+                              {name: 'zs',     type: 'string'},
+                              {name: 'zt',     type: 'string'}
+                            ]
+                          });
+                          var drzt_store =  Ext.create('Ext.data.Store', {
+                            model : 'drzt_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_drzt_store',
+                              extraParams: {id:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+                          drzt_store.load();
+                          var drzt_grid = new Ext.grid.GridPanel({
+                               title: '图像导入',
+                               iconCls : 'import',
+                               store: drzt_store,
+                               id : 'drzt_grid_id',
+                               columns :[
+                               	 { text : 'id',	width : 0, sortable : true, dataIndex: 'id', hidden: true},
+                               	 { text : '档号',	width : 80, sortable : true, dataIndex: 'dh'},
+                               	 { text : '目录号',	width : 60, sortable : true, dataIndex: 'mlh'},
+                               	 { text : '倒入路径',	width : 150, sortable : true, dataIndex: 'lj'},
+                               	 { text : '已入库',	width : 60, sortable : true, dataIndex: 'dqz'},
+                               	 { text : '图像总数',	width : 60, sortable : true, dataIndex: 'zs'},
+                               	 { text : '状态',	width : 100, sortable : true, dataIndex: 'zt'}
+                               ],
+                               selType:'checkboxmodel',
+                               multiSelect:true,
+                               viewConfig: {
+                                 stripeRows:true
+                               },
+                               tbar : [{
+                                   text : '添加任务',
+                                   handler : function() {
+                                     select = archiveGrid.selModel.selected.items[0];
+                                     if (select == undefined) {
+                                       msg('提示','请先选择一个案卷');
+                                     } else {
+
+                                        var add_import_task = function() {
+                                          var importPanel = new Ext.form.FormPanel({
+                                            id : 'import_panel_id',
+                                            labelWidth:40,
+                                            //bodyStyle:"padding:35px;",
+                                            bodyPadding: 10,
+                                            items:[
+                                            {
+                                              xtype:"textfield",
+                                              name:"qzh",
+                                              fieldLabel:"全宗号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"mlh",
+                                              fieldLabel:"目录号",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"dalb",
+                                              fieldLabel:"档案类别",
+                                              anchor:"95%"
+                                            },{
+                                              xtype:"textfield",
+                                              name:"drlj",
+                                              fieldLabel:"倒入路径",
+                                              anchor:"95%"
+                                            }
+                                            ]        
+                                          });
+
+                                          var addImportWin = new Ext.Window({
+                                            id : 'import_wizard_win',
+                                            iconCls : 'import',
+                                            title: '导入向导',
+                                            floating: true,
+                                            shadow: true,
+                                            draggable: true,
+                                            //closeAction:'hide',
+                                            //minimizable:true,
+                                            //closable: false,
+                                            modal: false,
+                                            width: 400,
+                                            height: 300,
+                                            layout: 'fit',
+                                            plain: true,
+                                            items:importPanel,
+                                            tbar : [{
+                                                text : '下一个目录',
+                                                handler : function() {
+                                                  var form = Ext.getCmp('import_panel_id').getForm();
+                                                  pars = form.getValues();
+                                                  new Ajax.Request("/desktop/get_next_mulu", { 
+                                                    method: "POST",
+                                                    parameters: pars,
+                                                    onComplete:  function(request) {
+                                                      data = eval(request.responseText);
+                                                      if (data.zajh > 0) {
+                                                        form.findField('dalb').setValue(data.dalb);
+                                                        form.findField('mlh').setValue(data.mlh);
+                                                      }
+                                                    }
+                                                  });
+                                                }
+                                              },'-',{
+                                                text : '上一个目录',
+                                                hander : function() {
+                                                  var form = Ext.getCmp('import_panel_id').getForm();
+                                                  pars = form.getValues();
+                                                  new Ajax.Request("/desktop/get_prev_mulu", { 
+                                                    method: "POST",
+                                                    parameters: pars,
+                                                    onComplete:  function(request) {
+
+                                                    }
+                                                  });
+                                                }
+                                            }],
+                                            buttons: [{
+                                              text: '添加目录',
+                                              handler: function() {
+                                                var form = Ext.getCmp('import_panel_id').getForm();
+                                                pars = form.getValues();
+                                                new Ajax.Request("/desktop/add_import_task", { 
+                                                  method: "POST",
+                                                  parameters: pars,
+                                                  onComplete:  function(request) {
+                                                    drzt_store.load();
+                                                  }
+                                                });
+                                              }
+                                            },{
+                                              text: '添加全部',
+                                              handler : function () {
+                                                var form = Ext.getCmp('print_panel_id').getForm();
+                                                pars = form.getValues();
+                                                new Ajax.Request("/desktop/add_import_task_all", { 
+                                                  method: "POST",
+                                                  parameters: pars,
+                                                  onComplete:  function(request) {
+                                                    drzt_store.load();
+                                                  }
+                                                });
+                                              }
+                                            },{
+                                              text: '关闭',
+                                              handler : function() {
+                                                Ext.getCmp('import_wizard_win').close();
+                                                drzt_store.load();
+                                              }
+                                            }]
+                                          });
+                                          addImportWin.show();
+                                        };
+
+                                        add_import_task();
+
+                                        //设置
+                                        var node = archiveGrid.selModel.selected;
+
+                                        if (node.length > 0) {
+                                          data = node.items[0].data;
+                                          //get
+                                          var form =Ext.getCmp('import_panel_id').getForm();
+                                          form.findField('qzh').setValue(data.qzh);
+                                          form.findField('mlh').setValue(data.mlh);
+                                          form.findField('dalb').setValue(data.dalb);
+                                        }
+                                     }
+                                   }
+                                 },'-',{
+                                   text : '删除选择',
+                                   iconCls : 'delete',
+                                   handler : function() {
+                                     id = Ext.getCmp('drzt_grid_id').getSelectionModel().selected.items[0].data.id;
+                                     pars = {id:id}
+                                     new Ajax.Request("/desktop/delete_import_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         drzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
+                                   text : '删除完成',
+                                   handler : function() {
+                                     pars = {}
+                                     new Ajax.Request("/desktop/delete_all_import_task", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         drzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-', {
+                                   text : '刷新目录',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     drzt_store.load();
+                                   }                                 
+                               }]
+                          }); 
+                          
+                          
+                          
                           /*
                           dyzt_store.on('load', function(){
                             if (dyzt_store.data.length > 0)
@@ -1278,11 +1500,10 @@ Ext.define('MyDesktop.PrintData', {
                                 xtype: 'tabpanel',
                                 height: 280,
                                 activeTab: 0,
-                                items: [dyzt_grid,{
-
-                                },{
-
-                                }]
+                                items: [
+                                  dyzt_grid,
+                                  drzt_grid
+                                ]
                             }]        
                           });
 
@@ -1407,7 +1628,8 @@ Ext.define('MyDesktop.PrintData', {
                       tooltip:'',
                       iconCls:'import',
                       handler: function() {
-
+                        
+                        /*
                         var import_status = function() {
                         
                           Ext.regModel('drzt_model', {
@@ -1566,9 +1788,8 @@ Ext.define('MyDesktop.PrintData', {
                           drztWin.show();
                         
                         }
-
                         import_status();
-                      
+                        */
 
                       }
                                         

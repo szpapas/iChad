@@ -18,8 +18,8 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 qzh, mlh, dalb, path = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 
-puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxmc not like 'ML%';"
-$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxmc not like 'ML%';")
+puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';"
+$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';")
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
@@ -57,7 +57,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     else 
       mm = meta.split("\;")
       pixels = width * height
-      if mm.size > 1 
+      if mm.size > 2 
         meta_tz = meta.split("\;")[2].to_i
       else
         puts "Tags error: #{meta}"
