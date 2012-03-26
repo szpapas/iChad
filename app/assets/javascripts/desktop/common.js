@@ -1481,6 +1481,507 @@ var DispAj_tddj = function(record,add_new,title){
 	
 	win.show();
 };
+var DispAj_wsda = function(record,add_new,title){
+	var win = Ext.getCmp('archive_detail_win');
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+		tbar:[
+			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+				handler: function() {
+					var grid = Ext.getCmp('archive_grid_wsda');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+					DispJr(record,true);
+
+				}
+			},
+			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+				handler: function() {
+
+					var grid = Ext.getCmp('com_document_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+
+					var pars="id="+record.data.id;
+					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+								if(id=="yes"){
+									new Ajax.Request("/desktop/delete_document", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											Ext.getCmp('com_document_grid').store.load();
+
+										}
+									});
+								}else{
+									//alert('O,no');
+								}
+
+						});
+
+				}},
+			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+			handler: function() {
+				var grid  = this.ownerCt.ownerCt;
+				//alert(grid);
+					var store = grid.getStore(); 
+					var records = grid.getSelectionModel().getSelection();
+					var data = [];
+					Ext.Array.each(records,function(model){
+						data.push(Ext.JSON.encode(model.get('id')));
+						DispJr(model,false);
+					});
+				}
+			}
+
+		],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
+	if (win==null) {
+		win = new Ext.Window({
+			id : 'archive_detail_win',
+			title: '案卷详细信息',
+			//closeAction: 'hide',
+			width: 688,
+			height: 450,
+			minHeight: 450,
+			layout: 'border',
+			modal: true,
+			plain: true,
+			buttons:[{
+					xtype: 'button',
+					cls: 'change',
+					id:'button_aj_add',
+					text:'修改',
+					handler: function() {
+						var pars=this.up('panel').getForm().getValues();
+						if(add_new==false){
+							new Ajax.Request("/desktop/update_flow", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									Ext.getCmp('archive_grid_wsda').store.load();
+									Ext.getCmp('archive_detail_win').close();
+								}
+							});
+						}else{
+							new Ajax.Request("/desktop/insert_archive", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									Ext.getCmp('archive_grid_wsda').store.load();
+									Ext.getCmp('archive_detail_win').close();
+								}
+							});
+						}
+					}
+				},
+				{
+					xtype: 'button',
+					cls: 'exit',
+					text:'退出',
+					handler: function() {
+						//this.up('window').hide();
+						Ext.getCmp('archive_detail_win').close();
+					}
+				}],
+			items: [{
+				width: 688,
+				height: 256,
+				region: 'center',
+				xtype:'form',
+				layout: 'absolute',
+				id : 'daglaj_form',
+				items: [
+	                {
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '年 度',
+	                    labelWidth: 60,
+						name: 'nd',
+						id: 'wsda_nd',
+	                    x: 10,
+	                    y: 10
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 150,
+	                    fieldLabel: '机构问题',
+	                    labelWidth: 60,
+						name: 'jgwth',
+						id: 'wsda_jgwth',
+	                    x: 345,
+	                    y: 10
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 140,
+	                    fieldLabel: '件号',
+	                    labelWidth: 60,
+						name: 'jh',
+						id: 'wsda_jh',
+	                    x: 525,
+	                    y: 10
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '缩 微 号',
+	                    labelWidth: 60,
+						name: 'swh',
+						id: 'wsda_swh',
+	                    x: 520,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '责任者',
+	                    labelWidth: 60,
+						name: 'zrr',
+						id: 'wsda_zrr',
+	                    x: 345,
+	                    y: 70
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '全宗号',
+	                    labelWidth: 60,
+						name: 'qzh',
+						id: 'wsda_qzh',
+	                    x: 10,
+	                    y: 130
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '目录号',
+	                    labelWidth: 60,
+						name: 'mlh',
+						id: 'wsda_mlh',
+	                    x: 180,
+	                    y: 130
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '页数',
+	                    labelWidth: 60,
+						name: 'ys',
+						id: 'wsda_ys',
+	                    x: 175,
+	                    y: 40
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 140,
+	                    fieldLabel: '馆编件号',
+	                    labelWidth: 60,
+						name: 'gbjh',
+						id: 'wsda_gbjh',
+	                    x: 525,
+	                    y: 40
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '分类号',
+	                    labelWidth: 60,
+						name: 'flh',
+						id: 'wsda_flh',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '保管期限',
+	                    labelWidth: 60,
+						name: 'bgqx',
+						id: 'wsda_bgqx',
+	                    x: 175,
+	                    y: 10
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '密级',
+	                    labelWidth: 60,
+						name: 'mj',
+						id: 'wsda_mj',
+	                    x: 345,
+	                    y: 40
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '档案馆代号',
+	                    labelWidth: 65,
+						name: 'dagdh',
+						id: 'wsda_dagdh',
+	                    x: 180,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '稿本',
+	                    labelWidth: 60,
+						name: 'gb',
+						id: 'wsda_gb',
+	                    x: 345,
+	                    y: 130
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '载体数量',
+						name: 'ztsl',
+						id: 'wsda_ztsl',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '盒号',
+	                    labelWidth: 60,
+						name: 'hh',
+						id: 'wsda_hh',
+	                    x: 520,
+	                    y: 130
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 330,
+	                    fieldLabel: '文 号',
+	                    labelWidth: 60,
+						name: 'wh',
+						id: 'wsda_wh',
+	                    x: 10,
+	                    y: 70
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 655,
+	                    fieldLabel: '题 名',
+						name: 'tm',
+						id: 'wsda_tm',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 100
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '电子文档号',
+	                    labelWidth: 65,
+						name: 'dzwdh',
+						id: 'wsda_dzwdh',
+	                    x: 345,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'datefield',
+	                    width: 160,
+	                    fieldLabel: '制文日期',
+	                    labelWidth: 60,
+						name: 'zwrq',
+						id: 'wsda_zwrq',
+	                    x: 10,
+	                    y: 40
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '文种',
+	                    labelWidth: 60,
+						name: 'wz',
+						id: 'wsda_wz',
+	                    x: 10,
+	                    y: 160
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '载体规格',
+	                    labelWidth: 60,
+						name: 'ztgg',
+						id: 'wsda_ztgg',
+	                    x: 345,
+	                    y: 160
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '载体类型',
+	                    labelWidth: 60,
+						name: 'ztlx',
+						id: 'wsda_ztlx',
+	                    x: 180,
+	                    y: 160
+	                },
+	                {
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '载体单位',
+	                    labelWidth: 60,
+						name: 'ztdw',
+						id: 'wsda_ztdw',
+	                    x: 520,
+	                    y: 160
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '全文标识',
+	                    labelWidth: 60,
+						name: 'qwbs',
+						id: 'wsda_qwbs',
+	                    x: 180,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '主题词',
+	                    labelWidth: 60,
+						name: 'ztc',
+						id: 'wsda_ztc',
+	                    x: 345,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 330,
+	                    fieldLabel: '主办部门',
+						name: 'zbbm',
+						id: 'wsda_zbbm',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 250
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '协办部门',
+	                    labelWidth: 60,
+						name: 'xbbm',
+						id: 'wsda_xbbm',
+	                    x: 345,
+	                    y: 250
+	                },
+	                
+	                {
+	                    xtype: 'textfield',
+	                    width: 655,
+	                    fieldLabel: '备 注',
+	                    labelWidth: 60,
+						name: 'bz',
+						id: 'wsda_bz',
+	                    x: 10,
+	                    y: 280
+	                }
+	            ]
+			}]
+		});
+	}
+	if(add_new==false){
+	//设置数据
+		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
+		com_document_store.proxy.extraParams.query=record.data.id;
+		com_document_store.load();
+		
+	}else{
+		
+		Ext.getCmp('button_aj_add').text="新增";
+			Ext.getCmp('tddj_dalb').setValue(ss[1]);
+			ss=title.split('_');
+			Ext.getCmp('tddj_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('tddj_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		
+		
+	}
+	//设置数据
+	
+	win.show();
+};
+
 //显示卷内目录窗口
 var DispJr = function(recordad,add_new){
 	var win = Ext.getCmp('document_detail_win');
