@@ -16,10 +16,15 @@ t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-qzh, mlh, dalb, path = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
+qzh, mlh, dalb, path, ajh = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4]
 
-puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';"
-$conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';")
+if !ajh.nil?
+  puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_#{ajh}' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_#{ajh}' and yxbh not like 'ML%';")
+else 
+  puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';")
+end
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
