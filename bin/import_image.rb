@@ -57,7 +57,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     else 
       mm = meta.split("\;")
       pixels = width * height
-      if mm.size > 1 
+      if mm.size > 2 
         meta_tz = meta.split("\;")[2].to_i
       else
         puts "Tags error: #{meta}"
