@@ -1,5 +1,5 @@
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
@@ -7,7 +7,7 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 def save2timage(yxbh, path, dh, yx_prefix)
   yxdx=File.open(path).read.size
   edata=PGconn.escape_bytea(File.open(path).read) 
-  yxmc="#{yx_prefix}_#{yxbh}.jpg"
+  yxmc="#{yx_prefix}_#{yxbh}"
   $conn.exec("delete from timage_tjtx where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
 end
@@ -115,6 +115,11 @@ def print_timage(qzh, dalb, mlh)
   if user.count == 0 
     exit 1
   end
+  
+  pr_path="/share/tjsj/#{mlh}"
+  if !File.exists?(pr_path)
+    system("mkdir -p #{pr_path}")
+  end  
     
   #xj, tj, xj_2, tj_2 = [], [], [], []
   for k in 0..user.count-1 do
@@ -169,18 +174,31 @@ def print_timage(qzh, dalb, mlh)
     
       xj[0] = "小计"
       os = xj[0].rjust(10," ") + xj[1].rjust(6," ") + xj[2].rjust(6," ") + xj[3].rjust(6," ")  +  xj[4].rjust(6," ") + xj[5].rjust(6," ") + xj[6].rjust(6," ") + xj[7].rjust(6," ") + xj[8].rjust(6," ")  + xj[9].rjust(6," ") + xj[11].rjust(6," ") + xj[10].rjust(6," ") + xj[12].rjust(6," ")
-    
+      
+      sxh = (k/50+1).to_s.rjust(2,'0')
+      
       if xj[1] != xj[5]
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
+        convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+        puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.png"
+        system convert_str
+
+        puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+        save2timage("#{sxh}.png", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+
       else
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
+        convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+
+        puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.jpg"
+        
+        system convert_str
+
+        puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+        save2timage("#{sxh}.jpg", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+
       end
       
-      convert_str = convert_str + " /share/timage_#{qzh}_#{dalb}_#{mlh}_#{k/50}.jpg"
-      puts "generate file  for #{k+1} : timage_#{dh}_#{k/50}.jpg"
-      system convert_str
-      puts " save to file  /share/timage_#{dh}_#{k/50}.jpg"
-      save2timage("#{k/50}", "/share/timage_#{dh}_#{k/50}.jpg", dh, "timage_#{dh}")
 
       #new begining page
       convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
@@ -210,15 +228,21 @@ def print_timage(qzh, dalb, mlh)
  
     if tj[1] != tj[5]
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
+      convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+      system convert_str
+
+      puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+      save2timage("#{sxh}.png", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
     else
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
+      convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+      system convert_str
+
+      puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+      save2timage("#{sxh}.jpg", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
     end
     
-    convert_str = convert_str + " /share/timage_#{dh}_#{k/50}.jpg"
-    system convert_str
-  
-    puts " save to file  /share/timage_#{dh}_#{k/50}.jpg"
-    save2timage("#{k/50}", "/share/timage_#{dh}_#{k/50}.jpg", dh, "timage_#{dh}")
+
   end   
 end
 
