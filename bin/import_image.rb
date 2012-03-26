@@ -162,7 +162,7 @@ Find.find(path) do |path|
   end
 end
 
-$conn.exec("update timage set meta_tz = 0) where yxbh like 'JN%' and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+$conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
 $conn.exec("update timage set dh_prefix = split_part(dh, '_', 1) || '_' || split_part(dh, '_', 2)  ||  '_' || split_part(dh, '_', 3) where dh_prefix is null;")
 $conn.close
 
