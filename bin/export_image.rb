@@ -49,7 +49,7 @@ for k in 0..imgs.count - 1 do
   end
 
   ss=PGconn.unescape_bytea(ss = user[0]["data"]) 
-  local_filename = "#{outPath}/#{prefix}/"+user[0]["yxbh"]
+  local_filename = "#{outPath}/#{prefix}/"+user[0]["yxmc"]
   puts "save to #{local_filename} ..."
   File.open(local_filename, 'w') {|f| f.write(ss) }
 end

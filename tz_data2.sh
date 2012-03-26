@@ -45,5 +45,5 @@ ruby ./dady/bin/import_image.rb 4 106 4 /mnt/lvm1/TZ2/106/
 ruby ./dady/bin/import_image.rb 4 108 4 /mnt/lvm1/TZ2/108/ --35286
 ruby ./dady/bin/import_image.rb 4 109 4 /mnt/lvm1/TZ2/109/  
 ruby ./dady/bin/import_image.rb 4 110 4 /mnt/lvm1/TZ2/110/ 
-ruby ./dady/bin/import_image.rb 4 111 4 /mnt/lvm1/TZ2/111/ 
+ruby ./dady/bin/import_image.rb 4 111 4 /mnt/lvm1/TZ2/111/ 61
 ruby ./dady/bin/import_image.rb 4 112 4 /mnt/lvm1/TZ2/112/ --38243
