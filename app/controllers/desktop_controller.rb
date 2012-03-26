@@ -1641,15 +1641,15 @@ class DesktopController < ApplicationController
 
           dalb=User.find_by_sql("select * from  d_dw_lb where dwid= #{dd['id']} order by id;")
           dalb.each do |lb|
-            text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+            text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['lbid']}','leaf':false,'checked':false,'cls':'folder','children':["
             dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
             dalbml.each do |lbml|
-              text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
-              text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
-              text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
-              text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
-              text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
-              text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['id']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+              text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+              text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+              text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+              text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+              text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+              text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
               text=text+"]},"
            end
            text=text+"]},"
@@ -2038,15 +2038,46 @@ class DesktopController < ApplicationController
 
     render :text => text
   end
-  #根据dw_lbid 获得档案类别
+# #根据dw_lbid 获得档案类别
+#
+# def get_dalb
+#   ss = params['dalb'].split('_')
+#      txt=""
+#      dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
+#      size = dalb.size;
+#      if size>0
+#        txt=dalb[0]['lbid']
+#      else
+#        txt="0"
+#      end
+#      render :text => txt
+# end
+  #根据dw_lbid 获得档案目录号
  
-  def get_dalb
-    ss = params['dalb'].split('_')
+  def get_mlh
+    ss = params['dalb']
        txt=""
-       dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
+       dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss}';")
        size = dalb.size;
        if size>0
-         txt=dalb[0]['lbid']
+         txt=dalb[0]['mlh']
+       else
+         txt="0"
+       end
+       render :text => txt
+  end
+  #根据dw_lbid 获得最大案卷号
+ 
+  def get_max_ajh
+    ss = params['dalb'].split('_')
+       txt=""
+       dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss[2]}';")
+       size = dalb.size;
+       if size>0
+         #txt=dalb[0]['mlh']
+         ajh= User.find_by_sql("select max(ajh) from archive where mlh ='#{dalb[0]['mlh']}' and qzh='#{ss[0]}' and dalb='#{ss[1]}';")
+         size=ajh.size;
+         txt=ajh[0]["max"].to_i+1;
        else
          txt="0"
        end
@@ -2063,26 +2094,24 @@ class DesktopController < ApplicationController
         size = data.size;
       
         if size>0
-          dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{data[0]['d_dw_lbid']}';")
-          size = dalb.size;
-          if size>0 
-            user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}';")
+          
+            user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{data[0]['mlh']}';")
             size = user[0].count;
   
             if size.to_i > 0
                 txt = "{results:#{size},rows:["
-                case (dalb[0]['lbid']) 
+                case (ss[1]) 
 									when "0"
-										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 									 
 									when "2"
-										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 										
 									when "3"
-										user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' and archive.id=a_tddj.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' and archive.id=a_tddj.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
 									
 									else
-										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 										
 								end
                 
@@ -2094,33 +2123,29 @@ class DesktopController < ApplicationController
             else
                 txt = "{results:0,rows:[]}"
             end
-          else
-            txt = "{results:0,rows:[]}"
-          end
+          
         else
           txt = "{results:0,rows:[]}"
         end
       else
-        dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
-        size = dalb.size;
-        if size>0 
-          user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{dalb[0]['lbid']}' ;")
+        
+          user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' ;")
           size = user[0].count;
 
           if size.to_i > 0
               txt = "{results:#{size},rows:["
-              case (dalb[0]['lbid']) 
+              case (ss[1]) 
 								when "0"
-									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "2"
-									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "3" 
-									user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  and archive.id=a_tddj.ownerid order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_tddj.ownerid order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								else
-									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{dalb[0]['lbid']}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 							  end
               
@@ -2132,9 +2157,7 @@ class DesktopController < ApplicationController
           else
               txt = "{results:0,rows:[]}"
           end
-        else
-          txt = "{results:0,rows:[]}"
-        end
+        
       end
     end
     render :text => txt
