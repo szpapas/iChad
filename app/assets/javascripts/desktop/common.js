@@ -244,7 +244,7 @@ var vsprintf = function(fmt, argv) {
 
 
 
-var DispAj_Zh = function(record,add_new){
+var DispAj_zh = function(record,add_new,title){
 	var win = Ext.getCmp('archive_detail_win');
 	Ext.regModel('com_document_model', {
 		fields: [
@@ -578,6 +578,22 @@ var DispAj_Zh = function(record,add_new){
 						id: 'zh_bz',
 	                    x: 345,
 	                    y: 185
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'zh_qzh',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'zh_dalb',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -592,26 +608,34 @@ var DispAj_Zh = function(record,add_new){
 	}else{
 		
 		Ext.getCmp('button_aj_add').text="新增";
-		Ext.getCmp('zh_dh').setValue(record.data.dh);
-		Ext.getCmp('zh_qzh').setValue(record.data.qzh);
-		Ext.getCmp('zh_mlh').setValue(record.data.mlh);
-		Ext.getCmp('zh_flh').setValue(record.data.flh);
-		Ext.getCmp('zh_dalb').setValue(record.data.dalb);
-		Ext.getCmp('zh_ajh').setValue("");
-		Ext.getCmp('zh_bgqx').setValue("");
-		Ext.getCmp('zh_nd').setValue("");
-		Ext.getCmp('zh_tm').setValue("");
-		Ext.getCmp('zh_qny').setValue("");
-		Ext.getCmp('zh_zny').setValue("");
-		Ext.getCmp('zh_js').setValue("");
-		Ext.getCmp('zh_ys').setValue("");
-		Ext.getCmp('zh_bz').setValue("");
+		
+		Ext.getCmp('zh_dalb').setValue(ss[1]);
+		ss=title.split('_');
+		Ext.getCmp('zh_qzh').setValue(ss[0]);
+		if(ss.length==3){
+			new Ajax.Request("/desktop/get_mlh", { 
+			    	method: "POST",
+			    	parameters: {dalb:ss[2]},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			     	}
+			     });
+			new Ajax.Request("/desktop/get_max_ajh", { 
+			    	method: "POST",
+			    	parameters: {dalb:title},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+			     	}
+			     });
+		}
+		
+		
 	}
 	//设置数据
 	
 	win.show();
 };
-var DispAj_Cw = function(record,add_new){
+var DispAj_cw = function(record,add_new,title){
 	var win = Ext.getCmp('archive_detail_win');
 	Ext.regModel('com_document_model', {
 		fields: [
@@ -965,6 +989,22 @@ var DispAj_Cw = function(record,add_new){
 						id: 'cw_ys',
 	                    x: 175,
 	                    y: 185
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'cw_qzh',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'cw_dalb',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -979,26 +1019,31 @@ var DispAj_Cw = function(record,add_new){
 	}else{
 		
 		Ext.getCmp('button_aj_add').text="新增";
-		Ext.getCmp('zh_dh').setValue(record.data.dh);
-		Ext.getCmp('zh_qzh').setValue(record.data.qzh);
-		Ext.getCmp('zh_mlh').setValue(record.data.mlh);
-		Ext.getCmp('zh_flh').setValue(record.data.flh);
-		Ext.getCmp('zh_dalb').setValue(record.data.dalb);
-		Ext.getCmp('zh_ajh').setValue("");
-		Ext.getCmp('zh_bgqx').setValue("");
-		Ext.getCmp('zh_nd').setValue("");
-		Ext.getCmp('zh_tm').setValue("");
-		Ext.getCmp('zh_qny').setValue("");
-		Ext.getCmp('zh_zny').setValue("");
-		Ext.getCmp('zh_js').setValue("");
-		Ext.getCmp('zh_ys').setValue("");
-		Ext.getCmp('zh_bz').setValue("");
+		Ext.getCmp('cw_dalb').setValue(ss[1]);
+		ss=title.split('_');
+		Ext.getCmp('cw_qzh').setValue(ss[0]);
+		if(ss.length==3){
+			new Ajax.Request("/desktop/get_mlh", { 
+			    	method: "POST",
+			    	parameters: {dalb:ss[2]},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('cw_mlh').setValue(request.responseText);
+			     	}
+			     });
+			new Ajax.Request("/desktop/get_max_ajh", { 
+			    	method: "POST",
+			    	parameters: {dalb:title},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('cw_ajh').setValue(request.responseText);
+			     	}
+			     });
+		}
 	}
 	//设置数据
 	
 	win.show();
 };
-var DispAj_Tddj = function(record,add_new){
+var DispAj_tddj = function(record,add_new,title){
 	var win = Ext.getCmp('archive_detail_win');
 	Ext.regModel('com_document_model', {
 		fields: [
@@ -1380,6 +1425,22 @@ var DispAj_Tddj = function(record,add_new){
 						id: 'tddj_tdzh',
 	                    x: 10,
 	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'tddj_qzh',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'tddj_dalb',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -1394,20 +1455,27 @@ var DispAj_Tddj = function(record,add_new){
 	}else{
 		
 		Ext.getCmp('button_aj_add').text="新增";
-		Ext.getCmp('zh_dh').setValue(record.data.dh);
-		Ext.getCmp('zh_qzh').setValue(record.data.qzh);
-		Ext.getCmp('zh_mlh').setValue(record.data.mlh);
-		Ext.getCmp('zh_flh').setValue(record.data.flh);
-		Ext.getCmp('zh_dalb').setValue(record.data.dalb);
-		Ext.getCmp('zh_ajh').setValue("");
-		Ext.getCmp('zh_bgqx').setValue("");
-		Ext.getCmp('zh_nd').setValue("");
-		Ext.getCmp('zh_tm').setValue("");
-		Ext.getCmp('zh_qny').setValue("");
-		Ext.getCmp('zh_zny').setValue("");
-		Ext.getCmp('zh_js').setValue("");
-		Ext.getCmp('zh_ys').setValue("");
-		Ext.getCmp('zh_bz').setValue("");
+			Ext.getCmp('tddj_dalb').setValue(ss[1]);
+			ss=title.split('_');
+			Ext.getCmp('tddj_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('tddj_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		
+		
 	}
 	//设置数据
 	
