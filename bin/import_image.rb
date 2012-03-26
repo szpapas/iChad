@@ -63,6 +63,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       mm = meta.split("\;")
       pixels = width * height
       if mm.size > 2 
+        meta = meta.split("\;")[0..-2].join("\;")
         meta_tz = meta.split("\;")[2].to_i
       else
         puts "Tags error: #{meta}"
@@ -98,7 +99,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
   #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
   
-    #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});"
+  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
   
   #count = $conn.exec("select count(*) from timage where dh='#{dh}' and yxbh='#{yxbh}';")[0]['count']
