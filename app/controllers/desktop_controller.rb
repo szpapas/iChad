@@ -2105,11 +2105,13 @@ class DesktopController < ApplicationController
 										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 									 
 									when "2"
-										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_jhcw.* from archive,a_jhcw where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' and archive.id=a_jhcw.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
 										
 									when "3"
 										user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' and archive.id=a_tddj.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
-									
+									when "24"
+										user = User.find_by_sql("select archive.tm,archive.dalb,archive.qzh,a_wsda.* from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' and archive.id=a_wsda.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
+                  
 									else
 										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 										
@@ -2139,10 +2141,12 @@ class DesktopController < ApplicationController
 									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "2"
-									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select archive.*,a_jhcw.* from archive,a_jhcw where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "3" 
 									user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_tddj.ownerid order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+								when "24"
+									user = User.find_by_sql("select archive.tm,archive.dalb,archive.qzh,a_wsda.* from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_wsda.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
 									
 								else
 									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
