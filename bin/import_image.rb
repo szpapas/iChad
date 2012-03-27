@@ -44,8 +44,12 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
   
   if yxbh.include?'jpg'  
-    si = fo.index("\377\300")
-    width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    #si = fo.index("\377\300")
+    #width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    
+    wh = getimgsize(path).split(",")
+    width, height = wh[0].to_i, wh[1].to_i
+    
     meta = fo[0..100].split("\377\333")[0].split("\'")[1]
   
     if meta.nil?
@@ -62,7 +66,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     else 
       mm = meta.split("\;")
       pixels = width * height
-      if mm.size > 6 
+      if mm.size > 5 
         meta = meta.split("\;")[0..5].join("\;")
         meta_tz = meta.split("\;")[2].to_i
       else
