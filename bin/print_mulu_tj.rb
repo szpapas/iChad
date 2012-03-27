@@ -68,25 +68,25 @@ def update_timage(qzh, dalb, mlh)
 
   puts "update meta A4"
   
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 0 group by dh;"
+  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz < 2 group by dh;"
   cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 0  group by dh;"
   for k in 0..cc.count-1 
     $conn.exec("update timage_tj set A4=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
   end
   
   puts "update meta A3"
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 1 group by dh;"
+  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 2 group by dh;"
   cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 1  group by dh;"
   for k in 0..cc.count-1 
     $conn.exec("update timage_tj set A3=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
   end
   
-  puts "update meta 大图"
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 2 group by dh;"
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 2  group by dh;"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set DT=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
+  #puts "update meta 大图"
+  #puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 2 group by dh;"
+  #cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 2  group by dh;"
+  #for k in 0..cc.count-1 
+  #  $conn.exec("update timage_tj set DT=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
+  #end
   
   puts "update 状态"
   
@@ -94,7 +94,8 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   #$conn.exec("update timage_tj set zt='漏页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  
+
+  $conn.exec("update timage_tj set dt = a4+a3*2 where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
   
 end 
@@ -116,7 +117,7 @@ def print_timage(qzh, dalb, mlh)
     exit 1
   end
   
-  pr_path="/share/tjsj/#{mlh}"
+  pr_path="/share/tjsj"
   if !File.exists?(pr_path)
     system("mkdir -p #{pr_path}")
   end  
@@ -179,23 +180,23 @@ def print_timage(qzh, dalb, mlh)
       
       if xj[1] != xj[5]
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-        convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+        convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
         puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.png"
         system convert_str
 
-        puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
-        save2timage("#{sxh}.png", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+        puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
+        save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
 
       else
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-        convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+        convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
 
         puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.jpg"
         
         system convert_str
 
-        puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
-        save2timage("#{sxh}.jpg", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+        puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+        save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
 
       end
       
@@ -207,6 +208,9 @@ def print_timage(qzh, dalb, mlh)
   end
 
   if ( (k % 50) > 0 && k > 1 )
+    
+    sxh = (k/50+1).to_s.rjust(2,'0')
+    
     for kk in 0..xj.size-1 
       xj[kk] = xj[kk].to_s
     end
@@ -228,18 +232,18 @@ def print_timage(qzh, dalb, mlh)
  
     if tj[1] != tj[5]
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
+      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
       system convert_str
 
-      puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png"
-      save2timage("#{sxh}.png", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
+      save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
     else
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
+      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
       system convert_str
 
-      puts " save to file  /share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg"
-      save2timage("#{sxh}.jpg", "/share/tjsj/#{mlh}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+      save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
     end
     
 
