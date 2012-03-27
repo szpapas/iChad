@@ -76,6 +76,8 @@ ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/  -- 29023
 
 
 1. 倒入目录
+ruby ./dady/bin/upload_mulu.rb 1综合档案aj.txt 泰州市国土资源局 4 tz
+ruby ./dady/bin/upload_mulu.rb 2综合档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 15用地档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 16用地档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 17用地档案aj.txt 泰州市国土资源局 4 tz

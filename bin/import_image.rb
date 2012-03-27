@@ -39,7 +39,7 @@ end
 def save2timage(id, yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
   if fo.size == 0
-    stderr.puts ("Import Image: #{path}  file size is zero.")
+    $stderr.puts("Import Image: #{path}  file size is zero.")
     exit 
   end
   
@@ -115,7 +115,7 @@ Find.find(path) do |path|
     if (path.include?'jpg') || (path.include?'TIF')
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
-        stderr.puts ("Import Image: #{path} Format error.")
+        $stderr.puts ("Import Image: #{path} Format error.")
         next
       end
       
