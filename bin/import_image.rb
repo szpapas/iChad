@@ -112,6 +112,8 @@ Find.find(path) do |path|
       next
     end
   else
+    
+    
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
@@ -149,6 +151,7 @@ Find.find(path) do |path|
   end
 end
 
+$conn.exec("update timage set yxmc=split_part(yxmc,'ml',1) || 'JN'|| split_part(yxmc,'ml', '2'), yxbh= split_part(yxbh,'ml',1) || 'JN'|| split_part(yxbh,'ml', '2')  where yxbh like '%ml0%';")
 $conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
 $conn.exec("update timage set dh_prefix = split_part(dh, '_', 1) || '_' || split_part(dh, '_', 2)  ||  '_' || split_part(dh, '_', 3) where dh_prefix is null;")
 $conn.close
