@@ -37,18 +37,18 @@ def getimgsize(fname)
 end
 
 def save2timage(id, yxbh, path, dh, yx_prefix)
-  #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
-  
-  #yxdx=File.open(path).read.size
-  #edata=PGconn.escape_bytea(File.open(path).read) 
   fo = File.open(path).read
+  if fo.size == 0
+    stderr.puts ("Import Image: #{path}  file size is zero.")
+    exit 
+  end
   
   if yxbh.include?'jpg'  
-    #si = fo.index("\377\300")
-    #width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    si = fo.index("\377\300")
+    width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
     
-    wh = getimgsize(path).split(",")
-    width, height = wh[0].to_i, wh[1].to_i
+    #wh = getimgsize(path).split(",")
+    #width, height = wh[0].to_i, wh[1].to_i
     
     meta = fo[0..100].split("\377\333")[0].split("\'")[1]
   
@@ -93,32 +93,18 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       end
     end  
   end
-  
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
-      
-  #yxmc="#{mlh}\$#{flh}\$#{ajh}\$#{yxbh}"
   yxmc="#{yx_prefix}\$#{yxbh}"
-  #puts "insert file: #{path}..."
   puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
   #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
-  
-  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
-  
-  #count = $conn.exec("select count(*) from timage where dh='#{dh}' and yxbh='#{yxbh}';")[0]['count']
-  #
-  #if count.to_i > 0 
-  #  $conn.exec("update timage set yxdx = #{yxdx}, data= E'#{edata}' where dh='#{dh}' and yxbh='#{yxbh}';")
-  #else
-  #  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
-  #end
 end
 
 
 $dh, $archive_id = '', 0
 Find.find(path) do |path|
-  #puts path
+  
   if FileTest.directory?(path)
     if File.basename(path)[0] == ?.
       #Find.prune       # Don't look any further into this directory.
@@ -127,6 +113,12 @@ Find.find(path) do |path|
     end
   else
     if (path.include?'jpg') || (path.include?'TIF')
+      
+      if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
+        stderr.puts ("Import Image: #{path} Format error.")
+        next
+      end
+      
       pp = path.split("\/")
       file_title = pp[pp.size-1]
       ss = pp[pp.size-1].split("$")
@@ -151,16 +143,6 @@ Find.find(path) do |path|
         yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage($archive_id, sxh, path, $dh, yxqz)
       end 
-      
-      #if data.count > 0
-      #  puts "insert file: #{path}..."
-      #  yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-      #  archive_id = data[0]['id']
-      #  #puts ("save2timage(#{archive_id}, #{sxh}, #{path}, #{dh}, #{yxqz})")
-      #  save2timage(archive_id, sxh, path, dh, yxqz)
-      #else   
-      #  puts "Error: save2timage 0, #{sxh}, #{path}, #{dh}, #{yxqz}"
-      #end
       
     end
 
