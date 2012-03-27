@@ -112,7 +112,7 @@ Find.find(path) do |path|
       next
     end
   else
-    if (path.include?'jpg') || (path.include?'TIF')
+    if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
         $stderr.puts ("Import Image: #{path} Format error.")
