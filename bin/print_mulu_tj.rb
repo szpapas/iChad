@@ -93,11 +93,9 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='空卷'  where  smyx = 0 and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  #$conn.exec("update timage_tj set zt='漏页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
 
   $conn.exec("update timage_tj set dt = a4+a3*2 where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
-  
 end 
 
 def print_timage(qzh, dalb, mlh)
@@ -250,6 +248,20 @@ def print_timage(qzh, dalb, mlh)
   end   
 end
 
+def print_qly(qzh, dalb, mlh)
+  datas = $conn.exec("select id, dh, dh_prefix zt timage_tj where zt='空卷' and dh = '#{qzh}_#{dalb}_#{mlh}';")
+  puts "=== 空卷: #{qzh}_#{dalb}_#{mlh}..." if datas.count > 0
+  for k in 0..datas.count-1
+    data = datas[k]
+    dh = data['dh']
+    
+    "select  timage_tj.dh, timage.yxmc from timage_tj inner join timage on timage_tj.dh=timage.dh where timage_tj.dh='4_10_10_61' limit 1;"
+    puts "ruby ./dady/bin/import_image.rb #{qzh} #{mlh} #{dalb} /mnt/data1/TZ/#{mlh}/18\$E\$0041/ 41"
+  end
+  
+  $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+  $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+end  
 
 # ********************************************************************************************
 #
