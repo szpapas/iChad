@@ -454,7 +454,7 @@ var DispAj_zh = function(record,add_new,title){
 									}else{
 										qzh=title.split("_")
 										if(add_new==false){
-							               alert(newValue+'---'+'oldValue');
+							               //alert(newValue+'---'+'oldValue');
 										}
 										else{
 											new Ajax.Request("/desktop/get_max_ajh", { 

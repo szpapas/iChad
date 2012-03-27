@@ -2018,21 +2018,39 @@ class DesktopController < ApplicationController
         text="["
         data.each do |dd|
           text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
-
-          dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
+    
+          dalb=User.find_by_sql("select * from d_dalb where ownerid is null order by sx;")
           dalb.each do |lb|
-            text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-            dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
+            text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{dd['qxdm']}_#{lb['id']}','leaf':false,'cls':'folder','children':["
+            
+            dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['id']} order by id;")
             dalbml.each do |lbml|
-              text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
-              
-
+              text=text+"{'text':'#{lbml['lbmc']}','id' :'#{dd['qxdm']}_#{lbml['id']}','leaf':true,'cls':'folder'},"                  
            end
            text=text+"]},"
          end
          text=text+"]},"
         end
-        text=text + "]"
+        text=text + "]"      
+  #     data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
+  #     text="["
+  #     data.each do |dd|
+  #       text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
+  #
+  #       dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
+  #       dalb.each do |lb|
+  #         text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
+  #         dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
+  #         dalbml.each do |lbml|
+  #           text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
+  #           
+  #
+  #        end
+  #        text=text+"]},"
+  #      end
+  #      text=text+"]},"
+  #     end
+  #     text=text + "]"
         
      end
 
