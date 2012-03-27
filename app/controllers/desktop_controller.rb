@@ -2019,7 +2019,7 @@ class DesktopController < ApplicationController
         data.each do |dd|
           text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
     
-          dalb=User.find_by_sql("select * from d_dalb where ownerid is null order by sx;")
+          dalb=User.find_by_sql("select * from d_dalb where sx<100 order by sx;")
           dalb.each do |lb|
             text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{dd['qxdm']}_#{lb['id']}','leaf':false,'cls':'folder','children':["
             
