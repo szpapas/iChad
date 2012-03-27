@@ -2071,15 +2071,21 @@ class DesktopController < ApplicationController
   def get_max_ajh
     ss = params['dalb'].split('_')
        txt=""
-       dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss[2]}';")
-       size = dalb.size;
-       if size>0
-         #txt=dalb[0]['mlh']
-         ajh= User.find_by_sql("select max(ajh) from archive where mlh ='#{dalb[0]['mlh']}' and qzh='#{ss[0]}' and dalb='#{ss[1]}';")
-         size=ajh.size;
-         txt=ajh[0]["max"].to_i+1;
+       if params['qx']==true
+         dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss[2]}';")
+         size = dalb.size;
+         if size>0
+           #txt=dalb[0]['mlh']
+           ajh= User.find_by_sql("select max(ajh) from archive where mlh ='#{dalb[0]['mlh']}' and qzh='#{ss[0]}' and dalb='#{ss[1]}';")
+           size=ajh.size;
+           txt=ajh[0]["max"].to_i+1;
+         else
+           txt="0"
+         end
        else
-         txt="0"
+          ajh= User.find_by_sql("select max(ajh) from archive where mlh ='#{ss[2]}' and qzh='#{ss[0]}' and dalb='#{ss[1]}';")
+          size=ajh.size;
+          txt=ajh[0]["max"].to_i+1;
        end
        render :text => txt
   end
@@ -2166,6 +2172,24 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
+  #新增案卷目录
+    	def insert_archive
+    	  case params['dalb']
+  	    when "0"
+  	      dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']
+    	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz) values('#{params['mlh']}','#{params['flh']}','#{params['ajh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        when "2"
+          User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb) values('#{params['mlh']}','#{params['flh']}','#{params['ajh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{params['dh']}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        when "3"
+          User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb) values('#{params['mlh']}','#{params['flh']}','#{params['ajh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{params['dh']}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        when "24"
+          User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb) values('#{params['mlh']}','#{params['flh']}','#{params['ajh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{params['dh']}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        else
+          dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']
+          User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb) values('#{params['mlh']}','#{params['flh']}','#{params['ajh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        end
+    	  render :text => 'success'
+    	end
 
   def scan_aj
     qz_path = params['qz_path']

@@ -140,7 +140,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				id : 'document_grid',
 				store: store3,
 				tbar:[
-					{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+					{xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
 						handler: function() {
 							var grid = Ext.getCmp('archive_grid');
 							var records = grid.getSelectionModel().getSelection();
@@ -149,7 +149,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 						}
 					},
-					{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+					{xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
 						handler: function() {
 
 							var grid = Ext.getCmp('document_grid');
@@ -174,7 +174,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								});
 							
 						}},
-					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
 					handler: function() {
 						var grid  = this.ownerCt.ownerCt;
 						//alert(grid);
@@ -191,7 +191,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								{
 									xtype:'textfield',id:'query_jr_text'
 								},				  
-								{xtype:'button',text:'查询',tooltip:'查询卷内目录',id:'query_jr',iconCls:'accordion',
+								{xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
 										handler: function() {
 											store3.proxy.url="/desktop/get_document_where";
 											store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
@@ -534,7 +534,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				id : 'document_grid',
 				store: store3,
 				tbar:[
-					{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+					{xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
 						handler: function() {
 							var grid = Ext.getCmp('archive_grid');
 							var records = grid.getSelectionModel().getSelection();
@@ -543,7 +543,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 						}
 					},
-					{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+					{xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
 						handler: function() {
 
 							var grid = Ext.getCmp('document_grid');
@@ -568,7 +568,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								});
 							
 						}},
-					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
 					handler: function() {
 						var grid  = this.ownerCt.ownerCt;
 						//alert(grid);
@@ -585,7 +585,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								{
 									xtype:'textfield',id:'query_jr_text'
 								},				  
-								{xtype:'button',text:'查询',tooltip:'查询卷内目录',id:'query_jr',iconCls:'accordion',
+								{xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
 										handler: function() {
 											store3.proxy.url="/desktop/get_document_where";
 											store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
@@ -939,7 +939,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				id : 'document_grid',
 				store: store3,
 				tbar:[
-					{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+					{xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
 						handler: function() {
 							var grid = Ext.getCmp('archive_grid_tddj');
 							var records = grid.getSelectionModel().getSelection();
@@ -948,7 +948,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 						}
 					},
-					{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+					{xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
 						handler: function() {
 
 							var grid = Ext.getCmp('document_grid');
@@ -973,7 +973,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								});
 							
 						}},
-					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
 					handler: function() {
 						var grid  = this.ownerCt.ownerCt;
 						//alert(grid);
@@ -990,7 +990,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								{
 									xtype:'textfield',id:'query_jr_text'
 								},				  
-								{xtype:'button',text:'查询',tooltip:'查询卷内目录',id:'query_jr',iconCls:'accordion',
+								{xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
 										handler: function() {
 											store3.proxy.url="/desktop/get_document_where";
 											store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
@@ -1343,7 +1343,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				id : 'document_grid',
 				store: store3,
 				tbar:[
-					{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+					{xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
 						handler: function() {
 							var grid = Ext.getCmp('archive_grid_wsda');
 							var records = grid.getSelectionModel().getSelection();
@@ -1352,7 +1352,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 						}
 					},
-					{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+					{xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
 						handler: function() {
 
 							var grid = Ext.getCmp('document_grid');
@@ -1377,7 +1377,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								});
 							
 						}},
-					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+					{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
 					handler: function() {
 						var grid  = this.ownerCt.ownerCt;
 						//alert(grid);
@@ -1394,7 +1394,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								{
 									xtype:'textfield',id:'query_jr_text'
 								},				  
-								{xtype:'button',text:'查询',tooltip:'查询卷内目录',id:'query_jr',iconCls:'accordion',
+								{xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
 										handler: function() {
 											store3.proxy.url="/desktop/get_document_where";
 											store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;

@@ -375,14 +375,21 @@ var DispAj_zh = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=this.up('panel').getForm().getValues();
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷修改成功。");
+										Ext.getCmp('archive_grid').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷修改失败，请重新修改。");
+									}
+									
 								}
 							});
 						}else{
@@ -390,8 +397,14 @@ var DispAj_zh = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷新增成功。");
+										Ext.getCmp('archive_grid').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷新增失败，请重新保存。");
+									}
+									
 								}
 							});
 						}
@@ -432,7 +445,30 @@ var DispAj_zh = function(record,add_new,title){
 	                    x: 10,
 						name: 'mlh',
 						id: 'zh_mlh',
-	                    y: 10
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									if (newValue==""){
+										alert("目录号不能为空。");
+										field.value=oldValue;
+									}else{
+										qzh=title.split("_")
+										if(add_new==false){
+							               alert(newValue+'---'+'oldValue');
+										}
+										else{
+											new Ajax.Request("/desktop/get_max_ajh", { 
+											    	method: "POST",
+											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
+											    	onComplete:	 function(request) {
+											    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+											     	}
+											     });
+										}
+									}
+									
+						       }
+						}
 	                },
 	                {
 	                    xtype: 'textfield',
@@ -622,7 +658,7 @@ var DispAj_zh = function(record,add_new,title){
 			     });
 			new Ajax.Request("/desktop/get_max_ajh", { 
 			    	method: "POST",
-			    	parameters: {dalb:title},
+			    	parameters: {dalb:title,qx:true},
 			    	onComplete:	 function(request) {
 			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
 			     	}
@@ -1032,7 +1068,7 @@ var DispAj_cw = function(record,add_new,title){
 			     });
 			new Ajax.Request("/desktop/get_max_ajh", { 
 			    	method: "POST",
-			    	parameters: {dalb:title},
+			    	parameters: {dalb:title,qx:true},
 			    	onComplete:	 function(request) {
 			    		Ext.getCmp('cw_ajh').setValue(request.responseText);
 			     	}
@@ -1468,7 +1504,7 @@ var DispAj_tddj = function(record,add_new,title){
 				     });
 				new Ajax.Request("/desktop/get_max_ajh", { 
 				    	method: "POST",
-				    	parameters: {dalb:title},
+				    	parameters: {dalb:title,qx:true},
 				    	onComplete:	 function(request) {
 				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
 				     	}
@@ -1968,7 +2004,7 @@ var DispAj_wsda = function(record,add_new,title){
 				     });
 				new Ajax.Request("/desktop/get_max_ajh", { 
 				    	method: "POST",
-				    	parameters: {dalb:title},
+				    	parameters: {dalb:title,qx:true},
 				    	onComplete:	 function(request) {
 				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
 				     	}
