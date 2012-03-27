@@ -2216,4 +2216,45 @@ class DesktopController < ApplicationController
     end
     render :text => 'Success'
   end  
+  
+  def get_qzgl_store
+    user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt  
+  end 
+  
+  def print_selected_qztj
+
+    User.find_by_sql("delete from p_status where id in (#{params['id']});")
+    
+    qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
+    dydh = "#{qzh}_#{dalb}_#{mlh}"
+    User.find_by_sql("delete from p_status where dydh='#{dydh}';")
+    User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '#{qajh}', '#{qajh}', '#{zajh}', '未打印', '#{sprintf("%02b", dylb)}');")
+    render :text => 'Success'
+    
+  end
+  
+  def import_selected_aj
+  
+  end
+  
+  def import_selected_image
+    
+  end
+  
+  def export_selected_image
+    
+  end
+  
+        
 end

@@ -2220,10 +2220,261 @@ Ext.define('MyDesktop.PrintData', {
                       }                      
                     },
                     {
-                      text:'输出',
+                      text:'全宗统计',
                       tooltip:'',
                       iconCls:'export',
                       handler: function() {
+                        
+                        //全宗统计
+
+                        var do_qzgl = function() {
+
+                          Ext.regModel('qzgl_model', {
+                            fields: [
+                              {name: 'id',       type: 'integer'},
+                              {name: 'qzh',      type: 'integer'},
+                              {name: 'dalb',     type: 'integer'},
+                              {name: 'mlh',      type: 'integer'},
+                              {name: 'qajh',     type: 'integer'},
+                              {name: 'zajh',     type: 'integer'},
+                              {name: 'ajys',     type: 'integer'},
+                              {name: 'jnts',     type: 'integer'},
+                              {name: 'smyx',     type: 'integer'},
+                              {name: 'ml00',     type: 'integer'},
+                              {name: 'mlbk',     type: 'integer'},
+                              {name: 'mljn',     type: 'integer'},
+                              {name: 'jnjn',     type: 'integer'},
+                              {name: 'a4',       type: 'integer'},
+                              {name: 'a3',       type: 'integer'},
+                              {name: 'dt',       type: 'integer'},
+                              {name: 'lijr',     type: 'string'},
+                              {name: 'jmcr',     type: 'string'},
+                              {name: 'dtxs',     type: 'string'},
+                              {name: 'zt',       type: 'string'},
+                              {name: 'json',     type: 'string'}
+                            ]
+                          });
+
+                          // 虚拟打印状态Grid
+                          var qzgl_store =  Ext.create('Ext.data.Store', {
+                            model : 'qzgl_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_qzgl_store',
+                              extraParams: {qzh:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+
+                          qzgl_store.proxy.extraParams={qzh:'4'};
+                          qzgl_store.load();
+
+                          var ztRender = function(val) {
+                            if (val == "未入库") {
+                                return '<span style="color:red;">' + val + '</span>';
+                            } else if (val == "已归档") {
+                                return '<span style="color:blue;">' + val + '</span>';
+                            } else {
+                               return '<span style="color:gray;">' + val + '</span>';
+                            }
+                            return val;                          
+                          };
+
+                          var qzgl_grid = new Ext.grid.GridPanel({
+                               // more config options clipped //,
+                               //title: '全宗管理',
+                               store: qzgl_store,
+                               id : 'qzgl_grid_id',
+                               iconCls:'export',
+                               height : 400,
+                               columns: [
+                                 { text : 'id',   align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+                                 { text : '全宗号',  align:"left",  width : 50, sortable : true, dataIndex: 'qzh'},
+                                 { text : '档案类别', align:"left",  width : 50, sortable : true, dataIndex: 'dalb'},
+                                 { text : '目录号',  align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+                                 { text : '始卷',   align:"right", width : 40, sortable : true, dataIndex: 'qajh'},
+                                 { text : '终卷',   align:"right", width : 40, sortable : true, dataIndex: 'zajh'},
+                                 { text : '总页数',   align:"right", width : 50, sortable : true, dataIndex: 'ajys'},
+
+                                 { text : '封面',   align:"right", width : 40, sortable : true, dataIndex: 'ml00'},
+                                 { text : '著录',   align:"right", width : 40, sortable : true, dataIndex: 'mljn'},
+                                 { text : '正文',   align:"right", width : 40, sortable : true, dataIndex: 'smyx'},
+                                 { text : '备考',   align:"right", width : 40, sortable : true, dataIndex: 'mlbk'},
+                                 { text : '旧封',   align:"right", width : 40, sortable : true, dataIndex: 'jn00'},
+                                 { text : '旧卷',   align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
+                                 { text : '旧备',   align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
+                                 
+                                 { text : 'A4',   align:"right", width : 40, sortable : true, dataIndex:  'a3',},
+                                 { text : 'A3',   align:"right", width : 40, sortable : true, dataIndex:  'a4'},
+                                 { text : '大图',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
+
+                                 { text : '文件路径', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
+                                 { text : '状态',   align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
+                               ],
+                               //selModel : {selType:'cellmodel'},
+                               selType:'checkboxmodel',
+                               multiSelect:true,
+                               viewConfig: {
+                                 stripeRows:true
+                               },
+                               tbar : [{
+                                   text : '打印报表',
+                                   handler : function() {
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/print_selected_qztj", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzgl_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
+                                   text : '导入目录',
+                                   handler : function() {
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/import_selected_aj", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzgl_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
+                                   text : '导入影像',
+                                   handler : function() {
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/import_selected_image", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzgl_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
+                                   text : '导出影像',
+                                   handler : function() {
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/export_selected_image", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzgl_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-', {
+                                   text : '刷新',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     qzgl_store.load();
+                                   }                                 
+                               }]
+                          }); 
+
+                          var qzglPanel = new Ext.form.FormPanel({
+                            id : 'qzgl_panel_id',
+                            labelWidth:40,
+                            //bodyStyle:"padding:35px;",
+                            bodyPadding: 3,
+                            items:[{
+                                xtype: 'form',
+                                height: 450,
+                                //activeTab: 0,
+                                items: [qzgl_grid]
+                            }]        
+                          });
+
+                          var qzglWin = new Ext.Window({
+                            id : 'qzgl_win',
+                            iconCls : 'export',
+                            title: '全宗管理',
+                            floating: true,
+                            shadow: true,
+                            draggable: true,
+                            //closeAction:'hide',
+                            //minimizable:true,
+                            //closable: false,
+                            modal: false,
+                            width: 780,
+                            height: 475,
+                            layout: 'fit',
+                            plain: true,
+                            items:qzglPanel,
+                            buttons: [{
+                              text: '打印',
+                              handler: function() {
+                                var pars={id:archive_id};
+                                new Ajax.Request("/desktop/start_print_task", { 
+                                  method: "POST",
+                                  parameters: pars,
+                                  onComplete:  function(request) {
+                                    qzgl_store.load();
+                                  }
+                                });
+                              }
+                            },{
+                              text: '关闭',
+                              handler : function() {
+                                Ext.getCmp('qzgl_win').close();
+                              }
+                            }]
+                          });
+
+                          qzglWin.show();
+
+                        }
+
+                        do_qzgl();
+                        
+                        
+                        /*
                         var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
                         var pars={dh:dh};
                         new Ajax.Request("/desktop/print_timage_tj", {
@@ -2233,6 +2484,7 @@ Ext.define('MyDesktop.PrintData', {
                             Ext.Msg.alert('完成','目录汇总数据生成OK,到/share目录查看');
                           }
                         });
+                        */
                       }                   
                     },
                     '->',
