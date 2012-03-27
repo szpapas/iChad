@@ -38,12 +38,12 @@ ruby ./dady/bin/import_image.rb 4 98 4 /mnt/lvm1/TZ2/98/ -- 19864
 ruby ./dady/bin/import_image.rb 4 101 4 /mnt/lvm1/TZ2/101/ -- 7057
 ruby ./dady/bin/import_image.rb 4 102 4 /mnt/lvm1/TZ2/102/ -- 31158
 ruby ./dady/bin/import_image.rb 4 103 4 /mnt/lvm1/TZ2/103/ -- 36270
-ruby ./dady/bin/import_image.rb 4 104 4 /mnt/lvm1/TZ2/104/ -- 34299
-ruby ./dady/bin/import_image.rb 4 105 4 /mnt/lvm1/TZ2/105/ --
+ruby ./dady/bin/import_image.rb 4 104 4 /mnt/lvm1/TZ2/104/ -- 37123
+ruby ./dady/bin/import_image.rb 4 105 4 /mnt/lvm1/TZ2/105/ -- 36437
 ruby ./dady/bin/import_image.rb 4 106 4 /mnt/lvm1/TZ2/106/ -- 
 
 ruby ./dady/bin/import_image.rb 4 108 4 /mnt/lvm1/TZ2/108/ --35286
-ruby ./dady/bin/import_image.rb 4 109 4 /mnt/lvm1/TZ2/109/  
+ruby ./dady/bin/import_image.rb 4 109 4 /mnt/lvm1/TZ2/109/ --33737
 ruby ./dady/bin/import_image.rb 4 110 4 /mnt/lvm1/TZ2/110/ 
 ruby ./dady/bin/import_image.rb 4 111 4 /mnt/lvm1/TZ2/111/ --33352
 ruby ./dady/bin/import_image.rb 4 112 4 /mnt/lvm1/TZ2/112/ --38243
@@ -76,6 +76,8 @@ ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/  -- 29023
 
 
 1. 倒入目录
+ruby ./dady/bin/upload_mulu.rb 1综合档案aj.txt 泰州市国土资源局 4 tz
+ruby ./dady/bin/upload_mulu.rb 2综合档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 15用地档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 16用地档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 17用地档案aj.txt 泰州市国土资源局 4 tz
@@ -92,8 +94,49 @@ ruby ./dady/bin/import_image.rb 4 14 10 /mnt/data1/TZ/14/
 ruby ./dady/bin/import_image.rb 4 15 10 /mnt/data1/TZ/15/
 ruby ./dady/bin/import_image.rb 4 16 10 /mnt/data1/TZ/16/
 ruby ./dady/bin/import_image.rb 4 17 10 /mnt/data1/TZ/17/
-ruby ./dady/bin/import_image.rb 4 18 10 /mnt/data1/TZ/18/
-ruby ./dady/bin/import_image.rb 4 19 10 /mnt/data1/TZ/19/
+ruby ./dady/bin/import_image.rb 4 18 10 /mnt/data1/TZ/18/18\$E\$0041/ 41
+ruby ./dady/bin/import_image.rb 4 19 10 /mnt/data1/TZ/19/19\$E\$0679/ 679
+ruby ./dady/bin/import_image.rb 4 26 10 /mnt/data1/TZ/26/
+ruby ./dady/bin/import_image.rb 4 40 3 /mnt/data1/TZ/40/
+ruby ./dady/bin/import_image.rb 4 41 3 /mnt/data1/TZ/41/
+ruby ./dady/bin/import_image.rb 4 42 3 /mnt/data1/TZ/42/
+ruby ./dady/bin/import_image.rb 4 43 3 /mnt/data1/TZ/43/
+ruby ./dady/bin/import_image.rb 4 44 3 /mnt/data1/TZ/44/
+ruby ./dady/bin/import_image.rb 4 45 3 /mnt/data1/TZ/45/
+ruby ./dady/bin/import_image.rb 4 46 3 /mnt/data1/TZ/46/
+ruby ./dady/bin/import_image.rb 4 47 3 /mnt/data1/TZ/47/
+ruby ./dady/bin/import_image.rb 4 48 3 /mnt/data1/TZ/48/
+ruby ./dady/bin/import_image.rb 4 49 3 /mnt/data1/TZ/49/
+ruby ./dady/bin/import_image.rb 4 50 3 /mnt/data1/TZ/50/
+ruby ./dady/bin/import_image.rb 4 51 3 /mnt/data1/TZ/51/
+ruby ./dady/bin/import_image.rb 4 52 3 /mnt/data1/TZ/52/
+ruby ./dady/bin/import_image.rb 4 53 3 /mnt/data1/TZ/53/
+ruby ./dady/bin/import_image.rb 4 54 3 /mnt/data1/TZ/54/
+ruby ./dady/bin/import_image.rb 4 55 3 /mnt/data1/TZ/55/
+ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/
 
 3.统计数据
+ruby ./dady/bin/print_mulu_tj.rb 4 10 14
+ruby ./dady/bin/print_mulu_tj.rb 4 10 15
+ruby ./dady/bin/print_mulu_tj.rb 4 10 16
+ruby ./dady/bin/print_mulu_tj.rb 4 10 17
+ruby ./dady/bin/print_mulu_tj.rb 4 10 18
+ruby ./dady/bin/print_mulu_tj.rb 4 10 19
+ruby ./dady/bin/print_mulu_tj.rb 4 3 40
+ruby ./dady/bin/print_mulu_tj.rb 4 3 41
+ruby ./dady/bin/print_mulu_tj.rb 4 3 42
+ruby ./dady/bin/print_mulu_tj.rb 4 3 43
+ruby ./dady/bin/print_mulu_tj.rb 4 3 44
+ruby ./dady/bin/print_mulu_tj.rb 4 3 45
+ruby ./dady/bin/print_mulu_tj.rb 4 3 46
+ruby ./dady/bin/print_mulu_tj.rb 4 3 47
+ruby ./dady/bin/print_mulu_tj.rb 4 3 48
+ruby ./dady/bin/print_mulu_tj.rb 4 3 49
+ruby ./dady/bin/print_mulu_tj.rb 4 3 50
+ruby ./dady/bin/print_mulu_tj.rb 4 3 51
+ruby ./dady/bin/print_mulu_tj.rb 4 3 52
+ruby ./dady/bin/print_mulu_tj.rb 4 3 53
+ruby ./dady/bin/print_mulu_tj.rb 4 3 54
+ruby ./dady/bin/print_mulu_tj.rb 4 3 55
+ruby ./dady/bin/print_mulu_tj.rb 4 3 56
 

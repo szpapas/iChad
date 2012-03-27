@@ -39,11 +39,11 @@ end
 def save2timage(id, yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
   if fo.size == 0
-    stderr.puts ("Import Image: #{path}  file size is zero.")
+    $stderr.puts("Import Image: #{path}  file size is zero.")
     exit 
   end
   
-  if yxbh.include?'jpg'  
+  if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
     si = fo.index("\377\300")
     width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
     
@@ -75,7 +75,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       end     
     end
   
-  elsif yxbh.include?'TIF'
+  elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
     meta = ""
     wh = getimgsize(path).split(",")
     width, height = wh[0].to_i, wh[1].to_i
@@ -112,10 +112,10 @@ Find.find(path) do |path|
       next
     end
   else
-    if (path.include?'jpg') || (path.include?'TIF')
+    if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
-        stderr.puts ("Import Image: #{path} Format error.")
+        $stderr.puts("Import Image: #{path} Format error.")
         next
       end
       
