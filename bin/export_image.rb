@@ -24,7 +24,7 @@ option = ARGV[1]
 if option.to_i == 1
   imgs = $conn.exec("select id from timage where dh like '#{dh}' and yxbh like 'ML%' order by id;")
 elsif option.to_i == 2        
-  imgs = $conn.exec("select id from timage where dh like '#{dh}' and yxbh like '[ML|JN]%' order by id;")
+  imgs = $conn.exec("select id from timage where dh like '#{dh}' and yxbh similar to '[ML|JN]%' order by id;")
 else                          
   imgs = $conn.exec("select id from timage where dh like '#{dh}' order by id;")
 end

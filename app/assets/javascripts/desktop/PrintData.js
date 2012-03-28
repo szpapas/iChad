@@ -2472,8 +2472,8 @@ Ext.define('MyDesktop.PrintData', {
                                  { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
                                  { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
                                  { text : '目录号',    align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
-                                 { text : '任务命令',   align:"center", width : 150, sortable : true, dataIndex: 'cmd'},
-                                 { text : '附加参数',   align:"center", width : 100, sortable : true, dataIndex: 'fjcs'},
+                                 { text : '任务命令',   align:"left", width : 150, sortable : true, dataIndex: 'cmd'},
+                                 { text : '附加参数',   align:"left", width : 100, sortable : true, dataIndex: 'fjcs'},
                                  { text : '当前位置',   align:"center", width : 50, sortable : true, dataIndex: 'dqwz'},
                                  { text : '状态',     align:"center", flex : 1, sortable : true, dataIndex:   'zt', renderer:ztRenderer}
                                ],

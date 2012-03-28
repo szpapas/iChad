@@ -310,6 +310,12 @@ if ifname.include?('aj')
   
   update_owner
   
+  #生成q_qzxx
+  dh_prefix = "#{qzh}_#{dalb}_#{mlh}"
+  $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );") 
+  qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}_%';")
+  $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
+  
 elsif ifname.include?('jr') 
 
   dh = "#{qzh}_#{dalb}_#{mlh}_%"

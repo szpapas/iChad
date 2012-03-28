@@ -15,3 +15,5 @@ ruby ./dady/bin/upload_mulu.rb 86地籍管理档案aj.txt 泰州市国土资源�
 ruby ./dady/bin/upload_mulu.rb 88地籍管理档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 90地籍管理档案aj.txt 泰州市国土资源局 4 tz
 ruby ./dady/bin/upload_mulu.rb 91地籍管理档案aj.txt 泰州市国土资源局 4 tz
+ruby ./dady/bin/upload_mulu.rb 100地籍管理档案aj.txt 泰州市国土资源局 4 tz
+

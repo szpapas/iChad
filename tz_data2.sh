@@ -113,7 +113,7 @@ ruby ./dady/bin/import_image.rb 4 51 3 /mnt/data1/TZ/51/
 ruby ./dady/bin/import_image.rb 4 52 3 /mnt/data1/TZ/52/
 ruby ./dady/bin/import_image.rb 4 53 3 /mnt/data1/TZ/53/
 ruby ./dady/bin/import_image.rb 4 54 3 /mnt/data1/TZ/54/
-ruby ./dady/bin/import_image.rb 4 55 3 /mnt/data1/TZ/55/
+ruby ./dady/bin/import_image.rb 4 55 3 /mnt/data1/TZ/55/55\$C\$0845/ 845 
 ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/
 
 3.统计数据
@@ -373,4 +373,4 @@ ruby ./dady/bin/import_image.rb 4 55 3 /mnt/data1/TZ/55/  -- 44651
 ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/  -- 29023
 
 
-select * from timage_tj where zt='多页'; 空卷 缺页
+select * from timage_tj where zt='多页'; 
