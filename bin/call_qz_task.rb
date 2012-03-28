@@ -15,10 +15,11 @@ while $count > 0 do
   $conn.exec("update q_status set zt='开始执行' where id=#{data['id']};")
   puts "#{cmd}"
   system(cmd)
+  $conn.exec("update q_status set zt='完成' where id=#{data['id']};")
   
   user = $conn.exec("select * from q_status where dyzt='未开始' order by id;")
   $count = user.count
-  
+
 end  
 
 $conn.close

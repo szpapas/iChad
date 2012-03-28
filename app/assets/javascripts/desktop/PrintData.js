@@ -2483,7 +2483,43 @@ Ext.define('MyDesktop.PrintData', {
                                viewConfig: {
                                  stripeRows:true
                                },
-                               tbar : [{
+                               tbar : [
+                               {
+                                  text : '删除选择',
+                                  handler : function() {
+                                    items = Ext.getCmp('qzzt_grid_id').getSelectionModel().selected.items;
+                                    id_str = '';
+                                    for (var i=0; i < items.length; i ++) {
+                                      if (i==0) {
+                                        id_str = id_str+items[i].data.id 
+                                      } else {
+                                        id_str = id_str + ',' +items[i].data.id 
+                                      }
+                                    
+                                    }
+                                    pars = {id:id_str};
+                                    new Ajax.Request("/desktop/delete_qzzt_task", { 
+                                      method: "POST",
+                                      parameters: pars,
+                                      onComplete:  function(request) {
+                                        qzzt_store.load();
+                                      }
+                                    });
+                                  }
+                                },'-',{
+                                  text : '删除完成',
+                                  handler : function() {
+                                    pars = {}
+                                    new Ajax.Request("/desktop/delete_all_qzzt_task", { 
+                                      method: "POST",
+                                      parameters: pars,
+                                      onComplete:  function(request) {
+                                        qzzt_store.load();
+                                      }
+                                    });
+                                  }
+                                },
+                                {
                                    text : '刷新',
                                    iconCls : 'x-tbar-loading',
                                    handler : function() {
@@ -2525,14 +2561,14 @@ Ext.define('MyDesktop.PrintData', {
                             plain: true,
                             items:qzglPanel,
                             buttons: [{
-                              text: '打印',
+                              text: '执行',
                               handler: function() {
                                 var pars={id:archive_id};
-                                new Ajax.Request("/desktop/start_print_task", { 
+                                new Ajax.Request("/desktop/start_qzzt_task", { 
                                   method: "POST",
                                   parameters: pars,
                                   onComplete:  function(request) {
-                                    qzgl_store.load();
+                                    qzzt_store.load();
                                   }
                                 });
                               }
@@ -2543,13 +2579,9 @@ Ext.define('MyDesktop.PrintData', {
                               }
                             }]
                           });
-
                           qzglWin.show();
-
                         }
-
                         do_qzgl();
-                        
                         
                         /*
                         var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;

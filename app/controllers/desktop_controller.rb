@@ -2302,4 +2302,23 @@ class DesktopController < ApplicationController
     end
     render :text => txt  
   end      
+  
+  
+  def delete_qzzt_task
+    User.find_by_sql("delete from q_status where id in (#{params['id']});")
+    render :text => 'Success'
+  end
+
+  def delete_all_qzzt_task
+    User.find_by_sql("delete from q_status where dyzt = '完成';")
+    render :text => 'Success'
+  end
+
+
+  def start_qzzt_task
+    system 'ruby ./dady/bin/call_qz_task.rb &'
+    render :text => 'Success'
+  end
+  
+  
 end
