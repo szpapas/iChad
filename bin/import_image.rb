@@ -39,12 +39,18 @@ end
 def save2timage(id, yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
   if fo.size == 0
-    $stderr.puts("Import Image: #{path}  file size is zero.")
-    exit 
+    $stderr.puts(" *** Import Image: #{path}  file size is zero.")
+    return 
   end
   
   if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
     si = fo.index("\377\300")
+    
+    if si.nil?
+      $stderr.puts(" *** Import Image: #{path}  corrupt image file.")
+      return
+    end
+    
     width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
     
     #wh = getimgsize(path).split(",")
@@ -112,12 +118,10 @@ Find.find(path) do |path|
       next
     end
   else
-    
-    
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
-        $stderr.puts("Import Image: #{path} Format error.")
+        $stderr.puts(" *** Import Image: #{path} Format error.")
         next
       end
       
@@ -138,7 +142,7 @@ Find.find(path) do |path|
           yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
           save2timage($archive_id, sxh, path, $dh, yxqz)
         else
-          puts "Error: save2timage 0, #{sxh}, #{path}, #{dh}, #{yxqz}"
+          puts " *** Error: save2timage 0, #{sxh}, #{path}, #{dh}, #{yxqz}"
         end
             
       else

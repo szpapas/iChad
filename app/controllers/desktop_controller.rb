@@ -2298,4 +2298,109 @@ class DesktopController < ApplicationController
     end
     render :text => 'Success'
   end  
+  
+  def get_qzgl_store
+    user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt  
+  end 
+  
+  def print_selected_qztj
+
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh} ', '', '', '未开始');")
+    end  
+
+    render :text => 'Success'
+    
+  end
+  
+  
+  def import_selected_aj
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+
+      if !user[0].json.nil?
+        json=dd.json
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/upload_mulu.rb  #{json} 泰州市国土资源局 #{qzh} tz ', '', '', '未开始');")
+      else 
+        render :text => 'JSON is Empty'
+      end    
+    end  
+    render :text => 'Success'
+  end
+  
+  def import_selected_image
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      yxwz=dd.yxwz
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{qzh} #{mlh} #{dalb} #{yxwz}', '', '', '未开始');")
+    end  
+    render :text => 'Success'
+  end
+  
+  def export_selected_image
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      yxwz=dd.yxwz
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh.dh_prefix} 1 /mnt/lvm1/TZ2/export', '', '', '未开始');")
+    end  
+    render :text => 'Success'
+  end
+  
+  def get_qzzt_store
+    user = User.find_by_sql("select * from q_status order by mlh;")
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt  
+  end      
+  
+  
+  def delete_qzzt_task
+    User.find_by_sql("delete from q_status where id in (#{params['id']});")
+    render :text => 'Success'
+  end
+
+  def delete_all_qzzt_task
+    User.find_by_sql("delete from q_status where dyzt = '完成';")
+    render :text => 'Success'
+  end
+
+
+  def start_qzzt_task
+    system 'ruby ./dady/bin/call_qz_task.rb &'
+    render :text => 'Success'
+  end
+  
+  
 end
