@@ -387,7 +387,7 @@ var DispAj_zh = function(record,add_new,title){
 										Ext.getCmp('archive_grid').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
-										alert("案卷修改失败，请重新修改。");
+										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
 									
 								}
@@ -402,7 +402,7 @@ var DispAj_zh = function(record,add_new,title){
 										Ext.getCmp('archive_grid').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
-										alert("案卷新增失败，请重新保存。");
+										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
 									
 								}
@@ -628,6 +628,14 @@ var DispAj_zh = function(record,add_new,title){
 	                    hidden : true,
 						name: 'dalb',
 						id: 'zh_dalb',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
 	                }
@@ -903,7 +911,7 @@ var DispAj_cw = function(record,add_new,title){
 	                    y: 10
 	                },
 	                {
-	                    xtype: 'textfield',
+	                    xtype: 'datefield',
 	                    width: 145,
 	                    fieldLabel: '起 日 期',
 	                    labelWidth: 60,
@@ -913,7 +921,7 @@ var DispAj_cw = function(record,add_new,title){
 	                    y: 115
 	                },
 	                {
-	                    xtype: 'textfield',
+	                    xtype: 'datefield',
 	                    width: 145,
 	                    fieldLabel: '止日期',
 	                    labelWidth: 60,
@@ -1041,7 +1049,15 @@ var DispAj_cw = function(record,add_new,title){
 						id: 'cw_dalb',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }	,
+		                {
+		                    xtype: 'textfield',
+		                    hidden : true,
+							name: 'id',
+							id: 'cw_id',
+		                    x: 10,
+		                    y: 190
+		                }
 	            ]
 			}]
 		});
@@ -1477,7 +1493,15 @@ var DispAj_tddj = function(record,add_new,title){
 						id: 'tddj_dalb',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }	,
+		                {
+		                    xtype: 'textfield',
+		                    hidden : true,
+							name: 'id',
+							id: 'tddj_id',
+		                    x: 10,
+		                    y: 190
+		                }
 	            ]
 			}]
 		});
@@ -1977,7 +2001,15 @@ var DispAj_wsda = function(record,add_new,title){
 						id: 'wsda_bz',
 	                    x: 10,
 	                    y: 280
-	                }
+	                }	,
+		                {
+		                    xtype: 'textfield',
+		                    hidden : true,
+							name: 'id',
+							id: 'wsda_id',
+		                    x: 10,
+		                    y: 190
+		                }
 	            ]
 			}]
 		});

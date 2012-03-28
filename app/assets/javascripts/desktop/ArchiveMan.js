@@ -466,7 +466,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 		  
 	  
 			
-					
+			var tab = tabPanel.getActiveTab();
+			tabPanel.remove(tab);		
 			var tabPage = tabPanel.add({
 				title:text,
 				closable:true,
@@ -869,7 +870,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 		  
 	  
 			
-					
+			var tab = tabPanel.getActiveTab();
+			tabPanel.remove(tab);		
 			var tabPage = tabPanel.add({
 				title:text,
 				closable:true,
@@ -1237,12 +1239,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 										DispAj_zh(r,false,title);
 										break;
 								}
-							  // if(r.data.dalb==0 || r.data.dalb){
-							  // 	DispAj_Zh(r,false);									
-							  // }else
-							  // {
-							  // 	 
-							  // }
+							  
 							}
 						}
 					},
@@ -1275,7 +1272,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 		  
 	   
 			
-					
+				var tab = tabPanel.getActiveTab();
+				tabPanel.remove(tab);	
 			var tabPage = tabPanel.add({
 				title:text,
 				closable:true,
@@ -1691,7 +1689,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 		  
 	   
 			
-					
+			var tab = tabPanel.getActiveTab();
+			tabPanel.remove(tab);		
 			var tabPage = tabPanel.add({
 				title:text,
 				closable:true,
@@ -1750,23 +1749,25 @@ Ext.define('MyDesktop.ArchiveMan', {
 			ss=data.id.split('_');
 			//if (data.leaf) {
 			if (ss.length>1){
-	    		switch (ss[1]) { 
-	    			case "0": 
-	    				AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	    				break; 
-	    			case "2": 
-	    				AjListFn_cw(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	    				break; 
-	    			case "3": 
-	          		  	AjListFn_tddj(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	    			  	break; 
-					case "24":
-						AjListFn_wsda(data.id,node.selected.items[0].parentNode.data.text+data.text);
-    			  		break;
-	    			default:
-	    				AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	    				break;
-	    		}
+				if (ss[1]<100){
+	    			switch (ss[1]) { 
+		    			case "0": 
+		    				AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
+		    				break; 
+		    			case "2": 
+		    				AjListFn_cw(data.id,node.selected.items[0].parentNode.data.text+data.text);
+		    				break; 
+		    			case "3": 
+		          		  	AjListFn_tddj(data.id,node.selected.items[0].parentNode.data.text+data.text);
+		    			  	break; 
+						case "24":
+							AjListFn_wsda(data.id,node.selected.items[0].parentNode.data.text+data.text);
+	    			  		break;
+		    			default:
+		    				AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
+		    				break;
+		    		}
+				}
 			}
 		});
 	
