@@ -2251,7 +2251,8 @@ Ext.define('MyDesktop.PrintData', {
                               {name: 'jmcr',     type: 'string'},
                               {name: 'dtxs',     type: 'string'},
                               {name: 'zt',       type: 'string'},
-                              {name: 'json',     type: 'string'}
+                              {name: 'json',     type: 'string'},
+                              {name: 'yxwz',     type: 'string'}
                             ]
                           });
 
@@ -2286,7 +2287,7 @@ Ext.define('MyDesktop.PrintData', {
 
                           var qzgl_grid = new Ext.grid.GridPanel({
                                // more config options clipped //,
-                               //title: '全宗管理',
+                               title: '全宗管理',
                                store: qzgl_store,
                                id : 'qzgl_grid_id',
                                iconCls:'export',
@@ -2298,7 +2299,7 @@ Ext.define('MyDesktop.PrintData', {
                                  { text : '目录号',  align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
                                  { text : '始卷',   align:"right", width : 40, sortable : true, dataIndex: 'qajh'},
                                  { text : '终卷',   align:"right", width : 40, sortable : true, dataIndex: 'zajh'},
-                                 { text : '总页数',   align:"right", width : 50, sortable : true, dataIndex: 'ajys'},
+                                 { text : '总页数',   align:"right", width : 80, sortable : true, dataIndex: 'ajys'},
 
                                  { text : '封面',   align:"right", width : 40, sortable : true, dataIndex: 'ml00'},
                                  { text : '著录',   align:"right", width : 40, sortable : true, dataIndex: 'mljn'},
@@ -2308,11 +2309,11 @@ Ext.define('MyDesktop.PrintData', {
                                  { text : '旧卷',   align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
                                  { text : '旧备',   align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
                                  
-                                 { text : 'A4',   align:"right", width : 40, sortable : true, dataIndex:  'a3',},
-                                 { text : 'A3',   align:"right", width : 40, sortable : true, dataIndex:  'a4'},
+                                 { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a3',},
+                                 { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a4'},
                                  { text : '大图',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
-                                 { text : '文件路径', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
+                                 { text : '文件路径', align:"right", width : 80, sortable : true, dataIndex: 'jnbk'},
                                  { text : '状态',   align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
                                ],
                                //selModel : {selType:'cellmodel'},
@@ -2344,7 +2345,7 @@ Ext.define('MyDesktop.PrintData', {
                                      });
                                    }
                                  },'-',{
-                                   text : '导入目录',
+                                   text : '导入JSON',
                                    handler : function() {
                                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
                                      id_str = '';
@@ -2418,16 +2419,92 @@ Ext.define('MyDesktop.PrintData', {
                                }]
                           }); 
 
+
+                          Ext.regModel('qzzt_model', {
+                            fields: [
+                              {name: 'id',       type: 'integer'},
+                              {name: 'dhp',      type: 'string'},
+                              {name: 'mlh',      type: 'integer'},
+                              {name: 'cmd',      type: 'string'},
+                              {name: 'fjcs',     type: 'string'},
+                              {name: 'dqwz',     type: 'string'},
+                              {name: 'zt',       type: 'string'}
+                            ]
+                          });
+
+                          // 虚拟打印状态Grid
+                          var qzzt_store =  Ext.create('Ext.data.Store', {
+                            model : 'qzzt_model',
+                            proxy: {
+                              type: 'ajax',
+                              url : '/desktop/get_qzzt_store',
+                              extraParams: {qzh:""},
+                              reader: {
+                                type: 'json',
+                                root: 'rows',
+                                totalProperty: 'results'
+                              }
+                            }
+                          });
+
+                          qzzt_store.proxy.extraParams={qzh:'4'};
+                          qzzt_store.load();
+
+                          var ztRender = function(val) {
+                            if (val == "未入库") {
+                                return '<span style="color:red;">' + val + '</span>';
+                            } else if (val == "已归档") {
+                                return '<span style="color:blue;">' + val + '</span>';
+                            } else {
+                               return '<span style="color:gray;">' + val + '</span>';
+                            }
+                            return val;                          
+                          };
+
+                          var qzzt_grid = new Ext.grid.GridPanel({
+                               // more config options clipped //,
+                               title: '任务状态',
+                               store: qzzt_store,
+                               id : 'qzzt_grid_id',
+                               iconCls:'export',
+                               height : 400,
+                               columns: [
+                                 { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+                                 { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
+                                 { text : '目录号',    align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+                                 { text : '任务命令',   align:"center", width : 150, sortable : true, dataIndex: 'cmd'},
+                                 { text : '附加参数',   align:"center", width : 100, sortable : true, dataIndex: 'fjcs'},
+                                 { text : '当前位置',   align:"center", width : 50, sortable : true, dataIndex: 'dqwz'},
+                                 { text : '状态',     align:"center", flex : 1, sortable : true, dataIndex:   'zt', renderer:ztRenderer}
+                               ],
+                               //selModel : {selType:'cellmodel'},
+                               selType:'checkboxmodel',
+                               multiSelect:true,
+                               viewConfig: {
+                                 stripeRows:true
+                               },
+                               tbar : [{
+                                   text : '刷新',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     qzzt_store.load();
+                                   }                                 
+                               }]
+                          }); 
+
+
                           var qzglPanel = new Ext.form.FormPanel({
                             id : 'qzgl_panel_id',
                             labelWidth:40,
                             //bodyStyle:"padding:35px;",
                             bodyPadding: 3,
+                            layout: 'fit',
                             items:[{
-                                xtype: 'form',
-                                height: 450,
-                                //activeTab: 0,
-                                items: [qzgl_grid]
+                                xtype: 'tabpanel',
+                                layout: 'fit',
+                                height: 500,
+                                activeTab: 0,
+                                items: [qzgl_grid, qzzt_grid]
                             }]        
                           });
 
