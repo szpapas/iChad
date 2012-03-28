@@ -12,7 +12,7 @@ while $count > 0 do
   data = user[0]
   dh_prefix, mlh, cmd, fjcs = data['dhp'], data['mlh'],data['cmd'], data['fjcs']
   
-  $conn.exec("update q_status set zt='开始执行' where id=data['id];")
+  $conn.exec("update q_status set zt='开始执行' where id=#{data['id']};")
   puts "#{cmd}"
   system(cmd)
   
