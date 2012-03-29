@@ -28,7 +28,7 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec"update timage_tj set mlbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'MLBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update MLJN..."  
-  $conn.exec"update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%')-2 where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%') - (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to 'ML[BK|00].*') where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update JN00..."
   $conn.exec"update timage_tj set jn00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JN00%') where timage_tj.dh_prefix='#{dh_prefix}';"
