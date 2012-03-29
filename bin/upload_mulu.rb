@@ -140,7 +140,7 @@ def set_archive(tt, dwdm, qzh, dalb)
     if nd.nil? || nd==''
       $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"
       $stderr.puts 
-      return
+      nd='1900'
     end  
     
     if qrq.nil?
