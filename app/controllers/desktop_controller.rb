@@ -2237,7 +2237,7 @@ class DesktopController < ApplicationController
 									when "3"
 										user = User.find_by_sql("select archive.*,a_tddj.djh,,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' and archive.id=a_tddj.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
 									when "24"
-										user = User.find_by_sql("select archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_wsda.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_wsda.ownerid order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
                   
 									else
 										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
@@ -2273,7 +2273,7 @@ class DesktopController < ApplicationController
 								when "3" 
 									user = User.find_by_sql("select archive.*,a_tddj.* from archive,a_tddj where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_tddj.ownerid order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 								when "24"
-									user = User.find_by_sql("select archive.dh,archive.bz,archive.mlh,archive.flh,archive.ys,archive.mj,archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.hh,a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_wsda.ownerid order by ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select archive.dh,archive.bz,archive.mlh,archive.flh,archive.ys,archive.mj,archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.hh,a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  and archive.id=a_wsda.ownerid order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
 									
 								else
 									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
@@ -2295,6 +2295,24 @@ class DesktopController < ApplicationController
   end
   #新增案卷目录
     	def insert_archive
+    	  if (params['ztsl']=='')
+          params['ztsl']=0        
+        end
+        if (params['js']=='')
+          params['js']=0        
+        end
+        if (params['ys']=='')
+          params['ys']=0        
+        end
+        if (params['qrq']=='')
+          params['qrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['zrq']=='')
+          params['zrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['zwrq']=='')
+          params['zwrq']=Time.now.strftime("%Y-%m-%d")
+        end
     	  txt=""
     	  case params['dalb']
   	    when "0"
