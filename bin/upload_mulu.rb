@@ -135,7 +135,14 @@ def set_archive(tt, dwdm, qzh, dalb)
 
     tm = user['案卷题名'] if tm.nil?
     dh = "#{qzh}_#{dalb}_#{mlh}_#{ajh.to_i}"
-
+    
+    
+    if nd.nil? || nd==''
+      $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"
+      $stderr.puts 
+      return
+    end  
+    
     if qrq.nil?
       if qny == ''
         qrq = "#{nd}-01-01"
@@ -270,8 +277,8 @@ end
 #ruby ./dady/bin/upload_mulu.rb  10用地档案jr.txt 泰州市国土资源局 4 17 &
 
 if ARGV.count < 4 
-  puts "usages : ruby ./dady/bin/upload_mulu.rb {aj_file} {dwdm} {qzh} {path}"
-  puts "         ruby ./dady/bin/upload_mulu.rb 10用地档案aj.txt 泰州市国土资源局 4 tz"
+  $stderr.puts "usages : ruby ./dady/bin/upload_mulu.rb {aj_file} {dwdm} {qzh} {path}"
+  $stderr.puts "         ruby ./dady/bin/upload_mulu.rb 10用地档案aj.txt 泰州市国土资源局 4 tz"
   exit
 end
 
@@ -285,6 +292,8 @@ path = "./dady/tmp1/#{pp}"
 if ifname.include?('aj')
   
   dh = "#{qzh}_#{dalb}_#{mlh}_%"
+  
+  $stderr.puts "processing #{ifname}, #{dh} ...."
   
   #delete any document connected to dh
   puts "delete from archive where dh like '#{dh}'; "
@@ -313,7 +322,7 @@ if ifname.include?('aj')
   #生成q_qzxx
   dh_prefix = "#{qzh}_#{dalb}_#{mlh}"
   $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
-  $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );") 
+  $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}', '#{ifname}' );") 
   qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}_%';")
   $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
   $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}_%') where dh_prefix='#{dh_prefix}';")
