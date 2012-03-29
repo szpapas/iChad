@@ -309,12 +309,12 @@ Ext.define('MyDesktop.ArchiveMan', {
 												var records = grid.getSelectionModel().getSelection();
 												var record = records[0];
 
-												var pars="id="+record.data.id;
+												var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
 												Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
 															if(id=="yes"){
 																new Ajax.Request("/desktop/delete_archive", { 
 																	method: "POST",
-																	parameters: pars,
+																	parameters: eval(pars),
 																	onComplete:	 function(request) {
 																		Ext.getCmp('archive_grid').store.load();
 																	}
@@ -708,12 +708,12 @@ Ext.define('MyDesktop.ArchiveMan', {
 												var records = grid.getSelectionModel().getSelection();
 												var record = records[0];
 
-												var pars="id="+record.data.id;
+												var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
 												Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
 															if(id=="yes"){
 																new Ajax.Request("/desktop/delete_archive", { 
 																	method: "POST",
-																	parameters: pars,
+																	parameters: eval(pars),
 																	onComplete:	 function(request) {
 																		Ext.getCmp('archive_grid_cw').store.load();
 																	}
@@ -784,7 +784,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				columns: [
 					//{ text : 'file_name', flex : 1,	sortable : true, dataIndex: 'level4'},
 					//{ text : 'file_size',	 width : 75, sortable : true, dataIndex: 'file_size'}
-					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+					{ text : 'id',	width : 75, sortable : true, dataIndex: 'id'},
 					{ text : 'dalb',	width : 0, sortable : true, dataIndex: 'dalb'},
 					{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
 					{ text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
@@ -799,7 +799,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 					
 					{ text : '卷内张数',	 width : 50, sortable : true, dataIndex: 'jnzs'},
-					{ text : '卷内页数',	 width : 50, sortable : true, dataIndex: 'jnys'},
+					{ text : '附件张数',	 width : 50, sortable : true, dataIndex: 'fjzs'},
 					{ text : '凭证起号',  width : 50, sortable : true, dataIndex: 'pzqh'},
 					{ text : '凭证止号',  width : 50, sortable : true, dataIndex: 'pzzh'},
 					
@@ -1116,12 +1116,12 @@ Ext.define('MyDesktop.ArchiveMan', {
 												var records = grid.getSelectionModel().getSelection();
 												var record = records[0];
 
-												var pars="id="+record.data.id;
+												var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
 												Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
 															if(id=="yes"){
 																new Ajax.Request("/desktop/delete_archive", { 
 																	method: "POST",
-																	parameters: pars,
+																	parameters: eval(pars),
 																	onComplete:	 function(request) {
 																		Ext.getCmp('archive_grid_tddj').store.load();
 																	}
@@ -1473,7 +1473,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 					{name: 'qwbs',		type: 'string'},
 					{name: 'ztc',		type: 'string'},
 					{name: 'zbbm',		type: 'string'},
-					
+					{name: 'hh',		type: 'string'},
+					{name: 'dzwdh',		type: 'string'},
 					{name: 'dalb',		type: 'string'}
 				]
 			});
@@ -1529,12 +1530,12 @@ Ext.define('MyDesktop.ArchiveMan', {
 								var records = grid.getSelectionModel().getSelection();
 								var record = records[0];
 
-								var pars="id="+record.data.id;
+								var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})"; 
 								Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
 											if(id=="yes"){
 												new Ajax.Request("/desktop/delete_archive", { 
 													method: "POST",
-													parameters: pars,
+													parameters: eval(pars),
 													onComplete:	 function(request) {
 														Ext.getCmp('archive_grid_wsda').store.load();
 													}
