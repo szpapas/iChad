@@ -40,7 +40,7 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec"update timage_tj set jnjn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO 'JN[0123456789][123456789]%') where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update SMYX..."  
-  $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO similar to '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update meta A4"
   $conn.exec"update timage_tj set A4 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.meta_tz=0) where timage_tj.dh_prefix='#{dh_prefix}';"
