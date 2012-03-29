@@ -312,25 +312,22 @@ if ifname.include?('aj')
   
   #生成q_qzxx
   dh_prefix = "#{qzh}_#{dalb}_#{mlh}"
+  $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
   $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );") 
   qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}_%';")
   $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
+  $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}_%') where dh_prefix='#{dh_prefix}';")
   
-elsif ifname.include?('jr') 
+  #生成timage_tj
+  $conn.exec("delete from timage_tj where dh like '#{dh_prefix}_%';")
+  archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
+  puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
+  for k in 0..archives.count-1
+    ar = archives[k]
+    $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']});")
+  end
+  #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');
 
-  dh = "#{qzh}_#{dalb}_#{mlh}_%"
-  
-  #delete any document connected to dh
-  puts "delete from document where dh like '#{dh}'; "
-  $conn.exec("delete from document where dh like '#{dh}'; ")
-  
-  outfile = rand(36**8).to_s(36)
-  decode_file("#{path}/#{ifname}", "#{path}/#{outfile}")
-  data = File.open("#{path}/#{outfile}").read
-  set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb)
-  system ("rm -rf #{path}/#{outfile}")
-  
-  update_owner
 end 
 
 

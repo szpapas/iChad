@@ -374,3 +374,85 @@ ruby ./dady/bin/import_image.rb 4 56 3 /mnt/data1/TZ/56/  -- 29023
 
 
 select * from timage_tj where zt='多页'; 
+
+
+4. 导出影像
+rm -rf /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_0_1     2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_0_2     2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_10   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_11   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_14_21   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_14_22   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_14_27   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_16_28   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_19_29   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_17_30   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_37    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_38    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_61    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_62    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_63    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_64    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_65    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_67    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_68    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_69    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_70    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_71    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_72    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_75    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_86    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_87    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_88    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_89    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_90    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_91    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_92    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_93    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_94    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_95    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_96    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_97    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_98    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_101   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_102   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_103   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_104   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_105   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_106   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_108   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_109   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_110   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_111   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_4_112   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_14   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_15   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_16   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_17   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_18   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_10_19   2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_40    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_41    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_42    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_43    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_44    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_45    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_46    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_47    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_48    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_49    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_50    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_51    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_52    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_53    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_54    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_55    2 /mnt/lvm1/TZ2/export
+ruby ./dady/bin/export_image.rb 4_3_56    2 /mnt/lvm1/TZ2/export
+
+
+ruby ./dady/bin/upload_mulu.rb 12用地档案aj.txt 泰州市国土资源局 4 tz
+ruby ./dady/bin/upload_mulu.rb 13用地档案aj.txt 泰州市国土资源局 4 tz
+ruby ./dady/bin/upload_mulu.rb 3综合档案aj.txt 泰州市国土资源局 4 tz
+
+
