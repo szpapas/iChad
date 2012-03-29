@@ -810,14 +810,20 @@ var DispAj_cw = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=this.up('panel').getForm().getValues();
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷修改成功。");
+										Ext.getCmp('archive_grid_cw').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷修改失败，请重新修改。"+request.responseText);
+									}
+									
 								}
 							});
 						}else{
@@ -825,8 +831,14 @@ var DispAj_cw = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷新增成功。");
+										Ext.getCmp('archive_grid_cw').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷新增失败，请重新保存。"+request.responseText);
+									}
+									
 								}
 							});
 						}
@@ -867,7 +879,30 @@ var DispAj_cw = function(record,add_new,title){
 						name: 'mlh',
 						id: 'cw_mlh',
 	                    x: 10,
-	                    y: 10
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									if (newValue==""){
+										alert("目录号不能为空。");
+										field.value=oldValue;
+									}else{
+										qzh=title.split("_")
+										if(add_new==false){
+							               //alert(newValue+'---'+'oldValue');
+										}
+										else{
+											new Ajax.Request("/desktop/get_max_ajh", { 
+											    	method: "POST",
+											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
+											    	onComplete:	 function(request) {
+											    		Ext.getCmp('cw_ajh').setValue(request.responseText);
+											     	}
+											     });
+										}
+									}
+									
+						       }
+						}
 	                },
 	                {
 	                    xtype: 'textfield',
@@ -935,8 +970,8 @@ var DispAj_cw = function(record,add_new,title){
 	                    width: 140,
 	                    fieldLabel: '卷内张数',
 	                    labelWidth: 60,
-						name: 'jrzs',
-						id: 'cw_jrzs',
+						name: 'jnzs',
+						id: 'cw_jnzs',
 	                    x: 345,
 	                    y: 115
 	                },
@@ -1226,14 +1261,20 @@ var DispAj_tddj = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=this.up('panel').getForm().getValues();
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷修改成功。");
+										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷修改失败，请重新修改。"+request.responseText);
+									}
+									
 								}
 							});
 						}else{
@@ -1241,8 +1282,14 @@ var DispAj_tddj = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷新增成功。");
+										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷新增失败，请重新保存。"+request.responseText);
+									}
+									
 								}
 							});
 						}
@@ -1283,7 +1330,30 @@ var DispAj_tddj = function(record,add_new,title){
 						name: 'mlh',
 						id: 'tddj_mlh',
 	                    x: 10,
-	                    y: 10
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									if (newValue==""){
+										alert("目录号不能为空。");
+										field.value=oldValue;
+									}else{
+										qzh=title.split("_")
+										if(add_new==false){
+							               //alert(newValue+'---'+'oldValue');
+										}
+										else{
+											new Ajax.Request("/desktop/get_max_ajh", { 
+											    	method: "POST",
+											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
+											    	onComplete:	 function(request) {
+											    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
+											     	}
+											     });
+										}
+									}
+									
+						       }
+						}
 	                },
 	                {
 	                    xtype: 'textfield',
@@ -1672,14 +1742,20 @@ var DispAj_wsda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=this.up('panel').getForm().getValues();
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid_wsda').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷修改成功。");
+										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷修改失败，请重新修改。"+request.responseText);
+									}
+									
 								}
 							});
 						}else{
@@ -1687,8 +1763,14 @@ var DispAj_wsda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									Ext.getCmp('archive_grid_wsda').store.load();
-									Ext.getCmp('archive_detail_win').close();
+									if (request.responseText=='success'){
+										alert("案卷新增成功。");
+										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷新增失败，请重新保存。"+request.responseText);
+									}
+									
 								}
 							});
 						}
@@ -1721,9 +1803,43 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 10,
 	                    y: 10
 	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '保管期限',
+	                    labelWidth: 60,
+						name: 'bgqx',
+						id: 'wsda_bgqx',
+						name: 'bgqx',
+						store: bgqx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+	                    x: 175,
+	                    y: 10
+	                },
+				 //  {
+	             //      xtype: 'combobox',  //机构问题号下拉框
+	             //      width: 100,
+	             //      fieldLabel: '',
+	             //      x: 410,
+	             //      y: 10,
+				 //  	listeners : {
+				 //  	       select: function(f,r,i){
+				 //  			if (i == 0){
+				 //  				Ext.Msg.prompt('New Genre','Name',Ext.emptyFn);
+				 //  				}
+				 //  			}
+				 //  				
+				 //  	       
+				 //  	}
+	             //  },					
 	                {
 	                    xtype: 'textfield',
-	                    width: 150,
+	                    width: 165,
 	                    fieldLabel: '机构问题',
 	                    labelWidth: 60,
 						name: 'jgwth',
@@ -1741,47 +1857,17 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 525,
 	                    y: 10
 	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 145,
-	                    fieldLabel: '缩 微 号',
-	                    labelWidth: 60,
-						name: 'swh',
-						id: 'wsda_swh',
-	                    x: 520,
-	                    y: 190
-	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 320,
-	                    fieldLabel: '责任者',
-	                    labelWidth: 60,
-						name: 'zrr',
-						id: 'wsda_zrr',
-	                    x: 345,
-	                    y: 70
-	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 165,
-	                    fieldLabel: '全宗号',
-	                    labelWidth: 60,
-						name: 'qzh',
-						id: 'wsda_qzh',
-	                    x: 10,
-	                    y: 130
-	                },
-	                {
-	                    xtype: 'textfield',
+					{
+	                    xtype: 'datefield',
 	                    width: 160,
-	                    fieldLabel: '目录号',
+	                    fieldLabel: '制文日期',
 	                    labelWidth: 60,
-						name: 'mlh',
-						id: 'wsda_mlh',
-	                    x: 180,
-	                    y: 130
+						name: 'zwrq',
+						id: 'wsda_zwrq',
+	                    x: 10,
+	                    y: 40
 	                },
-	                {
+					{
 	                    xtype: 'textfield',
 	                    width: 165,
 	                    fieldLabel: '页数',
@@ -1791,37 +1877,7 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 175,
 	                    y: 40
 	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 140,
-	                    fieldLabel: '馆编件号',
-	                    labelWidth: 60,
-						name: 'gbjh',
-						id: 'wsda_gbjh',
-	                    x: 525,
-	                    y: 40
-	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 165,
-	                    fieldLabel: '分类号',
-	                    labelWidth: 60,
-						name: 'flh',
-						id: 'wsda_flh',
-	                    x: 10,
-	                    y: 190
-	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 165,
-	                    fieldLabel: '保管期限',
-	                    labelWidth: 60,
-						name: 'bgqx',
-						id: 'wsda_bgqx',
-	                    x: 175,
-	                    y: 10
-	                },
-	                {
+					{
 	                    xtype: 'combobox',
 	                    width: 165,
 	                    fieldLabel: '密级',
@@ -1831,47 +1887,17 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 345,
 	                    y: 40
 	                },
-	                {
+					{
 	                    xtype: 'textfield',
-	                    width: 160,
-	                    fieldLabel: '档案馆代号',
-	                    labelWidth: 65,
-						name: 'dagdh',
-						id: 'wsda_dagdh',
-	                    x: 180,
-	                    y: 190
-	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 165,
-	                    fieldLabel: '稿本',
+	                    width: 140,
+	                    fieldLabel: '馆编件号',
 	                    labelWidth: 60,
-						name: 'gb',
-						id: 'wsda_gb',
-	                    x: 345,
-	                    y: 130
+						name: 'gbjh',
+						id: 'wsda_gbjh',
+	                    x: 525,
+	                    y: 40
 	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 165,
-	                    fieldLabel: '载体数量',
-						name: 'ztsl',
-						id: 'wsda_ztsl',
-	                    labelWidth: 60,
-	                    x: 10,
-	                    y: 220
-	                },
-	                {
-	                    xtype: 'textfield',
-	                    width: 145,
-	                    fieldLabel: '盒号',
-	                    labelWidth: 60,
-						name: 'hh',
-						id: 'wsda_hh',
-	                    x: 520,
-	                    y: 130
-	                },
-	                {
+					{
 	                    xtype: 'textfield',
 	                    width: 330,
 	                    fieldLabel: '文 号',
@@ -1881,7 +1907,17 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 10,
 	                    y: 70
 	                },
-	                {
+					{
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '责任者',
+	                    labelWidth: 60,
+						name: 'zrr',
+						id: 'wsda_zrr',
+	                    x: 345,
+	                    y: 70
+	                },
+					{
 	                    xtype: 'textfield',
 	                    width: 655,
 	                    fieldLabel: '题 名',
@@ -1891,7 +1927,97 @@ var DispAj_wsda = function(record,add_new,title){
 	                    x: 10,
 	                    y: 100
 	                },
-	                {
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '目录号',
+	                    labelWidth: 60,
+						name: 'mlh',
+						id: 'wsda_mlh',
+	                    x: 10,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '稿本',
+	                    labelWidth: 60,
+						name: 'gb',
+						id: 'wsda_gb',
+	                    x: 180,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '盒号',
+	                    labelWidth: 60,
+						name: 'hh',
+						id: 'wsda_hh',
+	                    x: 345,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '文种',
+	                    labelWidth: 60,
+						name: 'wz',
+						id: 'wsda_wz',
+	                    x: 10,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '载体类型',
+	                    labelWidth: 60,
+						name: 'ztlx',
+						id: 'wsda_ztlx',
+	                    x: 180,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '载体规格',
+	                    labelWidth: 60,
+						name: 'ztgg',
+						id: 'wsda_ztgg',
+	                    x: 345,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '载体单位',
+	                    labelWidth: 60,
+						name: 'ztdw',
+						id: 'wsda_ztdw',
+	                    x: 520,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '分类号',
+	                    labelWidth: 60,
+						name: 'flh',
+						id: 'wsda_flh',
+	                    x: 10,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '档案馆代号',
+	                    labelWidth: 65,
+						name: 'dagdh',
+						id: 'wsda_dagdh',
+	                    x: 180,
+	                    y: 190
+	                },
+					{
 	                    xtype: 'textfield',
 	                    width: 165,
 	                    fieldLabel: '电子文档号',
@@ -1902,54 +2028,24 @@ var DispAj_wsda = function(record,add_new,title){
 	                    y: 190
 	                },
 	                {
-	                    xtype: 'datefield',
-	                    width: 160,
-	                    fieldLabel: '制文日期',
-	                    labelWidth: 60,
-						name: 'zwrq',
-						id: 'wsda_zwrq',
-	                    x: 10,
-	                    y: 40
-	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 165,
-	                    fieldLabel: '文种',
-	                    labelWidth: 60,
-						name: 'wz',
-						id: 'wsda_wz',
-	                    x: 10,
-	                    y: 160
-	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 165,
-	                    fieldLabel: '载体规格',
-	                    labelWidth: 60,
-						name: 'ztgg',
-						id: 'wsda_ztgg',
-	                    x: 345,
-	                    y: 160
-	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 160,
-	                    fieldLabel: '载体类型',
-	                    labelWidth: 60,
-						name: 'ztlx',
-						id: 'wsda_ztlx',
-	                    x: 180,
-	                    y: 160
-	                },
-	                {
-	                    xtype: 'combobox',
+	                    xtype: 'textfield',
 	                    width: 145,
-	                    fieldLabel: '载体单位',
+	                    fieldLabel: '缩 微 号',
 	                    labelWidth: 60,
-						name: 'ztdw',
-						id: 'wsda_ztdw',
+						name: 'swh',
+						id: 'wsda_swh',
 	                    x: 520,
-	                    y: 160
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '载体数量',
+						name: 'ztsl',
+						id: 'wsda_ztsl',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 220
 	                },
 	                {
 	                    xtype: 'textfield',
@@ -1990,8 +2086,7 @@ var DispAj_wsda = function(record,add_new,title){
 						id: 'wsda_xbbm',
 	                    x: 345,
 	                    y: 250
-	                },
-	                
+	                },	                
 	                {
 	                    xtype: 'textfield',
 	                    width: 655,
@@ -2001,15 +2096,28 @@ var DispAj_wsda = function(record,add_new,title){
 						id: 'wsda_bz',
 	                    x: 10,
 	                    y: 280
-	                }	,
-		                {
-		                    xtype: 'textfield',
-		                    hidden : true,
-							name: 'id',
-							id: 'wsda_id',
-		                    x: 10,
-		                    y: 190
-		                }
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'wsda_id',
+	                    x: 10,
+	                    y: 190
+	                },{
+		                xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'wsda_qzh',
+	                    x: 10,
+	                    y: 190
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'wsda_dalb',
+	                    x: 10,
+	                    y: 190
+	                }
 	            ]
 			}]
 		});
@@ -2023,25 +2131,12 @@ var DispAj_wsda = function(record,add_new,title){
 	}else{
 		
 		Ext.getCmp('button_aj_add').text="新增";
-			Ext.getCmp('tddj_dalb').setValue(ss[1]);
 			ss=title.split('_');
-			Ext.getCmp('tddj_qzh').setValue(ss[0]);
-			if(ss.length==3){
-				new Ajax.Request("/desktop/get_mlh", { 
-				    	method: "POST",
-				    	parameters: {dalb:ss[2]},
-				    	onComplete:	 function(request) {
-				    		Ext.getCmp('tddj_mlh').setValue(request.responseText);
-				     	}
-				     });
-				new Ajax.Request("/desktop/get_max_ajh", { 
-				    	method: "POST",
-				    	parameters: {dalb:title,qx:true},
-				    	onComplete:	 function(request) {
-				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
-				     	}
-				     });
-			}
+			Ext.getCmp('wsda_dalb').setValue(ss[1]);
+			
+			Ext.getCmp('wsda_qzh').setValue(ss[0]);
+			
+	
 		
 		
 	}
