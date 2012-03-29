@@ -69,6 +69,8 @@ def update_timage(qzh, dalb, mlh)
   for k in 0..cc.count-1 
     $conn.exec("update timage_tj set smyx=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
   end
+  
+  #"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to '[0..9]%') where timage_tj.dh like '4_0_1_%';"
 
   puts "update meta A4"
   
