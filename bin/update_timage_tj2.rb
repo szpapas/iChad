@@ -13,14 +13,12 @@ require 'pg'
 #
 #*********************************************************************************************
 
-qzh, dalb, mlh = ARGV[0], ARGV[1], ARGV[2]
+dh = ARGV[0]
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-def update_timage(qzh, dalb, mlh)
+def update_timage(dh_prefix)
   
-  dh_prefix="#{qzh}_#{dalb}_#{mlh}"
-
   puts "update ML00..."
   $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
@@ -57,10 +55,9 @@ def update_timage(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='空卷' where  smyx = 0 and dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh_prefix='#{dh_prefix}';")
-  #$conn.exec("update timage_tj set zt='漏页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
   
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh_prefix='#{dh_prefix}';")
   
 end 
 
-update_timage(qzh, dalb, mlh)
+update_timage(dh)
