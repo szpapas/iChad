@@ -16,14 +16,16 @@ t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-qzh, mlh, dalb, path, ajh = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4]
+dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
+ss = dh_prefix.split('_')
+qzh,dalb,mlh = ss[0],ss[1],ss[2]
 
 if !ajh.nil?
-  puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_#{ajh}' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{qdh_prefix}_#{ajh}' and yxbh not like 'ML%';")
 else 
-  puts "delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';")
 end
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
@@ -130,7 +132,7 @@ Find.find(path) do |path|
       ss = pp[pp.size-1].split("$")
       mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
       
-      dh = "#{qzh}_#{dalb}_#{mlh}_#{ajh.to_i}"
+      dh = "#{dh_prefix}_#{ajh.to_i}"
       
       if dh != $dh
         $dh = dh

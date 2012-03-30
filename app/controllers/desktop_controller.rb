@@ -1543,7 +1543,7 @@ class DesktopController < ApplicationController
     render :text => txt
   end
 
-  def get_mulu_store
+  def get_mulu_store_1
     if params['dh'].nil?
       txt = "{results:0,rows:[]}"
     else
@@ -1558,6 +1558,38 @@ class DesktopController < ApplicationController
         txt = txt[0..-2] + "]}"
       else
         txt = "{results:0,rows:[]}"
+      end
+    end
+    render :text => txt
+  end
+  
+  def get_mulu_store
+    if params['dh'].nil?
+      txt = "{results:0,rows:[]}"
+    else
+      dh = params['dh']
+      fl = params['filter']
+      puts fl
+      if fl.nil? || fl=='全部'
+        user = User.find_by_sql("select count(*) from timage_tj where dh_prefix='#{dh}';")
+      else
+        user = User.find_by_sql("select count(*) from timage_tj where dh_prefix='#{dh}' and zt='#{fl}';")
+      end    
+      size = user[0].count;
+      if size.to_i > 0
+          txt = "{results:#{size},rows:["
+          if  fl.nil? || fl=='全部'
+            user = User.find_by_sql("select * from timage_tj where dh_prefix='#{dh}' order by ajh limit #{params['limit']} offset #{params['start']};")
+          else 
+            user = User.find_by_sql("select * from timage_tj where dh_prefix='#{dh}' and zt='#{fl}' order by ajh limit #{params['limit']} offset #{params['start']};")
+          end    
+          size = user.size;
+          for k in 0..user.size-1
+              txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+      else
+          txt = "{results:0,rows:[]}"
       end
     end
     render :text => txt
@@ -1697,20 +1729,15 @@ class DesktopController < ApplicationController
 
   def update_timage_tj
     dh = params['dh']
-    ss = dh.split('_')
-    qzh, dalb, mlh = ss[0], ss[1], ss[2]
-    system("ruby ./dady/bin/update_timage_tj.rb #{qzh} #{dalb} #{mlh} &")
+    system("ruby ./dady/bin/update_timage_tj.rb #{dh} &")
     render :text => 'Success'
   end
 
   def print_timage_tj
     dh = params['dh']
-    ss = dh.split('_')
-    qzh, dalb, mlh = ss[0], ss[1], ss[2]
-    system("ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh}")
+    system("ruby ./dady/bin/print_mulu_tj.rb #{dh}")
     render :text => 'Success'
   end
-  
   
   def get_timage_tj_from_db
     if (params['gid'].nil?)
@@ -2461,19 +2488,15 @@ class DesktopController < ApplicationController
   end 
   
   def print_selected_qztj
-
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh_prefix.split('_')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_mulu_tj.rb #{qzh} #{dalb} #{mlh} ', '', '', '未开始');")
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_mulu_tj.rb #{dd.dh_prefix} ', '', '', '未开始');")
     end  
-
     render :text => 'Success'
-    
   end
-  
   
   def import_selected_aj
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
@@ -2497,9 +2520,11 @@ class DesktopController < ApplicationController
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh_prefix.split('_')
-      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
       yxwz=dd.yxwz
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{qzh} #{mlh} #{dalb} #{yxwz}', '', '', '未开始');")
+      if !yxwz.nil? 
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{yxwz}', '', '', '未开始');")
+      end  
     end  
     render :text => 'Success'
   end
@@ -2510,7 +2535,6 @@ class DesktopController < ApplicationController
       dd = user[k]
       ss = dd.dh_prefix.split('_')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      yxwz=dd.yxwz
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh.dh_prefix} 1 /mnt/lvm1/TZ2/export', '', '', '未开始');")
     end  
     render :text => 'Success'
@@ -2548,5 +2572,35 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  def update_qzxx
+    qzh = params['qzh']
+    system("ruby ./dady/bin/update_qzxx.rb #{qzh} > ./log/update_qzxx &")
+    render :text => 'Success'
+  end
+  
+  def save_mulu_info
+    id, mlh, lijr, jmcr, yxwz = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz']
+    User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}' where id=#{id} ;")
+    render :text => 'Success'
+  end
+  
+  def import_selected_timage_aj
+    user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh.split('_')
+      qzh, dalb, mlh, ajh, dh_prefix = ss[0], ss[1], ss[2], ss[3], dd.dh_prefix
+      
+      qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
+      yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}_%' limit 1;")
+      
+      if yxgs.size > 0
+        yxmc = yxgs[0].yxmc[0..-14]+ajh.rjust(4,'0')
+        path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
+      end
+    end  
+    render :text => 'Success'
+  end
   
 end

@@ -60,6 +60,11 @@ def update_timage(dh_prefix)
   
 end 
 
-update_timage(dh)
+qzxx=$conn.exec("select dh_prefix from q_qzxx where dh_prefix like '#{dh}_%';")
+
+for k in 0..qzxx.count-1
+  dh_prefix=qzxx[k]['dh_prefix']
+  update_timage(dh_prefix)
+end  
 
 $conn

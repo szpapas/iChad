@@ -12,94 +12,53 @@ def save2timage(yxbh, path, dh, yx_prefix)
   $conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
 end
 
-def update_timage(qzh, dalb, mlh)
-  $conn.exec("delete from timage_tj where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  archives = $conn.exec("select distinct dh,ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
-  
-  puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
-  for k in 0..archives.count-1
-    ar = archives[k]
-    dh_prefix = ar['dh'].split('_')[0..2].join('_')
-    $conn.exec("insert into timage_tj(dh, ajh, ajys, dh_prefix) values ('#{ar['dh']}','#{ar['ajh']}', #{ar['ys']}, '#{dh_prefix}');")
-  end
-  
+def update_timage(dh_prefix)
+  $stderr.puts"更新 #{dh_prefix} ..."
   puts "update ML00..."
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh like 'ML00%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set ml00=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end   
+  $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
-  puts "update MLBK..."  
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh like 'MLBK%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set mlbk=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end   
+  puts "update MLBK..." 
+  $conn.exec"update timage_tj set mlbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'MLBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update MLJN..."  
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh SIMILAR TO 'ML[0123456789][123456789]%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set mljn=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
-  
+  $conn.exec"update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%') - (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to 'ML[BK|00].*') where timage_tj.dh_prefix='#{dh_prefix}';"
+
   puts "update JN00..."
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh like 'JN00%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set jn00=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end   
-  
+  $conn.exec"update timage_tj set jn00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JN00%') where timage_tj.dh_prefix='#{dh_prefix}';"
+
   puts "update JNBK..."  
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh like 'JNBK%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set jnbk=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end   
-  
+  $conn.exec"update timage_tj set jnbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JNBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
+
   puts "update JNJN..."  
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh SIMILAR TO 'JN[0123456789][123456789]%' group by dh"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set jnjn=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
-  
+  $conn.exec"update timage_tj set jnjn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO 'JN[0123456789][123456789]%') where timage_tj.dh_prefix='#{dh_prefix}';"
+
   puts "update SMYX..."  
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh SIMILAR TO '[0..9]%' group by dh;"
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  yxbh SIMILAR TO '[0..9]%' group by dh;"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set smyx=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
+  $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update meta A4"
-  
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz < 2 group by dh;"
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 0  group by dh;"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set A4=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
+  $conn.exec"update timage_tj set A4 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.meta_tz=0) where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update meta A3"
-  puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 2 group by dh;"
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 1  group by dh;"
-  for k in 0..cc.count-1 
-    $conn.exec("update timage_tj set A3=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  end
-  
-  #puts "update meta 大图"
-  #puts "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  meta_tz = 2 group by dh;"
-  #cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}%' and  meta_tz = 2  group by dh;"
-  #for k in 0..cc.count-1 
-  #  $conn.exec("update timage_tj set DT=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
-  #end
-  
+  $conn.exec"update timage_tj set A3 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.meta_tz=1) where timage_tj.dh_prefix='#{dh_prefix}';"
+
+  puts "update meta 大图"
+  $conn.exec"update timage_tj set DT = (select count(*) from timage where timage.dh=timage_tj.dh and timage.meta_tz=2) where timage_tj.dh_prefix='#{dh_prefix}';"
+
   puts "update 状态"
+
+  $conn.exec("update timage_tj set zt=''   where dh_prefix='#{dh_prefix}';")
+  $conn.exec("update timage_tj set zt='空卷' where  smyx = 0 and dh_prefix='#{dh_prefix}';")
+  $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh_prefix='#{dh_prefix}';")
+  $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh_prefix='#{dh_prefix}';")
   
-  $conn.exec("update timage_tj set zt='空卷'  where  smyx = 0 and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+  $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh_prefix='#{dh_prefix}';")
+  
+end
 
-  $conn.exec("update timage_tj set dt = a4+a3*2 where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
-  $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh like '#{qzh}_#{dalb}_#{mlh}_%' ;")
-end 
-
-def print_timage(qzh, dalb, mlh)
-  dh = "#{qzh}_#{dalb}_#{mlh}"
+def print_timage(dh_prefix)
+  dh = dh_prefix
+  ss = dh.split('_')
+  qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
   dateStr = Time.now.strftime("%Y 年 %m 月 %d 日")
 
@@ -197,7 +156,6 @@ def print_timage(qzh, dalb, mlh)
         save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
 
       end
-      
 
       #new begining page
       convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
@@ -274,10 +232,10 @@ end
 #
 #*********************************************************************************************
 
-qzh, dalb, mlh = ARGV[0], ARGV[1], ARGV[2] 
+dh = ARGV[0]
 
-update_timage(qzh, dalb, mlh)
-print_timage(qzh, dalb, mlh)
+update_timage(dh)
+print_timage(dh)
 
 $conn.close
 #puts "***** End At #{Time.now}====\n"

@@ -508,3 +508,13 @@
 .x-grid-back-red {
   background: #FF0000;  
 }
+
+
+.price-fall .x-change-cell {
+    background-color: #FFB0C4;
+    color:red;
+}
+.price-rise .x-change-cell {
+    background-color: #B0FFC5;
+    color:green;
+}

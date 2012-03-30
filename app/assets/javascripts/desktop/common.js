@@ -59,6 +59,19 @@ var mj_store = new Ext.data.SimpleStore({
 	data : mj_data
 });
 
+var ajzt_data = [
+	['1','空卷'],
+	['2','缺页'],
+	['3','多页'],
+	['4','全部']
+];
+
+var ajzt_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : ajzt_data
+});
+
+
 var aj_where_field_data = [
 	['tm','案卷标题']
 ];
@@ -241,6 +254,7 @@ var vsprintf = function(fmt, argv) {
 	argv.unshift(fmt);
 	return sprintf.apply(null, argv);
 };
+
 
 
 
