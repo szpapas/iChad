@@ -221,6 +221,25 @@ def print_qly(qzh, dalb, mlh)
   $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
 end  
 
+def print_qzxx(dh_prefix)
+  $stderr.puts" output 目录统计 #{dh_prefix}..."
+  
+  dh = dh_prefix
+  ss = dh.split('_')
+  qzh, dalb, mlh = ss[0], ss[1], ss[2]
+  
+  dd = $conn.exec("select * from q_qzxx where dh_prefix=#{dh_prefix};")[0]
+  
+  ajs = dd['zajh'].to_i - dd['qajh'].to_i + 1
+  a3, a4, dt =  dd['a3'].to_i, dd['a4'].to_i, dd['dt'].to_i
+  
+  
+  convert_str =  "convert ./dady/timage_tj2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 580, 590 '#{dd['mlh']}' \" -draw \"text 810, 590 '#{dd['qajh']} ~ #{dd['qajh']}' \"  -draw \"text 290, 670 '#{ajs}' \"   -draw \"text 500, 730 '#{a3+a4}' \" " 
+  -draw \"text 830, 730 '#{a3}'  -draw \"text 290, 800 '#{a4}' \"   -draw \"text 730, 800 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}.jpg  "
+  
+  system convert_str
+end  
+
 # ********************************************************************************************
 #
 #   main fucntions 

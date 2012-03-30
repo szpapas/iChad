@@ -2237,6 +2237,27 @@ Ext.define('MyDesktop.PrintData', {
                                  }
                                },
                                tbar : [{
+                                   text : '打印汇总',
+                                   handler : function() {
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/print_selected_qzxx", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzzt_store.load();
+                                       }
+                                     });
+                                   }
+                                 },'-',{
                                    text : '打印报表',
                                    handler : function() {
                                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
@@ -2329,6 +2350,7 @@ Ext.define('MyDesktop.PrintData', {
                                    handler : function() {
                                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
                                      mulu_qz_store.proxy.extraParams.dh=items[0].data.dh_prefix; 
+                                     mulu_qz_store.proxy.extraParams.filter='全部'; 
                                      mulu_qz_store.load();
                                      Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
                                    }
@@ -2640,8 +2662,9 @@ Ext.define('MyDesktop.PrintData', {
                                     }
                                   });
                                 }
-                              },'->',{
+                              },'-',{
                                 xtype: 'combo',
+                                text:'过滤',
                                 x: 130,
                                 y: 190,
                                 width: 100,

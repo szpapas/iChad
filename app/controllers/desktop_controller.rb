@@ -2562,7 +2562,7 @@ class DesktopController < ApplicationController
   end
 
   def delete_all_qzzt_task
-    User.find_by_sql("delete from q_status where dyzt = '完成';")
+    User.find_by_sql("delete from q_status where zt = '完成';")
     render :text => 'Success'
   end
 
@@ -2603,4 +2603,14 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  def print_selected_qzxx
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_qzxx_tj.rb #{dd.dh_prefix} ', '', '', '未开始');")
+    end  
+    render :text => 'Success'
+  end
 end
