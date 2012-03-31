@@ -2354,7 +2354,14 @@ Ext.define('MyDesktop.PrintData', {
                                      mulu_qz_store.load();
                                      Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
                                    }
-                                 }, {
+                                 }, '-', {
+                                   text : '刷新',
+                                   iconCls : 'x-tbar-loading',
+                                   handler : function() {
+                                     //pars = {qzh:qzgl_store.proxy.extraParams.qzh};
+                                     qzgl_store.load();
+                                   }
+                                 },{
                                    text : '更新全部',
                                    iconCls : 'x-tbar-loading',
                                    handler : function() {
