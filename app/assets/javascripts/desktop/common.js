@@ -37,7 +37,13 @@ var txfw_store = new Ext.data.SimpleStore({
 var bgqx_data = [
 	['1','永久'],
 	['2','长期'],
-	['3','短期']
+	['3','短期'],
+	['4','25年'],
+	['5','15年'],
+	['6','5年'],
+	['7','定期-30年'],
+	['8','定期-10年']
+
 ];
 
 
@@ -47,16 +53,113 @@ var bgqx_store = new Ext.data.SimpleStore({
 });
 
 var mj_data = [
-	['1','公开'],
-	['2','秘密'],
-	['3','机密'],
-	['4','绝密']
+	['1','绝密'],
+	['2','机密'],
+	['3','秘密'],
+	['4','内部'],
+	['5','公开']	
 ];
 
 
 var mj_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
 	data : mj_data
+});
+
+var gb_data = [
+	['1','草稿'],
+	['2','定稿'],
+	['3','手稿'],
+	['4','草图'],
+	['5','原图'],
+	['6','底图'],
+	['7','蓝图'],
+	['8','正本'],
+	['9','副本'],
+	['10','原版'],
+	['11','试行本'],
+	['12','修订本'],
+	['13','影印本']	
+];
+var gb_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : gb_data
+});
+var wz_data = [
+	['1','命令'],
+	['2','决议'],
+	['3','指示'],
+	['4','通知'],
+	['5','报告'],
+	['6','批复'],
+	['7','函'],
+	['8','会议纪要'],
+	['9','说明书'],
+	['10','协议书'],
+	['11','鉴定书'],
+	['12','任务书'],
+	['13','判决书'],
+	['14','国书'],
+	['15','照会'],
+	['16','诰'],
+	['17','敕'],
+	['18','奏折']
+		
+];
+var wz_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : wz_data
+});
+
+var ztgg_data = [
+	['1','16开'],
+	['2','A4'],
+	['3','105mm╳148mm'],
+	['4','3.5英寸']
+	
+		
+];
+var ztgg_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : ztgg_data
+});
+
+var ztlx_data = [
+	['1','纸'],
+	['2','唱片'],
+	['3','照片'],
+	['4','胶片'],
+	['5','胶卷'],
+	['6','磁带'],
+	['7','磁盘'],
+	['8','光盘'],
+	['9','甲骨'],
+	['10','金石'],
+	['11','简牍'],
+	['12','缣帛']
+
+		
+];
+var ztlx_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : ztlx_data
+});
+
+var ztdw_data = [
+	['1','页'],
+	['2','张'],
+	['3','卷'],
+	['4','册'],
+	['5','盒'],
+	['6','盘'],
+	['7','片'],
+	['8','米']
+	
+	
+];
+var ztdw_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : ztdw_data
 });
 
 var aj_where_field_data = [
@@ -1884,6 +1987,15 @@ var DispAj_wsda = function(record,add_new,title){
 	                    labelWidth: 60,
 						name: 'mj',
 						id: 'wsda_mj',
+						
+						store: mj_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						
 	                    x: 345,
 	                    y: 40
 	                },
@@ -1944,6 +2056,13 @@ var DispAj_wsda = function(record,add_new,title){
 	                    labelWidth: 60,
 						name: 'gb',
 						id: 'wsda_gb',
+						store: gb_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
 	                    x: 180,
 	                    y: 130
 	                },
@@ -1962,6 +2081,13 @@ var DispAj_wsda = function(record,add_new,title){
 	                    width: 165,
 	                    fieldLabel: '文种',
 	                    labelWidth: 60,
+						store: wz_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
 						name: 'wz',
 						id: 'wsda_wz',
 	                    x: 10,
@@ -1972,6 +2098,13 @@ var DispAj_wsda = function(record,add_new,title){
 	                    width: 160,
 	                    fieldLabel: '载体类型',
 	                    labelWidth: 60,
+						store: ztlx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
 						name: 'ztlx',
 						id: 'wsda_ztlx',
 	                    x: 180,
@@ -1982,6 +2115,13 @@ var DispAj_wsda = function(record,add_new,title){
 	                    width: 165,
 	                    fieldLabel: '载体规格',
 	                    labelWidth: 60,
+						store: ztgg_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
 						name: 'ztgg',
 						id: 'wsda_ztgg',
 	                    x: 345,
@@ -1992,6 +2132,13 @@ var DispAj_wsda = function(record,add_new,title){
 	                    width: 145,
 	                    fieldLabel: '载体单位',
 	                    labelWidth: 60,
+						store: ztdw_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
 						name: 'ztdw',
 						id: 'wsda_ztdw',
 	                    x: 520,

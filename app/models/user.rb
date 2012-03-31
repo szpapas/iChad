@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :id, :login
+  attr_accessible :email, :password, :password_confirmation, :remember_me,:encrypted_password ,:id, :login
   
   def self.current
     Thread.current[:user]
