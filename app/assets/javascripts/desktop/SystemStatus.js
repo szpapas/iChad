@@ -115,7 +115,7 @@ Ext.define('MyDesktop.SystemStatus', {
            
            { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a3',},
            { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a4'},
-           { text : '大图',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
+           { text : '小计',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
            { text : '文件路径', align:"right", width : 60, sortable : true, dataIndex: 'yxwz'},
