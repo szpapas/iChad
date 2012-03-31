@@ -2539,8 +2539,9 @@ class DesktopController < ApplicationController
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh_prefix.split('_')
-      qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh.dh_prefix} 1 /mnt/lvm1/TZ2/export', '', '', '未开始');")
+      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
+
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh_prefix} 1 /share/export', '', '', '未开始');")
     end  
     render :text => 'Success'
   end
@@ -2629,4 +2630,12 @@ class DesktopController < ApplicationController
     end  
     render :text => 'Success'
   end
+  
+  def save_archive_info
+    id, ys, js = params['id'], params['ys'], params['js']
+    User.find_by_sql("update archive set ys=#{ys} where id=#{id};") if !ys.nil?
+    User.find_by_sql("update archive set js=#{js} where id=#{id};") if !js.nil?
+    render :text => 'Success'
+  end
+  
 end
