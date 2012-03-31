@@ -2578,6 +2578,17 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  def update_qzxx_selected
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      system("ruby ./dady/bin/update_timage_tj2.rb #{dd.dh_prefix}")
+    end  
+    render :text => 'Success'
+  end
+  
   def save_mulu_info
     id, mlh, lijr, jmcr, yxwz = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz']
     User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}' where id=#{id} ;")

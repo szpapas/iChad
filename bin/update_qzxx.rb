@@ -60,8 +60,9 @@ def update_timage(dh_prefix)
   
 end 
 
-def update_qzxx
-  datas = $conn.exec("select sum (ajys) as ajys, sum(ml00) as ml00, sum(mlbk) as mlbk, sum(mljn) as mljn, sum(jn00) as jn00, sum(jnjn) as jnjn, sum(smyx) as smyx, sum(a3) as a3, sum(a4) as a4, sum(dt) as dt, sum(jnts) as jnts, dh_prefix from timage_tj where dh_prefix like '4_%' group by dh_prefix order by dh_prefix;")
+def update_qzxx(dh_cond)
+  $stderr.puts"update q_qzxx #{dh_cond}..."
+  datas = $conn.exec("select sum (ajys) as ajys, sum(ml00) as ml00, sum(mlbk) as mlbk, sum(mljn) as mljn, sum(jn00) as jn00, sum(jnjn) as jnjn, sum(smyx) as smyx, sum(a3) as a3, sum(a4) as a4, sum(dt) as dt, sum(jnts) as jnts, dh_prefix from timage_tj where dh_prefix like '#{dh_cond}' group by dh_prefix order by dh_prefix;")
 
   for k in 0..datas.count - 1 
     data = datas[k]
@@ -78,7 +79,6 @@ def update_qzxx
     qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}_%';")
     $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")  
   end
-  
 end  
 
 
@@ -91,9 +91,7 @@ for k in 0..qzxx.count-1
   update_timage(dh_prefix)
 end  
 
-$stderr.puts"update q_qzxx..."
-
-update_qzxx
+update_qzxx("#{dh}_%")
 $stderr.puts" Completed in #{Time.now-t1} s" 
 
 $conn

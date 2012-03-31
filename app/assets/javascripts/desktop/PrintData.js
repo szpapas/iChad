@@ -2195,7 +2195,8 @@ Ext.define('MyDesktop.PrintData', {
                                store: qzgl_store,
                                id : 'qzgl_grid_id',
                                iconCls:'export',
-                               height : 400,
+                               height : 500,
+                               layout : 'fit',
                                columns: [
                                  { text : 'id',   align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
                                  { text : '全宗号',  align:"left",  width : 50, sortable : true, dataIndex: 'qzh'},
@@ -2336,7 +2337,6 @@ Ext.define('MyDesktop.PrintData', {
                                        } else {
                                          id_str = id_str + ',' +items[i].data.id 
                                        }
-
                                      }
                                      pars = {id:id_str};
                                      new Ajax.Request("/desktop/export_selected_image", { 
@@ -2357,14 +2357,29 @@ Ext.define('MyDesktop.PrintData', {
                                      Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
                                    }
                                  }, '-', {
-                                   text : '刷新',
+                                   text : '更新选择',
                                    iconCls : 'x-tbar-loading',
                                    handler : function() {
-                                     //pars = {qzh:qzgl_store.proxy.extraParams.qzh};
-                                     qzgl_store.load();
+                                     items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                                     id_str = '';
+                                     for (var i=0; i < items.length; i ++) {
+                                       if (i==0) {
+                                         id_str = id_str+items[i].data.id 
+                                       } else {
+                                         id_str = id_str + ',' +items[i].data.id 
+                                       }
+                                     }
+                                     pars = {id:id_str};
+                                     new Ajax.Request("/desktop/update_qzxx_selected", { 
+                                       method: "POST",
+                                       parameters: pars,
+                                       onComplete:  function(request) {
+                                         qzzt_store.load();
+                                       }
+                                     });
                                    }
                                  },{
-                                   text : '更新全部',
+                                   text : '全部更新',
                                    iconCls : 'x-tbar-loading',
                                    handler : function() {
                                      pars = {qzh:qzgl_store.proxy.extraParams.qzh};
@@ -2733,7 +2748,7 @@ Ext.define('MyDesktop.PrintData', {
                                 xtype: 'tabpanel',
                                 id : 'qzgl_tabpanel_id',
                                 layout: 'fit',
-                                minHeight: 400,
+                                minHeight: 500,
                                 activeTab: 0,
                                 items: [qzgl_grid,mulu_qz_grid,qzzt_grid]
                             }]        
@@ -2752,8 +2767,8 @@ Ext.define('MyDesktop.PrintData', {
                             closeAction:'hide',
                             //closable: false,
                             modal: false,
-                            width: 780,
-                            height: 475,
+                            width: 880,
+                            height: 575,
                             layout: 'fit',
                             plain: true,
                             items:qzglPanel,
