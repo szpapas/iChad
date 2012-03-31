@@ -66,7 +66,7 @@ var mj_store = new Ext.data.SimpleStore({
 	data : mj_data
 });
 
-<<<<<<< HEAD
+
 var gb_data = [
 	['1','草稿'],
 	['2','定稿'],
@@ -162,7 +162,7 @@ var ztdw_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
 	data : ztdw_data
 });
-=======
+
 var ajzt_data = [
 	['1','空卷'],
 	['2','缺页'],
@@ -175,7 +175,7 @@ var ajzt_store = new Ext.data.SimpleStore({
 	data : ajzt_data
 });
 
->>>>>>> 94884ac2fab8adb00548b5c0436d1b818700c5b2
+
 
 var aj_where_field_data = [
 	['tm','案卷标题']
