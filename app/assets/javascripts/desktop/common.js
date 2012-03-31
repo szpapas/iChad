@@ -176,7 +176,6 @@ var ajzt_store = new Ext.data.SimpleStore({
 });
 
 
-
 var aj_where_field_data = [
 	['tm','案卷标题']
 ];

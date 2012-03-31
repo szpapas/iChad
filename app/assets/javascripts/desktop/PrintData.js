@@ -2166,7 +2166,7 @@ Ext.define('MyDesktop.PrintData', {
                             proxy: {
                               type: 'ajax',
                               url : '/desktop/get_qzgl_store',
-                              extraParams: {qzh:""},
+                              extraParams: {qzh:"",filter:""},
                               reader: {
                                 type: 'json',
                                 root: 'rows',
@@ -2175,7 +2175,7 @@ Ext.define('MyDesktop.PrintData', {
                             }
                           });
 
-                          qzgl_store.proxy.extraParams={qzh:'4'};
+                          qzgl_store.proxy.extraParams={qzh:'4',filter:"全部"};
                           qzgl_store.load();
 
                           var ztRender = function(val) {
@@ -2374,7 +2374,7 @@ Ext.define('MyDesktop.PrintData', {
                                        method: "POST",
                                        parameters: pars,
                                        onComplete:  function(request) {
-                                         qzzt_store.load();
+                                         qzgl_store.load();
                                        }
                                      });
                                    }
@@ -2391,6 +2391,27 @@ Ext.define('MyDesktop.PrintData', {
                                        }
                                      });
                                    }                                 
+                               },{
+                                 xtype: 'combo',
+                                 text:'过滤',
+                                 x: 130,
+                                 y: 190,
+                                 width: 100,
+                                 name: 'yxbh',
+                                 id: 'qzzt_combo',
+                                 store: ajzt_store,
+                                 emptyText:'请选择',
+                                 mode: 'local',
+                                 minChars : 2,
+                                 valueField:'text',
+                                 displayField:'text',
+                                 triggerAction:'all',
+                                 listeners:{
+                                   select:function(combo, records, index) {
+                                     qzgl_store.proxy.extraParams.filter=records[0].data.text; 
+                                     qzgl_store.load();
+                                   }
+                                 }
                                }]
                           }); 
 

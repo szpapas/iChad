@@ -2473,7 +2473,12 @@ class DesktopController < ApplicationController
   end  
   
   def get_qzgl_store
-    user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    fl = params['filter']
+    if fl.nil? || fl=='全部'
+      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    else
+      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} and zt='#{fl}' order by mlh;")
+    end
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["
