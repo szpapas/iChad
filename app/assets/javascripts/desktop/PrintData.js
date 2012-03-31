@@ -2228,11 +2228,13 @@ Ext.define('MyDesktop.PrintData', {
                                viewConfig: {
                                  //stripeRows:true,
                                  getRowClass: function(record, index) {
-                                     var c = record.get('smyx');
+                                     var c = record.get('smyx') - record.get('ajys');
                                      if (c < 0) {
                                          return 'price-fall';
-                                     } else if (c >= 0) {
+                                     } else if (c > 0) {
                                          return 'price-rise';
+                                     } else {
+                                         return 'price-zero';
                                      }
                                  }
                                },
