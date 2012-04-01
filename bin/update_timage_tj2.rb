@@ -18,6 +18,10 @@ dh = ARGV[0]
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
 def update_timage(dh_prefix)
+  
+  puts "update basic info for qz:#{qzh}, mlh:#{mlh}..."
+  $conn.exec("update timage_tj set ajys=archive.ys where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
+  
   $stderr.puts"更新 #{dh_prefix} ..."
   puts "update ML00..."
   $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
