@@ -261,7 +261,7 @@ Ext.define('MyDesktop.SystemStatus', {
                }
              }
            }, '-', {
-             text : '更新所选',
+             text : '更新',
              iconCls : 'x-tbar-loading',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
@@ -273,14 +273,20 @@ Ext.define('MyDesktop.SystemStatus', {
                    id_str = id_str + ',' +items[i].data.id 
                  }
                }
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/update_qzxx_selected", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzgl_store.load();
-                 }
-               });
+               
+               if (items.length > 0) {
+                 pars = {id:id_str};
+                 new Ajax.Request("/desktop/update_qzxx_selected", { 
+                   method: "POST",
+                   parameters: pars,
+                   onComplete:  function(request) {
+                     qzgl_store.load();
+                   }
+                 });
+               } else {
+                 qzgl_store.load();
+               }
+                 
              }
            },{
              text : '更新全部',

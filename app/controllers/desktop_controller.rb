@@ -2633,9 +2633,8 @@ class DesktopController < ApplicationController
   end
   
   def save_archive_info
-    id, ys, js = params['id'], params['ys'], params['js']
-    User.find_by_sql("update archive set ys=#{ys} where id=#{id};") if !ys.nil?
-    User.find_by_sql("update archive set js=#{js} where id=#{id};") if !js.nil?
+    ys, dh =  params['ajys'], params['dh']
+    User.find_by_sql("update archive set ys=#{ys} where dh='#{dh}';") if !ys.nil?
     render :text => 'Success'
   end
   
