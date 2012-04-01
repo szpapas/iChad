@@ -253,7 +253,7 @@ Ext.define('MyDesktop.SystemStatus', {
              iconCls:'x-tree-icon-leaf',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               if (items.size() > 0) {
+               if (items.length > 0) {
                  Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
                  mulu_qz_store.proxy.extraParams.dh=items[0].data.dh_prefix; 
                  mulu_qz_store.proxy.extraParams.filter='全部'; 
@@ -633,11 +633,10 @@ Ext.define('MyDesktop.SystemStatus', {
           text:'修改案卷',
            iconCls:'',
            handler : function() {
-             items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items[0];
-             
-             if (items.size() > 0 ) {
-             
-               data = item[0].data;
+             items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
+           
+             if (items.length > 0 ) {
+               data = items[0].data;
                var modiPanel = new Ext.form.FormPanel({
                  id : 'modipanel_panel_id',
                  labelWidth:40,
@@ -675,6 +674,7 @@ Ext.define('MyDesktop.SystemStatus', {
                  items:modiPanel,
                  buttons: [{
                      text: '下一个',
+                     hidden: true,
                      handler: function() {
                      }
                    },{
@@ -793,6 +793,7 @@ Ext.define('MyDesktop.SystemStatus', {
         items:modiPanel,
         buttons: [{
             text: '下一个',
+            hidden: true,
             handler: function() {
             }
           },{
@@ -805,6 +806,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 parameters: pars,
                 onComplete:  function(request) {
                   mulu_qz_store.load();
+                  Ext.getCmp('modipanel_edit_win').close();
                 }
               });
             }

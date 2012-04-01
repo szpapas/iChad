@@ -2635,6 +2635,9 @@ class DesktopController < ApplicationController
   def save_archive_info
     ys, dh =  params['ajys'], params['dh']
     User.find_by_sql("update archive set ys=#{ys} where dh='#{dh}';") if !ys.nil?
+    dd = dh.split('_')
+    dh_prefix=dd[0..2].join("_") 
+    system("ruby ./dady/bin/update_timage_tj2.rb #{dh_prefix}")
     render :text => 'Success'
   end
   
