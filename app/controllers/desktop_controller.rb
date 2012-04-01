@@ -1764,31 +1764,62 @@ class DesktopController < ApplicationController
   def get_ml_qx_tree
     node, style = params["node"], params['style']
       if node == "root"
-        data = User.find_by_sql("select * from  d_dwdm order by id;")
+        data = User.find_by_sql("select * from  d_dwdm  order by id;")
         text="["
         data.each do |dd|
           text=text+"{'text':'#{dd['dwdm']}','id' :'#{dd['id']}','leaf':false,'checked':false,'cls':'folder','children':["
 
-          dalb=User.find_by_sql("select * from  d_dw_lb where dwid= #{dd['id']} order by id;")
+          dalb=User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id and d_dalb.sx<100 and dwid=#{dd['id']} order by d_dalb.sx;")
           dalb.each do |lb|
             text=text+"{'text':'#{lb['lbmc']}','id' :'#{dd['id']}_#{lb['lbid']}','leaf':false,'checked':false,'cls':'folder','children':["
-            dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
-            dalbml.each do |lbml|
-              text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
-              text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
-              text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
-              text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
-              text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
-              text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
-              text=text+"]},"
-           end
-           text=text+"]},"
+            if lb['lbid'].to_i>99
+            
+              dalbrj=User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id  and d_dalb.ownerid=#{lb['lbid']} and dwid=#{dd['id']};")
+              dalbrj.each do |dalbrj|
+              
+                text=text+"{'text':'#{dalbrj['lbmc']}','id' :'#{dd['id']}_#{dalbrj['lbid']}','leaf':false,'checked':false,'cls':'folder','children':["
+                dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{dalbrj['id']} order by id;")
+                dalbml.each do |lbml|
+                  text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+                  text=text+"{'text':'查询','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+                  text=text+"{'text':'打印','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+                  text=text+"{'text':'新增','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+                  text=text+"{'text':'修改','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+                  text=text+"{'text':'删除','id' :'#{dd['id']}_#{dalbrj['lbid']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+                  text=text+"]},"
+                end
+                text=text+"]},"
+              end
+            else
+               dalbml=User.find_by_sql("select * from  d_dw_lb_ml where d_dw_lbid= #{lb['id']} order by id;")
+               dalbml.each do |lbml|
+                 text=text+"{'text':'#{lbml['mlhjc']}','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+                 text=text+"{'text':'查询','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+                 text=text+"{'text':'打印','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+                 text=text+"{'text':'新增','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+                 text=text+"{'text':'修改','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+                 text=text+"{'text':'删除','id' :'#{dd['id']}_#{lb['lbid']}_#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+                 text=text+"]},"
+               end
+            end
+            text=text+"]},"
+           
          end
          text=text+"]},"
         end
         text=text + "]"
         render :text => text
      end
+  #  dalb=User.find_by_sql("select * from d_dalb where sx<100 order by sx;")
+  #  dalb.each do |lb|
+  #    text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+  #    
+  #    dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['id']} order by id;")
+  #    dalbml.each do |lbml|
+  #      text=text+"{'text':'#{lbml['lbmc']}','id' :'#{lbml['id']}','leaf':true,'checked':false,'cls':'folder'},"                  
+  #    end
+  #   text=text+"]},"
+  # end
   end
 
   #获得用户菜单树
@@ -1840,11 +1871,21 @@ class DesktopController < ApplicationController
   def get_lb_tree
     node, style = params["node"], params['style']
     if node == "root"
-      data = User.find_by_sql("select * from  d_dalb order by id;")
+      #data = User.find_by_sql("select * from  d_dalb order by id;")
       text="[{'text':'档案类别','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':["
-      data.each do |dd|
-          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-      end
+      dalb=User.find_by_sql("select * from d_dalb where sx<100 order by sx;")
+      dalb.each do |lb|
+        text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+        
+        dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['id']} order by id;")
+        dalbml.each do |lbml|
+          text=text+"{'text':'#{lbml['lbmc']}','id' :'#{lbml['id']}','leaf':true,'checked':false,'cls':'folder'},"                  
+        end
+       text=text+"]},"
+     end
+    # data.each do |dd|
+    #     text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+    # end
       text=text + "]}]"
       render :text => text
     end
@@ -1862,10 +1903,22 @@ class DesktopController < ApplicationController
         text=text + "]"
         render :text => text         
       else
-        data = User.find_by_sql("select * from  d_dw_lb where dwid = #{params['id']} order by id;")
+        data = User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc,d_dalb.ownerid from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id and d_dalb.sx<100 and dwid = #{params['id']} order by d_dalb.sx;")
         text="["
+        
         data.each do |dd|
-          text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+          
+          if dd['lbid'].to_i>99  
+            text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','checked':false,'cls':'folder','children':["        
+            dalbrj=User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id  and d_dalb.ownerid=#{dd['lbid']} and dwid=#{params['id']};")
+            dalbrj.each do |dalbrj|            
+              text=text+"{'text':'#{dalbrj['lbmc']}','id' :'#{dalbrj['id']}','leaf':true,'checked':false,'cls':'folder'},"
+            end
+            text=text+"]},"
+          else
+             text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'}," 
+          end
+          
         end
         text=text + "]"
         render :text => text
@@ -2149,11 +2202,11 @@ class DesktopController < ApplicationController
         data.each do |dd|
           text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
     
-          dalb=User.find_by_sql("select * from d_dalb where sx<100 order by sx;")
+          dalb = User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc,d_dalb.ownerid from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id and d_dalb.sx<100 and dwid = #{dd['qxid']} order by d_dalb.sx;")
           dalb.each do |lb|
-            text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{dd['qxdm']}_#{lb['id']}','leaf':false,'cls':'folder','children':["
+            text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{lb['dwid']}_#{lb['lbid']}','leaf':false,'cls':'folder','children':["
             
-            dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['id']} order by id;")
+            dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['lbid']} order by id;")
             dalbml.each do |lbml|
               text=text+"{'text':'#{lbml['lbmc']}','id' :'#{dd['qxdm']}_#{lbml['id']}','leaf':true,'cls':'folder'},"                  
            end
@@ -2161,7 +2214,26 @@ class DesktopController < ApplicationController
          end
          text=text+"]},"
         end
-        text=text + "]"      
+        text=text + "]"   
+        
+   #     data = User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc,d_dalb.ownerid from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id and d_dalb.sx<100 and dwid = #{params['id']} order by d_dalb.sx;")
+   #     text="["
+        
+   #     data.each do |dd|
+          
+  #     if dd['lbid'].to_i>99  
+  #       text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','checked':false,'cls':'folder','children':["        
+  #       dalbrj=User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id  and d_dalb.ownerid=#{dd['lbid']} and dwid=#{params['id']};")
+  #       dalbrj.each do |dalbrj|            
+  #         text=text+"{'text':'#{dalbrj['lbmc']}','id' :'#{dalbrj['id']}','leaf':true,'checked':false,'cls':'folder'},"
+  #       end
+  #       text=text+"]},"
+  #     else
+  #        text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'}," 
+  #     end
+  #     
+  #   end
+  #   text=text + "]"   
   #     data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
   #     text="["
   #     data.each do |dd|
