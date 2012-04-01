@@ -1569,7 +1569,7 @@ class DesktopController < ApplicationController
     else
       dh = params['dh']
       fl = params['filter']
-      puts fl
+     
       if fl.nil? || fl=='全部'
         user = User.find_by_sql("select count(*) from timage_tj where dh_prefix='#{dh}';")
       else
@@ -2545,7 +2545,12 @@ class DesktopController < ApplicationController
   end  
   
   def get_qzgl_store
-    user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    fl = params['filter']
+    if fl.nil? || fl=='全部'
+      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
+    else
+      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} and zt='#{fl}' order by mlh;")
+    end
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["
@@ -2606,8 +2611,9 @@ class DesktopController < ApplicationController
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh_prefix.split('_')
-      qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh.dh_prefix} 1 /mnt/lvm1/TZ2/export', '', '', '未开始');")
+      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
+
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh_prefix} 1 /share/export', '', '', '未开始');")
     end  
     render :text => 'Success'
   end
@@ -2650,6 +2656,17 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  def update_qzxx_selected
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('_')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      system("ruby ./dady/bin/update_timage_tj2.rb #{dd.dh_prefix}")
+    end  
+    render :text => 'Success'
+  end
+  
   def save_mulu_info
     id, mlh, lijr, jmcr, yxwz = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz']
     User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}' where id=#{id} ;")
@@ -2667,7 +2684,8 @@ class DesktopController < ApplicationController
       yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}_%' limit 1;")
       
       if yxgs.size > 0
-        yxmc = yxgs[0].yxmc[0..-14]+ajh.rjust(4,'0')
+        yy=yxgs.split('$') 
+        yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
         path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
         User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
       end
@@ -2685,4 +2703,15 @@ class DesktopController < ApplicationController
     end  
     render :text => 'Success'
   end
+  
+  def save_archive_info
+    ys, dh =  params['ajys'], params['dh']
+    User.find_by_sql("update archive set ys=#{ys} where dh='#{dh}';") if !ys.nil?
+    #User.find_by_sql("update timage_tj set ajys=#{ys} where dh='#{dh}';") if !ys.nil?
+    dd = dh.split('_')
+    dh_prefix=dd[0..2].join("_") 
+    system("ruby ./dady/bin/update_timage_tj2.rb #{dh_prefix}")
+    render :text => 'Success'
+  end
+  
 end

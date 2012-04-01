@@ -22,7 +22,7 @@ qzh,dalb,mlh = ss[0],ss[1],ss[2]
 
 if !ajh.nil?
   puts "delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{qdh_prefix}_#{ajh}' and yxbh not like 'ML%';")
+  $conn.exec("delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';")
 else 
   puts "delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';"  
   $conn.exec("delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';")

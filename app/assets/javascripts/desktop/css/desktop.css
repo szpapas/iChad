@@ -518,3 +518,7 @@
     background-color: #B0FFC5;
     color:green;
 }
+.price-zero .x-change-cell {
+    background-color: #FFFFF;
+    color:gray;
+}
