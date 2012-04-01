@@ -113,8 +113,8 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '旧卷',   align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
            { text : '旧备',   align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
            
-           { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a3',},
-           { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a4'},
+           { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a4',},
+           { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a3'},
            { text : '小计',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
@@ -253,7 +253,7 @@ Ext.define('MyDesktop.SystemStatus', {
              iconCls:'x-tree-icon-leaf',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               if (items.count > 0) {
+               if (items.size() > 0) {
                  Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
                  mulu_qz_store.proxy.extraParams.dh=items[0].data.dh_prefix; 
                  mulu_qz_store.proxy.extraParams.filter='全部'; 
@@ -616,7 +616,7 @@ Ext.define('MyDesktop.SystemStatus', {
            handler : function() {
              items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items[0];
              
-             if (items.count > 0 ) {
+             if (items.size() > 0 ) {
              
                data = item[0].data;
                var modiPanel = new Ext.form.FormPanel({
