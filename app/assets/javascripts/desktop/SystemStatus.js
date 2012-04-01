@@ -504,6 +504,19 @@ Ext.define('MyDesktop.SystemStatus', {
             }
           },
           {
+            text: '执行',
+            handler: function() {
+              var pars={id:archive_id};
+              new Ajax.Request("/desktop/start_qzzt_task", {
+                method: "POST",
+                parameters: pars,
+                onComplete:  function(request) {
+                  qzzt_store.load();
+                }
+              });
+            }
+          }，
+          {
              text : '刷新',
              iconCls : 'x-tbar-loading',
              handler : function() {
