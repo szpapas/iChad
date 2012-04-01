@@ -19,8 +19,11 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 
 def update_timage(dh_prefix)
   
+  ss = dh_prefix.split('_')
+  qzh, dalb, mlh = ss[0], ss[1], ss[2]
+  
   puts "update basic info for qz:#{qzh}, mlh:#{mlh}..."
-  $conn.exec("update timage_tj set ajys=archive.ys where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
+  $conn.exec("update timage_tj set ajys=archive.ys from archive where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
   
   $stderr.puts"更新 #{dh_prefix} ..."
   puts "update ML00..."

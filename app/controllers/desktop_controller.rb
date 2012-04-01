@@ -1569,7 +1569,7 @@ class DesktopController < ApplicationController
     else
       dh = params['dh']
       fl = params['filter']
-      puts fl
+     
       if fl.nil? || fl=='全部'
         user = User.find_by_sql("select count(*) from timage_tj where dh_prefix='#{dh}';")
       else
