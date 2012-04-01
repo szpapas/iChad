@@ -515,7 +515,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 }
               });
             }
-          }，
+          },
           {
              text : '刷新',
              iconCls : 'x-tbar-loading',
