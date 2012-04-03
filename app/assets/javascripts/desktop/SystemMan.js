@@ -707,7 +707,7 @@ Ext.define('MyDesktop.SystemMan', {
 					layout: 'fit',
 					modal: true,
 					plain: true,
-					items:user_setup_grid,					
+					items:js_setup_grid,					
 					tbar:[{
 						xtype: 'button',
 						iconCls: 'add',
