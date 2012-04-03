@@ -40,9 +40,10 @@ Ext.define('MyDesktop.ArchiveMan', {
 			scope: this
 		}
 	},
-
+	
 	createWindow : function(){
 		var desktop = this.app.getDesktop();
+		
 		var win = desktop.getWindow('archiveman');
 		Ext.regModel('timage_model', {
 	      fields: [
@@ -1723,13 +1724,14 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 
-
+		
+		
 		var store1 = Ext.create('Ext.data.TreeStore', {
 				autoLoad: true,
 				proxy: {
 						type: 'ajax',
 						url: 'desktop/get_treeforuserid',
-						extraParams: {node:"root",userid:"1"
+						extraParams: {node:"root",userid:user_id
 						//		mode: 'getTree'
 						},
 						actionMethods: 'POST'

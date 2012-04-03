@@ -44,11 +44,12 @@ Ext.define('MyDesktop.SystemMan', {
 	  var insert_qx="";
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('systemman');
+
 		var user_tree_store	= Ext.create('Ext.data.TreeStore', {
 				autoLoad: true,
 				proxy: {
 						type: 'ajax',
-						url: 'desktop/get_user_tree',
+						url: 'desktop/get_js_tree',
 						extraParams: {style:"0"},
 						actionMethods: 'POST'
 				}
@@ -235,7 +236,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("修改失败，请重新修改。"+request.responseText);
 														}
 													
 													}
@@ -251,7 +252,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("新增失败，请重新新增。"+request.responseText);
 														}
 													}
 												});
@@ -289,6 +290,126 @@ Ext.define('MyDesktop.SystemMan', {
 
 			win.show();
 		};
+		var js_disp = function(record,add_new){
+			var win = Ext.getCmp('js_disp_win');
+
+			if (win==null) {
+				win = new Ext.Window({
+					id : 'js_disp_win',
+					title: '修改角色信息',
+					//closeAction: 'hide',
+					width: 370,
+					height: 140,
+					//minHeight: 200,
+					layout: 'fit',
+					modal: true,
+					plain: true,
+					//items:user_setup_grid,					
+					items: [{
+						width: 370,
+						height: 140,
+						xtype:'form',
+						layout: 'absolute',
+						id : 'js_disp_form',
+						items: [
+							{
+								xtype: 'label',
+								text: '角色名称：',
+								x: 10,
+								y: 10,
+								width: 100
+							},
+							
+							{
+								xtype: 'textfield',
+								hidden : true,
+								name : 'id' ,
+								id:'js_id'										
+							},
+							
+							{
+								xtype: 'textfield',
+								x: 130,
+								y: 10,
+								width: 200,
+								name: 'jsmc',
+								id:'js_jsmc'
+							}
+						],
+						buttons:[{
+								xtype: 'button',
+								iconCls: 'option',
+								id:'button_user_add',
+								text:'修改',
+								handler: function() {
+									var pars=this.up('panel').getForm().getValues();
+									if(pars['jsmc']!=''){
+										
+											if(add_new==false){
+												new Ajax.Request("/desktop/update_js", { 
+													method: "POST",
+													parameters: pars,
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															
+															Ext.getCmp('js_disp_win').close();
+															
+															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
+															Ext.getCmp('js_setup_grid').store.load();
+														}else{
+															alert("修改失败，请重新修改。"+request.responseText);
+														}
+													
+													}
+												});
+											}else{
+												new Ajax.Request("/desktop/insert_js", { 
+													method: "POST",
+													parameters: pars,
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															
+															Ext.getCmp('js_disp_win').close();
+															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
+															Ext.getCmp('js_setup_grid').store.load();
+														}else{
+															alert("新增失败，请重新新增。"+request.responseText);
+														}
+													}
+												});
+											}
+										
+									}else{
+										alert("用户名称不能为空。");
+									}
+								}
+							},
+							{
+								xtype: 'button',
+								iconCls: 'exit',
+								text:'退出',
+								handler: function() {
+									//this.up('window').hide();
+									Ext.getCmp('js_disp_win').close();
+								}
+							}]
+					}]
+					
+				});
+			}
+			if(add_new==false){
+			//设置数据
+				Ext.getCmp('user_disp_form').getForm().setValues(record.data);
+				
+			}else{
+				Ext.getCmp('user_disp_win').title="新增角色信息";
+				Ext.getCmp('button_user_add').text="新增";
+				Ext.getCmp('button_user_add').iconCls="add";
+			}
+
+			win.show();
+		};
+	
 		var user_setup = function(){
 			var win = Ext.getCmp('user_setup_win');
 
@@ -323,7 +444,7 @@ Ext.define('MyDesktop.SystemMan', {
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 					{ text : '用户名',	width : 250, sortable : true, dataIndex: 'email'},
-					{ text : '密码',	width : 70, sortable : true, dataIndex: 'encrypted_password'}
+					{ text : '密码',	width : 0, sortable : true, dataIndex: 'encrypted_password'}
 					],
 					selType:'checkboxmodel',
 					//multiSelect:true,
@@ -335,19 +456,89 @@ Ext.define('MyDesktop.SystemMan', {
 					stripeRows:true
 				}
 			});
-			
+			user_setup_grid.on("select",function(node){
+				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf							
+				new Ajax.Request("/desktop/get_user_js", { 
+					method: "POST",
+					parameters: "id="+data.id,
+					onComplete:	 function(request) {
+						//alert(request.responseText);
+						root=Ext.getCmp('user_js_tree_panel').store.getRootNode();			
+						getNodes(root,false);						
+						nodes=request.responseText.split("|");
+						for (k=0; k <nodes.size(); k++) {
+								
+								
+								Ext.getCmp('user_js_tree_panel').store.getNodeById(nodes[k]).data.checked=true;
+								Ext.getCmp('user_js_tree_panel').store.getNodeById(nodes[k]).updateInfo({checked:true});
+							
+							}		
+					}
+				});
+			});
+			var js_tree_store	= Ext.create('Ext.data.TreeStore', {
+					autoLoad: true,
+					proxy: {
+							type: 'ajax',
+							url: 'desktop/get_js_tree',
+							extraParams: {style:"0"},
+							actionMethods: 'POST'
+					}
+			});	
+			var js_tree_panel = Ext.create('Ext.tree.Panel', {
+				id : 'user_js_tree_panel',
+				store: js_tree_store,
+				rootVisible:false,
+				useArrows: true,
+				//singleExpand: true,
+				width: 200,
+				listeners:{
+					checkchange:function(node,checked,option){					
+						if (checked){							
+							getNodes(node,true);
+							get_parentNode(node);						
+			   			}else{
+							getNodes(node,false);
+			   			}			   		
+					}
+				}			
+			});
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'user_setup_win',
 					title: '用户设置',
-					//closeAction: 'hide',
-					width: 370,
+					width: 670,
 					height: 530,
 					minHeight: 530,
-					layout: 'fit',
+					layout: 'border',
 					modal: true,
-					plain: true,
-					items:user_setup_grid,					
+					plain: true,					
+					items: [
+						{	title:'用户列表',
+							region:'west',
+							iconCls:'users',
+							xtype:'panel',
+							margins:'0 0 0 0',
+							width: 250,
+							collapsible:true,//可以被折叠							
+							layout:'fit',
+							split:true,
+							items:user_setup_grid
+						},
+						{	title:'角色树',
+							region:'center',
+							iconCls:'dept_tree',
+							xtype:'panel',
+							margins:'0 0 0 0',
+							//width: 250,
+							//collapsible:true,//可以被折叠						
+							//id:'user-qx-tree',
+							layout:'fit',
+							split:true,
+							items:js_tree_panel
+						}
+					],
+									
 					tbar:[{
 						xtype: 'button',
 						iconCls: 'add',
@@ -383,7 +574,7 @@ Ext.define('MyDesktop.SystemMan', {
 							var grid = Ext.getCmp('user_setup_grid');
 							var records = grid.getSelectionModel().getSelection();
 							if (records.length==0){
-								alert("请选择一个用户进行修改。");
+								alert("请选择一个用户进行删除。");
 								
 							}else{
 								var record = records[0];
@@ -398,7 +589,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("删除失败，请重新删除。"+request.responseText);
 														}
 													}
 												});
@@ -407,6 +598,40 @@ Ext.define('MyDesktop.SystemMan', {
 											}
 
 									});	
+							}
+						}
+					},
+					{
+						xtype: 'button',
+						iconCls: 'save',
+						text:'保存用户角色',
+						handler: function() {
+							var grid = Ext.getCmp('user_setup_grid');
+							var records = grid.getSelectionModel().getSelection();
+							if (records.length==1){
+								root=Ext.getCmp('user_js_tree_panel').store.getRootNode();
+								insert_qx="";
+								get_mlqx_NodesChecked(root);
+								
+								var node=nodes[0];
+								if (insert_qx==""){
+									alert("请您选择一些角色再保存。");
+								}else{
+									insert_qx="({insert_qx:'" + insert_qx + "',userid:" + records[0].data.id + "})";
+									new Ajax.Request("/desktop/insert_user_js", { 
+										method: "POST",
+										parameters: eval(insert_qx),
+										onComplete:	 function(request) {
+											if (request.responseText=='success'){
+												alert("权限角色成功。");												
+											}else{
+												alert("角色保存失败，请重新保存。");
+											}
+										}
+									});									
+								}
+							}else{
+								alert("请您先选择一个用户。");
 							}
 						}
 					},
@@ -426,6 +651,142 @@ Ext.define('MyDesktop.SystemMan', {
 
 			win.show();
 		};
+		var js_setup = function(){
+			var win = Ext.getCmp('js_setup_win');
+
+			Ext.regModel('js_setup_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'jsmc',		type: 'string'}
+				]
+			});
+
+			var js_setup_store = Ext.create('Ext.data.Store', {
+				id:'js_setup_store',
+				model : 'js_setup_model',
+				autoLoad: true,
+				proxy: {
+					type: 'ajax',
+					url : '/desktop/get_js_grid',
+					//extraParams: cx_tj,
+					reader: {
+						type: 'json',
+						root: 'rows',
+						totalProperty: 'results'
+					}
+				}
+				//sortInfo:{field: 'level4', direction: "ASC"},
+				//baseParams: {start:0, limit:25, query:""}
+			});
+			var js_setup_grid = new Ext.grid.GridPanel({
+				id : 'js_setup_grid',
+				store: js_setup_store,				
+				columns: [
+					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+					{ text : '角色名称',	width : 250, sortable : true, dataIndex: 'jsmc'}
+					],
+					selType:'checkboxmodel',
+					//multiSelect:true,
+					listeners:{
+						
+					},
+				
+				viewConfig: {
+					stripeRows:true
+				}
+			});
+			
+			if (win==null) {
+				win = new Ext.Window({
+					id : 'js_setup_win',
+					title: '角色设置',
+					//closeAction: 'hide',
+					width: 370,
+					height: 530,
+					minHeight: 530,
+					layout: 'fit',
+					modal: true,
+					plain: true,
+					items:user_setup_grid,					
+					tbar:[{
+						xtype: 'button',
+						iconCls: 'add',
+						text:'新增',
+						handler: function() {
+							//this.up('window').hide();
+							
+							js_disp("record",true);
+						}
+					},
+					{
+						xtype: 'button',
+						iconCls: 'option',
+						text:'修改',
+						handler: function() {
+							//this.up('window').hide();
+							
+							var grid = Ext.getCmp('js_setup_grid');
+							var records = grid.getSelectionModel().getSelection();
+							if (records.length==1){
+								var record = records[0];
+								js_disp(record,false);
+							}else{
+								alert("请选择一个角色进行修改。");
+							}
+						}
+					},
+					{
+						xtype: 'button',
+						iconCls: 'delete',
+						text:'删除',
+						handler: function() {
+							var grid = Ext.getCmp('js_setup_grid');
+							var records = grid.getSelectionModel().getSelection();
+							if (records.length==0){
+								alert("请选择一个角色进行删除。");
+								
+							}else{
+								var record = records[0];
+								var pars="id="+record.data.id;
+								Ext.Msg.confirm("提示信息","是否要删除角色名称为：！"+record.data.jsmc+"的角色？",function callback(id){
+											if(id=="yes"){
+												new Ajax.Request("/desktop/delete_js", { 
+													method: "POST",
+													parameters: pars,
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
+															Ext.getCmp('js_setup_grid').store.load();
+														}else{
+															alert("删除失败，请重新删除。"+request.responseText);
+														}
+													}
+												});
+											}else{
+												//alert('O,no');
+											}
+
+									});	
+							}
+						}
+					},
+					{
+						xtype: 'button',
+						iconCls: 'exit',
+						text:'退出',
+						handler: function() {
+							//this.up('window').hide();
+							Ext.getCmp('js_setup_win').close();
+						}
+					}]
+					
+				});
+			}
+			
+
+			win.show();
+		};
+		
 		var qz_disp = function(record,add_new){
 			var win = Ext.getCmp('qz_disp_win');
 
@@ -1313,7 +1674,7 @@ Ext.define('MyDesktop.SystemMan', {
 				layout: 'border',
 				split:true,
 				tbar:[
-					{xtype:'button',text:'保存用户权限',tooltip:'保存用户权限',id:'qx_save',iconCls:'save',
+					{xtype:'button',text:'保存角色权限',tooltip:'保存角色权限',id:'qx_save',iconCls:'save',
 						handler: function() {
 							//Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById("1_1_1")							
 							var tree = Ext.getCmp('user_tree_panel');
@@ -1351,6 +1712,11 @@ Ext.define('MyDesktop.SystemMan', {
 							user_setup();
 						}
 					},
+					{xtype:'button',text:'角色设置',tooltip:'新增修改删除用户',id:'qx_js',iconCls:'user',
+						handler: function() {
+							js_setup();
+						}
+					},
 					{xtype:'button',text:'全宗设置',tooltip:'新增修改删除全宗',id:'qx_dw',iconCls:'user',
 						handler: function() {
 							qz_setup();		
@@ -1368,7 +1734,7 @@ Ext.define('MyDesktop.SystemMan', {
 					}
 				],			
 				items: [
-					{	title:'用户树',
+					{	title:'角色树',
 						region:'west',
 						iconCls:'users',
 						xtype:'panel',

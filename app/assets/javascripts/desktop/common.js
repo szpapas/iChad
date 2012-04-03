@@ -2,7 +2,7 @@ var currentUser={};
 var archive_id=0;
 var archive_data={};
 var tree_id=0;
-
+var user_id="";
 Ext.Loader.setPath({
     'Ext.ux.desktop': '/assets/desktop/js',
     'Ext.ux' : '/assets/desktop/ux',
@@ -10,7 +10,13 @@ Ext.Loader.setPath({
 });
 
 Ext.Loader.setConfig({enabled:true});
-
+new Ajax.Request("/desktop/get_userid", { 
+	method: "POST",
+	//parameters: eval(pars),
+	onComplete:	 function(request) {
+		user_id=request.responseText;
+	}
+});
 var msg = function(title, msg){
 		Ext.Msg.show({
 				title: title,
