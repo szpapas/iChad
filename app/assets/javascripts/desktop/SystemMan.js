@@ -399,10 +399,10 @@ Ext.define('MyDesktop.SystemMan', {
 			}
 			if(add_new==false){
 			//设置数据
-				Ext.getCmp('user_disp_form').getForm().setValues(record.data);
+				Ext.getCmp('js_disp_form').getForm().setValues(record.data);
 				
 			}else{
-				Ext.getCmp('user_disp_win').title="新增角色信息";
+				Ext.getCmp('js_disp_win').title="新增角色信息";
 				Ext.getCmp('button_user_add').text="新增";
 				Ext.getCmp('button_user_add').iconCls="add";
 			}
