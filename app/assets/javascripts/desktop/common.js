@@ -2,7 +2,7 @@ var currentUser={};
 var archive_id=0;
 var archive_data={};
 var tree_id=0;
-
+var user_id="";
 Ext.Loader.setPath({
     'Ext.ux.desktop': '/assets/desktop/js',
     'Ext.ux' : '/assets/desktop/ux',
@@ -10,7 +10,13 @@ Ext.Loader.setPath({
 });
 
 Ext.Loader.setConfig({enabled:true});
-
+new Ajax.Request("/desktop/get_userid", { 
+	method: "POST",
+	//parameters: eval(pars),
+	onComplete:	 function(request) {
+		user_id=request.responseText;
+	}
+});
 var msg = function(title, msg){
 		Ext.Msg.show({
 				title: title,
@@ -32,6 +38,17 @@ var txfw_data = [
 var txfw_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
 	data : txfw_data
+});
+
+var sxzl_data = [
+ ['0','录音带'],
+ ['1','录像带'],
+ ['2','其他']
+];
+
+var sxzl_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : sxzl_data
 });
 
 var bgqx_data = [
@@ -797,6 +814,7 @@ var DispAj_zh = function(record,add_new,title){
 	
 	win.show();
 };
+
 var DispAj_cw = function(record,add_new,title){
 	var win = Ext.getCmp('archive_detail_win');
 	Ext.regModel('com_document_model', {
@@ -2299,6 +2317,463 @@ var DispAj_wsda = function(record,add_new,title){
 			Ext.getCmp('wsda_qzh').setValue(ss[0]);
 			
 	
+		
+		
+	}
+	//设置数据
+	
+	win.show();
+};
+var DispAj_sx = function(record,add_new,title){
+	var win = Ext.getCmp('archive_detail_win');
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+		tbar:[
+			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+				handler: function() {
+					var grid = Ext.getCmp('archive_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+					DispJr(record,true);
+
+				}
+			},
+			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+				handler: function() {
+
+					var grid = Ext.getCmp('com_document_grid');
+					var records = grid.getSelectionModel().getSelection();
+					var record = records[0];
+
+					var pars="id="+record.data.id;
+					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+								if(id=="yes"){
+									new Ajax.Request("/desktop/delete_document", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											Ext.getCmp('com_document_grid').store.load();
+
+										}
+									});
+								}else{
+									//alert('O,no');
+								}
+
+						});
+
+				}},
+			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+			handler: function() {
+				var grid  = this.ownerCt.ownerCt;
+				//alert(grid);
+					var store = grid.getStore(); 
+					var records = grid.getSelectionModel().getSelection();
+					var data = [];
+					Ext.Array.each(records,function(model){
+						data.push(Ext.JSON.encode(model.get('id')));
+						DispJr(model,false);
+					});
+				}
+			}
+
+		],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
+	if (win==null) {
+		win = new Ext.Window({
+			id : 'archive_detail_win',
+			title: '声像案卷详细信息',
+			//closeAction: 'hide',
+			width: 688,
+			height: 450,
+			minHeight: 450,
+			layout: 'border',
+			modal: true,
+			plain: true,
+			buttons:[{
+					xtype: 'button',
+					cls: 'change',
+					id:'button_aj_add',
+					text:'修改',
+					handler: function() {
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						
+						if(add_new==false){
+							new Ajax.Request("/desktop/update_flow", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									if (request.responseText=='success'){
+										alert("案卷修改成功。");
+										Ext.getCmp('archive_grid').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷修改失败，请重新修改。"+request.responseText);
+									}
+									
+								}
+							});
+						}else{
+							new Ajax.Request("/desktop/insert_archive", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									if (request.responseText=='success'){
+										alert("案卷新增成功。");
+										Ext.getCmp('archive_grid').store.load();
+										Ext.getCmp('archive_detail_win').close();												
+									}else{
+										alert("案卷新增失败，请重新保存。"+request.responseText);
+									}
+									
+								}
+							});
+						}
+					}
+				},
+				{
+					xtype: 'button',
+					cls: 'exit',
+					text:'退出',
+					handler: function() {
+						//this.up('window').hide();
+						Ext.getCmp('archive_detail_win').close();
+					}
+				}],
+			items: [{
+				region: 'south',
+				iconCls:'icon-grid',
+				layout: 'fit',
+				height: 150,
+				split: true,
+				collapsible: true,
+				title: '卷内目录',
+				items: documentGrid
+
+			},{
+				width: 688,
+				height: 256,
+				region: 'center',
+				xtype:'form',
+				layout: 'absolute',
+				id : 'daglaj_form',
+				items: [
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '目 录 号',
+	                    labelWidth: 60,
+	                    x: 10,
+						name: 'mlh',
+						id: 'zh_mlh',
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									if (newValue==""){
+										alert("目录号不能为空。");
+										field.value=oldValue;
+									}else{
+										qzh=title.split("_")
+										if(add_new==false){
+							               //alert(newValue+'---'+'oldValue');
+										}
+										else{
+											new Ajax.Request("/desktop/get_max_ajh", { 
+											    	method: "POST",
+											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
+											    	onComplete:	 function(request) {
+											    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+											     	}
+											     });
+										}
+									}
+									
+						       }
+						}
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '分类号',
+	                    labelWidth: 60,
+						name: 'flh',
+						id: 'zh_flh',
+	                    x: 175,
+	                    y: 10
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 140,
+	                    fieldLabel: '案卷号',
+	                    labelWidth: 60,
+						name: 'ajh',
+						id: 'zh_ajh',
+	                    x: 345,
+	                    y: 10
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '年度',
+	                    labelWidth: 60,
+						name: 'nd',
+						id: 'zh_nd',
+	                    x: 520,
+	                    y: 10
+	                },
+	                {
+	                    xtype: 'textareafield',
+	                    height: 55,
+	                    width: 655,
+	                    fieldLabel: '案卷标题',
+	                    labelWidth: 60,
+						name: 'tm',
+						id: 'zh_aj_tm',
+	                    x: 10,
+	                    y: 45
+	                },
+	                
+	                
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '起 年 月',
+	                    labelWidth: 60,
+						name: 'qny',
+						id: 'zh_qny',
+	                    x: 10,
+	                    y: 115
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '止年月',
+	                    labelWidth: 60,
+						name: 'zny',
+						id: 'zh_zny',
+	                    x: 175,
+	                    y: 115
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 140,
+	                    fieldLabel: '件数',
+	                    labelWidth: 60,
+						name: 'js',
+						id: 'zh_js',
+	                    x: 345,
+	                    y: 115
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '页数',
+	                    labelWidth: 60,
+						name: 'ys',
+						id: 'zh_ys',
+	                    x: 520,
+	                    y: 115
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '保管期限',
+	                    labelWidth: 60,
+						name: 'bgqx',
+						store: bgqx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						id:'zh_bgqx',
+	                    x: 10,
+	                    y: 150
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '密级',
+	                    labelWidth: 60,
+						name: 'mj',
+						store: mj_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						id:'zh_mj',
+	                    x: 175,
+	                    y: 150
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 140,
+	                    fieldLabel: '箱号',
+	                    labelWidth: 60,
+						name: 'xh',
+						id: 'zh_xh',
+	                    x: 345,
+	                    y: 150
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '种类',
+	                    labelWidth: 60,
+						name: 'zl',
+						store: sxzl_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						id:'zh_zl',
+	                    x: 520,
+	                    y: 150
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 310,
+	                    fieldLabel: '存入位置',
+	                    labelWidth: 60,
+						name: 'cfwz',
+						id: 'zh_cfwz',
+	                    x: 10,
+	                    y: 185
+	                },
+	                
+	                
+	                
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '备注',
+	                    labelWidth: 60,
+						name: 'bz',
+						id: 'zh_bz',
+	                    x: 345,
+	                    y: 185
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'zh_qzh',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'zh_dalb',
+	                    x: 10,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'zh_id',
+	                    x: 10,
+	                    y: 190
+	                }
+	            ]
+			}]
+		});
+	}
+	if(add_new==false){
+	//设置数据
+		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
+		com_document_store.proxy.extraParams.query=record.data.id;
+		com_document_store.load();
+		
+	}else{
+		
+		Ext.getCmp('button_aj_add').text="新增";
+		
+		Ext.getCmp('zh_dalb').setValue(ss[1]);
+		ss=title.split('_');
+		Ext.getCmp('zh_qzh').setValue(ss[0]);
+		if(ss.length==3){
+			new Ajax.Request("/desktop/get_mlh", { 
+			    	method: "POST",
+			    	parameters: {dalb:ss[2]},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			     	}
+			     });
+			new Ajax.Request("/desktop/get_max_ajh", { 
+			    	method: "POST",
+			    	parameters: {dalb:title,qx:true},
+			    	onComplete:	 function(request) {
+			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+			     	}
+			     });
+		}
 		
 		
 	}
