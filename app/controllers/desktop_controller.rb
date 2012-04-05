@@ -2226,11 +2226,6 @@ class DesktopController < ApplicationController
   def get_treeforuserid
     text = "[]"
     node, style = params["node"], params['style']
-<<<<<<< HEAD
-=======
-    userid=""
-
->>>>>>> 5509d3522136741f89851c9db25470936f9d4c3a
       if node == "root"
         user= User.find_by_sql("select jsid from u_js where userid=  '#{params["userid"]}' order by id;")
         user.each do |us|
