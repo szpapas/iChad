@@ -185,6 +185,7 @@ Ext.define('MyDesktop.SystemStatus', {
              }
            },'-',{
              text : '导入JSON',
+             iconCls : 'import',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
                id_str = '';
@@ -207,6 +208,7 @@ Ext.define('MyDesktop.SystemStatus', {
              }
            },'-',{
              text : '导入影像',
+             iconCls : 'import',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
                id_str = '';
@@ -229,6 +231,7 @@ Ext.define('MyDesktop.SystemStatus', {
              }
            },{
              text : '导出影像',
+             iconCls : 'export',
              handler : function() {
                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
                id_str = '';
@@ -456,7 +459,7 @@ Ext.define('MyDesktop.SystemStatus', {
          title: '任务状态',
          store: qzzt_store,
          id : 'qzzt_grid_id',
-         iconCls:'export',
+         iconCls:'task16',
          height : 400,
          columns: [
            { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
@@ -609,7 +612,7 @@ Ext.define('MyDesktop.SystemStatus', {
       layout: 'fit',
       tbar:[{
           text:'导入案卷',
-          iconCls:'',
+          iconCls:'import',
           handler : function() {
             items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
             id_str = '';
@@ -629,9 +632,9 @@ Ext.define('MyDesktop.SystemStatus', {
               }
             });
           }
-        },'-',{
+        },{
           text:'修改案卷',
-           iconCls:'',
+           iconCls:'write16',
            handler : function() {
              items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
            
@@ -705,7 +708,7 @@ Ext.define('MyDesktop.SystemStatus', {
                modi_win.show();
              }
            }
-        },{
+        },'-',{
           xtype: 'combo',
           text:'过滤',
           x: 130,
@@ -846,9 +849,9 @@ Ext.define('MyDesktop.SystemStatus', {
       win = desktop.createWindow({
         id: 'systemstatus',
         title:'档案统计',
+        iconCls:'datj16',
         width:1200,
         height:600,
-        iconCls: 'cpustats',
         animCollapse:false,
         border: false,
         layout: 'fit',

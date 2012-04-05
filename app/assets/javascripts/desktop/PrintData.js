@@ -63,6 +63,7 @@ Ext.define('MyDesktop.PrintData', {
       useArrows: true,
       singleExpand: true,
       width: 200,
+      layout: "fit"
       //height: 300,
     });
     
@@ -753,8 +754,6 @@ Ext.define('MyDesktop.PrintData', {
       }
     });
     
-    //gsm.selectRow(gsm.grid.store.indexOfId(qzxx_id), true);
-    
     archive_store.on('load', function(){
       archiveGrid.getSelectionModel().select(0);
     });
@@ -795,8 +794,6 @@ Ext.define('MyDesktop.PrintData', {
           totalProperty: 'results'
         }
       }
-      //sortInfo:{field: 'level4', direction: "ASC"},
-      //baseParams: {start:0, limit:25, query:""}
     });
 
     timage_store.on('load',function(ds,records,o){
@@ -1019,9 +1016,6 @@ Ext.define('MyDesktop.PrintData', {
                                             floating: true,
                                             shadow: true,
                                             draggable: true,
-                                            //closeAction:'hide',
-                                            //minimizable:true,
-                                            //closable: false,
                                             modal: false,
                                             width: 400,
                                             height: 300,
@@ -1144,7 +1138,7 @@ Ext.define('MyDesktop.PrintData', {
                                    text : '删除完成',
                                    handler : function() {
                                      //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                     pars = {}
+                                     pars = {};
                                      new Ajax.Request("/desktop/delete_all_print_task", { 
                                        method: "POST",
                                        parameters: pars,
@@ -1253,9 +1247,6 @@ Ext.define('MyDesktop.PrintData', {
                                             floating: true,
                                             shadow: true,
                                             draggable: true,
-                                            //closeAction:'hide',
-                                            //minimizable:true,
-                                            //closable: false,
                                             modal: false,
                                             width: 400,
                                             height: 300,
@@ -1362,7 +1353,7 @@ Ext.define('MyDesktop.PrintData', {
                                  },'-',{
                                    text : '删除完成',
                                    handler : function() {
-                                     pars = {}
+                                     pars = {};
                                      new Ajax.Request("/desktop/delete_all_import_task", { 
                                        method: "POST",
                                        parameters: pars,
@@ -1382,12 +1373,7 @@ Ext.define('MyDesktop.PrintData', {
                           
                           
                           
-                          /*
-                          dyzt_store.on('load', function(){
-                            if (dyzt_store.data.length > 0)
-                              dyzt_grid.getSelectionModel().select(0);
-                          });
-                          */
+
                         
                           var dyztPanel = new Ext.form.FormPanel({
                             id : 'dyzt_panel_id',
@@ -1399,8 +1385,7 @@ Ext.define('MyDesktop.PrintData', {
                                 height: 280,
                                 activeTab: 0,
                                 items: [
-                                  dyzt_grid,
-                                  drzt_grid
+                                  dyzt_grid
                                 ]
                             }]        
                           });
@@ -1522,252 +1507,12 @@ Ext.define('MyDesktop.PrintData', {
                         });
                       }
                     },{
-                      text:'导入图像',
-                      tooltip:'',
-                      iconCls:'import',
-                      handler: function() {
-                        
-                        /*
-                        var import_status = function() {
-                        
-                          Ext.regModel('drzt_model', {
-                            fields: [
-                              {name: 'id',     type: 'integer'},
-                              {name: 'drdh',     type: 'string'},
-                              {name: 'mlh',     type: 'string'},
-                              {name: 'mltp',     type: 'string'},
-                              {name: 'drny',     type: 'string'},
-                              {name: 'drqt',     type: 'string'},
-                              {name: 'drzt',     type: 'string'}
-                            ]
-                          });
-                        
-                          var drzt_store =  Ext.create('Ext.data.Store', {
-                            model : 'drzt_model',
-                            proxy: {
-                              type: 'ajax',
-                              url : '/desktop/get_drzt_store',
-                              extraParams: {id:""},
-                              reader: {
-                                type: 'json',
-                                root: 'rows',
-                                totalProperty: 'results'
-                              }
-                            }
-                          });
-                        
-                          drzt_store.load();
-                        
-                          var drzt_grid = new Ext.grid.GridPanel({
-                               title: '状态列表',
-                               store: drzt_store,
-                               id : 'drzt_grid_id',
-                               columns :[
-                               	 { text : 'id',	width : 0, sortable : true, dataIndex: 'id', hidden: true},
-                               	 { text : '档号',	width : 6, sortable : true, dataIndex: 'drdh'},
-                               	 { text : '目录号',	width : 60, sortable : true, dataIndex: 'mlh'},
-                               	 { text : '目录图片',	width : 60, sortable : true, dataIndex: 'mltp'},
-                               	 { text : '导入内页',	width : 60, sortable : true, dataIndex: 'drny'},
-                               	 { text : '导入其它',	width : 60, sortable : true, dataIndex: 'drqt'},
-                               	 { text : '导入状态',	width : 60, sortable : true, dataIndex: 'drzt'}
-                               ],
-                               selType:'checkboxmodel',
-                               multiSelect:true,
-                               viewConfig: {
-                                 stripeRows:true
-                               },
-                               tbar : [{
-                                   text : '全部添加',
-                                   handler : function() {
-                                     select = archiveGrid.selModel.selected.items[0];
-                                     //var tree = Ext.getCmp('pd_treepanel_id');
-                                     //var node = tree.getSelectionModel().selected;
-                                     if (select == undefined) {
-                                       msg('提示','请先选择一个目录');
-                                     } else {
-                                     
-                                     }
-                                   }
-                                 },'-',{
-                                   text : '删除选择',
-                                   iconCls : 'delete',
-                                   handler : function() {
-                                     id = Ext.getCmp('drzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                     pars = {id:id}
-                                     new Ajax.Request("/desktop/delete_import_task", { 
-                                       method: "POST",
-                                       parameters: pars,
-                                       onComplete:  function(request) {
-                                         drzt_store.load();
-                                       }
-                                     });
-                                   }
-                                 },'-',{
-                                   text : '删除完成',
-                                   handler : function() {
-                                     //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
-                                     pars = {}
-                                     new Ajax.Request("/desktop/delete_all_import_task", { 
-                                       method: "POST",
-                                       parameters: pars,
-                                       onComplete:  function(request) {
-                                         dyzt_store.load();
-                                       }
-                                     });
-                                   }
-                                 },'-', {
-                                   text : '刷新目录',
-                                   iconCls : 'x-tbar-loading',
-                                   handler : function() {
-                                     drzt_store.load();
-                                   }                                 
-                               }]
-                          }); 
-                        
-                          drzt_store.on('load', function(){
-                            if (drzt_store.data.length > 0)
-                              drzt_grid.getSelectionModel().select(0);
-                          });
-                        
-                          var drztPanel = new Ext.form.FormPanel({
-                            id : 'drzt_panel_id',
-                            labelWidth:40,
-                            //bodyStyle:"padding:35px;",
-                            bodyPadding: 3,
-                            items:[{
-                                xtype: 'tabpanel',
-                                height: 280,
-                                activeTab: 0,
-                                items: [drzt_grid,
-                                  {
-
-                                  },{
-
-                                }]
-                            }]        
-                          });
-
-                          var drztWin = new Ext.Window({
-                            id : 'drzt_win',
-                            iconCls : 'print',
-                            title: '导入图像',
-                            floating: true,
-                            shadow: true,
-                            draggable: true,
-                            //closeAction:'hide',
-                            //minimizable:true,
-                            //closable: false,
-                            modal: false,
-                            width: 500,
-                            height: 350,
-                            layout: 'fit',
-                            plain: true,
-                            items:drztPanel,
-                            buttons: [{
-                              text: '导入',
-                              handler: function() {
-                                var pars={id:archive_id};
-                                new Ajax.Request("/desktop/start_import_task", { 
-                                  method: "POST",
-                                  parameters: pars,
-                                  onComplete:  function(request) {
-                                    drzt_store.load();
-                                  }
-                                });
-                              }
-                            },{
-                              text: '关闭',
-                              handler : function() {
-                                Ext.getCmp('drzt_win').close();
-                              }
-                            }]
-                          });
-
-                          drztWin.show();
-                        
-                        }
-                        import_status();
-                        */
-
-                      }
-                                        
-                    },'-',{
-                      text:'导出图像',
-                      tooltip:'',
-                      iconCls:'export',
-                      handler: function() {
-                        var pars={id:archive_id};
-
-                        var printWin = new Ext.Window({
-                          xtype: 'window',
-                          width: 300,
-                          height: 150,
-                          title : '图像导出',
-                          items: [
-                            {
-                              xtype: 'form',
-                              height: 120,
-                              labelWidth:30,
-                              bodyStyle:"padding:30px;",
-                              items: [
-                                {
-                                  xtype: 'box',
-                                  id : 'download_wait_id',
-                                  html: '<div id="waitPadding">&nbsp;&nbsp;<img src="/assets/189047.gif"/><br />请稍等...</div>',
-                                  anchor: '95%'
-                                },
-                                {
-                                  xtype: 'box', //或者xtype: 'component',
-                                  id: 'download_link_id',
-                                  anchor: '90%',
-                                  height:50,
-                                  html: ''
-                                }
-                              ]
-                            }
-                          ]
-                        });
-                        printWin.show();
-                        new Ajax.Request("/desktop/export_image", {
-                          method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            var path = request.responseText;
-                                Ext.getCmp('download_wait_id').getEl().dom.innerHTML = "请点击下面链接下载";
-                                Ext.getCmp('download_link_id').getEl().dom.innerHTML = '<a href="'+ path+'">点击下载</a>';
-                          }
-                        });
-                      
-                      }
-                    },'-', {
-                      text:'单卷生成',
-                      tooltip:'',
-                      hidden: true,
-                      iconCls:'x-tree-icon-leaf',
-                      handler: function() {
-                        var pars={id:archive_id};
-                        new Ajax.Request("/desktop/generate_all", {
-                          method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            var path = request.responseText;
-                            if (path != '') { 
-                              //Ext.getCmp('preview_img').getEl().dom.src = path;
-                              timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-                              timage_store.load();
-                            }
-                          }
-                        });
-                      }
-                    },
-                    {
                       text:'封面套打',
                       tooltip:'',
                       iconCls:'x-tree-icon-leaf',
                       handler: function() {
 
                         var print_setting = function() {
-                        
                         
                           Ext.regModel('ptemplate_model', {
                             fields: [
@@ -2078,46 +1823,7 @@ Ext.define('MyDesktop.PrintData', {
                         print_setting();
 
                       }                    
-                    },'-',
-                    {
-                      text:'统计窗口',
-                      tooltip:'',
-                      iconCls:'x-tree-icon-leaf',
-                      hidden : true,
-                      handler: function() {
-                      
-                        if (muluStaticGrid.isVisible()) {
-                          muluStaticGrid.hide();
-                          archiveGrid.show();
-                          archiveGrid.width  = archiveGrid.up().getWidth();
-                          archiveGrid.height = archiveGrid.up().getHeight();
-                          documentGrid.width = archiveGrid.up().getWidth();
-                        } else {
-                          archiveGrid.hide();
-                          muluStaticGrid.show();
-                          muluStaticGrid.width = muluStaticGrid.up().getWidth();
-                          muluStaticGrid.height = muluStaticGrid.up().getHeight();
-                        }
-                      }
                     },
-                    {
-                      text:'更新',
-                      tooltip:'',
-                      iconCls:'x-tbar-loading',
-                      hidden: true,
-                      handler: function() {
-                        var dh = archive_data.qzh + '_' + archive_data.dalb + '_' + archive_data.mlh;
-                        var pars={dh:dh};
-                        new Ajax.Request("/desktop/update_timage_tj", {
-                          method: "POST",
-                          parameters: pars,
-                          onComplete:  function(request) {
-                            mulu_store.proxy.extraParams = {dh:dh};
-                            mulu_store.load();
-                          }
-                        });
-                      }                      
-                    },                  ,
                     '->',
                     new Ext.form.TextField({
                       width:200,
@@ -2126,7 +1832,7 @@ Ext.define('MyDesktop.PrintData', {
                       initEvents: function() { 
                         var keyPress = function(e){ 
                           if (e.getKey() == e.ENTER) { 
-                            //Ext.getCmp('czxx-view').reloadStore();
+                            
                           }
                         }; 
                         this.el.on("keypress", keyPress, this);
@@ -2469,10 +2175,10 @@ Ext.define('MyDesktop.PrintData', {
               {
                 text: '上一个',
                 handler: function(){
-                  combo = Ext.getCmp('timage_combo')
+                  combo = Ext.getCmp('timage_combo');
                   var currentImage = combo.getStore().getById(combo.getValue());
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
-                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id')
+                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id');
                   combo.setValue(nextStoreValue);
                   var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {
@@ -2490,10 +2196,10 @@ Ext.define('MyDesktop.PrintData', {
               {
                 text: '下一个',
                 handler: function(){
-                  combo = Ext.getCmp('timage_combo')
+                  combo = Ext.getCmp('timage_combo');
                   var currentImage = combo.getStore().getById(combo.getValue());
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
-                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id')
+                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id');
                   combo.setValue(nextStoreValue);
                   var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
                   new Ajax.Request("/desktop/get_timage_from_db", {

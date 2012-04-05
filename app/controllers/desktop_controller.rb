@@ -2141,8 +2141,6 @@ class DesktopController < ApplicationController
   def get_treeforuserid
     text = "[]"
     node, style = params["node"], params['style']
-   
-
       if node == "root"
         data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
         text="["
