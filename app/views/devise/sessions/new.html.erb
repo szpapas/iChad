@@ -27,11 +27,12 @@
 
                       <div class="jive-standard-formblock">
                       <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
-                        <div id="jive-login-username">
-                        <label for="user_email">用户名:</label>
-                        <input type="text" name="user[email]" size="30" maxlength="150" value="" id="user_email">
-                        </div>
 
+                        <div id="jive-login-username">
+                        <label for="user_login">用户名:</label>
+                        <input type="text" name="user[login]" size="30" maxlength="150" value="" id="user_login">
+                        </div>
+                        
                         <div id="jive-login-password">
                         <label for="password01">密码:</label>
                         <input type="password" name="user[password]" size="30" maxlength="150" value="" id="user_password">

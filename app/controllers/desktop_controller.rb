@@ -9,6 +9,7 @@ class DesktopController < ApplicationController
   end
   
   def get_user
+    #user = User.find_by_sql("select id, email, username from users where id=#{User.current.id}")
     render :text => User.current.to_json
   end
   
@@ -648,6 +649,9 @@ class DesktopController < ApplicationController
       txt = "{results:0,rows:[]}"
     else
       if params['type'].to_i == 0
+
+        system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
+        
         user = User.find_by_sql("select count(*) from timage where dh = '#{params['dh']}';")
         size = user[0].count;
 
@@ -690,20 +694,20 @@ class DesktopController < ApplicationController
     if (params['gid'].nil?)
       txt = ""
     else
-      if type == 0
-        user = User.find_by_sql("select id, yxmc, data from timage where id='#{params['gid']}';")
-      else
-        user = User.find_by_sql("select id, yxmc, data from timage_tjtx where id='#{params['gid']}';")
+      user = User.find_by_sql("select id, dh, yxmc from timage where id='#{params['gid']}';")
+      dh = user[0]['dh']
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"
       end
-
-      ss = user[0]["data"] #already escaped
-      tt = user[0]["yxmc"].gsub('$', '_')
-      local_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
-      small_filename = './dady/img_tmp/'+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      File.open(local_filename, 'w') {|f| f.write(ss) }
-      system("convert -resize 40% -quality 75 #{local_filename} #{small_filename}")
-      #system("rm #{local_filename}")
-      txt = "/assets/dady/img_tmp/#{user[0]["yxmc"].gsub('$', '_')}".gsub('TIF','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{params['gid']}';")
+        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
+      end
+      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
     end
     render :text => txt
   end
@@ -2899,4 +2903,5 @@ class DesktopController < ApplicationController
     def get_userid
       render :text => User.current.id
     end
+
 end

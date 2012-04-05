@@ -46,8 +46,14 @@ Ext.define('MyDesktop.App', {
         // custom logic before getXYZ methods get called...
 
         this.callParent();
-
-        // now ready...
+        
+        new Ajax.Request("/desktop/get_user", { 
+          method: "POST",
+          onComplete:  function(request) {
+            currentUser = eval("("+request.responseText+")");
+            Ext.getCmp('start_memu_id').setTitle(currentUser.username);
+          }
+        });
     },
 
     getModules : function(){
@@ -106,10 +112,10 @@ Ext.define('MyDesktop.App', {
     // config for the start menu
     getStartConfig : function() {
         var me = this, ret = me.callParent();
-
         return Ext.apply(ret, {
-            title: 'Griffin',
+            title: currentUser.username,
             iconCls: 'user',
+            id : 'start_memu_id',
             height: 300,
             toolConfig: {
                 width: 100,
@@ -147,7 +153,11 @@ Ext.define('MyDesktop.App', {
     },
 
     onLogout: function () {
-        Ext.Msg.confirm('退出', '确定要退出登录?');
+        Ext.Msg.confirm('退出', '确定要退出登录?', function(btn){
+          if (btn == 'yes') {
+             window.location = "/sign_out";         
+          }
+        });
     },
 
     onSettings: function () {
