@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #ruby ./dady/bin/upload_mulu.rb  78地籍管理档案aj.txt    泰州市国土资源局 4 4
 #ruby um_qz2.rb ajlist 泰州市国土资源局 
 def get_dalb(ifname) 

@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #2综合档案aj.txt
 def get_dalb(ifname) 
   key = /(\d+)(.*)(aj|jr)/.match(ifname)[2]
