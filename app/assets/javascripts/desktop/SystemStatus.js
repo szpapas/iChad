@@ -74,7 +74,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'4',filter:"全部"};
+    qzgl_store.proxy.extraParams={qzh:'6',filter:"全部"};
     qzgl_store.load();
 
     var ztRender = function(val) {

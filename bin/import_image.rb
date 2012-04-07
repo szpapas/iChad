@@ -16,6 +16,7 @@ require 'find'
 t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn.exec("set standard_conforming_strings = off")
 
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
 ss = dh_prefix.split('_')
@@ -104,9 +105,10 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   end
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
+  puts edata
   yxmc="#{yx_prefix}\$#{yxbh}"
   puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
+  puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
 end
 
