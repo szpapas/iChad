@@ -2765,6 +2765,18 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  def lookup(yxwz)
+    line=''
+    Find.find(yxwz) do |path|
+      if path.include?'jpg'
+        puts "processing #{path}"
+        line = path.split('/')[-2]
+        break
+      end  
+    end
+    line
+  end
+  
   def import_selected_timage_aj
     user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
     for k in 0..user.size-1
@@ -2780,6 +2792,14 @@ class DesktopController < ApplicationController
         yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
         path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
         User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
+      else
+        yxgs = lookup(qzxx.yxwz)
+        if yxgs.length > 0
+          yy=yxgs.split('$') 
+          yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
+          path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
+          User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
+        end  
       end
     end  
     render :text => 'Success'

@@ -118,7 +118,7 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '小计',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
-           { text : '文件路径', align:"right", width : 60, sortable : true, dataIndex: 'yxwz'},
+           { text : '文件路径', align:"left", width : 100, sortable : true, dataIndex: 'yxwz'},
            
            { text : '状态',   align:"center", flex : 1, sortable : true, dataIndex: 'zt',  renderer:ztRenderer}
          ],
@@ -304,7 +304,7 @@ Ext.define('MyDesktop.SystemStatus', {
                  }
                });
              }                                 
-         },{
+         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">过滤</span>:&nbsp;&nbsp;',{
            xtype: 'combo',
            text:'过滤',
            x: 130,
@@ -325,6 +325,21 @@ Ext.define('MyDesktop.SystemStatus', {
                qzgl_store.load();
              }
            }
+         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">全宗号</span>:&nbsp;&nbsp;',{
+           xtype:"textfield",
+           id : 'qzh_field',
+           name : 'qzh',
+           width: 40,
+           value: '6',
+           listeners:{
+             'blur': function(field){
+             //if (field.getValue() != field.startValue) && (field.getValue().length > 0)){
+               qzgl_store.proxy.extraParams={qzh:field.getValue(),filter:"全部"};
+               qzgl_store.load();
+             //}
+             }
+             
+           }           
          }]
     }); 
 
@@ -868,6 +883,7 @@ Ext.define('MyDesktop.SystemStatus', {
               width:200,
               split:true,
               collapsible:true,
+              collapsed:true,
               titleCollapse:true,
               items:[]
             }]
