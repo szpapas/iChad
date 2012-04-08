@@ -2825,103 +2825,114 @@ class DesktopController < ApplicationController
     system("ruby ./dady/bin/update_timage_tj2.rb #{dh_prefix}")
     render :text => 'Success'
   end
+  
   #获得角色树
-   def get_js_tree
-     node, style = params["node"], params['style']
-     if node == "root"
-       data = User.find_by_sql("select * from  d_js order by id;")
-       size=data.size
-       if size>0
-         text="["
-         data.each do |dd|
-           text=text+"{'text':'#{dd['jsmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
-         end
-         text=text + "]"
-       else
-         text="[]"
+  def get_js_tree
+   node, style = params["node"], params['style']
+   if node == "root"
+     data = User.find_by_sql("select * from  d_js order by id;")
+     size=data.size
+     if size>0
+       text="["
+       data.each do |dd|
+         text=text+"{'text':'#{dd['jsmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
        end
-       render :text => text
-     end
-   end
-   #获得角色列表
-    def  get_js_grid
-      user = User.find_by_sql("select * from  d_js order by id;")
-
-      size = user.size;
-      if size > 0 
-       txt = "{results:#{size},rows:["
-       for k in 0..user.size-1
-         txt = txt + user[k].to_json + ','
-       end
-       txt = txt[0..-2] + "]}"
-      else
-       txt = "{results:0,rows:[]}"  
-      end  
-      render :text => txt
-    end
-    #更新角色信息
-    def update_js
-     user=User.find_by_sql("select * from d_js where id <> #{params['id']} and jsmc='#{params['jsmc']}';")
-     size = user.size
-     if size == 0
-       User.find_by_sql("update d_js set jsmc='#{params['jsmc']}' where id = #{params['id']};")
-       txt='success'
+       text=text + "]"
      else
-       txt= '角色名称已经存在，请重新输入角色名称。'
+       text="[]"
      end
-     render :text => txt
-    end
+     render :text => text
+   end
+  end
+  
+  #获得角色列表
+  def  get_js_grid
+    user = User.find_by_sql("select * from  d_js order by id;")
 
-    #新增角色信息
-    def insert_js
-      user=User.find_by_sql("select * from d_js where  jsmc='#{params['jsmc']}';")
-      size = user.size
-      if size == 0
-        User.find_by_sql("insert into d_js(jsmc) values ('#{params['jsmc']}');")
-        txt='success'
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
+  #更新角色信息
+  def update_js
+   user=User.find_by_sql("select * from d_js where id <> #{params['id']} and jsmc='#{params['jsmc']}';")
+   size = user.size
+   if size == 0
+     User.find_by_sql("update d_js set jsmc='#{params['jsmc']}' where id = #{params['id']};")
+     txt='success'
+   else
+     txt= '角色名称已经存在，请重新输入角色名称。'
+   end
+   render :text => txt
+  end
+
+  #新增角色信息
+  def insert_js
+    user=User.find_by_sql("select * from d_js where  jsmc='#{params['jsmc']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("insert into d_js(jsmc) values ('#{params['jsmc']}');")
+      txt='success'
+    else
+      txt= '角色名称已经存在，请重新输入角色名称。'
+    end
+    render :text => txt
+  end
+
+  #删除角色信息
+  def delete_js
+    user=User.find_by_sql("delete from d_js where  id=#{params['id']};")
+
+
+    render :text => 'success'
+  end
+
+  #获得用户角色
+  def get_user_js
+    data = User.find_by_sql("select * from  u_js where userid = '#{params['id']}' order by id;")
+    text=""
+    data.each do |dd|
+      if text==""
+        text="#{dd['jsid']}" 
       else
-        txt= '角色名称已经存在，请重新输入角色名称。'
+        text=text+"|#{dd['jsid']}" 
       end
-      render :text => txt
     end
+    render :text => text      
+  end
 
-    #删除角色信息
-    def delete_js
-      user=User.find_by_sql("delete from d_js where  id=#{params['id']};")
-
-
-      render :text => 'success'
-    end
-    #获得用户角色
-    def get_user_js
-      data = User.find_by_sql("select * from  u_js where userid = '#{params['id']}' order by id;")
-      text=""
-      data.each do |dd|
-        if text==""
-          text="#{dd['jsid']}" 
-        else
-          text=text+"|#{dd['jsid']}" 
-        end
+  #保存用户角色
+  def insert_user_js
+    User.find_by_sql("delete from u_js where userid = '#{params['userid']}';")
+    ss = params['insert_qx'].split('$')
+    for k in 0..ss.length-1
+      qx=ss[k].split(';')       
+      if qx[0]=="root1"  
+      else
+        User.find_by_sql("insert into u_js(userid, jsid) values ('#{params['userid']}', '#{qx[0]}');")
       end
-      render :text => text      
     end
-    #保存用户角色
-    def insert_user_js
-      User.find_by_sql("delete from u_js where userid = '#{params['userid']}';")
-      ss = params['insert_qx'].split('$')
-      for k in 0..ss.length-1
-        qx=ss[k].split(';')       
-        if qx[0]=="root1"  
-        else
-          User.find_by_sql("insert into u_js(userid, jsid) values ('#{params['userid']}', '#{qx[0]}');")
-        end
-      end
-      render :text => 'success'
-    end
-    #取登录的用户IDid
+    render :text => 'success'
+  end
     
-    def get_userid
-      render :text => User.current.id
-    end
+  #取登录的用户IDid
+  def get_userid
+    render :text => User.current.id
+  end
+  
+  def balance_mulu
+    dh = params['dh']  #'6_0_1'
+    
+    render :text => 'Success'
+  end
 
 end

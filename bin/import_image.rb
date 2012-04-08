@@ -34,9 +34,14 @@ end
 
 def getimgsize(fname)
   outfile = rand(36**6).to_s(36)
-  system "gdalinfo '#{fname}' | grep 'Lower Right' > #{outfile}"
-  ss = File.open(outfile).read.split(/\(|\)/)[1]
-  system "rm #{outfile}"
+  rt=system "gdalinfo '#{fname}' | grep 'Lower Right' > #{outfile}"
+  if rt
+    ss = File.open(outfile).read.split(/\(|\)/)[1]
+    system "rm #{outfile}"
+  else
+    $stderr.puts(" *** Import Image: #{path}  file is corrupt.")
+    ss = "0, 0"
+  end    
   ss
 end
 

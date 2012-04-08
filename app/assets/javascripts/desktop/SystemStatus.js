@@ -647,6 +647,19 @@ Ext.define('MyDesktop.SystemStatus', {
               }
             });
           }
+        },'-',{
+          text:'平衡',
+          iconCls:'',
+          handler : function() {
+           pars = {dh:mulu_qz_store.proxy.extraParams.dh}
+           new Ajax.Request("/desktop/balance_mulu", { 
+             method: "POST",
+             parameters: pars,
+             onComplete:  function(request) {
+               qzzt_store.load();
+             }
+           });
+          }
         },{
           text:'修改案卷',
            iconCls:'write16',
