@@ -2931,7 +2931,8 @@ class DesktopController < ApplicationController
   
   def balance_mulu
     dh = params['dh']  #'6_0_1'
-    
+    User.find_by_sql("update archive set ys=timage_tj.smyx from timage_tj where archive.dh=timage_tj.dh and timage_tj.dh_prefix='#{dh}';")
+    system("ruby ./dady/bin/update_timage_tj2.rb #{dh}")
     render :text => 'Success'
   end
 
