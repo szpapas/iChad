@@ -2788,7 +2788,7 @@ class DesktopController < ApplicationController
       yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}_%' limit 1;")
       
       if yxgs.size > 0
-        yy=yxgs.split('$') 
+        yy=yxgs[0].yxmc.split('$') 
         yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
         path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
         User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
