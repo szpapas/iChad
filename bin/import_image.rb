@@ -39,7 +39,7 @@ def getimgsize(fname)
     ss = File.open(outfile).read.split(/\(|\)/)[1]
     system "rm #{outfile}"
   else
-    $stderr.puts(" *** Import Image: #{path}  file is corrupt.")
+    $stderr.puts(" *** Import Image: #{fname}  file is corrupt.")
     ss = "0, 0"
   end    
   ss
