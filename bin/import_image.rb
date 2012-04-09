@@ -142,7 +142,8 @@ Find.find(path) do |path|
       
       if dh != $dh
         $dh = dh
-        puts "select id from archive where dh = '#{dh}'"
+        #puts "select id from archive where dh = '#{dh}'"
+        puts "processing #{dh}... "
         data = $conn.exec("select id from archive where dh = '#{dh}';")
       
         if data.count > 0 
