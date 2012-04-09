@@ -59,13 +59,11 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       $stderr.puts(" *** Import Image: #{path}  corrupt image file.")
       return
     end
-    
     width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
-    
-    #wh = getimgsize(path).split(",")
-    #width, height = wh[0].to_i, wh[1].to_i
+
     
     fb,fe=fo.index("\377\376"), fo.index("\377\333")
+    meta=''
     
     if fb.nil? || fe.nil?
       meta, meta_tz = "", 0
@@ -78,19 +76,19 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
         meta_tz = 0    
       end
     else
-      meta = fo[fb+4..fe-1]
-      meta = meta.split("\377\376\000#")[-1]
+      meta = fo[fb..fe-1]
+      meta = meta.split("\377\376")[-1]
       pixels = width * height
       mm = meta.split("\;")
-      if mm.size > 5 
-        meta = meta[2..-1]
+      if mm.size > 5
+        meta=meta[2..-1] 
         meta_tz =mm[2].to_i
       else
         puts "Tags error: #{meta}"
         meta, meta_tz = "", 0
       end     
     end
-  
+    
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
     meta = ""
     wh = getimgsize(path).split(",")
@@ -109,6 +107,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       end
     end  
   end
+  
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
@@ -120,7 +119,6 @@ end
 
 $dh, $archive_id = '', 0
 Find.find(path) do |path|
-  
   if FileTest.directory?(path)
     if File.basename(path)[0] == ?.
       #Find.prune       # Don't look any further into this directory.
