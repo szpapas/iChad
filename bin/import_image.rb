@@ -65,9 +65,9 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     #wh = getimgsize(path).split(",")
     #width, height = wh[0].to_i, wh[1].to_i
     
-    meta = fo[0..100].split("\377\376")[1].split("\377")[0]
-
-    if meta.nil?
+    fb,fe=fo.index("\377\376"), fo.index("\377\333")
+    
+    if fb.nil? || fe.nil?
       meta, meta_tz = "", 0
       pixels = width * height
       if pixels > 6000000
@@ -77,8 +77,9 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       else
         meta_tz = 0    
       end
-      
-    else 
+    else
+      meta = fo[fb+4..fe-1]
+      meta = meta.split("\377\376\000#")[-1]
       pixels = width * height
       mm = meta.split("\;")
       if mm.size > 5 
