@@ -65,8 +65,8 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
     #wh = getimgsize(path).split(",")
     #width, height = wh[0].to_i, wh[1].to_i
     
-    meta = fo[0..100].split("\377\333")[0].split("\'")[1]
-  
+    meta = fo[0..100].split("\377\376")[1].split("\377")[0]
+
     if meta.nil?
       meta, meta_tz = "", 0
       pixels = width * height
@@ -79,11 +79,11 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       end
       
     else 
-      mm = meta.split("\;")
       pixels = width * height
+      mm = meta.split("\;")
       if mm.size > 5 
-        meta = meta.split("\;")[0..5].join("\;")
-        meta_tz = meta.split("\;")[2].to_i
+        meta = meta[2..-1]
+        meta_tz =mm[2].to_i
       else
         puts "Tags error: #{meta}"
         meta, meta_tz = "", 0
