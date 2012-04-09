@@ -63,7 +63,6 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       return
     end
     width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
-
     
     fb,fe=fo.index("\377\376"), fo.index("\377\333")
     meta=''
@@ -82,6 +81,11 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
       meta = fo[fb..fe-1]
       meta = meta.split("\377\376")[-1]
       pixels = width * height
+      if pixels > 1000000000
+        wh = getimgsize(path).split(",")
+        width, height = wh[0].to_i, wh[1].to_i
+        pixels = width * height
+      end  
       mm = meta.split("\;")
       if mm.size > 5
         meta=mm[0..5].join("\;")[2..-1] 
@@ -115,7 +119,7 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
+  puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
 end
 
