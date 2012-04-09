@@ -13,7 +13,6 @@ require 'find'
 #   
 #    ruby import_iamge.rb 1 1 0 /share/1/1_1/ 
 #*********************************************************************************************
-t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
@@ -21,6 +20,10 @@ $conn.exec("set standard_conforming_strings = off")
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
 ss = dh_prefix.split('_')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
+
+t1 = Time.now
+puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
+
 
 if !ajh.nil?
   puts "delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';"  
@@ -169,5 +172,6 @@ $conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{q
 $conn.exec("update timage set dh_prefix = split_part(dh, '_', 1) || '_' || split_part(dh, '_', 2)  ||  '_' || split_part(dh, '_', 3) where dh_prefix is null;")
 $conn.close
 
+puts "=== Total time is #{Time.now-t1} seconds"
 #save2timage(archive_id, "ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
 
