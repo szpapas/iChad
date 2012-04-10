@@ -375,7 +375,7 @@ if ifname.include?('aj')
   #生成timage_tj
   $conn.exec("delete from timage_tj where dh like '#{dh_prefix}_%';")
   archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
-  puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
+  puts "generating timage_tj files ..."
   for k in 0..archives.count-1
     ar = archives[k]
     $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']});")
