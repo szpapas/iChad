@@ -140,6 +140,18 @@ class DesktopController < ApplicationController
     if (params['xcrq']=='')
       params['xcrq']=Time.now.strftime("%Y-%m-%d")
     end
+    if (params['cbrq']=='')
+      params['cbrq']=Time.now.strftime("%Y-%m-%d")
+    end
+    if (params['fsrq']=='')
+      params['fsrq']=Time.now.strftime("%Y-%m-%d")
+    end
+    if (params['jlrq']=='')
+      params['jlrq']=Time.now.strftime("%Y-%m-%d")
+    end
+    if (params['sj']=='')
+      params['sj']=Time.now.strftime("%Y-%m-%d")
+    end
     txt=""
     case params['dalb']
     when "0"
@@ -380,6 +392,91 @@ class DesktopController < ApplicationController
       else
         txt= '目录号为'+params['mlh']+'；件号为'+params['ajh']+'已经存在，请重新输入目录号为或件号。'
       end
+    when "30"                                        
+      user=User.find_by_sql("select * from archive,a_by_tszlhj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_tszlhj.djh='#{params['djh']}'  and archive.id=a_by_tszlhj.ownerid and archive.id <> #{params['id']};")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['djh']
+        User.find_by_sql("update archive set cfwz='#{params['cfwz']}',  bz='#{params['bz']}', tm='#{params['mc']}', dh='#{dh}' where id = #{params['id']};")
+        archiveid=User.find_by_sql("select id from a_by_tszlhj where  ownerid=#{params['id']};")
+        size=archiveid.size
+        if size==0
+          User.find_by_sql("insert into a_by_tszlhj(djh,kq,mc,fs,yfdw,cbrq,dj,dh,ownerid) values('#{params['djh']}','#{params['kq']}','#{params['mc']}','#{params['fs']}','#{params['yfdw']}','#{params['cbrq']}','#{params['dj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+        else                
+          User.find_by_sql("update a_by_tszlhj set djh='#{params['djh']}', kq='#{params['kq']}', mc='#{params['mc']}', fs='#{params['fs']}', yfdw='#{params['yfdw']}', cbrq='#{params['cbrq']}', dj='#{params['dj']}', dh='#{dh}' where ownerid = #{params['id']};")
+        end
+        txt='success'
+      else
+        txt= '登记号为'+params['djh']+'；已经存在，请重新输入登记号。'
+      end
+    when "31"                                        
+      user=User.find_by_sql("select * from archive,a_by_jcszhb where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_jcszhb.zt='#{params['zt']}'  and archive.id=a_by_jcszhb.ownerid and archive.id <> #{params['id']};")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['zt']
+        User.find_by_sql("update archive set  tm='#{params['zt']}', dh='#{dh}' where id = #{params['id']};")
+        archiveid=User.find_by_sql("select id from a_by_jcszhb where  ownerid=#{params['id']};")
+        size=archiveid.size
+        if size==0
+          User.find_by_sql("insert into a_by_jcszhb(zt,qy,tjsj,sm,dh,ownerid) values('#{params['zt']}','#{params['qy']}','#{params['tjsj']}','#{params['sm']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+        else                
+          User.find_by_sql("update a_by_jcszhb set zt='#{params['zt']}', qy='#{params['qy']}', tjsj='#{params['tjsj']}', sm='#{params['sm']}', dh='#{dh}' where ownerid = #{params['id']};")
+        end
+        txt='success'
+      else
+        txt= '专题为'+params['zt']+'；已经存在，请重新输入专题。'
+      end      
+    when "32"                                        
+      user=User.find_by_sql("select * from archive,a_by_zzjgyg where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_zzjgyg.jgmc='#{params['jgmc']}'  and archive.id=a_by_zzjgyg.ownerid and archive.id <> #{params['id']};")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['jgmc']
+        User.find_by_sql("update archive set  tm='#{params['jgmc']}',bz='#{params['bz']}', dh='#{dh}' where id = #{params['id']};")
+        archiveid=User.find_by_sql("select id from a_by_zzjgyg where  ownerid=#{params['id']};")
+        size=archiveid.size
+        if size==0
+          User.find_by_sql("insert into a_by_zzjgyg(jgmc,zzzc,qzny,dh,ownerid) values('#{params['jgmc']}','#{params['zzzc']}','#{params['qzny']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+        else                
+          User.find_by_sql("update a_by_zzjgyg set jgmc='#{params['jgmc']}', zzzc='#{params['zzzc']}', qzny='#{params['qzny']}', dh='#{dh}' where ownerid = #{params['id']};")
+        end
+        txt='success'
+      else
+        txt= '机构名称为'+params['jgmc']+'；已经存在，请重新输入机构名称。'
+      end      
+    when "33"                                        
+      user=User.find_by_sql("select * from archive,a_by_dsj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_dsj.sy='#{params['sy']}'  and archive.id=a_by_dsj.ownerid and archive.id <> #{params['id']};")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['sy']
+        User.find_by_sql("update archive set  tm='#{params['sy']}', dh='#{dh}' where id = #{params['id']};")
+        archiveid=User.find_by_sql("select id from a_by_dsj where  ownerid=#{params['id']};")
+        size=archiveid.size
+        if size==0
+          User.find_by_sql("insert into a_by_dsj(dd,jlr,clly,fsrq,jlrq,sy,yg,rw,dh,ownerid) values('#{params['dd']}','#{params['jlr']}','#{params['clly']}','#{params['fsrq']}','#{params['jlrq']}','#{params['sy']}','#{params['yg']}','#{params['rw']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+        else                
+          User.find_by_sql("update a_by_dsj set yg='#{params['yg']}', rw='#{params['rw']}',fsrq='#{params['fsrq']}', jlrq='#{params['jlrq']}', sy='#{params['sy']}',dd='#{params['dd']}', jlr='#{params['jlr']}', clly='#{params['clly']}', dh='#{dh}' where ownerid = #{params['id']};")
+        end
+        txt='success'
+      else
+        txt= '事由为'+params['jgmc']+'；已经存在，请重新输入事由。'
+      end 
+    when "34"                                        
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}'   and archive.id <> #{params['id']};")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']
+        User.find_by_sql("update archive set  mlh='#{params['mlh']}',tm='#{params['qzgcgjj']}', dh='#{dh}' where id = #{params['id']};")
+        archiveid=User.find_by_sql("select id from a_by_qzsm where  ownerid=#{params['id']};")
+        size=archiveid.size
+        if size==0
+          User.find_by_sql("insert into a_by_qzsm(qzgcgjj,sj,dh,ownerid) values('#{params['qzgcgjj']}','#{params['sj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+        else                
+          User.find_by_sql("update a_by_dsj set qzgcgjj='#{params['qzgcgjj']}', sj='#{params['sj']}', dh='#{dh}' where ownerid = #{params['id']};")
+        end
+        txt='success'
+      else
+        txt= '目录号为'+params['mlh']+'；已经存在，请重新输入目录号。'
+      end           
     when "24"                                  
       params['jh']=params['jh'].to_i
       params['jh']=params['jh'].to_s
@@ -888,7 +985,7 @@ class DesktopController < ApplicationController
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"
       end
-      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '_').gsub('TIF','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       if !File.exists?(local_filename)
         user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{params['gid']}';")
         File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
@@ -2591,7 +2688,7 @@ class DesktopController < ApplicationController
                   when "18"
 										user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "25"
-										user = User.find_by_sql("select archive.*,a_dzda.tjr, .rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "27"
 										user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "26"
@@ -2600,6 +2697,16 @@ class DesktopController < ApplicationController
 										user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "29"
 										user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+                  when "30"
+										user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh limit #{params['limit']} offset #{params['start']};")
+                  when "31"
+  									user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by zt limit #{params['limit']} offset #{params['start']};")
+                  when "32"
+  									user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by jgmc limit #{params['limit']} offset #{params['start']};")
+                  when "33"
+  									user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by fsrq limit #{params['limit']} offset #{params['start']};")
+                  when "34"
+  									user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj limit #{params['limit']} offset #{params['start']};")
                   
 									when "24"
 										user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
@@ -2651,6 +2758,17 @@ class DesktopController < ApplicationController
 									user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
                 when "29"
 									user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+                when "30"
+									user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh limit #{params['limit']} offset #{params['start']};")
+                when "31"
+									user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by zt limit #{params['limit']} offset #{params['start']};")
+                when "32"
+									user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by jgmc limit #{params['limit']} offset #{params['start']};")
+                when "33"
+									user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by fsrq limit #{params['limit']} offset #{params['start']};")
+                when "34"
+									user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj limit #{params['limit']} offset #{params['start']};")
+
                 
 								when "24"
 									user = User.find_by_sql("select archive.dh, archive.bz,archive.mlh,archive.flh,archive.ys,archive.mj,archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.hh,a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from  archive left join a_wsda on archive.id=a_wsda.ownerid  where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
@@ -2704,6 +2822,18 @@ class DesktopController < ApplicationController
         end
         if (params['xcrq']=='')
           params['xcrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['cbrq']=='')
+          params['cbrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['fsrq']=='')
+          params['fsrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['jlrq']=='')
+          params['jlrq']=Time.now.strftime("%Y-%m-%d")
+        end
+        if (params['sj']=='')
+          params['sj']=Time.now.strftime("%Y-%m-%d")
         end
     	  txt=""
     	  case params['dalb']
@@ -2840,7 +2970,7 @@ class DesktopController < ApplicationController
           if size == 0
             dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
             dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
-      	    User.find_by_sql("insert into archive(mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,cfwz,xh) values('#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}','#{params['xh']}') ")           
+      	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,cfwz,xh) values('#{params['flh']}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}','#{params['xh']}') ")           
             archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
             size=archiveid.size
             if size==0
@@ -2952,7 +3082,101 @@ class DesktopController < ApplicationController
           else
             txt= '目录号为'+params['mlh']+'；件号为'+params['ajh']+'已经存在，请重新输入目录号为或件号。'
           end
-        when "24"
+        when "30"
+          user=User.find_by_sql("select * from archive,a_by_tszlhj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_tszlhj.djh='#{params['djh']}'  and archive.id=a_by_tszlhj.ownerid ;")
+          size = user.size
+          if size == 0
+            dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['djh']  	    
+      	    User.find_by_sql("insert into archive(tm,bz,qzh,dh,dalb,dwdm,cfwz) values('#{params['mc']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}') ")           
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_by_tszlhj(djh,kq,mc,fs,yfdw,cbrq,dj,dh,ownerid) values('#{params['djh']}','#{params['kq']}','#{params['mc']}','#{params['fs']}','#{params['yfdw']}','#{params['cbrq']}','#{params['dj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+              txt='success'    
+            end        
+          else
+            txt= '登记号为'+params['djh']+'；已经存在，请重新输入登记号。'
+          end 
+        when "31"
+          user=User.find_by_sql("select * from archive,a_by_jcszhb where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_jcszhb.zt='#{params['zt']}'  and archive.id=a_by_jcszhb.ownerid ;")
+          size = user.size
+          if size == 0
+            dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['zt']  	    
+      	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['zt']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_by_jcszhb(zt,qy,tjsj,sm,dh,ownerid) values('#{params['zt']}','#{params['qy']}','#{params['tjsj']}','#{params['sm']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+              txt='success'
+            end
+            
+          else
+            txt= '专题为'+params['zt']+'；已经存在，请重新输入专题。'
+          end
+        when "32"
+          user=User.find_by_sql("select * from archive,a_by_zzjgyg where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_zzjgyg.jgmc='#{params['jgmc']}'  and archive.id=a_by_zzjgyg.ownerid ;")
+          size = user.size
+          if size == 0
+            dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['jgmc']  	    
+      	    User.find_by_sql("insert into archive(bz,tm,qzh,dh,dalb,dwdm) values('#{params['bz']}','#{params['jgmc']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_by_zzjgyg(jgmc,zzzc,qzny,dh,ownerid) values('#{params['jgmc']}','#{params['zzzc']}','#{params['qzny']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+              txt='success'
+            end
+            
+          else
+            txt= '机构名称为'+params['jgmc']+'；已经存在，请重新输入机构名称。'
+          end
+        when "33"
+          user=User.find_by_sql("select * from archive,a_by_dsj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_dsj.sy='#{params['sy']}'  and archive.id=a_by_dsj.ownerid ;")
+          size = user.size
+          if size == 0
+            dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['sy']  	    
+      	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['sy']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_by_dsj(dd,jlr,clly,fsrq,jlrq,sy,yg,rw,dh,ownerid) values('#{params['dd']}','#{params['jlr']}','#{params['clly']}','#{params['fsrq']}','#{params['jlrq']}','#{params['sy']}','#{params['yg']}','#{params['rw']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+              txt='success'
+            end
+            
+          else
+            txt= '事由为'+params['sy']+'；已经存在，请重新输入事由。'
+          end
+        when "34"
+          user=User.find_by_sql("select * from archive,a_by_qzsm where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}'  and archive.id=a_by_qzsm.ownerid ;")
+          size = user.size
+          if size == 0
+            dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']  	    
+      	    User.find_by_sql("insert into archive(mlh,bz,tm,qzh,dh,dalb,dwdm) values('#{params['mlh']}','#{params['bz']}','#{params['qzgczjj']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_by_qzsm(qzgcgjj,sj,dh,ownerid) values('#{params['qzgcgjj']}','#{params['sj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+              txt='success'
+            end
+            
+          else
+            txt= '目录号为'+params['mlh']+'；已经存在，请重新输入目录号。'
+          end
+       when "24"
           params['jh']=params['jh'].to_i
           params['jh']=params['jh'].to_s
           if params['jh'].length>3
@@ -2966,12 +3190,14 @@ class DesktopController < ApplicationController
             dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
             dh=params['qzh']+ "_" + params['dalb'] +"_" + params['nd']+"_" + params['bgqx']+"_" + params['jgwth']+"_" + params['jh']
       	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
-            archiveid = User.find_by_sql("select max(id) as id from archive;")            
-            size=archiveid.size     
-            #archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda       
-            #mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj
-            User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
-            txt='success'            
+            archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+            size=archiveid.size
+            if size==0
+              txt='保存失败，未找到保存后盘案卷。'
+            else
+              User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
+              txt='success'   
+            end         
           else
             txt= '年度为'+params['nd']+'；机构问题号为'+params['jgwth']+';保管期限为'+params['bgqx']+';件号为'+params['jh']+'已经存在，请重新输入年度、机构问题号、保管期限或件号。'
           end        
@@ -3029,6 +3255,21 @@ class DesktopController < ApplicationController
     when "29"     
       User.find_by_sql("delete from archive  where id = #{params['id']};")
       User.find_by_sql("delete from a_zlxx  where ownerid = #{params['id']};")
+    when "30"     
+      User.find_by_sql("delete from archive  where id = #{params['id']};")
+      User.find_by_sql("delete from a_by_tszlhj  where ownerid = #{params['id']};")
+    when "31"     
+      User.find_by_sql("delete from archive  where id = #{params['id']};")
+      User.find_by_sql("delete from a_by_jcszhb  where ownerid = #{params['id']};")
+    when "32"     
+      User.find_by_sql("delete from archive  where id = #{params['id']};")
+      User.find_by_sql("delete from a_by_zzjgyg  where ownerid = #{params['id']};")
+    when "33"     
+      User.find_by_sql("delete from archive  where id = #{params['id']};")
+      User.find_by_sql("delete from a_by_dsj  where ownerid = #{params['id']};")
+    when "34"     
+      User.find_by_sql("delete from archive  where id = #{params['id']};")
+      User.find_by_sql("delete from a_by_qzsm  where ownerid = #{params['id']};")
     when "27"     
       User.find_by_sql("delete from archive  where id = #{params['id']};")
       User.find_by_sql("delete from a_sbda  where ownerid = #{params['id']};")
