@@ -14,7 +14,7 @@ def print_qzxx(dh_prefix)
   end
   
   dh = dh_prefix
-  ss = dh.split('_')
+  ss = dh.split('-')
   qzh, dalb, mlh = ss[0], ss[1], ss[2]
   
   dd = $conn.exec("select * from q_qzxx where dh_prefix='#{dh_prefix}';")[0]

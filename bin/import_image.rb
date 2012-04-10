@@ -18,7 +18,7 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 $conn.exec("set standard_conforming_strings = off")
 
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
-ss = dh_prefix.split('_')
+ss = dh_prefix.split('-')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
 
 t1 = Time.now
@@ -26,11 +26,11 @@ puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
 
 if !ajh.nil?
-  puts "delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}_#{ajh}' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
 else 
-  puts "delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}_%' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
 end
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
@@ -48,7 +48,7 @@ def getimgsize(fname)
   ss
 end
 
-def save2timage(id, yxbh, path, dh, yx_prefix)
+def save2timage(yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
   if fo.size == 0
     $stderr.puts(" *** Import Image: #{path}  file size is zero.")
@@ -145,37 +145,21 @@ Find.find(path) do |path|
       ss = pp[pp.size-1].split("$")
       mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
       
-      dh = "#{dh_prefix}_#{ajh.to_i}"
-      
+      dh = "#{dh_prefix}-#{ajh.to_i}"
       if dh != $dh
         $dh = dh
-        #puts "select id from archive where dh = '#{dh}'"
         puts "processing #{dh}... "
-        data = $conn.exec("select id from archive where dh = '#{dh}';")
-      
-        if data.count > 0 
-          $archive_id = data[0]['id']
-          yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-          save2timage($archive_id, sxh, path, $dh, yxqz)
-        else
-          puts " *** Error: save2timage 0, #{sxh}, #{path}, #{dh}, #{yxqz}"
-        end
-            
-      else
-        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-        save2timage($archive_id, sxh, path, $dh, yxqz)
-      end 
-      
-    end
+      end
 
+      yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+      save2timage(sxh, path, $dh, yxqz)
+    end
   end
 end
 
 $conn.exec("update timage set yxmc=split_part(yxmc,'ml',1) || 'JN'|| split_part(yxmc,'ml', '2'), yxbh= split_part(yxbh,'ml',1) || 'JN'|| split_part(yxbh,'ml', '2')  where yxbh like '%ml0%';")
-$conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-$conn.exec("update timage set dh_prefix = split_part(dh, '_', 1) || '_' || split_part(dh, '_', 2)  ||  '_' || split_part(dh, '_', 3) where dh_prefix is null;")
+$conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{qzh}-#{dalb}-#{mlh}-%';")
+$conn.exec("update timage set dh_prefix = split_part(dh, '-', 1) || '-' || split_part(dh, '-', 2)  ||  '-' || split_part(dh, '-', 3) where dh_prefix is null;")
 $conn.close
 
 puts "=== Total time is #{Time.now-t1} seconds"
-#save2timage(archive_id, "ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
-

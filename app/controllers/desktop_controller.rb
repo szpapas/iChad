@@ -9,7 +9,6 @@ class DesktopController < ApplicationController
   end
   
   def get_user
-    #user = User.find_by_sql("select id, email, username from users where id=#{User.current.id}")
     render :text => User.current.to_json
   end
   
@@ -41,9 +40,9 @@ class DesktopController < ApplicationController
       pars = node.split('|') || []
       
       if style.to_i == 1
-        data = User.find_by_sql("select distinct cast(mlh as integer), dalb from archive where qzh='#{pars[0]}' order by mlh;")
+        data = User.find_by_sql("select distinct cast(archive.mlh as integer), archive.dalb, mlm from archive inner join q_qzxx on cast (archive.mlh as integer) = q_qzxx.mlh  where archive.qzh='#{pars[0]}' order by mlh;")
         data.each do |dd|
-            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dalb"]}|#{dd["mlh"]}", :leaf => true, :cls => "file"}
+            text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["dalb"]}|#{dd["mlh"]}", :leaf => true, :cls => "file"}
         end
       else
         if pars.length == 1
@@ -53,9 +52,10 @@ class DesktopController < ApplicationController
           end
         end
         if pars.length == 2
-          data = User.find_by_sql("select distinct cast(mlh as integer) from archive where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
+          #data = User.find_by_sql("select distinct cast(mlh as integer) from archive where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
+          data = User.find_by_sql("select distinct cast(archive.mlh as integer), archive.dalb, mlm from archive inner join q_qzxx on cast (archive.mlh as integer) = q_qzxx.mlh  where archive.qzh='#{pars[0]}' and archive.dalb='#{pars[1]}' order by mlh;")
           data.each do |dd|
-              text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["mlh"]}", :leaf => true, :cls => "file"}
+              text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["mlh"]}", :leaf => true, :cls => "file"}
           end
         end
       end
@@ -107,8 +107,7 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
-    
-  #Parameters: {"nd"=>"1990", "bgqx"=>"长\346\234\237", "bz"=>"1234", "flh"=>"A1", "tm"=>"乡镇土地管理所一九九0年土地管理工作总\347\273\223", "ys"=>"116", "dh"=>"1_2_2_0", "zny"=>"199012", "qny"=>"199006", "js"=>"19", "ajh"=>"0002"}
+
   def update_flow
     txt=""
     case params['dalb']
@@ -239,7 +238,6 @@ class DesktopController < ApplicationController
     render :text => txt
   end
     
-  #Print Helper funtion
   def split_string(text, length=16)
     char_array = text.unpack("U*")
     if char_array.size > length
@@ -279,7 +277,6 @@ class DesktopController < ApplicationController
     text
   end
    
-  #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg => dh, yxmc, yxbh, yxdx, data
   def save2timage(id, yxbh, path)
     if $conn.nil?
       $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
@@ -294,356 +291,12 @@ class DesktopController < ApplicationController
     count = User.find_by_sql("select count(*) from timage where dh='#{user[0].dh}' and yxbh='#{yxbh}';")[0].count
 
     if count.to_i > 0
-      #logger.debug "update timage set yxdx = #{yxdx}' where dh='#{user[0].dh}' and yxbh='#{yxbh}';"
       $conn.exec("update timage set yxdx = #{yxdx}, data= E'#{edata}' where dh='#{user[0].dh}' and yxbh='#{yxbh}';")
     else
-      #logger.debug "insert into timage (dh, yxmc, yxbh, yxdx) values ('#{user[0].dh}', '#{yxmc}', '#{yxbh}', #{yxdx} );"
       $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{user[0].dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
-      #User.find_by_sql("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{user[0].dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
     end
   end
  
-  # print cover
-  def generate_fm
-    user = User.find_by_sql("select * from archive where id = #{params['id']};")
-    
-    if user.size > 0
-      data = user[0]
-      fl_str = flstr(data.dalb.to_i)
-      titles=split_string(data.tm).gsub(" ", "\n")
-      
-      tt = titles.split("\n")
-      image_t = "image_1"
-      tt_str = ""
-      if tt.size > 1
-        for kk in 0..tt.size-1 do
-          pos2 = 1600-150*(1-kk)
-          tt_str = tt_str + " -draw \"text 500, #{pos2} '#{tt[kk]}'\""
-        end
-      else
-        tt_str = tt_str + " -draw \"text 500, 1450 '#{data.tm}'\""
-      end
-
-      dd1, dd2 = data.qny, data.zny
-      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf -pointsize 180 -draw \"text 550, 550 '#{data.dwdm}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\" -font ./dady/SimHei.ttf -pointsize 96 #{tt_str} -pointsize 70 -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\" -draw \"text 1950, 2675 '#{data.bgqx}'\" -draw \"text 300, 2900 ' 本卷共 #{data.js} 件 #{data.ys} 页'\" -pointsize 96 -draw \"text 1950, 2675 '#{data.mj}'\" -pointsize 50 -draw \"text 1750, 3225 '#{data.mlh}'\" -draw \"text 1950, 3225 '#{data.flh}'\" -draw \"text 2150, 3225 '#{data.ajh.to_i}'\" ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$ML00.jpg"
-      #logger.debug convert_str
-      system convert_str
-      save2timage(params['id'], "ML00.jpg", "./dady/#{data.mlh}\$#{data.flh}\$#{data.ajh}\$ML00.jpg")
-
-      render :text => "assets/dady/#{data.mlh}\$#{data.flh}\$#{data.ajh}\$ML00.jpg"
-    else
-      render :text => ''
-    end
-      
-  end
-  
-  def generate_jn
-    pos_yy = 700
-    image_t = "image_2"
-    
-    user = User.find_by_sql("select mlh,flh,ajh from archive where id=#{params['id']};")
-    mlh,flh,ajh = user[0].mlh, user[0].flh, user[0].ajh
-    
-    user = User.find_by_sql("select * from document where ownerid = #{params['id']} order by id;")
-    
-    for k in 0..user.size-1
-      $out_str = "-draw \"text 200, 250 'A #{ajh}'\" -draw \"text 200, 300 'M #{mlh}'\" " if (user[k].sxh.to_i % 10) == 1
-      $pos_y = pos_yy + ((user[k].sxh.to_i - 1) % 10) * 260
-
-
-      wh_str = ""
-      titles=split_string(user[k].wh, 7)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = $pos_y-60*(1-kk)
-          wh_str = wh_str + " -draw \"text 330, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        wh_str = wh_str + " -draw \"text 330, #{$pos_y} '#{user[k].wh}'\""
-      end
-
-      zrz_str = ""
-      titles=split_string(user[k].zrz, 4)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = $pos_y-60*(1-kk)
-          zrz_str = zrz_str + " -draw \"text 600, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        zrz_str = zrz_str + " -draw \"text 600, #{$pos_y} '#{user[k].zrz}'\""
-      end
-
-      tt_str = ""
-      titles=split_string(user[k].tm)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = $pos_y-60*(1-kk)
-          tt_str = tt_str + " -draw \"text 850, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        tt_str = tt_str + " -draw \"text 850, #{$pos_y} '#{user[k].tm}'\""
-      end
-      
-      if user[k].yh.include?('-') || user[k].sxh.to_i % 10 == 0
-        
-        page = ((user[k].sxh.to_i - 1) / 10) + 1
-        index_pos = (user[k].yh.include?('-')) ? 1950 : 2000
-        $out_str = $out_str + " -draw \"text 240, #{$pos_y} '#{user[k].sxh}'\" #{wh_str} #{tt_str} #{zrz_str} -draw \"text 1710, #{$pos_y} '#{user[k].rq.split(/\s+/)[0].gsub('-','.')}'\" -draw \"text #{index_pos}, #{$pos_y} '#{user[k].yh}'\""
-        
-        convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 48 #{$out_str} ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg"
-        
-        #logger.debug(convert_str)
-        system convert_str
-
-        #sleep 0.5
-        save2timage(params['id'], "ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML0#{page}.jpg")
-        
-      else
-        $out_str = $out_str + " -draw \"text 240, #{$pos_y} '#{user[k].sxh}'\" #{wh_str} #{tt_str} #{zrz_str} -draw \"text 1710, #{$pos_y} '#{user[k].rq.split(/\s+/)[0].gsub('-','.')}'\" -draw \"text 2000, #{$pos_y} '#{user[k].yh}'\""
-      end
-
-    end
-    
-    logger.debug("/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg")
-    render :text => "/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg"
-  end
-
-  def generate_sm
-    image_t = "image_b"
-
-    user = User.find_by_sql("select dh, mlh,flh,ajh,js,ys from archive where id=#{params['id']};")
-    mlh,flh,ajh,js,ys = user[0].mlh, user[0].flh, user[0].ajh,user[0].js, user[0].ys.to_i
-
-    for k in 0..ys-1
-      page = (k+1).to_s.rjust(4,"0")
-      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 150 -draw \"text 600, 600 '#{user[0].dh}:#{page}' \" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg "
-      logger.debug(convert_str)
-      system convert_str
-      #sleep 0.1
-      save2timage(params['id'], "#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$#{page}.jpg")
-    end
-    
-    render :text => "/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$0001.jpg"
-  end
-
-  def generate_bk
-    image_t = "image_3"
-    user = User.find_by_sql("select mlh,flh,ajh,qny from archive where id=#{params['id']};")
-    
-    mlh,flh,ajh = user[0].mlh, user[0].flh, user[0].ajh
-
-    year, month = user[0].qny[0..3].succ, user[0].qny[4..5]
-    #year_str = "#{year}年#{month}月"
-
-    convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg "
-    logger.debug(convert_str)
-    system convert_str
-
-    #sleep 0.5
-    save2timage(params['id'], "MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg")
-
-    render :text => "/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg"
-
-  end
-  
-  #对单个目录进行生成，缺省不生成扫描的页面。
-  def generate_sg(archiveid, sm=false)
-    user = User.find_by_sql("select * from archive where id=#{archiveid};")
-
-    data = user[0]
-    mlh,flh,ajh,js,ys = user[0].mlh, user[0].flh, user[0].ajh,user[0].js, user[0].ys.to_i
-    
-    # generate fm
-    if data.dalb.to_i == 3
-
-      fl_str = flstr(data.dalb.to_i)
-      image_t = "image_d"
-
-      tddj = User.find_by_sql("select * from a_tddj where dh='#{data.dh}';")
-      #titles=split_string(tddj[0].tdzl).gsub(" ", "\n")
-      ss = tddj[0]['tdzl'].split(/ \s+/)
-      for k in 0..tm.size-1 do
-        ss[k] = split_string(ss[k])
-      end
-      titles=ss.join("\n")
-      
-      
-      tt = titles.split("\n")
-      
-      tt_str = ""
-      if tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = 2000-100*(1-kk)
-          tt_str = tt_str + " -draw \"text 1000, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        tt_str = tt_str + " -draw \"text 1000, 1950 '#{tddj[0].tdzl}'\""
-      end
-      
-      tt_str = "-draw \"text 1000, 1450 '#{tddj[0].djh}'\" -draw \"text 1000, 1700 '#{tddj[0].qlrmc}'\" #{tt_str} "
-      
-      dd1, dd2 = data.qny, data.zny
-      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf -pointsize 180 -draw \"text 550, 550 '#{data.dwdm}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\" -font ./dady/SimHei.ttf -pointsize 80 #{tt_str} -pointsize 70 -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\" -draw \"text 1950, 2675 '#{data.bgqx}'\" -draw \"text 300, 2900 ' 本卷共 #{data.js} 件 #{data.ys} 页'\" -pointsize 96 -draw \"text 1950, 2675 '#{data.mj}'\" -pointsize 50 -draw \"text 1750, 3225 '#{data.mlh}'\" -draw \"text 1950, 3225 '#{data.flh}'\" -draw \"text 2150, 3225 '#{data.ajh.to_i}'\" ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$ML00.jpg"
-      system convert_str
-      save2timage(archiveid, "ML00.jpg", "./dady/#{data.mlh}\$#{data.flh}\$#{data.ajh}\$ML00.jpg")
-      logger.debug("1. ====generate ML ===")
-      system("rm ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$ML00.jpg")
-      
-    
-    else
-      fl_str = flstr(data.dalb.to_i)
-      #titles=split_string(data.tm).gsub(" ", "\n")
-    
-      ss = data.tm.split(/ \s+/)
-      for k in 0..tm.size-1 do
-        ss[k] = split_string(ss[k])
-      end
-      titles=ss.join("\n")
-    
-    
-      tt = titles.split("\n")
-      image_t = "image_1"
-      tt_str = ""
-      if tt.size > 1
-        for kk in 0..tt.size-1 do
-          pos2 = 1600-150*(1-kk)
-          tt_str = tt_str + " -draw \"text 500, #{pos2} '#{tt[kk]}'\""
-        end
-      else
-        tt_str = tt_str + " -draw \"text 500, 1450 '#{data.tm}'\""
-      end
-
-      dd1, dd2 = data.qny, data.zny
-      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf -pointsize 180 -draw \"text 550, 550 '#{data.dwdm}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\" -font ./dady/SimHei.ttf -pointsize 96 #{tt_str} -pointsize 70 -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\" -draw \"text 1950, 2675 '#{data.bgqx}'\" -draw \"text 300, 2900 ' 本卷共 #{data.js} 件 #{data.ys} 页'\" -pointsize 96 -draw \"text 1950, 2675 '#{data.mj}'\" -pointsize 50 -draw \"text 1750, 3225 '#{data.mlh}'\" -draw \"text 1950, 3225 '#{data.flh}'\" -draw \"text 2150, 3225 '#{data.ajh.to_i}'\" ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$ML00.jpg"
-      system convert_str
-      logger.debug convert_str
-      save2timage(archiveid, "ML00.jpg", "./dady/#{data.mlh}\$#{data.flh}\$#{data.ajh}\$ML00.jpg")
-      logger.debug("1. ====generate ML ===")
-      system("rm ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$ML00.jpg")
-      
-    end
-    
-    # generate bk
-    image_t = "image_3"
-    year, month = data.qny[0..3].succ, data.qny[4..5]
-    convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg "
-    logger.debug("2 ====generate BK ===")
-    system convert_str
-    save2timage(archiveid, "MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg")
-    system("rm ./dady/#{data.mlh}\\$#{data.flh}\\$#{data.ajh}\\$MLBK.jpg")
-    
-    #generate sm
-    if sm
-      image_t = "image_b"
-      mlh,flh,ajh,js,ys = data.mlh, data.flh, data.ajh,data.js, data.ys.to_i
-      for k in 0..ys-1
-        page = (k+1).to_s.rjust(4,"0")
-        convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 150 -draw \"text 600, 600 '#{data.dh}:#{page}' \" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg "
-        #logger.debug(convert_str)
-        logger.debug("3 ====generate SM ===")
-        system convert_str
-        save2timage(archiveid, "#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$#{page}.jpg")
-        system ("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg")
-      end
-    end
-    
-    # generate jn
-    pos_yy = 700
-    image_t = "image_2"
-
-    mlh,flh,ajh = data.mlh, data.flh, data.ajh
-    user = User.find_by_sql("select * from document where ownerid = #{archiveid} order by sxh;")
-
-    for k in 0..user.size-1
-      $out_str = "-draw \"text 200, 250 'A #{ajh}'\" -draw \"text 200, 300 'M #{mlh}'\" " if (user[k].sxh.to_i % 10) == 1
-      $pos_y = pos_yy + ((user[k].sxh.to_i - 1) % 10) * 260
-
-      wh_str = ""
-      titles=split_string(user[k].wh, 7)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = $pos_y-60*(1-kk)
-          wh_str = wh_str + " -draw \"text 330, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        wh_str = wh_str + " -draw \"text 330, #{$pos_y} '#{user[k].wh}'\""
-      end
-
-      zrz_str = ""
-      titles=split_string(user[k].zrz, 4)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-         pos2 = $pos_y-60*(1-kk)
-         zrz_str = zrz_str + " -draw \"text 600, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        zrz_str = zrz_str + " -draw \"text 600, #{$pos_y} '#{user[k].zrz}'\""
-      end
-
-      tt_str = ""
-      titles=split_string(user[k].tm,20)
-      $tt = titles.split("\n")
-      if $tt.size > 1
-        for kk in 0..$tt.size-1 do
-          pos2 = $pos_y-60*(1-kk)
-          tt_str = tt_str + " -draw \"text 850, #{pos2} '#{$tt[kk]}'\""
-        end
-      else
-        tt_str = tt_str + " -draw \"text 850, #{$pos_y} '#{user[k].tm}'\""
-      end
-
-      if user[k].yh.include?('-') || user[k].sxh.to_i % 10 == 0
-        page = ((user[k].sxh.to_i - 1) / 10) + 1
-        index_pos = (user[k].yh.include?('-')) ? 1950 : 2000
-        $out_str = $out_str + " -draw \"text 240, #{$pos_y} '#{user[k].sxh}'\" #{wh_str} #{tt_str} #{zrz_str} -draw \"text 1690, #{$pos_y} '#{user[k].rq.split(/\s+/)[0].gsub('-','.')}'\" -draw \"text #{index_pos}, #{$pos_y} '#{user[k].yh}'\""
-
-        convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 44 #{$out_str} ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg"
-
-       logger.debug("4 ====generate JN ===")
-       logger.debug(convert_str)
-
-       system convert_str
-       save2timage(archiveid, "ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML0#{page}.jpg")
-       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg")
-       
-      else
-        $out_str = $out_str + " -draw \"text 240, #{$pos_y} '#{user[k].sxh}'\" #{wh_str} #{tt_str} #{zrz_str} -draw \"text 1690, #{$pos_y} '#{user[k].rq.split(/\s+/)[0].gsub('-','.')}'\" -draw \"text 2000, #{$pos_y} '#{user[k].yh}'\""
-      end
-
-    end
-  
-    if sm
-      User.find_by_sql("update archive set dyzt = '15' where id = #{archiveid};")
-    else
-      User.find_by_sql("update archive set dyzt = '13' where id = #{archiveid};")
-    end
-        
-  end
-    
-  def generate_all
-    #生成一个案卷：
-    archiveid = params['id']
-    generate_sg(archiveid, false)
-    
-    #生成一个目录
-    #user = User.find_by_sql("select qzh, mlh, dalb from archive where id = #{archive};")
-    #qzh, mlh, dalb = user[0].qzh, user[0].mlh, user[0].dalb
-    #
-    #user = User.find_by_sql("select id from archive where qzh='#{qzh}' and mlh='#{mlh}' and dalb='#{dalb}';" )
-    #for k in 0..user.size-1 do
-    # generate_sg(user[k].id, false)
-    #end
-    
-    #生成一个分类
-    
-    render :text => 'Success'
-  end
-  
   def get_timage
     if (params['dh'].nil?)
       txt = "{results:0,rows:[]}"
@@ -671,8 +324,8 @@ class DesktopController < ApplicationController
             txt = "{results:0,rows:[]}"
         end
       else 
-        ss = params['dh'].split("_")
-        dh = "#{ss[0]}_#{ss[1]}_#{ss[2]}"
+        ss = params['dh'].split("-")
+        dh = "#{ss[0]}-#{ss[1]}-#{ss[2]}"
         puts "select id, dh, yxmc, yxdx, yxbh from timage_tjtx where dh = '#{dh}';"
         user =  User.find_by_sql("select id, dh, yxmc, yxdx, yxbh  from timage_tjtx where dh = '#{dh}';")
         if user.size > 0 
@@ -778,8 +431,7 @@ class DesktopController < ApplicationController
     end
     render :text => "{success:true}"
   end
-  
-  #import archive and document from text file
+
   def decode_file (f)
     system("iconv -t UTF-8 -f GB18030 #{f} > newfile")
     ss = File.open("newfile").read
@@ -801,8 +453,7 @@ class DesktopController < ApplicationController
     User.find_by_sql("update a_wsda set ownerid=archive.id from archive where archive.dh=a_wsda.dh;")
     User.find_by_sql("update document set ownerid=archive.id from archive where document.dh=archive.dh;")
   end
-  
-  #jumpLoader
+
   def upload_images
     params.each do |k,v|
       logger.debug("K: #{k} ,V: #{v}")
@@ -1043,7 +694,7 @@ class DesktopController < ApplicationController
   
   def get_print_status
     qzh, mlh, dalb = params['qzh'], params['mlh'], params['dalb']
-    dydh = "#{qzh}_#{dalb}_#{mlh}"
+    dydh = "#{qzh}-#{dalb}-#{mlh}"
     user = User.find_by_sql("select * from p_status where dydh = '#{dydh}';")
     if user.size > 0
       data = user[0];
@@ -1064,25 +715,12 @@ class DesktopController < ApplicationController
 
     logger.debug "ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 &"
 
-    dydh = "#{qzh}_#{dalb}_#{mlh}"
+    dydh = "#{qzh}-#{dalb}-#{mlh}"
     User.find_by_sql("delete from p_status where dydh='#{dydh}';")
     User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt) values ('#{dydh}', '#{mlh}', '#{qajh}', '#{qajh}', '#{zajh}', '正在准备打印' );")
 
     system("ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 &")
     render :text => "Success"
-
-    
-    #dydh = "#{qzh}_#{mlh}_#{dalb}"
-    #user = User.find_by_sql("select * from p_status where dydh = '#{dydh}';")
-    #if user.size > 0
-    # data = user[0];
-    # render :text => "#{data.dqjh}|#{data.qajh}|#{data.zajh}|#{data.dyzt}"
-    #else
-    # logger.debug "ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 &"
-    # system("ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 &")
-    # render :text => "Success"
-    #end
-  
   end
 
   def export_image
@@ -1103,8 +741,6 @@ class DesktopController < ApplicationController
       dd = imgs[k]
       user = User.find_by_sql("select * from timage where id='#{dd.id}';")
       ss = user[0]["data"] #already escaped
-      #tt = user[0]["yxmc"].gsub('$', '_')
-      #local_filename = "#{outPath}/"+user[0]["yxmc"].gsub('$', '_')
       local_filename = "#{outPath}/"+user[0]["yxmc"]
       File.open(local_filename, 'w') {|f| f.write(ss) }
     end
@@ -1113,11 +749,6 @@ class DesktopController < ApplicationController
     system "zip -0 #{outPath}.zip #{outPath}/*"
     render :text => "/assets/dady/#{data.mlh}.zip"
     
-  end
-  
-  def long_wait
-      system("ruby ./dady/bin/export_image.rb 27 &")
-      render :text => 'Success'
   end
   
   #************************************************************************************************
@@ -1203,20 +834,6 @@ class DesktopController < ApplicationController
     
     render :text => "{success:true}"
   end
-  
-  
-  #************************************************************************************************
-  #
-  # get_mulu_status
-  # input: yxwz /share/溧水县国土资源局/目录1
-  # ztps 5279
-  #
-  #************************************************************************************************
-  def get_mulu_status
-    
-    render :text => ""
-  end
-  
   
   #查询借阅流程
   def get_jydjlc_jyzt
@@ -1621,16 +1238,6 @@ class DesktopController < ApplicationController
     render :text => txt
   end
 
-  def cal_image(path)
-    k = 0
-    Find.find(path) do |path|
-      if path.include?'jpg'
-        k = k+1
-      end
-    end
-    k
-  end
-
   def prepare_upload_info
     ss = id.split('|')
     user = User.find_by_sql("select id, dwdm from d_dwdm whre id='#{ss[0]}';")
@@ -1667,7 +1274,6 @@ class DesktopController < ApplicationController
     render :text => txt
   end
 
-  #qzh=4&mlh=1&dalb=0&qajh=1&zajh=337&dylb-1=on&dylb-2=on&dylb-4=on
   def get_next_mulu
     qzh, mlh, dalb = params['qzh'], params['mlh'].to_i+1, params['dalb']
     user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
@@ -1680,7 +1286,6 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
 
-  #qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
   def add_print_task
     qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
 
@@ -1690,14 +1295,13 @@ class DesktopController < ApplicationController
     dylb += 2 if !params['dylb-3'].nil?
     dylb += 1 if !params['dylb-4'].nil?
   
-    dydh = "#{qzh}_#{dalb}_#{mlh}"
+    dydh = "#{qzh}-#{dalb}-#{mlh}"
     User.find_by_sql("delete from p_status where dydh='#{dydh}';")
     User.find_by_sql("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt, dylb) values ('#{dydh}', '#{mlh}', '#{qajh}', '#{qajh}', '#{zajh}', '未打印', '#{sprintf("%02b", dylb)}');")
   
     render :text => 'Success'
   end
 
-  #qzh=4&mlh=52&dalb=3&qajh=1&zajh=999&dylb-1=on&dylb-2=on&dylb-4=on
   def add_print_task_all
     qzh, mlh, dalb, qajh, zajh = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh']
     dylb = 0
@@ -1711,7 +1315,7 @@ class DesktopController < ApplicationController
 
       for k in 0..users.size-1
         mlh, dalb = users[k].mlh, users[k].dalb
-        dydh = "#{qzh}_#{dalb}_#{mlh}"
+        dydh = "#{qzh}-#{dalb}-#{mlh}"
         User.find_by_sql("delete from p_status where dydh='#{dydh}';")
       
         if zajh.to_i == -1
@@ -1726,7 +1330,7 @@ class DesktopController < ApplicationController
       users = User.find_by_sql("select distinct mlh from archive where qzh='#{qzh}' and dalb='#{dalb}' order by mlh;")
       for k in 0..users.size-1
         mlh = users[k].mlh
-        dydh = "#{qzh}_#{dalb}_#{mlh}"
+        dydh = "#{qzh}-#{dalb}-#{mlh}"
         User.find_by_sql("delete from p_status where dydh='#{dydh}';")
     
         user = User.find_by_sql("select min(ajh), max(ajh), dalb from archive where qzh = '#{qzh}' and mlh = '#{mlh}' group by dalb;")
@@ -1746,7 +1350,6 @@ class DesktopController < ApplicationController
     User.find_by_sql("delete from p_status where dyzt = '打印完成';")
     render :text => 'Success'
   end
-
 
   def start_print_task
     system 'ruby ./dady/bin/call_print_wizard.rb &'
@@ -2110,8 +1713,6 @@ class DesktopController < ApplicationController
   #删除用户信息
   def delete_user
     user=User.find_by_sql("delete from users where  id=#{params['id']};")
-
-    
     render :text => 'success'
   end
   
@@ -2319,22 +1920,7 @@ class DesktopController < ApplicationController
 
     render :text => text
   end
-# #根据dw_lbid 获得档案类别
-#
-# def get_dalb
-#   ss = params['dalb'].split('_')
-#      txt=""
-#      dalb = User.find_by_sql("select * from d_dw_lb where id =  '#{ss[1]}';")
-#      size = dalb.size;
-#      if size>0
-#        txt=dalb[0]['lbid']
-#      else
-#        txt="0"
-#      end
-#      render :text => txt
-# end
-  #根据dw_lbid 获得档案目录号
- 
+
   def get_mlh
     ss = params['dalb']
        txt=""
@@ -2347,8 +1933,8 @@ class DesktopController < ApplicationController
        end
        render :text => txt
   end
+  
   #根据dw_lbid 获得最大案卷号
- 
   def get_max_ajh
     ss = params['dalb'].split('_')
        txt=""
@@ -2370,6 +1956,7 @@ class DesktopController < ApplicationController
        end
        render :text => txt
   end
+  
   #通过权限代码来获得archive
   def get_archive_qxdm
     if (params['query'].nil?)
@@ -2460,150 +2047,150 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   #新增案卷目录
-    	def insert_archive
-    	  if (params['ztsl']=='')
-          params['ztsl']=0        
-        end
-        if (params['js']=='')
-          params['js']=0        
-        end
-        if (params['ys']=='')
-          params['ys']=0        
-        end
-        if (params['qrq']=='')
-          params['qrq']=Time.now.strftime("%Y-%m-%d")
-        end
-        if (params['zrq']=='')
-          params['zrq']=Time.now.strftime("%Y-%m-%d")
-        end
-        if (params['zwrq']=='')
-          params['zwrq']=Time.now.strftime("%Y-%m-%d")
-        end
-    	  txt=""
-    	  case params['dalb']
-  	    when "0"
-  	      if params['ajh'].length>3
-            ajh=params['ajh']
-          else
-            ajh=sprintf("%04d", params['ajh'])
-          end
-  	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
-      	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}') ")
-            txt='success'
-          else
-            txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
-          end
-  	      
-        when "2"
-          if params['ajh'].length>3
-            ajh=params['ajh']
-          else
-            ajh=sprintf("%04d", params['ajh'])
-          end
-  	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
-      	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qrq,zrq,ys,js,bz,qzh,dh,dalb,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qrq']}','#{params['zrq']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}') ")
-            archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-            size=archiveid.size
-            if size==0
-              txt='保存失败，未找到保存后盘案卷。'
-            else
-              User.find_by_sql("insert into a_jhcw(jnzs,fjzs,ownerid,pzqh,pzzh,dh) values('#{params['jnzs']}','#{params['fjzs']}','#{archiveid[0]['id']}','#{params['pzqh']}','#{params['pzzh']}','#{dh}') ")                        
-              txt='success'
-            end
-          else
-            txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
-          end
-        when "3"
-          if params['ajh'].length>3
-            ajh=params['ajh']
-          else
-            ajh=sprintf("%04d", params['ajh'])
-          end
-  	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
-      	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")
-            archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-            size=archiveid.size
-            if size==0
-              txt='保存失败，未找到保存后盘案卷。'
-            else
-              User.find_by_sql("insert into a_tddj(djh,qlrmc,ownerid,tdzl,tdzh,dh,qsxz) values('#{params['djh']}','#{params['qlrmc']}','#{archiveid[0]['id']}','#{params['tdzl']}','#{params['tdzh']}','#{dh}','#{params['qsxz']}') ")                        
-              
-              txt='success'
-            end
-          else
-            txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
-          end
-        when "15"
-          if params['ajh'].length>3
-            ajh=params['ajh']
-          else
-            ajh=sprintf("%04d", params['ajh'])
-          end
-  	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
-      	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}') ")           
-            archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-            size=archiveid.size
-            if size==0
-              txt='保存失败，未找到保存后盘案卷。'
-            else
-              User.find_by_sql("insert into a_sx(zl,ownerid) values('#{params['zl']}','#{archiveid[0]['id']}') ")                        
-              txt='success'
-            end
-          else
-            txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
-          end          
-        when "24"
-          
-          if params['jh'].length>3
-            jh=params['jh']
-          else
-            jh=sprintf("%04d", params['jh'])
-          end
-  	      user=User.find_by_sql("select * from archive,a_wsda where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.jh='#{jh}' and archive.id=a_wsda.ownerid;")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['nd']+"_" + params['bgqx']+"_" + params['jgwth']+"_" + params['jh']
-      	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}') ")
-            archiveid = User.find_by_sql("select max(id) as id from archive;")            
-            size=archiveid.size     
-            #archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda       
-            #mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj
-            User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
-            txt='success'            
-          else
-            txt= '年度为'+params['nd']+'；机构问题号为'+params['jgwth']+';保管期限为'+params['bgqx']+';件号为'+params['jh']+'已经存在，请重新输入年度、机构问题号、保管期限或件号。'
-          end        
+	def insert_archive
+	  if (params['ztsl']=='')
+      params['ztsl']=0        
+    end
+    if (params['js']=='')
+      params['js']=0        
+    end
+    if (params['ys']=='')
+      params['ys']=0        
+    end
+    if (params['qrq']=='')
+      params['qrq']=Time.now.strftime("%Y-%m-%d")
+    end
+    if (params['zrq']=='')
+      params['zrq']=Time.now.strftime("%Y-%m-%d")
+    end
+    if (params['zwrq']=='')
+      params['zwrq']=Time.now.strftime("%Y-%m-%d")
+    end
+	  txt=""
+	  case params['dalb']
+    when "0"
+      if params['ajh'].length>3
+        ajh=params['ajh']
+      else
+        ajh=sprintf("%04d", params['ajh'])
+      end
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+  	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}') ")
+        txt='success'
+      else
+        txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+      end
+      
+    when "2"
+      if params['ajh'].length>3
+        ajh=params['ajh']
+      else
+        ajh=sprintf("%04d", params['ajh'])
+      end
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+  	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qrq,zrq,ys,js,bz,qzh,dh,dalb,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qrq']}','#{params['zrq']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}') ")
+        archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+        size=archiveid.size
+        if size==0
+          txt='保存失败，未找到保存后盘案卷。'
         else
-          if params['ajh'].length>3
-            ajh=params['ajh']
-          else
-            ajh=sprintf("%04d", params['ajh'])
-          end
-  	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
-          size = user.size
-          if size == 0
-            dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
-      	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
-            txt='success'
-          else
-            txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
-          end
+          User.find_by_sql("insert into a_jhcw(jnzs,fjzs,ownerid,pzqh,pzzh,dh) values('#{params['jnzs']}','#{params['fjzs']}','#{archiveid[0]['id']}','#{params['pzqh']}','#{params['pzzh']}','#{dh}') ")                        
+          txt='success'
         end
-    	  render :text => txt
-    	end
-    	
+      else
+        txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+      end
+    when "3"
+      if params['ajh'].length>3
+        ajh=params['ajh']
+      else
+        ajh=sprintf("%04d", params['ajh'])
+      end
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+  	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")
+        archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+        size=archiveid.size
+        if size==0
+          txt='保存失败，未找到保存后盘案卷。'
+        else
+          User.find_by_sql("insert into a_tddj(djh,qlrmc,ownerid,tdzl,tdzh,dh,qsxz) values('#{params['djh']}','#{params['qlrmc']}','#{archiveid[0]['id']}','#{params['tdzl']}','#{params['tdzh']}','#{dh}','#{params['qsxz']}') ")                        
+          
+          txt='success'
+        end
+      else
+        txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+      end
+    when "15"
+      if params['ajh'].length>3
+        ajh=params['ajh']
+      else
+        ajh=sprintf("%04d", params['ajh'])
+      end
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+  	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}') ")           
+        archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+        size=archiveid.size
+        if size==0
+          txt='保存失败，未找到保存后盘案卷。'
+        else
+          User.find_by_sql("insert into a_sx(zl,ownerid) values('#{params['zl']}','#{archiveid[0]['id']}') ")                        
+          txt='success'
+        end
+      else
+        txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+      end          
+    when "24"
+      
+      if params['jh'].length>3
+        jh=params['jh']
+      else
+        jh=sprintf("%04d", params['jh'])
+      end
+      user=User.find_by_sql("select * from archive,a_wsda where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.jh='#{jh}' and archive.id=a_wsda.ownerid;")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['nd']+"_" + params['bgqx']+"_" + params['jgwth']+"_" + params['jh']
+  	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}') ")
+        archiveid = User.find_by_sql("select max(id) as id from archive;")            
+        size=archiveid.size     
+        #archive.id,archive.tm,archive.dalb,archive.qzh,a_wsda.jh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive,a_wsda       
+        #mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj
+        User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
+        txt='success'            
+      else
+        txt= '年度为'+params['nd']+'；机构问题号为'+params['jgwth']+';保管期限为'+params['bgqx']+';件号为'+params['jh']+'已经存在，请重新输入年度、机构问题号、保管期限或件号。'
+      end        
+    else
+      if params['ajh'].length>3
+        ajh=params['ajh']
+      else
+        ajh=sprintf("%04d", params['ajh'])
+      end
+      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+      size = user.size
+      if size == 0
+        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+  	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}') ")
+        txt='success'
+      else
+        txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+      end
+    end
+	  render :text => txt
+	end
+	
 	#删除案卷
 	def delete_archive
     case params['dalb']
@@ -2628,6 +2215,7 @@ class DesktopController < ApplicationController
 
 	  render :text => 'success'
 	end
+
   def scan_aj
     qz_path = params['qz_path']
     if !qz_path.nil?
@@ -2660,7 +2248,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_mulu_tj.rb #{dd.dh_prefix} ', '', '', '未开始');")
     end  
@@ -2671,7 +2259,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
       if !user[0].json.nil?
@@ -2688,7 +2276,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
       yxwz=dd.yxwz
       if !yxwz.nil? 
@@ -2702,7 +2290,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
 
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh_prefix} 1 /share/export', '', '', '未开始');")
@@ -2725,7 +2313,6 @@ class DesktopController < ApplicationController
     render :text => txt  
   end      
   
-  
   def delete_qzzt_task
     User.find_by_sql("delete from q_status where id in (#{params['id']});")
     render :text => 'Success'
@@ -2735,7 +2322,6 @@ class DesktopController < ApplicationController
     User.find_by_sql("delete from q_status where zt = '完成';")
     render :text => 'Success'
   end
-
 
   def start_qzzt_task
     system 'ruby ./dady/bin/call_qz_task.rb &'
@@ -2752,7 +2338,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
       system("ruby ./dady/bin/update_timage_tj2.rb #{dd.dh_prefix}")
     end  
@@ -2809,7 +2395,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh_prefix.split('_')
+      ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_qzxx_tj.rb #{dd.dh_prefix} ', '', '', '未开始');")
     end  
@@ -2821,7 +2407,7 @@ class DesktopController < ApplicationController
     User.find_by_sql("update archive set ys=#{ys} where dh='#{dh}';") if !ys.nil?
     #User.find_by_sql("update timage_tj set ajys=#{ys} where dh='#{dh}';") if !ys.nil?
     dd = dh.split('_')
-    dh_prefix=dd[0..2].join("_") 
+    dh_prefix=dd[0..2].join("-") 
     system("ruby ./dady/bin/update_timage_tj2.rb #{dh_prefix}")
     render :text => 'Success'
   end

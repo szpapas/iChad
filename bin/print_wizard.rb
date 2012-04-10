@@ -12,7 +12,7 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 #
 #   split_string (archive_id, print_option = 0x1101)
 #   flstr  (dalb)
-#   save2timage(id, yxbh, path, dh, yx_prefix)
+#   save2timage(yxbh, path, dh, yx_prefix)
 #   
 #*********************************************************************************************
 
@@ -32,7 +32,6 @@ end
 #
 #   split_string (archive_id, print_option = 0x1101)
 #   flstr  (dalb)
-#   save2timage(id, yxbh, path, dh, yx_prefix)
 #   
 #*********************************************************************************************
 
@@ -77,7 +76,7 @@ def flstr(dalb)
 end
  
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
-def save2timage(id, yxbh, path, dh, yx_prefix)
+def save2timage(yxbh, path, dh, yx_prefix)
   #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
   
   yxdx=File.open(path).read.size
@@ -87,16 +86,6 @@ def save2timage(id, yxbh, path, dh, yx_prefix)
 
   $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
-
-  
-  #count = $conn.exec("select count(*) from timage where dh='#{dh}' and yxbh='#{yxbh}';")[0]['count']
-  #if count.to_i > 0 
-  #  #logger.debug "update timage set yxdx = #{yxdx}' where dh='#{user[0].dh}' and yxbh='#{yxbh}';"
-  #  $conn.exec("update timage set yxdx = #{yxdx}, data= E'#{edata}' where dh='#{dh}' and yxbh='#{yxbh}';")
-  #else
-  #  #logger.debug  "insert into timage (dh, yxmc, yxbh, yxdx) values ('#{user[0].dh}', '#{yxmc}', '#{yxbh}', #{yxdx} );"
-  #  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
-  #end
     
 end
 
@@ -156,7 +145,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       dd1, dd2 = data['qny'], data['zny']    
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
       system convert_str
-      save2timage(archive_id, "ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
       puts ("1 ====generate ML ===")
       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
   
@@ -184,7 +173,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       dd1, dd2 = data['qny'], data['zny']    
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 96 #{tt_str}  -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
       system convert_str
-      save2timage(archive_id, "ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
       puts ("1. ====generate ML ===")
       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
     end
@@ -200,7 +189,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
     convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1770 '#{ss[0]}'\" -draw \"text 1200, 1850 '#{ss[1]}'\"  -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg " 
     puts ("2 ====generate BK ===")
     system convert_str
-    save2timage(archive_id, "MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg", dh, yxqz)
+    save2timage("MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg", dh, yxqz)
     system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg")
   end
   
@@ -213,7 +202,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       #puts (convert_str)
       puts ("3 ====generate SM ===")
       system convert_str
-      save2timage(archive_id, "#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$#{page}.jpg", dh, yxqz)
+      save2timage("#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$#{page}.jpg", dh, yxqz)
       system ("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg")
     end
   end
@@ -282,7 +271,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
        #puts (convert_str)
        puts ("4 ====generate JN ===")
        system convert_str
-       save2timage(archive_id, "ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML0#{page}.jpg", dh, yxqz)
+       save2timage("ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML0#{page}.jpg", dh, yxqz)
        system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg")
      
       else   
@@ -321,8 +310,6 @@ puts  "=====Started At #{Time.now}===="
 $conn.exec("update p_status set dyzt='正在打印' where dydh='#{dydh}';")
 
 if( defined? ARGV[6]) && (ARGV[6].to_i == 1)
-   #$conn.exec("delete from  p_status where dydh='#{dydh}';")
-   #$conn.exec("insert into p_status (dydh, mlh, dqjh, qajh, zajh, dyzt) values ('#{dydh}', '#{mlh}', '#{qajh}', '#{qajh}', '#{zajh}', '正在准备打印' );")
    $conn.exec("update archive set dyzt = '0' where dh like '#{qzh}_#{dalb}_#{mlh}_%' and cast (ajh as integer) >= #{qajh} and cast (ajh as integer) <= #{zajh}; ")
 end   
 
@@ -337,7 +324,6 @@ for k in 0..user.count-1 do
   generate_single_archive(user[k]['id'], dylb.to_i)
 end
 
-#$conn.exec("delete from  p_status where dydh='#{dydh}';")
 $conn.exec("update p_status set dyzt='打印完成' where dydh='#{dydh}';")
 
 $conn.close

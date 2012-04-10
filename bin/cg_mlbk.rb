@@ -6,9 +6,9 @@ require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
 qzh, dalb, mlh = ARGV[0], ARGV[1], ARGV[2] 
-dh = "#{qzh}_#{dalb}_#{mlh}"
+dh = "#{qzh}-#{dalb}-#{mlh}"
 
-user = $conn.exec("select dh from timage_tj where zt='多页' and dh like '#{dh}_%' order by ajh")
+user = $conn.exec("select dh from timage_tj where zt='多页' and dh like '#{dh}-%' order by ajh")
 
 for k in 0..user.count-1 do 
   data = $conn.exec("select id, dh,  yxmc, yxbh, yxdx from timage where dh = '#{user[k]['dh']}' and yxbh like '0%' order by yxbh desc limit 1;")[0]

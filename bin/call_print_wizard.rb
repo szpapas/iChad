@@ -17,7 +17,7 @@ while $count > 0 do
   dydh, mlh, qajh, zajh, db = data['dydh'], data['mlh'],data['qajh'], data['zajh'], data['dylb'] 
   dylb = db[0..0].to_i*8+db[1..1].to_i*4+db[2..2].to_i*2+db[3..3].to_i*1
   
-  qzh, dalb = dydh.split('_')[0], dydh.split('_')[1]
+  qzh, dalb = dydh.split('-')[0], dydh.split('-')[1]
   
   puts "ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 "
   system("ruby ./dady/bin/print_wizard.rb #{qzh} #{mlh} #{dalb} #{qajh} #{zajh} #{dylb} 1 ")

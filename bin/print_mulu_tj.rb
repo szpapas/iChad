@@ -58,7 +58,7 @@ end
 
 def print_timage(dh_prefix)
   dh = dh_prefix
-  ss = dh.split('_')
+  ss = dh.split('-')
   qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
   dateStr = Time.now.strftime("%Y 年 %m 月 %d 日")
@@ -68,8 +68,8 @@ def print_timage(dh_prefix)
 
   convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
 
-  puts "select * from timage_tj where dh like '#{dh}_%' order by ajh;"
-  user = $conn.exec("select * from timage_tj where dh like '#{dh}_%' order by ajh;")
+  puts "select * from timage_tj where dh like '#{dh}-%' order by ajh;"
+  user = $conn.exec("select * from timage_tj where dh like '#{dh}-%' order by ajh;")
 
   if user.count == 0 
     exit 1
@@ -208,8 +208,8 @@ def print_timage(dh_prefix)
 end
 
 def print_qly(qzh, dalb, mlh)
-  datas = $conn.exec("select id, dh, dh_prefix zt timage_tj where zt='空卷' and dh = '#{qzh}_#{dalb}_#{mlh}';")
-  puts "=== 空卷: #{qzh}_#{dalb}_#{mlh}..." if datas.count > 0
+  datas = $conn.exec("select id, dh, dh_prefix zt timage_tj where zt='空卷' and dh = '#{qzh}-#{dalb}-#{mlh}';")
+  puts "=== 空卷: #{qzh}-#{dalb}-#{mlh}..." if datas.count > 0
   for k in 0..datas.count-1
     data = datas[k]
     dh = data['dh']

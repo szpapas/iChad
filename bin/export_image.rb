@@ -16,10 +16,10 @@ t1 = Time.now
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-ss = ARGV[0].split('_')
+ss = ARGV[0].split('-')
 qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
-dh = "#{qzh}_#{dalb}_#{mlh}_%"
+dh = "#{qzh}-#{dalb}-#{mlh}-%"
 option = ARGV[1]
 
 if option.to_i == 1

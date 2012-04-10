@@ -35,8 +35,8 @@ Find.find(path) do |path|
       si = fo.index("\377\300")
       height, width = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
       
-      yxqz = "#{qzh}_#{dalb}_#{mlh}" 
-      puts "update timage set pixel=#{height*width} where dh='#{yxqz}_#{ajh.to_i}' and yxbh='#{sxh}'; "
+      yxqz = "#{qzh}-#{dalb}-#{mlh}" 
+      puts "update timage set pixel=#{height*width} where dh='#{yxqz}-#{ajh.to_i}' and yxbh='#{sxh}'; "
 
       #puts "porcess #{path}, #{mlh}, #{flh}, #{ajh}, #{height}, #{width}, meta : #{meta}"
      
@@ -57,8 +57,8 @@ Find.find(path) do |path|
       height, width = fo[31].to_i*256+fo[30].to_i,fo[43].to_i*256+fo[40].to_i
       
       #puts "porcess #{path}, #{mlh}, #{flh}, #{ajh}, #{height}, #{width}, meta : #{meta}, pixes : #{height*width}"
-      yxqz = "#{qzh}_#{dalb}_#{mlh}" 
-      puts "update timage set pixel=#{height*width} where dh='#{yxqz}_#{ajh.to_i}' and yxbh='#{sxh}'; "
+      yxqz = "#{qzh}-#{dalb}-#{mlh}" 
+      puts "update timage set pixel=#{height*width} where dh='#{yxqz}-#{ajh.to_i}' and yxbh='#{sxh}'; "
     
     end
     
