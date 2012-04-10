@@ -74,7 +74,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'4',filter:"全部"};
+    qzgl_store.proxy.extraParams={qzh:'6',filter:"全部"};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -105,20 +105,20 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '终卷',   align:"right", width : 40, sortable : true, dataIndex: 'zajh'},
            { text : '总页数',   align:"right", width : 80, sortable : true, dataIndex: 'ajys'},
 
-           { text : '封面',   align:"right", width : 40, sortable : true, dataIndex: 'ml00'},
-           { text : '著录',   align:"right", width : 40, sortable : true, dataIndex: 'mljn'},
-           { text : '正文',   align:"right", width : 40, sortable : true, dataIndex: 'smyx', tdCls: 'x-change-cell'},
-           { text : '备考',   align:"right", width : 40, sortable : true, dataIndex: 'mlbk',},
-           { text : '旧封',   align:"right", width : 40, sortable : true, dataIndex: 'jn00'},
-           { text : '旧卷',   align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
-           { text : '旧备',   align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
+           { text : '封面',   align:"right", width : 50, sortable : true, dataIndex: 'ml00'},
+           { text : '著录',   align:"right", width : 50, sortable : true, dataIndex: 'mljn'},
+           { text : '正文',   align:"right", width : 50, sortable : true, dataIndex: 'smyx', tdCls: 'x-change-cell'},
+           { text : '备考',   align:"right", width : 50, sortable : true, dataIndex: 'mlbk',},
+           { text : '旧封',   align:"right", width : 50, sortable : true, dataIndex: 'jn00'},
+           { text : '旧卷',   align:"right", width : 50, sortable : true, dataIndex: 'jnjn'},
+           { text : '旧备',   align:"right", width : 50, sortable : true, dataIndex: 'jnbk'},
            
            { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a4',},
            { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a3'},
            { text : '小计',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
-           { text : '文件路径', align:"right", width : 60, sortable : true, dataIndex: 'yxwz'},
+           { text : '文件路径', align:"left", width : 100, sortable : true, dataIndex: 'yxwz'},
            
            { text : '状态',   align:"center", flex : 1, sortable : true, dataIndex: 'zt',  renderer:ztRenderer}
          ],
@@ -304,7 +304,7 @@ Ext.define('MyDesktop.SystemStatus', {
                  }
                });
              }                                 
-         },{
+         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">过滤</span>:&nbsp;&nbsp;',{
            xtype: 'combo',
            text:'过滤',
            x: 130,
@@ -325,6 +325,21 @@ Ext.define('MyDesktop.SystemStatus', {
                qzgl_store.load();
              }
            }
+         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">全宗号</span>:&nbsp;&nbsp;',{
+           xtype:"textfield",
+           id : 'qzh_field',
+           name : 'qzh',
+           width: 40,
+           value: '6',
+           listeners:{
+             'blur': function(field){
+             //if (field.getValue() != field.startValue) && (field.getValue().length > 0)){
+               qzgl_store.proxy.extraParams={qzh:field.getValue(),filter:"全部"};
+               qzgl_store.load();
+             //}
+             }
+             
+           }           
          }]
     }); 
 
@@ -632,6 +647,25 @@ Ext.define('MyDesktop.SystemStatus', {
               }
             });
           }
+        },'-',{
+          text:'平衡',
+          iconCls:'',
+          handler : function() {
+            Ext.Msg.confirm("确认", "用影像的数据修改输档的数据？", 
+              function(btn){
+                if (btn=='yes') {
+                  pars = {dh:mulu_qz_store.proxy.extraParams.dh};
+                  new Ajax.Request("/desktop/balance_mulu", { 
+                   method: "POST",
+                   parameters: pars,
+                   onComplete:  function(request) {
+                     qzzt_store.load();
+                   }
+                  });
+                }
+              }
+            );
+          }
         },{
           text:'修改案卷',
            iconCls:'write16',
@@ -868,6 +902,7 @@ Ext.define('MyDesktop.SystemStatus', {
               width:200,
               split:true,
               collapsible:true,
+              collapsed:true,
               titleCollapse:true,
               items:[]
             }]

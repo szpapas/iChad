@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #check_json *.txt
 $:<<'/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
 require 'thread'

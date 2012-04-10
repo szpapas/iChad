@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #***************************************************************
 #   ruby  import_image.rb {qzh} {mlh} {dalb} /share/TZ/92/ 
 #   ARGV[0] --- qz_file  tz_qzb

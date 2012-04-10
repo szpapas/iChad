@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
 #$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 
@@ -19,17 +20,31 @@ def get_dalb(ifname)
     "照片档案"=>20,
     "用地档案"=>10,
     "科技信息"=>19,
+    "地质矿产档案"=>21,
     "综合档案"=>0,
+    "矿业权"=>35,
     "计划财务"=>2,
     "地籍管理档案"=>4,
     "监察案件档案"=>14,
+    "其他档案-电子档案目录"=>25,
     "其他档案-基建档案目录"=>26,
+    "其他档案-设备档案目录"=>27,
     "其他档案-实物档案目录"=>28,
     "其他档案-资料信息档案"=>29
   }
   hh[key]   
 end
 
+def get_mlh(ifname)
+  if /(\d+)(永久.*)/.match(ifname)
+    nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
+    mlh = 10000+(nd-2000)*3 + 2
+  else 
+    mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
+    nd, qx = mm[1].to_i, mm[3].to_i/30
+    mlh = 10000+(nd-2000)*3 + qx
+  end
+end
 
 def decode_file (infile, outfile, path)
   newfile = rand(36**8).to_s(36)
@@ -58,7 +73,7 @@ def update_owner
 
 end 
 
-def set_documents(tt, dwdm, qzh, dalb)
+def set_documents(tt, dwdm, qzh, dalb, mlh)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
     #dalb = user['档案类别'].to_i
@@ -108,12 +123,11 @@ def set_documents(tt, dwdm, qzh, dalb)
   end
 end
 
-def set_archive(tt, dwdm, qzh, dalb)
+def set_archive(tt, dwdm, qzh, dalb, mlh)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
     #dalb = user['档案类别'].to_i
-
-    mlh     = user['目录号']
+    #mlh     = user['目录号']
     ajh     = user['案卷号'].rjust(4,"0")
     tm      = user['案卷标题']
     flh     = user['分类号']
@@ -134,8 +148,11 @@ def set_archive(tt, dwdm, qzh, dalb)
     zrq     = user['止日期']
 
     tm = user['案卷题名'] if tm.nil?
-    dh = "#{qzh}_#{dalb}_#{mlh}_#{ajh.to_i}"
+    tm = user['题名'] if tm.nil?
+    ajh = user['件号'] if ajh.to_i == 0
+    js = 1 if js == 0
     
+    dh = "#{qzh}_#{dalb}_#{mlh}_#{ajh.to_i}"
     
     if nd.nil? || nd==''
       $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"
@@ -144,7 +161,7 @@ def set_archive(tt, dwdm, qzh, dalb)
     end  
     
     if qrq.nil?
-      if qny == ''
+      if qny.nil? || qny == ''
         qrq = "#{nd}-01-01"
         zrq = "#{nd}-12-31"
         qny = "#{nd}01"
@@ -231,7 +248,7 @@ def set_archive(tt, dwdm, qzh, dalb)
     when 21 #地址矿产
     when 24 #文书档案
       jh    = user['件号']
-      rq  = user['制文日期'] 
+      rq    = user['制文日期'] 
       wh    = user['文号']
       zrr   = user['责任者'] 
       gb    = user['稿本']
@@ -260,6 +277,7 @@ def set_archive(tt, dwdm, qzh, dalb)
       insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}');"
       puts insert_str
       $conn.exec(insert_str)
+      
     else
       #puts "#{dalb}"  
     end
@@ -285,8 +303,14 @@ end
 ifname, dwdm, qzh, pp = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
 puts "#{ifname}\t#{dwdm}\t#{qzh}\t#{pp}"
 
-mlh = /(\d+)(.*)/.match(ifname)[1]
-dalb = get_dalb(ifname)
+if ifname.include?('文档一体化')
+  mlh = get_mlh(ifname)
+  dalb = 24
+else
+  mlh = /(\d+)(.*)/.match(ifname)[1]
+  dalb = get_dalb(ifname)
+end
+
 path = "./dady/tmp1/#{pp}"
 
 if ifname.include?('aj')
@@ -304,29 +328,30 @@ if ifname.include?('aj')
   puts "#{ifname}\t#{outfile}\t#{path}"
   decode_file("#{ifname}", "#{outfile}", path)
   data = File.open("#{path}/#{outfile}").read.gsub("\000","")
-  set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)
+  set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
   system ("rm -rf #{path}/#{outfile}")
   
+  if dalb != 24
+    puts "delete from document where dh like '#{dh}'; "
+    $conn.exec("delete from document where dh like '#{dh}'; ")
   
-  puts "delete from document where dh like '#{dh}'; "
-  $conn.exec("delete from document where dh like '#{dh}'; ")
+    outfile = rand(36**8).to_s(36)
+    decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
+    data = File.open("#{path}/#{outfile}").read
+    set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
+    system ("rm -rf #{path}/#{outfile}")
   
-  outfile = rand(36**8).to_s(36)
-  decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
-  data = File.open("#{path}/#{outfile}").read
-  set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i)
-  system ("rm -rf #{path}/#{outfile}")
+    update_owner
   
-  update_owner
-  
-  #生成q_qzxx
-  dh_prefix = "#{qzh}_#{dalb}_#{mlh}"
-  $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
-  $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}', '#{ifname}' );") 
-  qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}_%';")
-  $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
-  $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}_%') where dh_prefix='#{dh_prefix}';")
-  
+    #生成q_qzxx
+    dh_prefix = "#{qzh}_#{dalb}_#{mlh}"
+    $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
+    $conn.exec("insert into q_qzxx(qzh, dalb, mlh, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}', '#{ifname}' );") 
+    qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}_%';")
+    $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
+    $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}_%') where dh_prefix='#{dh_prefix}';")
+  end
+    
   #生成timage_tj
   $conn.exec("delete from timage_tj where dh like '#{dh_prefix}_%';")
   archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
