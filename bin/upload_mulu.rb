@@ -71,7 +71,7 @@ def decode_file (infile, outfile, path)
 end
 
 def update_owner
-  puts "== *** #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} Begin of update owener "
+  #puts "== *** #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} Begin of update owener "
   $conn.exec("update a_dzda set ownerid=archive.id from archive where archive.dh=a_dzda.dh and a_dzda.ownerid is null;")
   $conn.exec("update a_jhcw set ownerid=archive.id from archive where archive.dh=a_jhcw.dh and a_jhcw.ownerid is null;")
   $conn.exec("update a_jjda set ownerid=archive.id from archive where archive.dh=a_jjda.dh and a_jjda.ownerid is null;")
@@ -81,7 +81,7 @@ def update_owner
   $conn.exec("update a_tjda set ownerid=archive.id from archive where archive.dh=a_tjda.dh and a_tjda.ownerid is null;")
   $conn.exec("update a_wsda set ownerid=archive.id from archive where archive.dh=a_wsda.dh and a_wsda.ownerid is null;")
   $conn.exec("update document set ownerid=archive.id from archive where document.dh=archive.dh and document.ownerid is null;")
-  puts "== $$$ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} end of update owener "
+  #puts "== $$$ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} end of update owener "
 
 end 
 
@@ -332,21 +332,21 @@ if ifname.include?('aj')
   
   dh = "#{qzh}-#{dalb}-#{mlh}-%"
   
-  $stderr.puts "processing #{ifname}, #{dh} ...."
+  $stderr.puts "processing #{ifname}, #{dh} ..."
   
   #delete any document connected to dh
   #puts "delete from archive where dh like '#{dh}'; "
   $conn.exec("delete from archive where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
-  puts "#{ifname}\t#{outfile}\t#{path}"
+  #puts "#{ifname}\t#{outfile}\t#{path}"
   decode_file("#{ifname}", "#{outfile}", path)
   data = File.open("#{path}/#{outfile}").read.gsub("\000","")
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
   system ("rm -rf #{path}/#{outfile}")
   
   if dalb != 24
-    puts "delete from document where dh like '#{dh}'; "
+    #puts "delete from document where dh like '#{dh}'; "
     $conn.exec("delete from document where dh like '#{dh}'; ")
   
     outfile = rand(36**8).to_s(36)
