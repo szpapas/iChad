@@ -1013,7 +1013,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select qzh, mlh, dalb from archive where id = #{params['id']}");
     
     data = user[0]
-    dh = "#{data.qzh}_#{data.dalb}_#{data.mlh}_%"
+    dh = "#{data.qzh}-#{data.dalb}-#{data.mlh}-%"
     imgs = User.find_by_sql("select id, dh from timage where dh like '#{dh}' order by id;")
     
     outPath = "./dady/#{data.mlh}"
@@ -1096,7 +1096,7 @@ class DesktopController < ApplicationController
     qzh = params['qzh']
     dalb = params['dalb']
     
-    dh = "#{qzh}_#{dalb}_#{mlh}_%"
+    dh = "#{qzh}-#{dalb}-#{mlh}-%"
     
     #delete any document connected to dh
     User.find_by_sql("delete from archive where dh like '#{dh}'; ")
@@ -1533,7 +1533,7 @@ class DesktopController < ApplicationController
       path = "/share/#{dwdm}/目录#{mlh}"
 
       tpsl = Dir["#{path}/*.jpg"].size
-      user = User.find_by_sql("select count(*) as count from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
+      user = User.find_by_sql("select count(*) as count from timage where dh like '#{qzh}-#{dalb}-#{mlh}-%';")
       txt = "{results:1,rows:["
       txt = txt + "{mlh:'#{mlh}', tpsl:'#{tpsl}', drtp:'#{user[0].count}'}]}"
 
@@ -2592,7 +2592,7 @@ class DesktopController < ApplicationController
       qzh, dalb, mlh, ajh, dh_prefix = ss[0], ss[1], ss[2], ss[3], dd.dh_prefix
       
       qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
-      yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}_%' limit 1;")
+      yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
       
       if yxgs.size > 0
         yy=yxgs[0].yxmc.split('$') 

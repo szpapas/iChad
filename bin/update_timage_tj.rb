@@ -19,8 +19,8 @@ qzh, dalb, mlh = ARGV[0], ARGV[1], ARGV[2]
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
 def update_timage(qzh, dalb, mlh)
-  $conn.exec("delete from timage_tj where dh like '#{qzh}_#{dalb}_#{mlh}_%';")
-  archives = $conn.exec("select distinct dh,ajh, ys from archive where dh like '#{qzh}_#{dalb}_#{mlh}_%' order by ajh;")
+  $conn.exec("delete from timage_tj where dh like '#{qzh}-#{dalb}-#{mlh}-%';")
+  archives = $conn.exec("select distinct dh,ajh, ys from archive where dh like '#{qzh}-#{dalb}-#{mlh}-%' order by ajh;")
   
   puts "prepare basic info for qz:#{qzh}, mlh:#{mlh}..."
   for k in 0..archives.count-1
@@ -29,7 +29,7 @@ def update_timage(qzh, dalb, mlh)
   end
   
   puts "update ML00..."
-  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}_#{dalb}_#{mlh}_%' and  yxbh like 'ML00%' group by dh"
+  cc = $conn.exec "select dh, count(*) from timage where dh like '#{qzh}-#{dalb}-#{mlh}-%' and  yxbh like 'ML00%' group by dh"
   for k in 0..cc.count-1 
     $conn.exec("update timage_tj set ml00=#{cc[k]['count']} where dh='#{cc[k]['dh']}';")
   end   

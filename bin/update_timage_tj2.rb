@@ -85,6 +85,7 @@ def update_qzxx(dh_cond)
       dh_prefx = data['dh_prefix']
       ss=/(\d+)-(\d+)-(\d+)/.match(dh_prefix)
       qzh,dalb,mlh = ss[1],ss[2],ss[3]
+      puts "insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );"
       $conn.exec("insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
     end
     qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}_%';")
