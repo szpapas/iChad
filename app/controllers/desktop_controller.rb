@@ -2446,12 +2446,16 @@ class DesktopController < ApplicationController
   end  
   
   def get_qzgl_store
+    where_str = "where qzh=#{params['qzh']} "
+
     fl = params['filter']
-    if fl.nil? || fl=='全部'
-      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} order by mlh;")
-    else
-      user = User.find_by_sql("select * from q_qzxx where qzh=#{params['qzh']} and zt='#{fl}' order by mlh;")
-    end
+    where_str = where_str + " and zt= '#{fl}' " if !(fl.nil?) && fl !='全部'
+    
+    dalb = params['dalb']
+    where_str = where_str + " and dalb = '#{dalb}' " if !(dalb.nil?) && dalb !=''
+
+    user = User.find_by_sql("select * from q_qzxx #{where_str} order by mlh;")
+    
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["

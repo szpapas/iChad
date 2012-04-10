@@ -65,7 +65,7 @@ Ext.define('MyDesktop.SystemStatus', {
       proxy: {
         type: 'ajax',
         url : '/desktop/get_qzgl_store',
-        extraParams: {qzh:"",filter:""},
+        extraParams: {qzh:"",filter:"", dalb:""},
         reader: {
           type: 'json',
           root: 'rows',
@@ -74,7 +74,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'6',filter:"全部"};
+    qzgl_store.proxy.extraParams={qzh:'6',filter:"全部", dalb:""};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -304,7 +304,19 @@ Ext.define('MyDesktop.SystemStatus', {
                  }
                });
              }                                 
-         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">过滤</span>:&nbsp;&nbsp;',{
+         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
+           xtype:"textfield",
+           id : 'lb_field',
+           width: 40,
+           value: '',
+           listeners:{
+             'blur': function(field){
+               qzgl_store.proxy.extraParams.dalb=field.getValue();
+               qzgl_store.load();
+             }
+           }
+         },
+         '<span style=" font-size:12px;font-weight:600;color:#3366FF;">过滤</span>:&nbsp;&nbsp;',{
            xtype: 'combo',
            text:'过滤',
            x: 130,
@@ -321,7 +333,7 @@ Ext.define('MyDesktop.SystemStatus', {
            triggerAction:'all',
            listeners:{
              select:function(combo, records, index) {
-               qzgl_store.proxy.extraParams.filter=records[0].data.text; 
+               qzgl_store.proxy.extraParams.filter=records[0].data.text;
                qzgl_store.load();
              }
            }
@@ -333,12 +345,9 @@ Ext.define('MyDesktop.SystemStatus', {
            value: '6',
            listeners:{
              'blur': function(field){
-             //if (field.getValue() != field.startValue) && (field.getValue().length > 0)){
-               qzgl_store.proxy.extraParams={qzh:field.getValue(),filter:"全部"};
+               qzgl_store.proxy.extraParams.qzh=field.getValue();
                qzgl_store.load();
-             //}
              }
-             
            }           
          }]
     }); 
