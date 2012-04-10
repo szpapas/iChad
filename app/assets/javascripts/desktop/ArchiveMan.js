@@ -4384,7 +4384,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								var tt=r.get("zrq");
 								//showContactForm();
 								
-										DispAj_qtda_swda(r,false,title);
+										DispAj_qtda_zlxx(r,false,title);
 									
 							  // if(r.data.dalb==0 || r.data.dalb){
 							  // 	DispAj_Zh(r,false);									
