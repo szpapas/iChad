@@ -83,7 +83,7 @@ def update_qzxx(dh_cond)
       $conn.exec("update q_qzxx set ajys=#{data['ajys']}, ml00=#{data['ml00']}, mlbk=#{data['mlbk']}, mljn=#{data['mljn']}, jn00=#{data['jn00']}, jnjn=#{data['jnjn']}, smyx=#{data['smyx']}, a3=#{data['a3']}, a4=#{data['a4']}, dt=#{data['dt']}, jnts=#{data['jnts']} where id=#{dd[0]['id']};")
     else
       dh_prefx = data['dh_prefix']
-      ss=/(\d+)_(\d+)_(\d+)/.match(dh_prefix)
+      ss=/(\d+)-(\d+)-(\d+)/.match(dh_prefix)
       qzh,dalb,mlh = ss[1],ss[2],ss[3]
       $conn.exec("insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
     end
