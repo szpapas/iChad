@@ -2592,7 +2592,7 @@ class DesktopController < ApplicationController
     user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
-      ss = dd.dh.split('_')
+      ss = dd.dh.split('-')
       qzh, dalb, mlh, ajh, dh_prefix = ss[0], ss[1], ss[2], ss[3], dd.dh_prefix
       
       qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
