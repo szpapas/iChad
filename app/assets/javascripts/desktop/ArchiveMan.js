@@ -4611,7 +4611,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 					{name: 'zny',		type: 'string'},
 					{name: 'djh',		type: 'string'},
 					{name: 'kq',		type: 'string'},
-					{name: 'yfdw',		type: 'string'},
+					{name: 'yfdm',		type: 'string'},
 					{name: 'fs',		type: 'string'},
 					{name: 'mc',		type: 'string'},
 					{name: 'cbrq',		type: 'date', dateFormat: 'Y-m-d H:i:s'},
@@ -4758,7 +4758,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 					{ text : '名称',  width : 175, sortable : true, dataIndex: 'mc'},
 					
 					{ text : '邮发代码',	width : 75, sortable : true, dataIndex: 'yfdm'},
-					{ text : '出版日期',	width : 75, sortable : true, dataIndex: 'cbrq'},
+					{ text : '出版日期',	width : 75, sortable : true, dataIndex: 'cbrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					
 					{ text : '单价',	width : 75, sortable : true, dataIndex: 'dj'},
 					{ text : '份数',	width : 75, sortable : true, dataIndex: 'fs'},
@@ -5537,7 +5537,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								var tt=r.get("zrq");
 								//showContactForm();
 								
-										DispAj_by_jcszhb(r,false,title);
+										DispAj_by_zzjgyg(r,false,title);
 									
 							  // if(r.data.dalb==0 || r.data.dalb){
 							  // 	DispAj_Zh(r,false);									
@@ -5908,9 +5908,9 @@ Ext.define('MyDesktop.ArchiveMan', {
 					
 					{ text : '材料来源',  width : 75, sortable : true, dataIndex: 'clly'},
 					
-					{ text : '发生日期', width : 75, sortable : true, dataIndex: 'fsrq'},
+					{ text : '发生日期', width : 75, sortable : true, dataIndex: 'fsrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					
-					{ text : '记录日期',	 width : 175, sortable : true, dataIndex: 'jlrq'},
+					{ text : '记录日期',	 width : 175, sortable : true, dataIndex: 'jlrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					
 					{ text : '人物',  width : 75, sortable : true, dataIndex: 'rw'},
 					{ text : '事由',	 width : 175, sortable : true, dataIndex: 'sy'},
@@ -6293,7 +6293,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 					
 					{ text : '全宗构成者简介',	 width : 175, sortable : true, dataIndex: 'qzgczjj'},
 					
-					{ text : '时间',  width : 75, sortable : true, dataIndex: 'sj'},
+					{ text : '时间',  width : 75, sortable : true, dataIndex: 'sj', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					
 					
 					
@@ -6309,7 +6309,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 								var tt=r.get("zrq");
 								//showContactForm();
 								
-										DispAj_by_qzgczjj(r,false,title);
+										DispAj_by_qzsm(r,false,title);
 									
 							  // if(r.data.dalb==0 || r.data.dalb){
 							  // 	DispAj_Zh(r,false);									
