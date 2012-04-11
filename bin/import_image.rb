@@ -91,7 +91,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
         meta=mm[0..5].join("\;")[2..-1] 
         meta_tz =mm[2].to_i
       else
-        $stderr.puts "Tags error"
+        $stderr.puts "Tags error: #{path}"
         meta, meta_tz = "", 0
       end     
     end
