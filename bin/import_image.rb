@@ -119,7 +119,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
+  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
 end
 
@@ -151,7 +151,7 @@ Find.find(path) do |path|
         puts "processing #{dh}... "
       end
       
-      $stderr.puts("Import Image: #{path} ... ")
+      #$stderr.puts("Import Image: #{path} ... ")
       yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
       save2timage(sxh, path, $dh, yxqz)
     end
