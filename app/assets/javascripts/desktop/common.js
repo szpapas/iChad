@@ -4459,7 +4459,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 						listeners : {
 						       change : function(field,newValue,oldValue){
 									if (newValue==""){
-										alert("档号不能为空。");
+										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_")
@@ -4517,8 +4517,8 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 	                    xtype: 'textfield',
 	                    width: 145,
 	                    fieldLabel: '起 年 月',
-						name: 'qnr',
-						id: 'zh_qnr',
+						name: 'qny',
+						id: 'zh_qny',
 	                    labelWidth: 60,
 	                    x: 345,
 	                    y: 100
@@ -4527,8 +4527,8 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 	                    xtype: 'textfield',
 	                    width: 145,
 	                    fieldLabel: '止年月',
-						name: 'znr',
-						id: 'zh_znr',
+						name: 'zny',
+						id: 'zh_zny',
 	                    labelWidth: 60,
 	                    x: 520,
 	                    y: 100
