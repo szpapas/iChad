@@ -87,7 +87,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
         pixels = width * height
       end  
       mm = meta.split("\;")
-      if mm.size > 5
+      if mm.size > 5 && meta.size < 100
         meta=mm[0..5].join("\;")[2..-1] 
         meta_tz =mm[2].to_i
       else
