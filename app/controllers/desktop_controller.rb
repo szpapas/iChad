@@ -2582,7 +2582,7 @@ class DesktopController < ApplicationController
     Find.find(yxwz) do |path|
       if path.include?'jpg'
         puts "processing #{path}"
-        line = path.split('/')[-2]
+        line = path.split('/')[0..-2].join('/')
         break
       end  
     end
