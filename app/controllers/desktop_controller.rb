@@ -2607,9 +2607,11 @@ class DesktopController < ApplicationController
       #else
         yxgs = lookup(qzxx.yxwz)
         if yxgs.length > 0
-          yy=yxgs.split('$') 
-          yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
-          path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
+          #yy=yxgs.split('$') 
+          #yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
+          yxgs=
+          yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
+          path = "#{yxmc}".gsub('$','\$')
           User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
         end  
       #end
