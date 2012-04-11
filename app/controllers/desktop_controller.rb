@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'socket'
+require 'find'
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images]
