@@ -150,7 +150,8 @@ Find.find(path) do |path|
         $dh = dh
         puts "processing #{dh}... "
       end
-
+      
+      $stderr.puts("Import Image: #{path} ... "
       yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
       save2timage(sxh, path, $dh, yxqz)
     end
