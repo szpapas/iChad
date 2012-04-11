@@ -164,7 +164,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['qny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
         txt='success'
       else
@@ -182,7 +182,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zrq='#{params['zrq']}', qrq='#{params['qrq']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_jhcw where  ownerid=#{params['id']};")
                 
@@ -208,7 +208,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
 
         archiveid=User.find_by_sql("select id from a_tddj where  ownerid=#{params['id']};")
@@ -234,7 +234,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['qny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_sx where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -258,7 +258,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_tjml where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -282,7 +282,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set cfwz='#{params['cfwz']}',xh='#{params['xh']}',mj='#{params['mj']}',flh='#{params['flh']}',mlh='#{params['mlh']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_dzda where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -306,7 +306,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set cfwz='#{params['cfwz']}',xh='#{params['xh']}',mj='#{params['mj']}',flh='#{params['flh']}',mlh='#{params['mlh']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['zcmc']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_sbda where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -330,7 +330,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set nd='#{params['nd']}',js='#{params['js']}',zny='#{params['zny']}',qny='#{params['qny']}',cfwz='#{params['cfwz']}',xh='#{params['xh']}',mj='#{params['mj']}',flh='#{params['flh']}',mlh='#{params['mlh']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['xmmc']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_jjda where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -354,7 +354,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set cfwz='#{params['cfwz']}',xh='#{params['xh']}',mj='#{params['mj']}',flh='#{params['flh']}',mlh='#{params['mlh']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['mc']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_swda where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -378,7 +378,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set nd='#{params['nd']}',cfwz='#{params['cfwz']}',xh='#{params['xh']}',mj='#{params['mj']}',flh='#{params['flh']}',mlh='#{params['mlh']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_zlxx where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -395,7 +395,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_by_tszlhj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_tszlhj.djh='#{params['djh']}'  and archive.id=a_by_tszlhj.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['djh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['djh']
         User.find_by_sql("update archive set cfwz='#{params['cfwz']}',  bz='#{params['bz']}', tm='#{params['mc']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_by_tszlhj where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -412,7 +412,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_by_jcszhb where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_jcszhb.zt='#{params['zt']}'  and archive.id=a_by_jcszhb.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['zt']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['zt']
         User.find_by_sql("update archive set  tm='#{params['zt']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_by_jcszhb where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -429,7 +429,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_by_zzjgyg where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_zzjgyg.jgmc='#{params['jgmc']}'  and archive.id=a_by_zzjgyg.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['jgmc']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['jgmc']
         User.find_by_sql("update archive set  tm='#{params['jgmc']}',bz='#{params['bz']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_by_zzjgyg where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -446,7 +446,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_by_dsj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_dsj.sy='#{params['sy']}'  and archive.id=a_by_dsj.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['sy']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['sy']
         User.find_by_sql("update archive set  tm='#{params['sy']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_by_dsj where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -463,7 +463,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}'   and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']
         User.find_by_sql("update archive set  mlh='#{params['mlh']}',tm='#{params['qzgcgjj']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_by_qzsm where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -487,7 +487,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_wsda where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.jh='#{jh}' and archive.id=a_wsda.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['nd']+"_" + params['bgqx']+"_" + params['jgwth']+"_" + params['jh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['nd']+"-" + params['bgqx']+"-" + params['jgwth']+"-" + params['jh']
         User.find_by_sql("update archive set ys='#{params['ys']}', nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', mlh='#{params['mlh']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_tjml where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -512,7 +512,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         User.find_by_sql("update archive set nd='#{params['nd']}', bgqx='#{params['bgqx']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['qny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
         txt='success'
       else
@@ -2436,7 +2436,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
               txt='success'
             else
@@ -2455,7 +2455,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qrq,zrq,ys,js,bz,qzh,dh,dalb,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qrq']}','#{params['zrq']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2480,7 +2480,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2506,7 +2506,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2531,7 +2531,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(mlh,ajh,tm,nd,bgqx,ys,bz,qzh,dh,dalb,dwdm) values('#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2556,7 +2556,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,cfwz,xh) values('#{params['flh']}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}','#{params['xh']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2581,7 +2581,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{ajh}','#{params['zcmc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2606,7 +2606,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(flh,qny,zny,nd,js,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{params['qny']}','#{params['zny']}','#{params['nd']}','#{params['js']}','#{params['mlh']}','#{ajh}','#{params['zcmc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2631,7 +2631,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{params['mlh']}','#{ajh}','#{params['mc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2656,7 +2656,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']      	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
         	    User.find_by_sql("insert into archive(nd,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['nd']}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
@@ -2674,7 +2674,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['djh']  	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['djh']  	    
         	    User.find_by_sql("insert into archive(tm,bz,qzh,dh,dalb,dwdm,cfwz) values('#{params['mc']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}') ")           
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2692,7 +2692,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['zt']  	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['zt']  	    
         	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['zt']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2711,7 +2711,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['jgmc']  	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['jgmc']  	    
         	    User.find_by_sql("insert into archive(bz,tm,qzh,dh,dalb,dwdm) values('#{params['bz']}','#{params['jgmc']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2730,7 +2730,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['sy']  	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['sy']  	    
         	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['sy']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2749,7 +2749,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']  	    
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']  	    
         	    User.find_by_sql("insert into archive(mlh,bz,tm,qzh,dh,dalb,dwdm) values('#{params['mlh']}','#{params['bz']}','#{params['qzgczjj']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2775,7 +2775,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['nd']+"_" + params['bgqx']+"_" + params['jgwth']+"_" + params['jh']
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['nd']+"-" + params['bgqx']+"-" + params['jgwth']+"-" + params['jh']
         	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -2800,7 +2800,7 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
         	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
               txt='success'
             else
