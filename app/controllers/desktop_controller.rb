@@ -209,8 +209,10 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
+
         dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
+
 
         archiveid=User.find_by_sql("select id from a_tddj where  ownerid=#{params['id']};")
         
@@ -2379,7 +2381,439 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
-	
+
+	#新增案卷目录
+      	def insert_archive
+      	  if (params['ztsl']=='')
+            params['ztsl']=0        
+          end
+          if (params['sl']=='')
+            params['sl']=0        
+          end
+          if (params['js']=='')
+            params['js']=0        
+          end
+          if (params['ys']=='')
+            params['ys']=0        
+          end
+          if (params['gzsj']=='')
+            params['gzsj']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['sjsj']=='')
+            params['sjsj']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['qrq']=='')
+            params['qrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['zrq']=='')
+            params['zrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['zwrq']=='')
+            params['zwrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['xcrq']=='')
+            params['xcrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['cbrq']=='')
+            params['cbrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['fsrq']=='')
+            params['fsrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['jlrq']=='')
+            params['jlrq']=Time.now.strftime("%Y-%m-%d")
+          end
+          if (params['sj']=='')
+            params['sj']=Time.now.strftime("%Y-%m-%d")
+          end
+      	  txt=""
+      	  case params['dalb']
+    	    when "0"
+    	      params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+    	      if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
+              txt='success'
+            else
+              txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end
+
+          when "2"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qrq,zrq,ys,js,bz,qzh,dh,dalb,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qrq']}','#{params['zrq']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_jhcw(jnzs,fjzs,ownerid,pzqh,pzzh,dh) values('#{params['jnzs']}','#{params['fjzs']}','#{archiveid[0]['id']}','#{params['pzqh']}','#{params['pzzh']}','#{dh}') ")                        
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end
+          when "3","5","6","7"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['qlrmc']};#{params['djh']};#{params['tdzl']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_tddj(djh,qlrmc,ownerid,tdzl,tdzh,dh,qsxz,tfh,ydjh) values('#{params['djh']}','#{params['qlrmc']}','#{archiveid[0]['id']}','#{params['tdzl']}','#{params['tdzh']}','#{dh}','#{params['qsxz']}','#{params['ydjh']}') ")                        
+
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end
+          when "15"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,mj,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{params['mj']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_sx(zl,ownerid) values('#{params['zl']}','#{archiveid[0]['id']}') ")                        
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end    
+          when "18"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(mlh,ajh,tm,nd,bgqx,ys,bz,qzh,dh,dalb,dwdm) values('#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_tjml(tfh,tgh,ownerid) values('#{params['tfh']}','#{params['tgh']}','#{archiveid[0]['id']}') ")                        
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；序号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end      
+          when "25"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,cfwz,xh) values('#{params['flh']}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}','#{params['xh']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_dzda(tjr,rjhj,czxt,sl,bfs,ztbhdwjgs,yyrjpt,tjdw,wjzt,dzwjm,ztbh,xcbm,xcrq,jsr,jsdw,yjhj,dh,ownerid) values('#{params['tjr']}','#{params['rjhj']}','#{params['czxt']}','#{params['sl']}','#{params['bfs']}','#{params['ztbhdwjgs']}','#{params['yyrjpt']}','#{params['tjdw']}','#{params['wjzt']}','#{params['dzwjm']}','#{params['ztbh']}','#{params['xcbm']}','#{params['xcrq']}','#{params['jsr']}','#{params['jsdw']}','#{params['yjhj']}','#{dh}','#{archiveid[0]['id']}') ")                        
+                txt='success'
+              end
+            else
+              txt= '档号为'+params['mlh']+'；顺序号为'+params['ajh']+'已经存在，请重新输入档号为或顺序号。'
+            end
+          when "27"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{ajh}','#{params['zcmc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_sbda(zcmc,gzsj,dw,sl,cfdd,sybgdw,sybgr,zcbh,dj,je,dh,ownerid) values('#{params['zcmc']}','#{params['gzsj']}','#{params['dw']}','#{params['sl']}','#{params['cfdd']}','#{params['sybgdw']}','#{params['sybgr']}','#{params['zcbh']}','#{params['dj']}','#{params['je']}','#{dh}','#{archiveid[0]['id']}') ")                        
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；件号为'+params['ajh']+'已经存在，请重新输入目录号为或件号。'
+            end
+          when "26"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(flh,qny,zny,nd,js,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{params['qny']}','#{params['zny']}','#{params['nd']}','#{params['js']}','#{params['mlh']}','#{ajh}','#{params['zcmc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_jjda(xmmc,jsdw,dh,jsnd,ownerid) values('#{params['xmmc']}','#{params['jsdw']}','#{dh}','#{params['nd']}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；案卷号为'+params['ajh']+'已经存在，请重新输入目录号为或案卷号号。'
+            end
+          when "28"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(flh,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['flh']}','#{params['mlh']}','#{ajh}','#{params['mc']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_swda(bh,lb,hjz,sjsj,sjdw,mc,ztxs,dh,ownerid) values('#{params['bh']}','#{params['lb']}','#{params['hjz']}','#{params['sjsj']}','#{params['sjdw']}','#{params['mc']}','#{params['ztxs']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；件号为'+params['ajh']+'已经存在，请重新输入目录号为或件号。'
+            end
+          when "29"
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']      	    
+        	    User.find_by_sql("insert into archive(nd,mlh,ajh,tm,bgqx,ys,bz,qzh,dh,dalb,dwdm,mj,xh,cfwz) values('#{params['nd']}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}') ")           
+              archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_zlxx(bh,lb,bzdw,dh,ownerid) values('#{params['bh']}','#{params['lb']}','#{params['bzdw']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+            else
+              txt= '目录号为'+params['mlh']+'；件号为'+params['ajh']+'已经存在，请重新输入目录号为或件号。'
+            end
+          when "30"
+            user=User.find_by_sql("select * from archive,a_by_tszlhj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_tszlhj.djh='#{params['djh']}'  and archive.id=a_by_tszlhj.ownerid ;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['djh']  	    
+        	    User.find_by_sql("insert into archive(tm,bz,qzh,dh,dalb,dwdm,cfwz) values('#{params['mc']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['cfwz']}') ")           
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_by_tszlhj(djh,kq,mc,fs,yfdm,cbrq,dj,dh,ownerid) values('#{params['djh']}','#{params['kq']}','#{params['mc']}','#{params['fs']}','#{params['yfdm']}','#{params['cbrq']}','#{params['dj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'    
+              end        
+            else
+              txt= '登记号为'+params['djh']+'；已经存在，请重新输入登记号。'
+            end 
+          when "31"
+            user=User.find_by_sql("select * from archive,a_by_jcszhb where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_jcszhb.zt='#{params['zt']}'  and archive.id=a_by_jcszhb.ownerid ;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['zt']  	    
+        	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['zt']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_by_jcszhb(zt,qy,tjsj,sm,dh,ownerid) values('#{params['zt']}','#{params['qy']}','#{params['tjsj']}','#{params['sm']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+
+            else
+              txt= '专题为'+params['zt']+'；已经存在，请重新输入专题。'
+            end
+          when "32"
+            user=User.find_by_sql("select * from archive,a_by_zzjgyg where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_zzjgyg.jgmc='#{params['jgmc']}'  and archive.id=a_by_zzjgyg.ownerid ;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['jgmc']  	    
+        	    User.find_by_sql("insert into archive(bz,tm,qzh,dh,dalb,dwdm) values('#{params['bz']}','#{params['jgmc']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_by_zzjgyg(jgmc,zzzc,qzny,dh,ownerid) values('#{params['jgmc']}','#{params['zzzc']}','#{params['qzny']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+
+            else
+              txt= '机构名称为'+params['jgmc']+'；已经存在，请重新输入机构名称。'
+            end
+          when "33"
+            user=User.find_by_sql("select * from archive,a_by_dsj where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_by_dsj.sy='#{params['sy']}'  and archive.id=a_by_dsj.ownerid ;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['sy']  	    
+        	    User.find_by_sql("insert into archive(tm,qzh,dh,dalb,dwdm) values('#{params['sy']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_by_dsj(dd,jlr,clly,fsrq,jlrq,sy,yg,rw,dh,ownerid) values('#{params['dd']}','#{params['jlr']}','#{params['clly']}','#{params['fsrq']}','#{params['jlrq']}','#{params['sy']}','#{params['yg']}','#{params['rw']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+
+            else
+              txt= '事由为'+params['sy']+'；已经存在，请重新输入事由。'
+            end
+          when "34"
+            user=User.find_by_sql("select * from archive,a_by_qzsm where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}'  and archive.id=a_by_qzsm.ownerid ;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']  	    
+        	    User.find_by_sql("insert into archive(mlh,bz,tm,qzh,dh,dalb,dwdm) values('#{params['mlh']}','#{params['bz']}','#{params['qzgczjj']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') ")           
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_by_qzsm(qzgczjj,sj,dh,ownerid) values('#{params['qzgczjj']}','#{params['sj']}','#{dh}','#{archiveid[0]['id']}') ")                                                                     
+                txt='success'
+              end
+
+            else
+              txt= '目录号为'+params['mlh']+'；已经存在，请重新输入目录号。'
+            end
+         when "24"
+            params['jh']=params['jh'].to_i
+            params['jh']=params['jh'].to_s
+            if params['jh'].length>3
+              jh=params['jh']
+            else
+              jh=sprintf("%04d", params['jh'])
+            end
+    	      user=User.find_by_sql("select * from archive,a_wsda where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.jh='#{jh}' and archive.id=a_wsda.ownerid;")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['nd']+"-" + params['bgqx']+"-" + params['jgwth']+"-" + params['jh']
+        	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
+              archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+              size=archiveid.size
+              if size==0
+                txt='保存失败，未找到保存后盘案卷。'
+              else
+                User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
+                txt='success'   
+              end         
+            else
+              txt= '年度为'+params['nd']+'；机构问题号为'+params['jgwth']+';保管期限为'+params['bgqx']+';件号为'+params['jh']+'已经存在，请重新输入年度、机构问题号、保管期限或件号。'
+            end        
+          else
+            params['ajh']=params['ajh'].to_i
+            params['ajh']=params['ajh'].to_s
+            if params['ajh'].length>3
+              ajh=params['ajh']
+            else
+              ajh=sprintf("%04d", params['ajh'])
+            end
+    	      user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
+            size = user.size
+            if size == 0
+              dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
+              txt='success'
+            else
+              txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
+            end
+          end
+      	  render :text => txt
+      	end
+
 	#删除案卷
 	def delete_archive
     case params['dalb']
