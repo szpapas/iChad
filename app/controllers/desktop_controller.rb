@@ -209,13 +209,10 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-<<<<<<< HEAD
-        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
-        User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['qlrmc']};#{params['djh']};#{params['tdzl']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
-=======
+
         dh=params['qzh']+ "_" + params['dalb'] +"_" + params['mlh']+"_" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
->>>>>>> 6a9000cbc9de46503619ee38483db684d1226eea
+
 
         archiveid=User.find_by_sql("select id from a_tddj where  ownerid=#{params['id']};")
         
@@ -2384,7 +2381,7 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
-<<<<<<< HEAD
+
 	#新增案卷目录
       	def insert_archive
       	  if (params['ztsl']=='')
@@ -2816,9 +2813,7 @@ class DesktopController < ApplicationController
           end
       	  render :text => txt
       	end
-=======
-	
->>>>>>> 6a9000cbc9de46503619ee38483db684d1226eea
+
 	#删除案卷
 	def delete_archive
     case params['dalb']
