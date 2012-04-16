@@ -276,6 +276,9 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       qwbs  = user['全文标识']
       ztc   = user['主题词']
       zbbm  = user['主办部门'] 
+      nd    = user['年度']
+      bqqx  = user['保管期限']
+      jgwth = user['机构问题号']
       
       if rq.length==0
         zwrq = 'null' 
