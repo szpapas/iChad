@@ -290,7 +290,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
         zwrq = "TIMESTAMP '#{rq}'"
       end
       
-      insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}');"
+      insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bqqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bqqx}', '#{jgwth}');"
       #puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
       $conn.exec(insert_str)
