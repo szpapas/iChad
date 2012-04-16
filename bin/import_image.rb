@@ -87,11 +87,11 @@ def save2timage(yxbh, path, dh, yx_prefix)
         pixels = width * height
       end  
       mm = meta.split("\;")
-      if mm.size > 5
+      if mm.size > 5 && meta.size < 100
         meta=mm[0..5].join("\;")[2..-1] 
         meta_tz =mm[2].to_i
       else
-        puts "Tags error: #{meta}"
+        $stderr.puts "Tags error: #{path}"
         meta, meta_tz = "", 0
       end     
     end
@@ -150,7 +150,8 @@ Find.find(path) do |path|
         $dh = dh
         puts "processing #{dh}... "
       end
-
+      
+      #$stderr.puts("Import Image: #{path} ... ")
       yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
       save2timage(sxh, path, $dh, yxqz)
     end
