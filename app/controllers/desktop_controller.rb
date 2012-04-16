@@ -209,7 +209,7 @@ class DesktopController < ApplicationController
       size = user.size
       if size == 0
         dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
-        User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
+        User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['qlrmc']};#{params['djh']};#{params['tdzl']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['zny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
 
         archiveid=User.find_by_sql("select id from a_tddj where  ownerid=#{params['id']};")
         
@@ -2481,7 +2481,7 @@ class DesktopController < ApplicationController
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
               dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
-        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
+        	    User.find_by_sql("insert into archive(mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz,dwdm) values('#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['qlrmc']};#{params['djh']};#{params['tdzl']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}') ")
               archiveid=User.find_by_sql("select id from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}';")
               size=archiveid.size
               if size==0
