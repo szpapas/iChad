@@ -4,6 +4,7 @@ $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 
 require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn.exec("set standard_conforming_strings = off")
 
 def save2timage(yxbh, path, dh, yx_prefix)
   yxdx=File.open(path).read.size

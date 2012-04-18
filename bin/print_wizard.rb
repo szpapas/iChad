@@ -5,6 +5,7 @@ $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 require 'pg'
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn.exec("set standard_conforming_strings = off")
 
 #qzh, mlh, dalb, qajh, zajh, dylb = params['qzh'], params['mlh'], params['dalb'], params['qajh'], params['zajh'], params['dylb']
 
@@ -78,12 +79,12 @@ end
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 def save2timage(yxbh, path, dh, yx_prefix)
   #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
-  
-  yxdx=File.open(path).read.size
-  edata=PGconn.escape_bytea(File.open(path).read) 
-  #yxmc="#{mlh}\$#{flh}\$#{ajh}\$#{yxbh}"
-  yxmc="#{yx_prefix}\$#{yxbh}"
+  fo = File.open(path).read
+  yxdx=fo.size
+  edata=PGconn.escape_bytea(fo) 
 
+  yxmc="#{yx_prefix}\$#{yxbh}"
+  
   $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
     
@@ -144,6 +145,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
     
       dd1, dd2 = data['qny'], data['zny']    
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
+      
       system convert_str
       save2timage("ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
       puts ("1 ====generate ML ===")
@@ -283,6 +285,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
 
   
   new_zt = (dyzt | print_option).to_s
+  puts "update archive set dyzt = '#{new_zt}' where id = #{archive_id};"
   $conn.exec("update archive set dyzt = '#{new_zt}' where id = #{archive_id};")
       
 end
@@ -304,7 +307,7 @@ end
 
 qzh, mlh, dalb, qajh, zajh, dylb = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4], ARGV[5] 
 
-dydh = "#{qzh}_#{dalb}_#{mlh}"
+dydh = "#{qzh}-#{dalb}-#{mlh}"
 puts  "=====Started At #{Time.now}===="
 
 $conn.exec("update p_status set dyzt='正在打印' where dydh='#{dydh}';")
@@ -323,6 +326,8 @@ for k in 0..user.count-1 do
   puts "generating  #{user[k]['id']}  #{user[k]['ajh']}... type #{sprintf("%04b", dylb.to_i)}"
   generate_single_archive(user[k]['id'], dylb.to_i)
 end
+
+puts "update p_status set dyzt='打印完成' where dydh='#{dydh}'"
 
 $conn.exec("update p_status set dyzt='打印完成' where dydh='#{dydh}';")
 

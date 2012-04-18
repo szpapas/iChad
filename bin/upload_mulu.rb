@@ -277,7 +277,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       ztc   = user['主题词']
       zbbm  = user['主办部门'] 
       nd    = user['年度']
-      bqqx  = user['保管期限']
+      bgqx  = user['保管期限']
       jgwth = user['机构问题号']
       
       if rq.length==0
@@ -290,7 +290,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
         zwrq = "TIMESTAMP '#{rq}'"
       end
       
-      insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bqqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bqqx}', '#{jgwth}');"
+      insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
       #puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
       $conn.exec(insert_str)
@@ -357,9 +357,9 @@ if ifname.include?('aj')
     data = File.open("#{path}/#{outfile}").read
     set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
     system ("rm -rf #{path}/#{outfile}")
-  
-    update_owner
   end
+  update_owner
+
 
   if dalb != 24 
     mlm = mlh
