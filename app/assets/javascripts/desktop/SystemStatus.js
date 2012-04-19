@@ -484,7 +484,7 @@ Ext.define('MyDesktop.SystemStatus', {
          store: qzzt_store,
          id : 'qzzt_grid_id',
          iconCls:'task16',
-         height : 400,
+         //height : 400,
          columns: [
            { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
            { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
@@ -630,7 +630,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
         { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
       ],
-      width :  800,
+      //width :  800,
       //height : 350,
       columnLines: true,
       layout: 'fit',
