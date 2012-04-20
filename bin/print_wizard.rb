@@ -182,7 +182,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
   end
 
   # generate bk
-  if (print_option & 0b0100) > 0 && (dyzt & 0b0100) == 0
+  if (print_option & 0b0001) > 0 && (dyzt & 0b0001) == 0
     
     ss = bk_name(data['dalb'])
 
@@ -210,7 +210,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
   end
   
   # generate jn
-  if (print_option & 0b0001) > 0 && (dyzt & 0b0001) == 0
+  if (print_option & 0b0100) > 0 && (dyzt & 0b0100) == 0
   
     pos_yy = 700
     image_t = "image_2"

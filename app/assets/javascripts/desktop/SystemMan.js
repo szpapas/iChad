@@ -1662,9 +1662,9 @@ Ext.define('MyDesktop.SystemMan', {
 			useArrows: true,
 		});
 		if(!win){
-          win = desktop.createWindow({
-              id: 'systemman',              
-              	title:'权限管理',
+        win = desktop.createWindow({
+        id: 'systemman',              
+        title:'权限管理',
 				width:1000,
 				height:600,
 				iconCls: 'archiveman',

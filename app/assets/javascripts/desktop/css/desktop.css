@@ -476,6 +476,26 @@
     background-image: url(/assets/borman/exit.png ) !important;
 }
 
+
+/*
+  SettingMan
+*/
+.systemman-shortcut {
+    background-image: url(/assets/setting46.png);
+    width: 46px;
+    height: 46px;
+}
+
+.x-ie6 .systemman-shortcut {
+    background-image: none;
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/setting46.png', sizingMethod='scale');
+}
+
+.systemman {
+	background-image: url(/assets/setting16.png ) !important;
+}
+
+
 #myCanvas {
     border: 1px solid #9C9898;
 }

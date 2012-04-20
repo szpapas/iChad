@@ -99,7 +99,7 @@ Ext.define('MyDesktop.App', {
                     { name: '编研利用', iconCls: 'notepad-shortcut',     module: 'notepad' },
                     { name: '影像打印', iconCls: 'printdata-shortcut',   module: 'printdata' },
                     { name: '档案统计', iconCls: 'cpu-shortcut',         module: 'systemstatus'},
-                   	{ name: '系统管理', iconCls: 'systemman-shortcut',   module: 'systemman' },
+                   	{ name: '系统设置', iconCls: 'systemman-shortcut',   module: 'systemman' },
                   //  { name: '应用程序', iconCls: 'smallapps-shortcut',   module: 'smallapps' }
                   //  { name: '亲朋好友', iconCls: 'accordion-shortcut', module: 'acc-win' },
                 ]
