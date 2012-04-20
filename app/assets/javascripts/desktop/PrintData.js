@@ -891,10 +891,11 @@ Ext.define('MyDesktop.PrintData', {
                         
                           var dyzt_grid = new Ext.grid.GridPanel({
                                // more config options clipped //,
-                               title: '虚拟打印',
+                               //title: '虚拟打印',
                                store: dyzt_store,
                                id : 'dyzt_grid_id',
                                iconCls:'print',
+                               border : false, 
                                columns: [{
                                    xtype: 'gridcolumn',
                                    dataIndex: 'id',
@@ -943,7 +944,6 @@ Ext.define('MyDesktop.PrintData', {
                                    width: 60,
                                    renderer : dyztRender
                                }],
-                               //selModel : {selType:'cellmodel'},
                                selType:'checkboxmodel',
                                multiSelect:true,
                                viewConfig: {
@@ -1379,15 +1379,16 @@ Ext.define('MyDesktop.PrintData', {
                             id : 'dyzt_panel_id',
                             labelWidth:40,
                             //bodyStyle:"padding:35px;",
-                            bodyPadding: 3,
-                            items:[{
+                            //bodyPadding: 3,
+                            items:dyzt_grid
+                            /*items:[{
                                 xtype: 'tabpanel',
                                 height: 280,
                                 activeTab: 0,
                                 items: [
                                   dyzt_grid
                                 ]
-                            }]        
+                            }]    */    
                           });
 
                           var dyztWin = new Ext.Window({
@@ -1397,15 +1398,13 @@ Ext.define('MyDesktop.PrintData', {
                             floating: true,
                             shadow: true,
                             draggable: true,
-                            //closeAction:'hide',
-                            //minimizable:true,
-                            //closable: false,
-                            modal: false,
+                            modal: true,
                             width: 500,
                             height: 350,
                             layout: 'fit',
                             plain: true,
-                            items:dyztPanel,
+                            border: false,
+                            items: dyzt_grid,
                             buttons: [{
                               text: '打印',
                               handler: function() {
