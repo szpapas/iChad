@@ -105,7 +105,7 @@ end
 def generate_single_archive(archive_id, print_option=0b1101)
   user = $conn.exec("select * from archive where id=#{archive_id};")
   data = user[0]
-  mlh,flh,ajh,js,ys,dh= data['mlh'], data['flh'], data['ajh'], data['js'], data['ys'].to_i,data['dh']
+  mlh,flh,ajh,js,ys,dh= data['mlh'], data['flh'][0..0], data['ajh'], data['js'], data['ys'].to_i,data['dh']
   yxqz = "#{mlh}\$#{flh}\$#{ajh}"
 
   #如果已经打印过就不需要打印了，除非标记重新打印。 0b1001

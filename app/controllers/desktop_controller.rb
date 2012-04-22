@@ -575,7 +575,7 @@ class DesktopController < ApplicationController
     
     yxdx=File.open(path).read.size
     edata=PGconn.escape_bytea(File.open(path).read)
-    yxmc="#{user[0].mlh}\$#{user[0].flh}\$#{user[0].ajh}\$#{yxbh}"
+    yxmc="#{user[0].mlh}\$#{user[0].flh[0..0]}\$#{user[0].ajh}\$#{yxbh}"
     
     count = User.find_by_sql("select count(*) from timage where dh='#{user[0].dh}' and yxbh='#{yxbh}';")[0].count
 
@@ -2953,7 +2953,7 @@ class DesktopController < ApplicationController
       ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
 
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh_prefix} 1 /share/export', '', '', '未开始');")
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/export_image.rb #{dh_prefix} 2 /share/export', '', '', '未开始');")
     end  
     render :text => 'Success'
   end

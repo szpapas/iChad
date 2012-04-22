@@ -991,7 +991,7 @@ Ext.define('MyDesktop.PrintData', {
                                               fieldLabel:"止案件号",
                                               anchor:"95%"
                                             },{
-                                              xtype: 'checkboxgroup',
+                                              xtype: 'checkboxmodel',
                                               fieldLabel: '打印范围',
                                               // Arrange radio buttons into two columns, distributed vertically
                                               columns: 4,
