@@ -1126,18 +1126,41 @@ class DesktopController < ApplicationController
   
   #查询借阅流程
   def get_jydjlc_jyzt
-    if (params['query'].nil?)
+    useridwhere=""
+    if (params['jyzt'].nil?)
       txt = "{results:0,rows:[]}"
     else
-      jyzt=params['query']
+      jyzt=params['jyzt']
       if (jyzt=='')
         txt = "{results:0,rows:[]}"
       else
-        user = User.find_by_sql("select count(*) from jylc where jyzt = #{params['query']};")[0]
+        case jyzt
+          when '1'
+            js_id=""
+            user= User.find_by_sql("select jsid from u_js where userid=  '#{params["userid"]}' order by id;")
+            user.each do |us|
+              logger.debug us['jsid']
+              if js_id==""
+                js_id=us['jsid']
+              else
+                js_id=js_id + "," +us['jsid']
+              end
+            end
+            sort=User.find_by_sql("select * from qx_mlqx where user_id in (#{js_id}) and qxlb=4 and qxid=9;")
+            size = sort.size;
+            if size > 0
+              useridwhere=""
+            else
+              useridwhere=" and czrid=" + params['userid']
+            end
+          else
+            useridwhere=" and czrid=" + params['userid']
+        end
+        user = User.find_by_sql("select count(*) from jylc where jyzt = #{params['jyzt']}  #{useridwhere};")[0]
         size = user.count.to_i;
         if size > 0
           txt = "{results:#{size},rows:["
-          user = User.find_by_sql("select * from jylc where jyzt = #{params['query']};")
+          user = User.find_by_sql("select * from jylc where jyzt = #{params['jyzt']}  #{useridwhere};")
           for k in 0..user.size-1
             txt = txt + user[k].to_json + ','
           end
@@ -1145,6 +1168,8 @@ class DesktopController < ApplicationController
         else
           txt = "{results:0,rows:[]}"
         end
+          
+        
       end
     end
     render :text => txt
@@ -1223,9 +1248,9 @@ class DesktopController < ApplicationController
     if !(params['ajh'].nil?)
 
       if (cx_tj!='')
-        cx_tj=cx_tj + " and archive.ajh='#{params['ajh']}'"
+        cx_tj=cx_tj + " and archive.ajh like '%#{params['ajh']}%'"
       else
-        cx_tj=" archive.ajh='#{params['ajh']}'"
+        cx_tj=" archive.ajh like '%#{params['ajh']}%'"
       end
     end
     
@@ -2079,9 +2104,10 @@ class DesktopController < ApplicationController
     jyid=""
     if !(params['jy_aj_list']=='')
       user = User.find_by_sql("select daid,jyid from jylist where  hdsj IS NULL and daid in (#{params['jy_aj_list']});")
-      jyid=user[0]["jyid"]
+      
       size = user.size;
       if size > 0
+        jyid=user[0]["jyid"]
         txt = ""
         for k in 0..user.size-1
           if !(txt=='')
@@ -3184,4 +3210,25 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
 
+  #获取用户是否有此权限
+  def get_sort
+    js_id=""
+    user= User.find_by_sql("select jsid from u_js where userid=  '#{params["userid"]}' order by id;")
+    user.each do |us|
+      logger.debug us['jsid']
+      if js_id==""
+        js_id=us['jsid']
+      else
+        js_id=js_id + "," +us['jsid']
+      end
+    end
+    user=User.find_by_sql("select * from qx_mlqx where user_id in (#{js_id}) and qxlb=4 and qxid=9;")
+    size = user.size
+    if size == 0
+      txt='false'
+    else
+      txt= 'success'
+    end
+    render :text => txt
+  end
 end

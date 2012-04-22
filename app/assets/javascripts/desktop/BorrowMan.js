@@ -1310,78 +1310,78 @@ Ext.define('MyDesktop.BorrowMan', {
 													var cdlr;
 													cx_tj='';
 													if(pars['djh']!=''){
-														cx_tj="{djh:" + pars['djh'] + "";
+														cx_tj='{djh:"' + pars['djh'] + '"';
 														cdlr="地籍号："+ pars['djh'];
 													};
 													if(pars['qlr']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",qlr:" + pars['qlr']+ "";
+															cx_tj=cx_tj + ',qlr:"' + pars['qlr']+ '"';
 															cdlr=cdlr + ",权利人名称："+ pars['qlr'];
 														}else{
-															cx_tj="{qlr:" + pars['qlr']+ "";
+															cx_tj='{qlr:"' + pars['qlr']+'"';
 															cdlr="权利人名称："+ pars['qlr'];
 														}
 													};
 													if(pars['tdzl']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",tdzl:" + pars['tdzl']+ "";
+															cx_tj=cx_tj + ',tdzl:"' + pars['tdzl']+ '"';
 															cdlr=cdlr + ",土地座落："+ pars['tdzl'];
 														}else{
-															cx_tj="{tdzl:" + pars['tdzl']+ "";
+															cx_tj='{tdzl:"' + pars['tdzl']+ '"';
 															cdlr="土地座落："+ pars['tdzl'];
 														}
 													};
 													if(pars['zrz']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",zrz:" + pars['rzr']+ "";
+															cx_tj=cx_tj + ',zrz:"' + pars['rzr']+ '"';
 															cdlr=cdlr + ",责任者："+ pars['rzr'];
 														}else{
-															cx_tj="{rzr:" + pars['zrz']+ "";
+															cx_tj='{rzr:"' + pars['zrz']+ '"';
 															cdlr="责任者："+ pars['rzr'];
 														}
 													};
 													if(pars['wh']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",wh:" + pars['wh']+ "";
+															cx_tj=cx_tj + ',wh:"' + pars['wh']+ '"';
 															cdlr=cdlr + ",文号："+ pars['wh'];
 														}else{
-															cx_tj="{wh:" + pars['wh']+ "";
+															cx_tj='{wh:"' + pars['wh']+ '"';
 															cdlr="文号："+ pars['wh'];
 														}
 													};
 													if(pars['tm']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",tm:" + pars['tm']+ "";
+															cx_tj=cx_tj + ',tm:"' + pars['tm']+ '"';
 															cdlr=cdlr + ",题名："+ pars['tm'];
 														}else{
-															cx_tj="{tm:" + pars['tm']+ "";
-															cdlr="题名："+ pars['tm'];
+															cx_tj='{tm:"' + pars['tm']+ '"';
+															cdlr="题名："+ pars['tm']+ "";
 														}
 													};
 													if(pars['ajtm']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",ajtm:" + pars['ajtm']+ "";
+															cx_tj=cx_tj + ',ajtm:"' + pars['ajtm']+ '"';
 															cdlr=cdlr + ",案卷标题："+ pars['ajtm'];
 														}else{
-															cx_tj="{ajtm:" + pars['ajtm']+ "";
-															cdlr="案卷标题："+ pars['ajtm'];
+															cx_tj='{ajtm:"' + pars['ajtm']+ '"';
+															cdlr='案卷标题："'+ pars['ajtm']+ '"';
 														}
 													};
 													if(pars['mlh']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",mlh:" + pars['mlh']+ "";
+															cx_tj=cx_tj + ',mlh:"' + pars['mlh']+ '"';
 															cdlr=cdlr +",目录号："+ pars['mlh'];
 														}else{
-															cx_tj="{mlh:" + pars['mlh']+ "";
+															cx_tj='{mlh:"' + pars['mlh']+ '"';
 															cdlr="目录号："+ pars['mlh'];
 														}
 													};
 													if(pars['ajh']!=''){
 														if (cx_tj!=''){
-															cx_tj=cx_tj + ",ajh:" + pars['ajh']+ "";
+															cx_tj=cx_tj + ',ajh:"' + pars['ajh']+ '"';
 															cdlr=cdlr+ ",案卷号："+ pars['ajh'];
 														}else{
-															cx_tj="{ajh:" + pars['ajh']+ "";
+															cx_tj='{ajh:"' + pars['ajh']+ '"';
 															cdlr="案卷号："+ pars['ajh'];
 														}
 													};
@@ -1863,7 +1863,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					Ext.getCmp('jydj_jyqq_form').getForm().setValues(recordad.data);
 				}else
 				{
-					Ext.getCmp('jyqq_sq').text="同意申请";
+					Ext.getCmp('jydj_jyqq_czrid').setValue(currentUser.id);
+					Ext.getCmp('jyqq_sq').text="确定申请";
 				}
 				win.show();
 			};	
@@ -2461,7 +2462,8 @@ Ext.define('MyDesktop.BorrowMan', {
 														var grid = Ext.getCmp('jydjlc_grid');
 														grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
 														jydj_jyzt=newValue.jyzt;
-														jydjlc_store.proxy.extraParams.query=newValue.jyzt;
+														
+														jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + newValue.jyzt + "})");
 														jydjlc_store.load();
 														jydjlist_store.proxy.extraParams.query='';
 														jydjlist_store.load();
@@ -2479,16 +2481,25 @@ Ext.define('MyDesktop.BorrowMan', {
 											iconCls:'clqq',
 						                    text: '处理请求',
 											handler: function() {
-												var grid = Ext.getCmp('jydjlc_grid');
-												var records = grid.getSelectionModel().getSelection();
-												var record = records[0];
-												if (record.data.jyzt==1){
-													clqq(record);
-												}else
-												{
-													alert('请选择处于借阅请求状态的数据进行处理。');
-												}
-
+												new Ajax.Request("/desktop/get_sort", { 
+													method: "POST",
+													parameters: eval("({userid:" + currentUser.id + ",qxid:9})"),
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															var grid = Ext.getCmp('jydjlc_grid');
+															var records = grid.getSelectionModel().getSelection();
+															var record = records[0];
+															if (record.data.jyzt==1){
+																clqq(record);
+															}else
+															{
+																alert('请选择处于借阅请求状态的数据进行处理。');
+															}
+														}else{
+															alert('您无借阅审批的权限。' + request.responseText);
+														}
+													}
+												});												
 											}
 						                },
 						                {
