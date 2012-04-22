@@ -1661,118 +1661,163 @@ Ext.define('MyDesktop.SystemMan', {
 			rootVisible:false,
 			useArrows: true,
 		});
+		var js_qx_setup = function(record,add_new){
+			var win = Ext.getCmp('js_qx_setup_win');
+
+			if (win==null) {
+				win = new Ext.Window({
+					id : 'js_qx_setup_win',
+					title: '角色权限设置',
+					width:1000,
+					height:600,
+					iconCls: 'archiveman',
+					animCollapse:false,
+					border: false,
+					hideMode: 'offsets',
+					modal: true,
+					layout: 'border',
+					split:true,
+					tbar:[
+						{xtype:'button',text:'保存角色权限',tooltip:'保存角色权限',id:'qx_save',iconCls:'save',
+							handler: function() {
+								//Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById("1_1_1")							
+								var tree = Ext.getCmp('user_tree_panel');
+								var nodes=tree.getChecked();
+								if (nodes.length==1){
+									root=Ext.getCmp('user_ml_qx_tree_panel').store.getRootNode();
+									insert_qx="";
+									get_mlqx_NodesChecked(root);
+									root=Ext.getCmp('user_cd_qx_tree_panel').store.getRootNode();
+									get_cdqx_NodesChecked(root);
+									var node=nodes[0];
+									if (insert_qx==""){
+										alert("请您选择一些权限再保存。");
+									}else{
+										insert_qx="({insert_qx:'" + insert_qx + "',userid:" + node.data.id + "})";
+										new Ajax.Request("/desktop/insert_user_qx", { 
+											method: "POST",
+											parameters: eval(insert_qx),
+											onComplete:	 function(request) {
+												if (request.responseText=='success'){
+													alert("权限保存成功。");												
+												}else{
+													alert("权限保存失败，请重新保存。");
+												}
+											}
+										});									
+									}
+								}else{
+									alert("请您先选择一个用户。");
+								}
+							}
+						}
+					],			
+					items: [
+						{	title:'角色树',
+							region:'west',
+							iconCls:'users',
+							xtype:'panel',
+							margins:'0 0 0 0',
+							width: 250,
+							collapsible:true,//可以被折叠
+							id:'user-tree',
+							layout:'fit',
+							split:true,
+							items:user_tree_panel
+						},
+						{	title:'用户目录权限树',
+							region:'center',
+							iconCls:'dept_tree',
+							xtype:'panel',
+							margins:'0 0 0 0',
+							//width: 250,
+							//collapsible:true,//可以被折叠						
+							id:'user-qx-tree',
+							layout:'fit',
+							split:true,
+							items:user_ml_qx_tree_panel
+						},{						
+							//collapsed:true,
+							collapsible: true,					
+							//collapseMode:'mini',
+							title:'用户系统权限树',
+							iconCls:'icon-grid',
+							region:'east',
+							xtype:'panel',
+							id:'user-sys-tree',
+							margins:'0 0 0 0',
+							layout: 'fit',
+							split:true,
+							width: 250,		
+							items:user_cd_qx_tree_panel
+						}
+					]
+				});
+			}			
+			win.show();
+		};
+		
+		var sys_cd_tree_store	= Ext.create('Ext.data.TreeStore', {
+			autoLoad: true,
+			proxy: {
+					type: 'ajax',
+					url: 'desktop/get_sys_cd_tree',
+					extraParams: {userid:currentUser.id},
+					actionMethods: 'POST'
+			}
+		});
+		var sys_cd_tree_panel = Ext.create('Ext.tree.Panel', {
+			id : 'sys_cd_tree_panel',
+			store: sys_cd_tree_store,
+			rootVisible:false,
+			useArrows: true,
+			listeners:{
+				checkchange:function(node,checked,option){
+					if(checked){
+						root=Ext.getCmp('sys_cd_tree_panel').store.getRootNode();			
+						getNodes(root,false);
+						node.data.checked=true;
+						node.updateInfo({checked:true});
+						switch (node.data.id) { 
+							case "11": 
+								qz_setup();
+								break; 
+							case "12": 
+								qz_lb_setup();
+								break; 
+							case "13": 
+								qz_lb_ml_setup();
+								break; 
+							case "14": 
+								js_setup();
+								break;
+							case "15": 
+								js_qx_setup();
+								break;
+							case "16": 
+								user_setup();
+								break;
+							
+						}
+					}
+					
+				}
+			}
+		});
 		if(!win){
         win = desktop.createWindow({
         id: 'systemman',              
         title:'权限管理',
-				width:1000,
-				height:600,
+				width:400,
+				height:500,
 				iconCls: 'archiveman',
 				animCollapse:false,
 				border: false,
 				hideMode: 'offsets',
-				layout: 'border',
+				layout: 'fit',
 				split:true,
-				tbar:[
-					{xtype:'button',text:'保存角色权限',tooltip:'保存角色权限',id:'qx_save',iconCls:'save',
-						handler: function() {
-							//Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById("1_1_1")							
-							var tree = Ext.getCmp('user_tree_panel');
-							var nodes=tree.getChecked();
-							if (nodes.length==1){
-								root=Ext.getCmp('user_ml_qx_tree_panel').store.getRootNode();
-								insert_qx="";
-								get_mlqx_NodesChecked(root);
-								root=Ext.getCmp('user_cd_qx_tree_panel').store.getRootNode();
-								get_cdqx_NodesChecked(root);
-								var node=nodes[0];
-								if (insert_qx==""){
-									alert("请您选择一些权限再保存。");
-								}else{
-									insert_qx="({insert_qx:'" + insert_qx + "',userid:" + node.data.id + "})";
-									new Ajax.Request("/desktop/insert_user_qx", { 
-										method: "POST",
-										parameters: eval(insert_qx),
-										onComplete:	 function(request) {
-											if (request.responseText=='success'){
-												alert("权限保存成功。");												
-											}else{
-												alert("权限保存失败，请重新保存。");
-											}
-										}
-									});									
-								}
-							}else{
-								alert("请您先选择一个用户。");
-							}
-						}
-					},'->',	
-					{xtype:'button',text:'用户设置',tooltip:'新增修改删除用户',id:'qx_user',iconCls:'user',
-						handler: function() {
-							user_setup();
-						}
-					},
-					{xtype:'button',text:'角色设置',tooltip:'新增修改删除用户',id:'qx_js',iconCls:'user',
-						handler: function() {
-							js_setup();
-						}
-					},
-					{xtype:'button',text:'全宗设置',tooltip:'新增修改删除全宗',id:'qx_dw',iconCls:'user',
-						handler: function() {
-							qz_setup();		
-						}
-					},
-					{xtype:'button',text:'全宗档案类别设置',tooltip:'新增修改删除全宗档案类别',id:'qx_dw_lb',iconCls:'user',
-						handler: function() {
-							qz_lb_setup();
-						}
-					},
-					{xtype:'button',text:'全宗档案类别目录设置',tooltip:'新增修改删除全宗档案类别目录',id:'qx_dw_lb_ml',iconCls:'user',
-						handler: function() {
-							qz_lb_ml_setup();
-						}
-					}
-				],			
-				items: [
-					{	title:'角色树',
-						region:'west',
-						iconCls:'users',
-						xtype:'panel',
-						margins:'0 0 0 0',
-						width: 250,
-						collapsible:true,//可以被折叠
-						id:'user-tree',
-						layout:'fit',
-						split:true,
-						items:user_tree_panel
-					},
-					{	title:'用户目录权限树',
-						region:'center',
-						iconCls:'dept_tree',
-						xtype:'panel',
-						margins:'0 0 0 0',
-						//width: 250,
-						//collapsible:true,//可以被折叠						
-						id:'user-qx-tree',
-						layout:'fit',
-						split:true,
-						items:user_ml_qx_tree_panel
-					},{						
-						//collapsed:true,
-						collapsible: true,					
-						//collapseMode:'mini',
-						title:'用户系统权限树',
-						iconCls:'icon-grid',
-						region:'east',
-						xtype:'panel',
-						id:'user-sys-tree',
-						margins:'0 0 0 0',
-						layout: 'fit',
-						split:true,
-						width: 250,		
-						items:user_cd_qx_tree_panel
-					}
-				]
+							
+				items: sys_cd_tree_panel
 			});
       }
       win.show();
