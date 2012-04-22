@@ -3231,4 +3231,29 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
+  
+  #获得sys菜单树
+  def get_sys_cd_tree
+    node, style = params["node"], params['style']
+    if node == "root"
+      js_id=""
+      user= User.find_by_sql("select jsid from u_js where userid=  '#{params["userid"]}' order by id;")
+      user.each do |us|
+        logger.debug us['jsid']
+        if js_id==""
+          js_id=us['jsid']
+        else
+          js_id=js_id + "," +us['jsid']
+        end
+      end
+      data=User.find_by_sql("SELECT qx_mlqx.qxid, d_cd.cdmc FROM d_cd, qx_mlqx WHERE qx_mlqx.qxid = d_cd.id and d_cd.sfcd='1' and qx_mlqx.qxlb=4 and qx_mlqx.user_id in (#{js_id});")
+      #data = User.find_by_sql("select * from  d_cd where sfcd='1' order by id;")
+      text="["
+      data.each do |dd|
+        text=text+"{'text':'#{dd['cdmc']}','id' :'#{dd['qxid']}','checked':false,'leaf':true,'cls':'folder'},"
+      end
+      text=text + "]"
+      render :text => text
+    end
+  end
 end
