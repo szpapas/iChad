@@ -304,13 +304,14 @@ end
 #    @dylb --- 打印类别, 0--普通白纸打印， 1-用土地登记类的， 2-财务类 等等
 #
 #*********************************************************************************************
+dydh, qajh, zajh, dylb = ARGV[0], ARGV[1],  ARGV[2], ARGV[3]
+#qzh, mlh, dalb, qajh, zajh, dylb = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4], ARGV[5] 
+#dydh = "#{qzh}-#{dalb}-#{mlh}"
 
-qzh, mlh, dalb, qajh, zajh, dylb = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4], ARGV[5] 
+ss=dydh.split('-')
+qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
-dydh = "#{qzh}-#{dalb}-#{mlh}"
 puts  "=====Started At #{Time.now}===="
-
-$conn.exec("update p_status set dyzt='正在打印' where dydh='#{dydh}';")
 
 if( defined? ARGV[6]) && (ARGV[6].to_i == 1)
    $conn.exec("update archive set dyzt = '0' where dh like '#{qzh}_#{dalb}_#{mlh}_%' and cast (ajh as integer) >= #{qajh} and cast (ajh as integer) <= #{zajh}; ")
@@ -321,15 +322,10 @@ puts "select id, ajh from archive where qzh='#{qzh}' and dalb='#{dalb}' and mlh=
 user = $conn.exec("select id, ajh from archive where qzh='#{qzh}' and dalb='#{dalb}' and mlh='#{mlh}' and  ajh >= '#{qajh.rjust(4,'0')}' and ajh <= '#{zajh.rjust(4,'0')}' order by ajh;" )
 
 for k in 0..user.count-1 do
-  puts "update p_status set dqjh='#{user[k]['ajh'].to_i}' where dydh='#{dydh}';"
-  $conn.exec("update p_status set dqjh='#{user[k]['ajh'].to_i}' where dydh='#{dydh}';")
+  $conn.exec("update q_status set dqwz='#{user[k]['ajh'].to_i}' where dhp='#{dydh}';")
   puts "generating  #{user[k]['id']}  #{user[k]['ajh']}... type #{sprintf("%04b", dylb.to_i)}"
   generate_single_archive(user[k]['id'], dylb.to_i)
 end
-
-puts "update p_status set dyzt='打印完成' where dydh='#{dydh}'"
-
-$conn.exec("update p_status set dyzt='打印完成' where dydh='#{dydh}';")
 
 $conn.close
 

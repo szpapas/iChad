@@ -184,6 +184,29 @@ Ext.define('MyDesktop.SystemStatus', {
                });
              }
            },'-',{
+             text : '虚拟打印',
+             iconCls:'print',
+             handler : function() {
+               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+               id_str = '';
+               for (var i=0; i < items.length; i ++) {
+                 if (i==0) {
+                   id_str = id_str+items[i].data.id 
+                 } else {
+                   id_str = id_str + ',' +items[i].data.id 
+                 }
+
+               }
+               pars = {id:id_str};
+               new Ajax.Request("/desktop/print_selected_mljn", { 
+                 method: "POST",
+                 parameters: pars,
+                 onComplete:  function(request) {
+                   qzzt_store.load();
+                 }
+               });
+             }
+           },'-',{
              text : '导入JSON',
              iconCls : 'import',
              handler : function() {
