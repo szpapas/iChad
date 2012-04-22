@@ -104,7 +104,7 @@ Ext.define('MyDesktop.App', {
                   //  { name: '亲朋好友', iconCls: 'accordion-shortcut', module: 'acc-win' },
                 ]
             }),
-            wallpaper: 'wallpapers/Blue-Sencha.jpg',
+            wallpaper: 'assets/Blue-Sencha.jpg',
             wallpaperStretch: false
         });
     },
