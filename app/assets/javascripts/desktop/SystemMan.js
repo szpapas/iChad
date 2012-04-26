@@ -164,7 +164,7 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '修改用户信息',
 					//closeAction: 'hide',
 					width: 370,
-					height: 140,
+					height: 180,
 					//minHeight: 200,
 					layout: 'fit',
 					modal: true,
@@ -172,23 +172,30 @@ Ext.define('MyDesktop.SystemMan', {
 					//items:user_setup_grid,					
 					items: [{
 						width: 370,
-						height: 140,
+						height: 180,
 						xtype:'form',
 						layout: 'absolute',
 						id : 'user_disp_form',
 						items: [
 							{
 								xtype: 'label',
-								text: '用户名称：',
+								text: '用户名称:',
 								x: 10,
 								y: 10,
 								width: 100
 							},
 							{
 								xtype: 'label',
-								text: '密码',
+								text: 'Email:',
 								x: 10,
 								y: 40,
+								width: 100
+							},
+							{
+								xtype: 'label',
+								text: '密码:',
+								x: 10,
+								y: 70,
 								width: 100
 							},
 							{
@@ -197,11 +204,18 @@ Ext.define('MyDesktop.SystemMan', {
 								name : 'id' ,
 								id:'user_id'										
 							},
-							
 							{
 								xtype: 'textfield',
 								x: 130,
 								y: 10,
+								width: 200,
+								name: 'username',
+								id:'user_username'
+							},
+							{
+								xtype: 'textfield',
+								x: 130,
+								y: 40,
 								width: 200,
 								name: 'email',
 								id:'user_email'
@@ -209,7 +223,7 @@ Ext.define('MyDesktop.SystemMan', {
 							{
 								xtype: 'textfield',
 								x: 130,
-								y: 40,
+								y: 70,
 								width: 200,
 								name: 'encrypted_password',
 								id:'user_encrypted_password'
@@ -417,6 +431,7 @@ Ext.define('MyDesktop.SystemMan', {
 				fields: [
 					{name: 'id',		type: 'integer'},
 					{name: 'email',		type: 'string'},
+					{name: 'username',		type: 'string'},
 					{name: 'encrypted_password',		type: 'string'}
 				]
 			});
@@ -443,7 +458,8 @@ Ext.define('MyDesktop.SystemMan', {
 				store: user_setup_store,				
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-					{ text : '用户名',	width : 250, sortable : true, dataIndex: 'email'},
+					{ text : '用户名',	width : 100, sortable : true, dataIndex: 'username'},
+					{ text : 'Email',	width : 250, sortable : true, dataIndex: 'email'},
 					{ text : '密码',	width : 0, sortable : true, dataIndex: 'encrypted_password'}
 					],
 					selType:'checkboxmodel',
@@ -1807,7 +1823,7 @@ Ext.define('MyDesktop.SystemMan', {
 		if(!win){
         win = desktop.createWindow({
         id: 'systemman',              
-        title:'权限管理',
+        title:'系统管理',
 				width:400,
 				height:500,
 				iconCls: 'archiveman',
@@ -1819,8 +1835,20 @@ Ext.define('MyDesktop.SystemMan', {
 							
 				items: sys_cd_tree_panel
 			});
-      }
-      win.show();
+      	}
+    	new Ajax.Request("/desktop/get_sort", { 
+      		method: "POST",
+	      	parameters: eval("({userid:" + currentUser.id + ",qxid:8})"),
+	      	onComplete:	 function(request) {
+	      		if (request.responseText=='success'){
+	    			win.show();
+	      		}else{
+	      			alert('您无系统设置的权限。' + request.responseText);
+	      		}
+	      	}
+      	});
+	  
+		
       return win;
   }
 

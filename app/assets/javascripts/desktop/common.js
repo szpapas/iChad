@@ -289,6 +289,16 @@ var swda_lb_store = new Ext.data.SimpleStore({
 	data : swda_lb_data
 });
 
+var qzdj_data = [	
+	['3','地市级'],
+	['4','县级'],
+	['5','乡镇级']
+];
+var qzdj_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : qzdj_data
+});
+
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
