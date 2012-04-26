@@ -2941,6 +2941,18 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
+  #
+  def print_selected_mljn
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('-')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_wizard.rb #{dd.dh_prefix} #{dd.qajh} #{dd.zajh} 13', '', '', '未开始');")
+    end  
+    render :text => 'Success'
+  end
+  
   def import_selected_aj
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
