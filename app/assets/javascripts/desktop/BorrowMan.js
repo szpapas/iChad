@@ -1532,7 +1532,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																	Ext.getCmp('jyqq_win').close();
 																	var grid = Ext.getCmp('jydjlc_grid');
 																	grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-																	jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+																	jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + jydj_jyzt + "})");
 																	jydjlc_store.load();
 																}else{
 																	alert("阅览失败，请重新阅览。");
@@ -1553,7 +1553,7 @@ Ext.define('MyDesktop.BorrowMan', {
 														Ext.getCmp('jyqq_win').close();
 														var grid = Ext.getCmp('jydjlc_grid');
 														grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-														jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+														jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + jydj_jyzt + "})");
 														jydjlc_store.load();
 													}else{
 														alert("修改失败，请重新修改。");
@@ -2006,7 +2006,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																Ext.getCmp('clqq_win').close();
 																var grid = Ext.getCmp('jydjlc_grid');
 																grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-																jydjlc_store.proxy.extraParams.query=jydj_jyzt;
+																jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + jydj_jyzt + "})");
 																jydjlc_store.load();
 															}else{
 																alert("借阅申请处理失败，请重新处理。");
@@ -2039,7 +2039,7 @@ Ext.define('MyDesktop.BorrowMan', {
 													Ext.getCmp('clqq_win').close();
 													var grid = Ext.getCmp('jydjlc_grid');
 													grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-													jydjlc_store.proxy.extraParams.query='1';
+													jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:1})");;
 													jydjlc_store.load();
 												}else{
 													alert("打回失败，请重新打回。");
@@ -2554,7 +2554,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																		onComplete:	 function(request) {
 																			var grid = Ext.getCmp('jydjlc_grid');
 																			grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-																			jydjlc_store.proxy.extraParams.query=jyzt;
+																			jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + jyzt + "})");
 																			jydjlc_store.load();
 																			jydjlist_store.proxy.extraParams.query='';
 																			jydjlist_store.load();
@@ -2600,7 +2600,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																	onComplete:	 function(request) {
 																		var grid = Ext.getCmp('jydjlc_grid');
 																		grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-																		jydjlc_store.proxy.extraParams.query='2';
+																		jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:2})");
 																		jydjlc_store.load();
 																		jydjlist_store.proxy.extraParams.query='';
 																		jydjlist_store.load();
@@ -2635,7 +2635,7 @@ Ext.define('MyDesktop.BorrowMan', {
 														onComplete:	 function(request) {
 															var grid = Ext.getCmp('jydjlc_grid');
 															grid.store.proxy.url="/desktop/get_jydjlc_jyzt";
-															jydjlc_store.proxy.extraParams.query='2';
+															jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:2})");
 															jydjlc_store.load();
 															jydjlist_store.proxy.extraParams.query='';
 															jydjlist_store.load();
@@ -2703,7 +2703,18 @@ Ext.define('MyDesktop.BorrowMan', {
 				});
               
 	      }
-	      win.show();
+	      new Ajax.Request("/desktop/get_sort", { 
+      		method: "POST",
+	      	parameters: eval("({userid:" + currentUser.id + ",qxid:4})"),
+	      	onComplete:	 function(request) {
+	      		if (request.responseText=='success'){
+	    			win.show();
+	      		}else{
+	      			alert('您无借阅管理的权限。' + request.responseText);
+					Ext.getCmp('borrowman').close();
+	      		}
+	      	}
+      	});
 	      return win;
 	  }
 

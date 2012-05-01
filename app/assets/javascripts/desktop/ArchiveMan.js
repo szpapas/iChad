@@ -6633,7 +6633,18 @@ Ext.define('MyDesktop.ArchiveMan', {
 				]
 			});
 		}
-		win.show();
+		new Ajax.Request("/desktop/get_sort", { 
+      		method: "POST",
+	      	parameters: eval("({userid:" + currentUser.id + ",qxid:2})"),
+	      	onComplete:	 function(request) {
+	      		if (request.responseText=='success'){
+	    			win.show();
+	      		}else{
+	      			alert('您无国土档案管理的权限。' + request.responseText);
+					Ext.getCmp('archiveman').close();
+	      		}
+	      	}
+      	});
 		return win;
 	}
 });

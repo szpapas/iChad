@@ -1990,13 +1990,13 @@ class DesktopController < ApplicationController
 
   #更新用户信息
   def update_user
-   user=User.find_by_sql("select * from users where id <> #{params['id']} and email='#{params['email']}';")
+   user=User.find_by_sql("select * from users where id <> #{params['id']} and (email='#{params['email']}' or username='#{params['username']}');")
    size = user.size
    if size == 0
-     User.find_by_sql("update users set email='#{params['email']}', encrypted_password='#{params['encrypted_password']}' where id = #{params['id']};")
+     User.find_by_sql("update users set email='#{params['email']}', username='#{params['username']}' where id = #{params['id']};")
      txt='success'
    else
-     txt= '用户名称已经存在，请重新输入用户名称。'
+     txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
    end
    render :text => txt
   end
@@ -2004,14 +2004,14 @@ class DesktopController < ApplicationController
   #新增用户信息
   def insert_user
     #logger.debug  User。id
-    user=User.find_by_sql("select * from users where  email='#{params['email']}';")
+    user=User.find_by_sql("select * from users where  email='#{params['email']}' or username='#{params['username']}';")
     size = user.size
     if size == 0
    
       user = User.new
    
       user.email=params['email']
-   
+      user.username=params['username']
       user.password_confirmation=params['encrypted_password']
    
       user.password = params['encrypted_password']
@@ -2019,7 +2019,7 @@ class DesktopController < ApplicationController
    
       txt='success'
     else
-      txt= '用户名称已经存在，请重新输入用户名称。'
+      txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
     end
     render :text => txt
   end
@@ -3234,7 +3234,7 @@ class DesktopController < ApplicationController
         js_id=js_id + "," +us['jsid']
       end
     end
-    user=User.find_by_sql("select * from qx_mlqx where user_id in (#{js_id}) and qxlb=4 and qxid=9;")
+    user=User.find_by_sql("select * from qx_mlqx where user_id in (#{js_id}) and qxlb=4 and qxid='#{params["qxid"]}';")
     size = user.size
     if size == 0
       txt='false'
