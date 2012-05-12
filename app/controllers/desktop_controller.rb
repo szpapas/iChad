@@ -522,8 +522,6 @@ class DesktopController < ApplicationController
         txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
       end
     end
-	  
-    
     render :text => txt
   end
     

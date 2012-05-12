@@ -267,14 +267,14 @@ def generate_single_archive(archive_id, print_option=0b1101)
         page = ((docs[k]['sxh'].to_i - 1) / 10) + 1 
         index_pos = (docs[k]['yh'].include?('-')) ? 1950 : 2000
         $out_str = $out_str + "  -draw \"text 240, #{$pos_y} '#{docs[k]['sxh']}'\"  #{wh_str} #{tt_str} #{zrz_str} -draw  \"text 1710, #{$pos_y} '#{rq_str}'\"  -draw  \"text #{index_pos}, #{$pos_y} '#{docs[k]['yh']}'\"" 
-
-        convert_str =  "convert ./dady/#{image_t}.jpg -font  ./dady/SimHei.ttf -pointsize 48 #{$out_str}  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg" 
+        page=page.rjust(2,'0')
+        convert_str =  "convert ./dady/#{image_t}.jpg -font  ./dady/SimHei.ttf -pointsize 48 #{$out_str}  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg" 
 
        #puts (convert_str)
        puts ("4 ====generate JN ===")
        system convert_str
-       save2timage("ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML0#{page}.jpg", dh, yxqz)
-       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML0#{page}.jpg")
+       save2timage("ML0#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML#{page}.jpg", dh, yxqz)
+       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg")
      
       else   
         $out_str = $out_str + "  -draw \"text 240, #{$pos_y} '#{docs[k]['sxh']}'\"  #{wh_str} #{tt_str} #{zrz_str} -draw  \"text 1710, #{$pos_y} '#{rq_str}'\"  -draw  \"text 2000, #{$pos_y} '#{docs[k]['yh']}'\"" 

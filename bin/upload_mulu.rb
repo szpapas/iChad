@@ -6,6 +6,7 @@ require 'pg'
 require 'active_support'
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn.exec("set standard_conforming_strings = off")
 
 #2综合档案aj.txt
 def get_dalb(ifname) 

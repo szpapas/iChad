@@ -17,7 +17,7 @@ end
 def update_timage(dh_prefix)
   $stderr.puts"更新 #{dh_prefix} ..."
   puts "update ML00..."
-  $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set ml00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to 'ML00%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update MLBK..." 
   $conn.exec"update timage_tj set mlbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'MLBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
