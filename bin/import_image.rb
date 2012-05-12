@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 #$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
 require 'find'
@@ -20,7 +21,7 @@ $conn.exec("set standard_conforming_strings = off")
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
 ss = dh_prefix.split('-')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
-
+puts "===ajh  of  #{ajh}  ==="
 t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
