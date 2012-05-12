@@ -31,7 +31,6 @@ Ext.define('MyDesktop.ArchiveMan', {
 	],
 
 	id:'archiveman',
-
 	init : function(){
 		this.launcher = {
 			text: '档案管理',
@@ -42,6 +41,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 	},
 	
 	createWindow : function(){
+		var dh='';
 		var desktop = this.app.getDesktop();
 		
 		var win = desktop.getWindow('archiveman');
@@ -106,7 +106,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		// Go ahead and create the TreePanel now so that we can use it below
 		var AjListFn_zh = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -456,7 +456,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -502,7 +502,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		
 		var AjListFn_cw = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -861,7 +861,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -908,7 +908,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		
 		var AjListFn_tddj = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -1255,7 +1255,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -1299,7 +1299,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 		var AjListFn_wsda = function(title,text) {
-			
+			dh='';
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -1673,7 +1673,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -1717,7 +1717,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 		var AjListFn_sx = function(title,text) {
-			
+			dh='';
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -2073,7 +2073,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -2117,7 +2117,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 		var AjListFn_tjml = function(title,text) {
-			
+			dh='';
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -2457,7 +2457,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -2502,7 +2502,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_qtda_dzda = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -2856,7 +2856,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -2901,7 +2901,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_qtda_sbda = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -3251,7 +3251,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -3295,7 +3295,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 		var AjListFn_qtda_jjda = function(title,text) {
-			
+			dh='';
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -3636,7 +3636,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -3681,7 +3681,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_qtda_swda = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -4027,7 +4027,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -4072,7 +4072,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_qtda_zlxx = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -4415,7 +4415,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -4460,7 +4460,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_by_tszlhj = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -4804,7 +4804,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -4848,7 +4848,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			userManagePageIsOpen = true;
 		};
 		var AjListFn_by_jcszhb = function(title,text) {
-			
+			dh='';
 			
 			Ext.regModel('document_model', {
 				fields: [
@@ -5185,7 +5185,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -5230,7 +5230,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_by_zzjgyg = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -5566,7 +5566,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -5611,7 +5611,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_by_dsj = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -5958,7 +5958,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				archive_id = data.id; 
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
-				
+				dh=data.dh;
 			      
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
@@ -6003,7 +6003,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		};
 		var AjListFn_by_qzsm = function(title,text) {
 			
-			
+			dh='';
 			Ext.regModel('document_model', {
 				fields: [
 						{name: 'id',		type: 'integer'},
@@ -6339,7 +6339,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				store3.proxy.extraParams.query=data.id;
 				store3.load();
 				
-			      
+			    dh=data.dh;
 
 			      timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
 			      timage_store.load();
@@ -6404,7 +6404,79 @@ Ext.define('MyDesktop.ArchiveMan', {
 			width: 200
 			
 		});
+		var myuploadform= new Ext.FormPanel({
+	      	id : 'my_upload_form',
+		      fileUpload: true,
+		      width: 300,
+		      height : 100,
+		      autoHeight: true,
+		      bodyStyle: 'padding: 5px 5px 5px 5px;',
+		      labelWidth: 0,
+		      defaults: {
+		        anchor: '95%',
+		        allowBlank: false,
+		        msgTarget: 'side'
+		      },
+		      layout : 'absolute',
+		      items:[{
+		        xtype: 'label',
+		        text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+		        x: 10,
+		        y: 10,
+		        width: 100
+		      },
+		      {
+		        xtype: 'fileuploadfield',
+		        id: 'filedata',
+		        x: 10,
+		        y: 30,
+		        emptyText: '选择一个文件...',
+		        buttonText: '浏览'
+		      }],
+		  buttons: [
+		  {
+	        text: '上传',
+	        handler: function(){
+				if (dh==''){
+					msg('提示', '请先选择要增加影像文件的案卷.');
+				}else{
+	          		myForm = Ext.getCmp('my_upload_form').getForm();
+			          if(myForm.isValid()){
+			            form_action=1;
+			            myForm.submit({
+			              url: '/desktop/upload_file',
+			              waitMsg: '文件上传中...',
+			              success: function(form, action){
+			                var isSuc = action.result.success; 
+			                if (isSuc) {
+								//myForm._fields.items[0].lastValue
+								new Ajax.Request("/desktop/save_image_db", { 
+						    		method: "POST",
+							    	parameters: eval("({filename:'" + myForm._fields.items[0].lastValue + "',dh:'" + dh +"'})"),
+							    	onComplete:	 function(request) {
+										if (request.responseText=='success'){
+											timage_store.load();
+							                msg('成功', '文件上传成功.');												
+										}else{
+											alert("文件上传失败，请重新上传。"+ request.responseText);
+										}
+									}
+						    	});
 
+			                } else { 
+			                  msg('失败', '文件上传失败.');
+			                }
+			              }, 
+			              failure: function(){
+			                msg('失败', '文件上传失败.');
+			              }
+			            });
+			          }
+				}
+	        }
+	      }
+		]
+	    });
 		treePanel.on("select",function(node){ 
 			data = node.selected.items[0].data;	 // data.id, data.parent, data.text, data.leaf
 			ss=data.id.split('_');
@@ -6525,6 +6597,10 @@ Ext.define('MyDesktop.ArchiveMan', {
 							width: 300,
 							minSize: 100,
 							maxSize: 250,
+							layout:'fit',
+							tbar:[myuploadform
+							
+							],
 							bbar:[
 				              {
 				                text:'图像列表',

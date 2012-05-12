@@ -720,6 +720,8 @@ class DesktopController < ApplicationController
     end
     render :text => "{success:true}"
   end
+  
+  
 
   def decode_file (f)
     system("iconv -t UTF-8 -f GB18030 #{f} > newfile")
@@ -1781,7 +1783,7 @@ class DesktopController < ApplicationController
 
   #获得用户列表
   def  get_user_grid
-    user = User.find_by_sql("select * from  users order by id;")
+    user = User.find_by_sql("select users.*,d_dwdm.dwdm from users left join d_dwdm on users.ssqz=d_dwdm.id order by users.id;")
 
     size = user.size;
     if size > 0 
@@ -1833,7 +1835,48 @@ class DesktopController < ApplicationController
       render :text => text
     end
   end
- 	
+  #获得档案类别树
+  def get_lb_qx_tree
+    node, style = params["node"], params['style']
+    if node == "root"
+      #data = User.find_by_sql("select * from  d_dalb order by id;")
+      text="[{'text':'档案类别','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':["
+      dalb=User.find_by_sql("select * from d_dalb where sx<100 order by sx;")
+      dalb.each do |lb|
+        text=text+"{'text':'#{lb['lbdm']}#{lb['lbmc']}','id':'#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["        
+        dalbml=User.find_by_sql("select * from  d_dalb where ownerid=  #{lb['id']} order by id;")
+        size=dalbml.size
+        if size>0 
+          dalbml.each do |lbml|
+            text=text+"{'text':'#{lbml['lbmc']}','id' :'#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+            text=text+"{'text':'查询','id' :'#{lbml['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+            text=text+"{'text':'打印','id' :'#{lbml['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+            text=text+"{'text':'新增','id' :'#{lbml['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+            text=text+"{'text':'修改','id' :'#{lbml['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+            text=text+"{'text':'删除','id' :'#{lbml['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+            text=text+"{'text':'影像文件查看','id' :'#{lbml['id']}_i','leaf':true,'checked':false,'cls':'folder'},"
+            text=text+"]},"                 
+          end
+          text=text+"]},"
+       else
+         text=text+"{'text':'查询','id' :'#{lb['id']}_q','leaf':true,'checked':false,'iconCls':'accordion'},"
+         text=text+"{'text':'打印','id' :'#{lb['id']}_p','leaf':true,'checked':false,'iconCls':'print'},"
+         text=text+"{'text':'新增','id' :'#{lb['id']}_a','leaf':true,'checked':false,'iconCls':'add'},"
+         text=text+"{'text':'修改','id' :'#{lb['id']}_m','leaf':true,'checked':false,'iconCls':'option'},"
+         text=text+"{'text':'删除','id' :'#{lb['id']}_d','leaf':true,'checked':false,'iconCls':'delete'},"
+         text=text+"{'text':'影像文件查看','id' :'#{lb['id']}_i','leaf':true,'checked':false,'cls':'folder'},"
+         text=text+"]},"
+       end
+     end
+    # data.each do |dd|
+    #     text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+    # end
+      text=text + "]}]"
+      render :text => text
+    end
+  end
+
+  
  	#获得全宗档案类别树
   def get_qz_lb_tree
     if !(params['id'].nil?)
@@ -1972,17 +2015,19 @@ class DesktopController < ApplicationController
    ss = params['insert_qx'].split('$')
    for k in 0..ss.length-1
      qx=ss[k].split(';')
-     ids=qx[0].split('_')
-     if qx[2]=="0"
-       if ids.length==4
-         id=ids[ids.length-2]
-         User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb,qx) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1},'#{ids[ids.length-1]}');")
+     if qx[0]!="root1"
+       ids=qx[0].split('_')
+       if qx[2]=="0"
+         if ids.length==2
+           id=ids[ids.length-2]
+           User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb,qx) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1},'#{ids[ids.length-1]}');")
+         else
+           id=ids[ids.length-1]
+           User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1});")
+         end
        else
-         id=ids[ids.length-1]
-         User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{id}',#{ids.length-1});")
+         User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{qx[0]}',4);")
        end
-     else
-       User.find_by_sql("insert into qx_mlqx(qxdm, qxmc, user_id,qxid,qxlb) values ('#{qx[0]}', '#{qx[1]}',#{params['userid']},'#{qx[0]}',4);")
      end
    end
     render :text => 'success'
@@ -1993,7 +2038,7 @@ class DesktopController < ApplicationController
    user=User.find_by_sql("select * from users where id <> #{params['id']} and (email='#{params['email']}' or username='#{params['username']}');")
    size = user.size
    if size == 0
-     User.find_by_sql("update users set email='#{params['email']}', username='#{params['username']}' where id = #{params['id']};")
+     User.find_by_sql("update users set ssqz='#{params['dwdm']}',email='#{params['email']}', username='#{params['username']}', sfxsxyisj='#{params['sfxsxyisj']}' where id = #{params['id']};")
      txt='success'
    else
      txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
@@ -2012,6 +2057,8 @@ class DesktopController < ApplicationController
    
       user.email=params['email']
       user.username=params['username']
+      user.sfxsxyisj=params['sfxsxyisj']
+      user.ssqz=params['dwdm']
       user.password_confirmation=params['encrypted_password']
    
       user.password = params['encrypted_password']
@@ -2060,7 +2107,8 @@ class DesktopController < ApplicationController
 
   #获得全宗列表
   def get_qz_grid
-    user = User.find_by_sql("select * from  d_dwdm order by id;")
+    user = User.find_by_sql("SELECT  a.dwdm,a.dwjc,a.id,a.owner_id,a.dj,b.dwdm as ssqz FROM  d_dwdm a  left join d_dwdm b on a.owner_id = b.id order by id;")
+    #user = User.find_by_sql("SELECT  * from d_dwdm order by id;")
     size = user.size;
     if size > 0 
      txt = "{results:#{size},rows:["
@@ -2071,15 +2119,20 @@ class DesktopController < ApplicationController
     else
      txt = "{results:0,rows:[]}"  
     end  
+    logger.debug txt
     render :text => txt
+    
   end
   
   #更新全宗信息
   def update_qz
+    if params['ssqz']==""
+      params['ssqz']=0
+    end
     user=User.find_by_sql("select * from d_dwdm where id <> #{params['id']} and dwdm='#{params['dwdm']}';")
     size = user.size
     if size == 0
-      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}' where id = #{params['id']};")
+      User.find_by_sql("update d_dwdm set owner_id='#{params['ssqz']}',dj='#{params['dj']}',dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}' where id = #{params['id']};")
       txt='success'
     else
       txt= '全宗名称已经存在，请重新输入全宗名称。'
@@ -2089,10 +2142,13 @@ class DesktopController < ApplicationController
   
   #新增全宗信息
   def insert_qz
+    if params['ssqz']==""
+      params['ssqz']=0
+    end
     user=User.find_by_sql("select * from d_dwdm where  dwdm='#{params['dwdm']}';")
     size = user.size
     if size == 0
-      User.find_by_sql("insert into d_dwdm(dwdm, dwjc) values ('#{params['dwdm']}', '#{params['dwjc']}');")
+      User.find_by_sql("insert into d_dwdm(dwdm, dwjc,owner_id,dj) values ('#{params['dwdm']}', '#{params['dwjc']}', '#{params['ssqz']}', '#{params['dj']}');")
       txt='success'
     else
       txt= '全宗名称已经存在，请重新输入全宗名称。'
@@ -2146,95 +2202,111 @@ class DesktopController < ApplicationController
   def get_treeforuserid
     text = "[]"
     userid=""
+    jsid=""
+    ssqz=""
     node, style = params["node"], params['style']
-      if node == "root"
-        user= User.find_by_sql("select jsid from u_js where userid=  '#{params["userid"]}' order by id;")
-        user.each do |us|
-          logger.debug us['jsid']
-          if userid==""
-            userid=us['jsid']
+    user= User.find_by_sql("SELECT distinct d_js.jsdj FROM d_js, u_js WHERE u_js.jsid = d_js.id and userid=  '#{params["userid"]}' ;")
+    user.each do |us|
+      logger.debug us['jsdj']
+      if userid==""
+        userid="'" + us['jsdj'] + "'"
+      else
+        userid=userid + ",'" +us['jsdj']+ "'"
+      end
+    end
+    if userid!="" 
+      data = User.find_by_sql("select * from users where id= #{params["userid"]};")
+      if data[0]["sfxsxyisj"]=="是"
+        if userid.include?"地市级"
+          userid="'地市级','县级','乡镇级'"
+        else
+          if userid.include?"县级"
+            userid="'县级','乡镇级'"
           else
-            userid=userid + "," +us['jsid']
+            userid="'乡镇级'"
           end
         end
-        if userid!=""
-          data = User.find_by_sql("select distinct qxdm ,qxmc from  qx_mlqx where user_id in (#{userid}) and qxlb=0 order by qxdm;")
+        dwdm= User.find_by_sql("select * from d_dwdm where id= #{data[0]["ssqz"]} or owner_id=#{data[0]["ssqz"]};")
+        dwdm.each do |qz|
+          if ssqz==""
+            ssqz=qz['id'].to_s 
+          else
+            ssqz=ssqz + "," +qz['id'].to_s
+          end
+          xjqz=User.find_by_sql("select * from d_dwdm where  owner_id=#{qz['id']};")
+          xjqz.each do |xqz|
+            if ssqz==""
+              ssqz=xqz['id'].to_s 
+            else
+              ssqz=ssqz + "," +xqz['id'].to_s
+            end
+          end
+        end
+        
+      else
+        ssqz=data[0]["ssqz"]
+      end
+           
+    end
+      if node == "root"
+        if userid!="" 
+          data = User.find_by_sql("select * from  d_dwdm where dj in (#{userid}) and id in (#{ssqz})  order by id;")
           text="["
           data.each do |dd|
-            text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
-            logger.debug "权限名称"+dd['qxmc']
-            dalb = User.find_by_sql("select distinct qxdm,qxmc,qxid,sx from  qx_mlqx,d_dalb where qx_mlqx.qxid = d_dalb.id and qx_mlqx.qxlb=1 and d_dalb.sx<100 and qx_mlqx.user_id in (#{userid}) and qxdm like '#{dd['qxdm']}\\_%' order by d_dalb.sx;")
-            dalb.each do |lb|
-              if lb['qxid'].to_i>99  
-                text=text+"{'text':'#{lb['qxmc']}','id':'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-                logger.debug "权限名称"+lb['qxmc']
-                dalbej=User.find_by_sql("select distinct qxdm,qxmc,qxid,d_dalb.id from  qx_mlqx,d_dalb where qx_mlqx.qxid = d_dalb.id and qx_mlqx.qxlb=1 and d_dalb.ownerid='#{lb['qxid']}' and qx_mlqx.user_id in (#{userid}) and qxdm like '#{dd['qxdm']}\\_%' order by d_dalb.id;")
-                dalbej.each do |lbml|
-                  
-                  text=text+"{'text':'#{lbml['qxmc']}','id':'#{lbml['qxdm']}','leaf':false,'cls':'folder','children':["
-                  dalbml=User.find_by_sql("select distinct qx_mlqx.qxdm, d_dw_lb_ml.mlhjc from  qx_mlqx,d_dw_lb_ml where qx_mlqx.qxid = d_dw_lb_ml.id and qxlb=2 and user_id in (#{userid})  and qxdm like '#{lbml['qxdm']}\\_%' order by qxdm;")
-                  dalbml.each do |ml|
-                    text=text+"{'text':'#{ml['mlhjc']}','id' :'#{ml['qxdm']}','leaf':true,'cls':'folder'},"                  
-                  end  
-                  text=text+"]},"               
-                end
-                
-              else
-                text=text+"{'text':'#{lb['qxmc']}','id':'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-                dalbml=User.find_by_sql("select distinct qx_mlqx.qxdm, d_dw_lb_ml.mlhjc from  qx_mlqx,d_dw_lb_ml where qx_mlqx.qxid = d_dw_lb_ml.id and qxlb=2 and user_id in (#{userid})  and qxdm like '#{lb['qxdm']}\\_%' order by qxdm;")
-                dalbml.each do |ml|
-                  text=text+"{'text':'#{ml['mlhjc']}','id' :'#{ml['qxdm']}','leaf':true,'cls':'folder'},"                  
-                end
-              end
-             text=text+"]},"
-           end
-           text=text+"]},"
+            text=text + "{'text':'#{dd['id']}#{dd['dwdm']}','id' :'#{dd["id"]}','leaf':false,'cls':'folder'},"
           end
-          text=text + "]"  
-        
-        end 
+          text=text +"]"          
+        end
+      else
+        pars = node.split('_') || []
+        user= User.find_by_sql("SELECT *  FROM  u_js WHERE  userid=  '#{params["userid"]}' ;")
+        user.each do |us|            
+          if jsid==""
+            jsid=us['jsid']
+          else
+            jsid=jsid + "," +us['jsid']
+          end
+        end
+        text="["
+        if pars.length == 1
+          dwdj=User.find_by_sql("select * from  d_dwdm where id= #{pars[0]};")
+          data = User.find_by_sql("select distinct qxdm ,qxmc ,qxid,sx from qx_mlqx,d_dalb where user_id in (#{jsid}) and qxlb=0 and d_dalb.id=qxid  order by sx;")
+          data.each do |dd|
+            if dd['sx'].to_i>0 
+              text=text+"{'text':'#{dd['qxmc']}','id':'#{pars[0]}_#{dd['qxdm']}','leaf':false,'cls':'folder'},"
+            else
+            end
+            
+          end
+          text=text+"]"
+        end
+        if pars.length == 2
+          if pars[1].to_i<99 
+            txt=[]  
+            text=""         
+            data = User.find_by_sql("select distinct mlh from archive    where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
+            data.each do |dd|
+              txt << {:text => "目录 #{dd['mlh']}", :id => node+"_#{dd["mlh"]}", :leaf => true, :cls => "file"}
+            end
+            
+          else
+            dwdj=User.find_by_sql("select * from  d_dwdm where id= #{pars[0]};")
+            data = User.find_by_sql("select distinct qxdm ,qxmc ,qxid,sx from qx_mlqx,d_dalb where user_id in (#{jsid}) and qxlb=0 and d_dalb.id=qxid and d_dalb.ownerid='#{pars[1]}' order by qxid;")
+            
+            data.each do |dd|
+              
+                text=text+"{'text':'#{dd['qxmc']}','id':'#{pars[0]}_#{dd['qxdm']}','leaf':false,'cls':'folder'},"
+              
+            end
+            text=text+"]"
+          end
+        end
       end
-   #     data = User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc,d_dalb.ownerid from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id and d_dalb.sx<100 and dwid = #{params['id']} order by d_dalb.sx;")
-   #     text="["
-        
-   #     data.each do |dd|
-          
-  #     if dd['lbid'].to_i>99  
-  #       text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','checked':false,'cls':'folder','children':["        
-  #       dalbrj=User.find_by_sql("select d_dw_lb.id, d_dw_lb.dwid, d_dw_lb.lbid, d_dw_lb.lbmc from  d_dw_lb,d_dalb where d_dw_lb.lbid = d_dalb.id  and d_dalb.ownerid=#{dd['lbid']} and dwid=#{params['id']};")
-  #       dalbrj.each do |dalbrj|            
-  #         text=text+"{'text':'#{dalbrj['lbmc']}','id' :'#{dalbrj['id']}','leaf':true,'checked':false,'cls':'folder'},"
-  #       end
-  #       text=text+"]},"
-  #     else
-  #        text=text+"{'text':'#{dd['lbmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'cls':'folder'}," 
-  #     end
-  #     
-  #   end
-  #   text=text + "]"   
-  #     data = User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=0 order by id;")
-  #     text="["
-  #     data.each do |dd|
-  #       text=text+"{'text':'#{dd['qxmc']}','id' :'#{dd['qxdm']}','leaf':false,'cls':'folder','children':["
-  #
-  #       dalb=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=1 and qxdm like '#{dd['qxdm']}_%' order by id;")
-  #       dalb.each do |lb|
-  #         text=text+"{'text':'#{lb['qxmc']}','id' :'#{lb['qxdm']}','leaf':false,'cls':'folder','children':["
-  #         dalbml=User.find_by_sql("select * from  qx_mlqx where user_id=  #{params["userid"]} and qxlb=2 and qxdm like '#{lb['qxdm']}_%' order by id;")
-  #         dalbml.each do |lbml|
-  #           text=text+"{'text':'#{lbml['qxmc']}','id' :'#{lbml['qxdm']}','leaf':true,'cls':'folder'},"
-  #           
-  #
-  #        end
-  #        text=text+"]},"
-  #      end
-  #      text=text+"]},"
-  #     end
-  #     text=text + "]"
-        
-     
-
-    render :text => text
+    if text=="" 
+      render :text => txt.to_json
+    else
+      render :text => text
+    end
   end
 
   def get_mlh
@@ -2280,39 +2352,35 @@ class DesktopController < ApplicationController
     else
       ss = params['query'].split('_')
       if ss.length>2
-        data=User.find_by_sql("select * from d_dw_lb_ml where id = '#{ss[2]}';")
-        size = data.size;
-      
-        if size>0
-          
-            user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{data[0]['mlh']}';")
+                  
+            user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}';")
             size = user[0].count;
   
             if size.to_i > 0
                 txt = "{results:#{size},rows:["
                 case (ss[1]) 
 									when "0"
-										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' order by ajh limit #{params['limit']} offset #{params['start']};")
 									 
 									when "2"
-										user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
 										
 									when "3","5","6","7"
-										user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
 									when "15"
-										user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "18"
-										user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "25"
-										user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "27"
-										user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "26"
-										user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "28"
-										user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "29"
-										user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "30"
 										user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh limit #{params['limit']} offset #{params['start']};")
                   when "31"
@@ -2341,9 +2409,8 @@ class DesktopController < ApplicationController
                 txt = "{results:0,rows:[]}"
             end
           
-        else
-          txt = "{results:0,rows:[]}"
-        end
+        
+        
       else
         
           user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' ;")
@@ -3115,18 +3182,23 @@ class DesktopController < ApplicationController
   #获得角色树
   def get_js_tree
    node, style = params["node"], params['style']
+   text="["
+   jslb=["地市级","县级","乡镇级"]
    if node == "root"
-     data = User.find_by_sql("select * from  d_js order by id;")
-     size=data.size
-     if size>0
-       text="["
-       data.each do |dd|
-         text=text+"{'text':'#{dd['jsmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+     for k in 0..2       
+       text=text+"{'text':'#{jslb[k]}','id' :'#{jslb[k]}-#{k}','leaf':false,'checked':false,'cls':'folder','children':["
+       data = User.find_by_sql("select * from  d_js where jsdj='#{jslb[k]}' order by id;")
+       size=data.size
+       if size>0
+         
+         data.each do |dd|
+           text=text+"{'text':'#{dd['jsmc']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+         end
+               
        end
-       text=text + "]"
-     else
-       text="[]"
+       text=text + "]}," 
      end
+     text=text+"]"
      render :text => text
    end
   end
@@ -3153,7 +3225,7 @@ class DesktopController < ApplicationController
    user=User.find_by_sql("select * from d_js where id <> #{params['id']} and jsmc='#{params['jsmc']}';")
    size = user.size
    if size == 0
-     User.find_by_sql("update d_js set jsmc='#{params['jsmc']}' where id = #{params['id']};")
+     User.find_by_sql("update d_js set jsmc='#{params['jsmc']}',jsdj='#{params['jsdj']}' where id = #{params['id']};")
      txt='success'
    else
      txt= '角色名称已经存在，请重新输入角色名称。'
@@ -3166,7 +3238,7 @@ class DesktopController < ApplicationController
     user=User.find_by_sql("select * from d_js where  jsmc='#{params['jsmc']}';")
     size = user.size
     if size == 0
-      User.find_by_sql("insert into d_js(jsmc) values ('#{params['jsmc']}');")
+      User.find_by_sql("insert into d_js(jsmc,jsdj) values ('#{params['jsmc']}','#{params['jsdj']}');")
       txt='success'
     else
       txt= '角色名称已经存在，请重新输入角色名称。'
@@ -3204,7 +3276,10 @@ class DesktopController < ApplicationController
       qx=ss[k].split(';')       
       if qx[0]=="root1"  
       else
-        User.find_by_sql("insert into u_js(userid, jsid) values ('#{params['userid']}', '#{qx[0]}');")
+        js=qx[0].split('-')
+        if js.length==1 
+          User.find_by_sql("insert into u_js(userid, jsid) values ('#{params['userid']}', '#{qx[0]}');")
+        end
       end
     end
     render :text => 'success'
@@ -3267,5 +3342,10 @@ class DesktopController < ApplicationController
       text=text + "]"
       render :text => text
     end
+  end
+  def save_image_db
+    #system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
+    system("ruby ./dady/bin/import_image_file.rb ./dady/#{params['filename']} #{params['dh']} #{params['dh']} ")    
+    render :text =>"success"
   end
 end

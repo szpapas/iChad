@@ -44,59 +44,8 @@ Ext.define('MyDesktop.SystemMan', {
 	  var insert_qx="";
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('systemman');
-
-		var user_tree_store	= Ext.create('Ext.data.TreeStore', {
-				autoLoad: true,
-				proxy: {
-						type: 'ajax',
-						url: 'desktop/get_js_tree',
-						extraParams: {style:"0"},
-						actionMethods: 'POST'
-				}
-		});
-
-		var user_tree_panel = Ext.create('Ext.tree.Panel', {
-			id : 'user_tree_panel',
-			store: user_tree_store,
-			rootVisible:false,
-			useArrows: true,
-			singleExpand: true,
-			width: 200,
-			listeners:{
-				checkchange:function(node,checked,option){
-					if (checked){
-						root=Ext.getCmp('user_tree_panel').store.getRootNode();			
-						getNodes(root,false);
-						node.data.checked=true;
-						node.updateInfo({checked:true});
-						new Ajax.Request("/desktop/get_user_qx", { 
-							method: "POST",
-							parameters: "userid="+node.data.id,
-							onComplete:	 function(request) {
-								//alert(request.responseText);
-								root=Ext.getCmp('user_ml_qx_tree_panel').store.getRootNode();			
-								getNodes(root,false);
-								root=Ext.getCmp('user_cd_qx_tree_panel').store.getRootNode();
-								getNodes(root,false);
-								nodes=request.responseText.split("|");
-								for (k=0; k <nodes.size(); k++) {
-										qx=nodes[k].split(";");
-										if(qx[1]==4){
-											Ext.getCmp('user_cd_qx_tree_panel').store.getNodeById(qx[0]).data.checked=true;
-											Ext.getCmp('user_cd_qx_tree_panel').store.getNodeById(qx[0]).updateInfo({checked:true});
-										}else{
-											Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById(qx[0]).data.checked=true;
-											Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById(qx[0]).updateInfo({checked:true});
-											
-										}
-									}
-							}
-						});
-					}
-				}
-			}
-			//height: 300,
-		});
+		
+		
 
 		
 		
@@ -157,14 +106,34 @@ Ext.define('MyDesktop.SystemMan', {
 		};
 		var user_disp = function(record,add_new){
 			var win = Ext.getCmp('user_disp_win');
-
+			Ext.regModel('qz_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'dwdm',		type: 'string'}
+				]
+			});
+			var qz_store = Ext.create('Ext.data.Store', {
+					id:'qz_store',
+					model : 'qz_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_qz_grid',
+						//extraParams: {query:title},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			qz_store.load();
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'user_disp_win',
 					title: '修改用户信息',
 					//closeAction: 'hide',
 					width: 370,
-					height: 180,
+					height: 240,
 					//minHeight: 200,
 					layout: 'fit',
 					modal: true,
@@ -172,7 +141,7 @@ Ext.define('MyDesktop.SystemMan', {
 					//items:user_setup_grid,					
 					items: [{
 						width: 370,
-						height: 180,
+						height: 210,
 						xtype:'form',
 						layout: 'absolute',
 						id : 'user_disp_form',
@@ -190,12 +159,27 @@ Ext.define('MyDesktop.SystemMan', {
 								x: 10,
 								y: 40,
 								width: 100
-							},
+							}
+							,
 							{
 								xtype: 'label',
 								text: '密码:',
 								x: 10,
 								y: 70,
+								width: 100
+							},
+							{
+								xtype: 'label',
+								text: '是否显示下级档案:',
+								x: 10,
+								y: 100,
+								width: 100
+							},
+							{
+								xtype: 'label',
+								text: '所属全宗:',
+								x: 10,
+								y: 130,
 								width: 100
 							},
 							{
@@ -227,6 +211,36 @@ Ext.define('MyDesktop.SystemMan', {
 								width: 200,
 								name: 'encrypted_password',
 								id:'user_encrypted_password'
+							}	,
+							{
+								xtype: 'combobox',
+								x: 130,
+								y: 100,
+								width: 200,
+								store: sf_store,
+								emptyText:'请选择',
+								mode: 'remote',
+								minChars : 2,
+								valueField:'text',
+								displayField:'text',
+								triggerAction:'all',
+								name: 'sfxsxyisj',
+								id:'user_sfxsxyisj'
+							},
+							{
+								xtype: 'combobox',
+								x: 130,
+								y: 130,
+								width: 200,
+								store: qz_store,
+								emptyText:'请选择',
+								mode: 'remote',
+								minChars : 2,
+								valueField:'id',
+								displayField:'dwdm',
+								triggerAction:'all',
+								name: 'dwdm',
+								id:'user_ssqz'
 							}
 						],
 						buttons:[{
@@ -244,7 +258,7 @@ Ext.define('MyDesktop.SystemMan', {
 													parameters: pars,
 													onComplete:	 function(request) {
 														if (request.responseText=='success'){
-															
+															alert("修改成功。");
 															Ext.getCmp('user_disp_win').close();
 															
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
@@ -261,7 +275,7 @@ Ext.define('MyDesktop.SystemMan', {
 													parameters: pars,
 													onComplete:	 function(request) {
 														if (request.responseText=='success'){
-															
+															alert("新增成功。");
 															Ext.getCmp('user_disp_win').close();
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
@@ -333,7 +347,13 @@ Ext.define('MyDesktop.SystemMan', {
 								y: 10,
 								width: 100
 							},
-							
+							{
+								xtype: 'label',
+								text: '角色等级：',
+								x: 10,
+								y: 40,
+								width: 100
+							},
 							{
 								xtype: 'textfield',
 								hidden : true,
@@ -348,6 +368,21 @@ Ext.define('MyDesktop.SystemMan', {
 								width: 200,
 								name: 'jsmc',
 								id:'js_jsmc'
+							},
+							{
+								xtype: 'combobox',
+								x: 130,
+								y: 40,
+								width: 200,
+								store: qzdj_store,
+								emptyText:'请选择',
+								mode: 'remote',
+								minChars : 2,
+								valueField:'text',
+								displayField:'text',
+								triggerAction:'all',
+								name: 'jsdj',
+								id:'qz_jsdj'
 							}
 						],
 						buttons:[{
@@ -432,7 +467,10 @@ Ext.define('MyDesktop.SystemMan', {
 					{name: 'id',		type: 'integer'},
 					{name: 'email',		type: 'string'},
 					{name: 'username',		type: 'string'},
-					{name: 'encrypted_password',		type: 'string'}
+					{name: 'sfxsxyisj',		type: 'string'},
+					{name: 'encrypted_password',		type: 'string'},
+					{name: 'ssqz',		type: 'string'},
+					{name: 'dwdm',		type: 'string'}
 				]
 			});
 
@@ -459,7 +497,9 @@ Ext.define('MyDesktop.SystemMan', {
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 					{ text : '用户名',	width : 100, sortable : true, dataIndex: 'username'},
-					{ text : 'Email',	width : 250, sortable : true, dataIndex: 'email'},
+					{ text : 'Email',	width : 150, sortable : true, dataIndex: 'email'},
+					{ text : '是否显示下级档案',	width : 150, sortable : true, dataIndex: 'sfxsxyisj'},
+					{ text : '所属全宗',	width : 150, sortable : true, dataIndex: 'dwdm'},					
 					{ text : '密码',	width : 0, sortable : true, dataIndex: 'encrypted_password'}
 					],
 					selType:'checkboxmodel',
@@ -535,7 +575,7 @@ Ext.define('MyDesktop.SystemMan', {
 							iconCls:'users',
 							xtype:'panel',
 							margins:'0 0 0 0',
-							width: 250,
+							width: 400,
 							collapsible:true,//可以被折叠							
 							layout:'fit',
 							split:true,
@@ -673,7 +713,8 @@ Ext.define('MyDesktop.SystemMan', {
 			Ext.regModel('js_setup_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
-					{name: 'jsmc',		type: 'string'}
+					{name: 'jsmc',		type: 'string'},
+					{name: 'jsdj',		type: 'string'}
 				]
 			});
 
@@ -699,7 +740,8 @@ Ext.define('MyDesktop.SystemMan', {
 				store: js_setup_store,				
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-					{ text : '角色名称',	width : 250, sortable : true, dataIndex: 'jsmc'}
+					{ text : '角色名称',	width : 250, sortable : true, dataIndex: 'jsmc'},
+					{ text : '角色等级',	width : 250, sortable : true, dataIndex: 'jsdj'}
 					],
 					selType:'checkboxmodel',
 					//multiSelect:true,
@@ -717,7 +759,7 @@ Ext.define('MyDesktop.SystemMan', {
 					id : 'js_setup_win',
 					title: '角色设置',
 					//closeAction: 'hide',
-					width: 370,
+					width: 570,
 					height: 530,
 					minHeight: 530,
 					layout: 'fit',
@@ -805,14 +847,34 @@ Ext.define('MyDesktop.SystemMan', {
 		
 		var qz_disp = function(record,add_new){
 			var win = Ext.getCmp('qz_disp_win');
-
+			Ext.regModel('qz_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'dwdm',		type: 'string'}
+				]
+			});
+			var qz_store = Ext.create('Ext.data.Store', {
+					id:'qz_store',
+					model : 'qz_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_qz_grid',
+						//extraParams: {query:title},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			qz_store.load();
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'qz_disp_win',
 					title: '修改全宗信息',
 					//closeAction: 'hide',
 					width: 370,
-					height: 140,
+					height: 200,
 					//minHeight: 200,
 					layout: 'fit',
 					modal: true,
@@ -834,9 +896,23 @@ Ext.define('MyDesktop.SystemMan', {
 							},
 							{
 								xtype: 'label',
-								text: '全宗简称',
+								text: '全宗简称：',
 								x: 10,
 								y: 40,
+								width: 100
+							},
+							{
+								xtype: 'label',
+								text: '全宗级别：',
+								x: 10,
+								y: 70,
+								width: 100
+							},
+							{
+								xtype: 'label',
+								text: '所属全宗：',
+								x: 10,
+								y: 100,
 								width: 100
 							},
 							{
@@ -861,6 +937,36 @@ Ext.define('MyDesktop.SystemMan', {
 								width: 200,
 								name: 'dwjc',
 								id:'qz_dwjc'
+							},
+							{
+								xtype: 'combobox',
+								x: 130,
+								y: 70,
+								width: 200,
+								store: qzdj_store,
+								emptyText:'请选择',
+								mode: 'remote',
+								minChars : 2,
+								valueField:'text',
+								displayField:'text',
+								triggerAction:'all',
+								name: 'dj',
+								id:'qz_dj'
+							},
+							{
+								xtype: 'combobox',
+								x: 130,
+								y: 100,
+								width: 200,
+								store: qz_store,
+								emptyText:'请选择',
+								mode: 'remote',
+								minChars : 2,
+								valueField:'id',
+								displayField:'dwdm',
+								triggerAction:'all',
+								name: 'ssqz',
+								id:'qz_owner_id'
 							}
 						],
 						buttons:[{
@@ -945,7 +1051,10 @@ Ext.define('MyDesktop.SystemMan', {
 				fields: [
 					{name: 'id',		type: 'integer'},
 					{name: 'dwdm',		type: 'string'},
-					{name: 'dwjc',		type: 'string'}
+					{name: 'dwjc',		type: 'string'},
+					{name: 'owner_id',		type: 'integer'},
+					{name: 'dj',		type: 'string'},
+					{name: 'ssqz',		type: 'string'}
 				]
 			});
 
@@ -971,8 +1080,10 @@ Ext.define('MyDesktop.SystemMan', {
 				store: qz_setup_store,				
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-					{ text : '全宗名称',	width : 250, sortable : true, dataIndex: 'dwdm'},
-					{ text : '全宗简称',	width : 70, sortable : true, dataIndex: 'dwjc'}
+					{ text : '全宗名称',	width : 150, sortable : true, dataIndex: 'dwdm'},
+					{ text : '全宗简称',	width : 70, sortable : true, dataIndex: 'dwjc'},
+					{ text : '全宗级别',	width : 70, sortable : true, dataIndex: 'dj'},
+					{ text : '所属全宗',	width : 150, sortable : true, dataIndex: 'ssqz'}
 					],
 					selType:'checkboxmodel',
 					//multiSelect:true,
@@ -995,7 +1106,7 @@ Ext.define('MyDesktop.SystemMan', {
 					id : 'qz_setup_win',
 					title: '全宗设置',
 					//closeAction: 'hide',
-					width: 370,
+					width: 570,
 					height: 530,
 					minHeight: 530,
 					layout: 'fit',
@@ -1635,51 +1746,108 @@ Ext.define('MyDesktop.SystemMan', {
 			Ext.getCmp('qz_lb_id').setValue(qz_lb_id);
 			win.show();
 		};
-		var user_ml_qx_tree_store	= Ext.create('Ext.data.TreeStore', {
+		
+		var js_qx_setup = function(record,add_new){
+			var win = Ext.getCmp('js_qx_setup_win');
+			var user_ml_qx_tree_store	= Ext.create('Ext.data.TreeStore', {
+					autoLoad: true,
+					proxy: {
+							type: 'ajax',
+							url: 'desktop/get_lb_qx_tree',
+							extraParams: {style:"0"},
+							actionMethods: 'POST'
+					}
+			});	
+			var user_ml_qx_tree_panel = Ext.create('Ext.tree.Panel', {
+				id : 'user_ml_qx_tree_panel',
+				store: user_ml_qx_tree_store,
+				rootVisible:false,
+				useArrows: true,
+				//singleExpand: true,
+				width: 480,
+				listeners:{
+					checkchange:function(node,checked,option){					
+						if (checked){							
+							getNodes(node,true);
+							get_parentNode(node);						
+			   			}else{
+							getNodes(node,false);
+			   			}			   		
+					}
+				}			
+			});
+			var user_cd_qx_tree_store	= Ext.create('Ext.data.TreeStore', {
 				autoLoad: true,
 				proxy: {
 						type: 'ajax',
-						url: 'desktop/get_ml_qx_tree',
+						url: 'desktop/get_cd_qx_tree',
 						extraParams: {style:"0"},
 						actionMethods: 'POST'
 				}
-		});	
-		var user_ml_qx_tree_panel = Ext.create('Ext.tree.Panel', {
-			id : 'user_ml_qx_tree_panel',
-			store: user_ml_qx_tree_store,
-			rootVisible:false,
-			useArrows: true,
-			//singleExpand: true,
-			width: 480,
-			listeners:{
-				checkchange:function(node,checked,option){					
-					if (checked){							
-						getNodes(node,true);
-						get_parentNode(node);						
-		   			}else{
-						getNodes(node,false);
-		   			}			   		
-				}
-			}			
-		});
-		var user_cd_qx_tree_store	= Ext.create('Ext.data.TreeStore', {
-			autoLoad: true,
-			proxy: {
-					type: 'ajax',
-					url: 'desktop/get_cd_qx_tree',
-					extraParams: {style:"0"},
-					actionMethods: 'POST'
-			}
-		});
-		var user_cd_qx_tree_panel = Ext.create('Ext.tree.Panel', {
-			id : 'user_cd_qx_tree_panel',
-			store: user_cd_qx_tree_store,
-			rootVisible:false,
-			useArrows: true,
-		});
-		var js_qx_setup = function(record,add_new){
-			var win = Ext.getCmp('js_qx_setup_win');
+			});
+			var user_cd_qx_tree_panel = Ext.create('Ext.tree.Panel', {
+				id : 'user_cd_qx_tree_panel',
+				store: user_cd_qx_tree_store,
+				rootVisible:false,
+				useArrows: true,
+			});
+			var user_tree_store	= Ext.create('Ext.data.TreeStore', {
+					autoLoad: true,
+					proxy: {
+							type: 'ajax',
+							url: 'desktop/get_js_tree',
+							extraParams: {style:"0"},
+							actionMethods: 'POST'
+					}
+			});
 
+			var user_tree_panel = Ext.create('Ext.tree.Panel', {
+				id : 'user_tree_panel',
+				store: user_tree_store,
+				rootVisible:false,
+				useArrows: true,
+				//singleExpand: true,
+				width: 200,
+				listeners:{
+					checkchange:function(node,checked,option){
+						if (checked){
+							js=node.data.id.split("-");
+							if (js.size()==1){
+								root=Ext.getCmp('user_tree_panel').store.getRootNode();			
+								getNodes(root,false);
+								node.data.checked=true;
+								node.updateInfo({checked:true});
+								new Ajax.Request("/desktop/get_user_qx", { 
+									method: "POST",
+									parameters: "userid="+node.data.id,
+									onComplete:	 function(request) {
+										//alert(request.responseText);
+										root=Ext.getCmp('user_ml_qx_tree_panel').store.getRootNode();			
+										getNodes(root,false);
+										root=Ext.getCmp('user_cd_qx_tree_panel').store.getRootNode();
+										getNodes(root,false);
+										nodes=request.responseText.split("|");
+										for (k=0; k <nodes.size(); k++) {
+												qx=nodes[k].split(";");
+												if(qx[1]==4){
+													Ext.getCmp('user_cd_qx_tree_panel').store.getNodeById(qx[0]).data.checked=true;
+													Ext.getCmp('user_cd_qx_tree_panel').store.getNodeById(qx[0]).updateInfo({checked:true});
+												}else{
+													Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById(qx[0]).data.checked=true;
+													Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById(qx[0]).updateInfo({checked:true});
+
+												}
+											}
+									}
+								
+								});
+							}
+						}
+					}
+				}
+				//height: 300,
+			});
+			
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'js_qx_setup_win',
@@ -1836,17 +2004,17 @@ Ext.define('MyDesktop.SystemMan', {
 				items: sys_cd_tree_panel
 			});
       	}
-    	new Ajax.Request("/desktop/get_sort", { 
-      		method: "POST",
-	      	parameters: eval("({userid:" + currentUser.id + ",qxid:8})"),
-	      	onComplete:	 function(request) {
-	      		if (request.responseText=='success'){
-	    			win.show();
-	      		}else{
-	      			alert('您无系统设置的权限。' + request.responseText);
-	      		}
-	      	}
-      	});
+    // 	new Ajax.Request("/desktop/get_sort", { 
+    //		method: "POST",
+	//    	parameters: eval("({userid:" + currentUser.id + ",qxid:8})"),
+	//    	onComplete:	 function(request) {
+	//    		if (request.responseText=='success'){
+	 			win.show();
+	//    		}else{
+	//    			alert('您无系统设置的权限。' + request.responseText);
+	//    		}
+	//    	}
+    //	});
 	  
 		
       return win;

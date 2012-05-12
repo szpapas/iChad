@@ -298,6 +298,23 @@ var qzdj_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
 	data : qzdj_data
 });
+var sf_data = [	
+	['1','是'],
+	['2','否']
+];
+var sf_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : sf_data
+});
+var qzdj_data = [	
+	['3','地市级'],
+	['4','县级'],
+	['5','乡镇级']
+];
+var qzdj_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : qzdj_data
+});
 
 var sprintf = (function() {
 	function get_type(variable) {
