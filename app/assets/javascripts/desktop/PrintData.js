@@ -64,7 +64,6 @@ Ext.define('MyDesktop.PrintData', {
       singleExpand: true,
       width: 200,
       layout: "fit"
-      //height: 300,
     });
     
     Ext.regModel('archive_model', {
@@ -164,18 +163,15 @@ Ext.define('MyDesktop.PrintData', {
                 success: function(form, action){
                   var isSuc = action.result.success; 
                   if (isSuc) {
-                    //msg('成功', '添加成功');
+
                     Ext.getCmp('dwdm_combo').store.load();
-                    
                     
                     qzh = form.findField('qzh').getValue();
                     dwdm = form.findField('dwdm').getValue();
-                    
-                    
+                     
                     var muForm =Ext.getCmp('mulu_panel_id').getForm();
                     muForm.findField('qzh').setValue(qzh);
                     muForm.findField('dwdm').setValue(qzh);
-                    
                     
                     Ext.getCmp('add_quz_win').close();
                   } else { 
@@ -321,7 +317,7 @@ Ext.define('MyDesktop.PrintData', {
           fieldLabel:"案卷表",
           anchor:"95%",
           emptyText: '选择一个文件...',
-          buttonText: '浏览',
+          buttonText: '浏览'
         },{
           xtype:"fileuploadfield",
           name:"jnb",
@@ -431,59 +427,7 @@ Ext.define('MyDesktop.PrintData', {
           }
         }]
       });  
-/*            
-            var sc_task = {
-              run: function(){
-                var form = Ext.getCmp('mulu_panel_id').getForm();
-                pars = form.getValues();
-                new Ajax.Request("/desktop/get_mulu_status", { 
-                  method: "POST",
-                  parameters: pars,
-                  onComplete:  function(request) {
-                    var p = Ext.getCmp('mulu_progressbar_id');
 
-                    // ss = 12/10/15/msg
-                    var ss = request.responseText.split('|');
-                    if (parseInt(ss[0]) > dqaj) {
-                      p.updateProgress((ss[0]-ss[1])/(ss[2]-ss[1]+1), "正在打印卷 "+ss[0]);
-                      dqaj = parseInt(ss[0]);
-                    }
-
-                    if (ss[3] == '上传完成') {
-                      Ext.TaskManager.stop(pr_task);
-                      var form =Ext.getCmp('mulu_panel_id').getForm();
-                      form.findField('progress_text_id').setValue("");
-                      p.updateProgress(1);
-                      p.updateText('上传完成!');
-                      
-                      Ext.get('add_mulu_win').close();
-                      tree_store.getRootNode().removeAll();
-                      tree_store.load();
-                      
-                    }  
-                }
-                });
-              },
-              interval: 5000 //1 second
-            }
-            
-            //var p = Ext.getCmp('mulu_progressbar_id');
-            var form = Ext.getCmp('mulu_panel_id').getForm();
-            
-            //if(myForm.isValid())
-            
-            pars = form.getValues();
-            new Ajax.Request("/desktop/upload_files", { 
-              method: "POST",
-              parameters: pars,
-              onComplete:  function(request) {
-                Ext.TaskManager.start(pr_task);
-              }
-            });
-*/            
-
-
-      
       // tree_id, qrz|dalb|mlh
       mulu_win.show();
 
@@ -890,8 +834,6 @@ Ext.define('MyDesktop.PrintData', {
                           };
                         
                           var dyzt_grid = new Ext.grid.GridPanel({
-                               // more config options clipped //,
-                               //title: '虚拟打印',
                                store: dyzt_store,
                                id : 'dyzt_grid_id',
                                iconCls:'print',
@@ -956,13 +898,10 @@ Ext.define('MyDesktop.PrintData', {
                                      if (select == undefined) {
                                        msg('提示','请先选择一个案卷');
                                      } else {
-                                      
                                         var add_print_task = function() {
-
                                           var printPanel = new Ext.form.FormPanel({
                                             id : 'print_panel_id',
                                             labelWidth:40,
-                                            //bodyStyle:"padding:35px;",
                                             bodyPadding: 10,
                                             items:[
                                             {
@@ -993,10 +932,8 @@ Ext.define('MyDesktop.PrintData', {
                                             },{
                                               xtype: 'checkboxmodel',
                                               fieldLabel: '打印范围',
-                                              // Arrange radio buttons into two columns, distributed vertically
                                               columns: 4,
                                               name:"dyfw",
-                                              //height: 50,
                                               vertical: true,
                                               anchor:"95%",
                                               items: [

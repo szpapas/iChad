@@ -13,6 +13,10 @@ class DesktopController < ApplicationController
     render :text => User.current.to_json
   end
   
+  def check_key
+    
+  end
+  
   def get_mulu
     user = User.find_by_sql("select * from mulu order by id;")
     size = user.size;

@@ -11,6 +11,8 @@ gem 'pg'
 gem 'execjs'
 gem 'therubyracer'
 
+gem 'mongrel'
+
 gem 'json', '1.6.4'
 
 # Gems used only for assets and not required

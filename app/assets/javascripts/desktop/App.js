@@ -25,20 +25,13 @@ Ext.define('MyDesktop.App', {
     requires: [
         'Ext.window.MessageBox',
         'Ext.ux.desktop.ShortcutModel',
-
         'MyDesktop.SystemStatus',
-        'MyDesktop.VideoWindow',
         'MyDesktop.GridWindow',
         'MyDesktop.TabWindow',
-        'MyDesktop.AccordionWindow',
-        'MyDesktop.BogusMenuModule',
-    //    'MyDesktop.BogusModule',
-
-        'MyDesktop.Notepad',
         'MyDesktop.PrintData',
         'MyDesktop.ArchiveMan',
         'MyDesktop.AddressMan',
-		'MyDesktop.SystemMan',
+        'MyDesktop.SystemMan',
         'MyDesktop.Settings'
     ],
 
@@ -58,24 +51,12 @@ Ext.define('MyDesktop.App', {
 
     getModules : function(){
         return [
-            new MyDesktop.VideoWindow(),
-
-            new MyDesktop.AddressMan(),
             new MyDesktop.ArchiveMan(),
             new MyDesktop.WenshuMan(),
             new MyDesktop.BorrowMan(),
-            new MyDesktop.Notepad(),
             new MyDesktop.PrintData(),
             new MyDesktop.SystemStatus(),
-
-           new MyDesktop.SystemMan(),
-         //  new MyDesktop.SmallApps(),
-
-         //   new MyDesktop.BogusModule(),
-         //   new MyDesktop.TabWindow(),
-            new MyDesktop.AccordionWindow(),
-            new MyDesktop.BogusMenuModule(),
-
+            new MyDesktop.SystemMan(),
         ];
     },
 
@@ -92,14 +73,14 @@ Ext.define('MyDesktop.App', {
             shortcuts: Ext.create('Ext.data.Store', {
                 model: 'Ext.ux.desktop.ShortcutModel',
                 data: [
-                    { name: '百家争鸣', iconCls: 'addressman-shortcut',  module: 'addressman' },
+                    //{ name: '百家争鸣', iconCls: 'addressman-shortcut',  module: 'addressman' },
                     { name: '国土档案', iconCls: 'archiveman-shortcut',  module: 'archiveman' },
                     { name: '文书处理', iconCls: 'wenshuman-shortcut',   module: 'wenshuman' },
                     { name: '借阅管理', iconCls: 'borrowman-shortcut',   module: 'borrowman' },
-                    { name: '编研利用', iconCls: 'notepad-shortcut',     module: 'notepad' },
+                    //{ name: '编研利用', iconCls: 'notepad-shortcut',     module: 'notepad' },
                     { name: '影像打印', iconCls: 'printdata-shortcut',   module: 'printdata' },
                     { name: '档案统计', iconCls: 'cpu-shortcut',         module: 'systemstatus'},
-                   	{ name: '系统设置', iconCls: 'systemman-shortcut',   module: 'systemman' },
+                    { name: '系统设置', iconCls: 'systemman-shortcut',   module: 'systemman' },
                   //  { name: '应用程序', iconCls: 'smallapps-shortcut',   module: 'smallapps' }
                   //  { name: '亲朋好友', iconCls: 'accordion-shortcut', module: 'acc-win' },
                 ]
@@ -143,7 +124,7 @@ Ext.define('MyDesktop.App', {
 
         return Ext.apply(ret, {
             quickStart: [
-                { name: '亲朋好友', iconCls: 'accordion', module: 'acc-win' },
+                { name: '借阅管理', iconCls: 'borrowman', module: 'borrowman' },
                 { name: '档案管理', iconCls: 'archiveman', module: 'archiveman' }
             ],
             trayItems: [
