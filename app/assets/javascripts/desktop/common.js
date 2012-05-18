@@ -316,6 +316,55 @@ var qzdj_store = new Ext.data.SimpleStore({
 	data : qzdj_data
 });
 
+var print_lb_data = [	
+	['1','案卷目录打印'],
+	['2','卷内目录打印'],
+	['3','案卷封面打印']
+];
+var print_lb_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : print_lb_data
+});
+Ext.regModel('qz_model', {
+	fields: [
+		{name: 'id',		type: 'integer'},
+		{name: 'dwdm',		type: 'string'}
+	]
+});
+var qz_store = Ext.create('Ext.data.Store', {
+		id:'qz_store',
+		model : 'qz_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_qz_grid',
+			//extraParams: {query:title},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}				
+});
+Ext.regModel('dalb_model', {
+	fields: [
+		{name: 'id',		type: 'integer'},
+		{name: 'lbmc',		type: 'string'}
+	]
+});
+var dalb_store = Ext.create('Ext.data.Store', {
+		id:'dalb_store',
+		model : 'dalb_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_dalb_grid',
+			//extraParams: {query:title},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}				
+});
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();

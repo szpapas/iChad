@@ -426,7 +426,8 @@ Ext.define('MyDesktop.PrintData', {
             }
           }
         }]
-      });
+
+      });  
 
       // tree_id, qrz|dalb|mlh
       mulu_win.show();
