@@ -95,6 +95,7 @@ class MapController < ApplicationController
     end
     render :text => "success" 
   end
+  #通过RFID获取档案
   def wsRFID(strrfid)
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
@@ -109,6 +110,7 @@ class MapController < ApplicationController
     end
     render :text => text
   end
+  #通过ID获取影像文件
   def wsImage(gid)
     user= User.find_by_sql("select * from timage  where where id=#{gid};") 
     size = user.size;
@@ -131,7 +133,9 @@ class MapController < ApplicationController
     end
     render :text => txt
   end
+  #通过档号获取整目录档案  query 格式  qzh_dalb_mlh(文书处理24的mlh格式为 年度_机构问题号_保管期限 )
   def wsAjToTxt(query)
+    
     ss = query.split('_')
     
     case (ss[1]) 
