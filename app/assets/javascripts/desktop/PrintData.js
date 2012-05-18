@@ -384,7 +384,6 @@ Ext.define('MyDesktop.PrintData', {
                         muForm.findField('dwdm').setValue(-1);
                       }
                     });
-                                        
                 }
               }
             );
