@@ -6685,14 +6685,15 @@ Ext.define('MyDesktop.ArchiveMan', {
 				              {
 				                text: '打印图像',
 				                handler : function() {
-				                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   
-				                  LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_打印图片2");
+				                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
 				                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
 				                  image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+								  LODOP.PRINT_INIT(image_path);
 				                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 				                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
 				                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-				                  LODOP.PREVIEW();
+				                  //LODOP.PREVIEW();
+								  LODOP.PRINT();
 				                }
 				              }
 				            ],

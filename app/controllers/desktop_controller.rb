@@ -3388,13 +3388,139 @@ class DesktopController < ApplicationController
         if !(params['qajh'].to_i.to_s==params['qajh']) || !(params['zajh'].to_i.to_s==params['zajh'])  
           txt="起止案卷号必须是数字。请输入。"
         else
-          
-          txt="success"
+          if !(params['dalb']=='24') && (params['mlh']=='')
+            txt="目录号不能为空。请输入。"
+          else
+            if params['zajh'].length==4
+              params['zajh']=params['zajh']
+            else
+              params['zajh']=sprintf("%04d", params['zajh'])
+            end
+            if params['qajh'].length==4
+              params['qajh']=params['qajh']
+            else
+              params['qajh']=sprintf("%04d", params['qajh'])
+            end
+            strwhere=" where mlh='#{params['mlh']}' and qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and ajh>='#{params['qajh']}' and ajh<='#{params['zajh']}'"
+            if params['nd']!=""
+              strwhere =strwhere + " and nd='#{params['nd']}'"
+            end
+            if (params['bgqx'].nil?)
+            else
+              strwhere =strwhere + " and bgqx='#{params['bgqx']}'"
+            end
+            case (params['dalb']) 
+         		when "0"
+         			user = User.find_by_sql("select * from archive #{strwhere} order by ajh ;")
+        
+         		when "2"
+         			user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid #{strwhere} order by ajh ;")
+        
+         		when "3","5","6","7"
+         			user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh ;")
+         		when "15"
+         			user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid #{strwhere}  order by ajh ;")
+             when "18"
+         			user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid #{strwhere}  order by ajh ;")
+             when "25"
+         			user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid #{strwhere}  order by ajh ;")
+             when "27"
+         			user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid #{strwhere} order by ajh ;")
+             when "26"
+         			user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid #{strwhere}  order by ajh ;")
+             when "28"
+         			user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid #{strwhere}  order by ajh ;")
+             when "29"
+         			user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid #{strwhere}  order by ajh ;")
+             when "30"
+         			user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid #{strwhere}  order by djh ;")
+             when "31"
+         			user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid #{strwhere}  order by zt ;")
+             when "32"
+         			user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid #{strwhere}  order by jgmc ;")
+             when "33"
+         			user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq ;")
+             when "34"
+         			user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where #{strwhere}   order by sj ;")
+        
+         		 when "24"
+         		  #年度_机构问题号_保管期限
+         		  
+              strwhere="where archive.qzh = '#{params['qzh']}' and dalb ='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jh>='#{params['qajh']}' and a_wsda.jh<='#{params['zajh']}'"
+              
+              puts strwhere
+                 
+               user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
+         		 else
+         			 user = User.find_by_sql("select * from archive  #{strwhere} order by ajh ;")
+        
+           	end
+            filenames=""
+            intys=0
+            intts=0
+            size = user.size;
+            if size.to_i>0 
+              intys=(size.to_i/10).to_i
+              for k in 0..intys
+                strfilename=""
+                convertstr=""
+                if k==intys
+                  intts=size.to_i-intys*10-1
+                else
+                  intts=9
+                end
+                for i in 0..intts
+                  intheight= i*173+564
+                  puts intheight
+                  user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+                  
+                  convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text 428, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text 604, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text 772, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text 2337, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text 2497, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text 2627, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
+                  intheight=intheight-40
+                  tm=split_string(user[i+k*10]['tm'],27)
+                  strtm=tm.split("\n")
+                  for j in 0..strtm.length-1
+                    intheight=intheight+ j*50
+                    convertstr =convertstr + " -pointsize 50  -draw \"text 928, #{intheight} '#{strtm[j]}'\" "
+                  end
+                end
+                strfilename="./dady/ajml" + k.to_s + ".jpg"
+                puts strfilename
+                puts "convert ./dady/ajml.jpg #{convertstr}  #{strfilename}"
+                system("convert ./dady/ajml.jpg #{convertstr}  #{strfilename}")
+                if filenames==""
+                  filenames="ajml" + k.to_s + ".jpg"
+                else
+                  filenames=filenames + "," + "ajml" + k.to_s + ".jpg"
+                end
+              end
+              txt="success:" + filenames
+            else            
+              txt = "无此条件的数据，请重新输入条件。"
+            end
+          end
         end
       end
       
     end
     render :text =>txt
   end
-
+  def split_string(text, length=16)
+    char_array = text.unpack("U*")
+    intl=0
+    t1=""
+    for k in 0..char_array.length-1
+      if intl>=length*2-3
+        t1=t1 + char_array[k..k].pack("U*") +"\n"
+        intl=0
+      else
+        t1=t1+ char_array[k..k].pack("U*")
+        if char_array[k]<255
+          intl=intl+1
+        else
+          intl=intl+2
+        end
+      end
+    end
+    return t1    
+  end
 end
