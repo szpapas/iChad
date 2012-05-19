@@ -26,10 +26,6 @@ t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
 
-
-  
-
-
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
 def getimgsize(fname)
