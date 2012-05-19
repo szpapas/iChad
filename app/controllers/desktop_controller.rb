@@ -1394,7 +1394,7 @@ class DesktopController < ApplicationController
         user = User.find_by_sql("select max(id) as id from jylc;")
         ss = params['jy_aj_list'].split(',')
         for k in 0..ss.length-1
-          User.find_by_sql("insert into jylist(jyid, daid) values ('#{user[0]["id"]}', '#{ss[k]}');")
+          User.find_by_sql("insert into jylist(jyid, daid,iPhoneList) values ('#{user[0]["id"]}', '#{ss[k]}','1');")
         end
       end
       render :text => "success"
@@ -1434,10 +1434,10 @@ class DesktopController < ApplicationController
     rq=Time.now.strftime("%Y-%m-%d")
     User.find_by_sql("update jylc set bz='#{params['bz']}', cdlr='#{params['cdlr']}', czrid='#{czrid}', fyys='#{fyys}', jylist='#{params['jy_aj_list']}', jydw='#{params['jydw']}', jylx='#{jylx}', jyqx='#{lyqx}', jyr='#{params['jyr']}', jytj='#{jytj}', jyzt='#{params['jyzt']}', lymd='#{lymd}', lyxg='#{params['lyxg']}', zcys='#{zcys}', zj='#{params['zj']}' where id = #{params['id']};")
     if !(params['jy_aj_list']=='')
-      user = User.find_by_sql("select max(id) as id from jylc;")
+      #user = User.find_by_sql("select max(id) as id from jylc;")
       ss = params['jy_aj_list'].split(',')
       for k in 0..ss.length-1
-        User.find_by_sql("insert into jylist(jyid, daid) values ('#{user[0]["id"]}', '#{ss[k]}');")
+        User.find_by_sql("insert into jylist(jyid, daid,iPhoneList) values ('#{params['id']}', '#{ss[k]}','1');")
       end
     end
     render :text => 'success'
@@ -1451,6 +1451,7 @@ class DesktopController < ApplicationController
   def qbhd_jylc
     rq=Time.now.strftime("%Y-%m-%d")
     user = User.find_by_sql("update jylc set hdsj='#{rq}',jyzt='4' where id = #{params['id']};")
+    user =User.find_by_sql("update jylist set hdsj ='#{rq}',iPhoneList=2 where jyid=#{params['id']};")
     render :text => 'success'
   end
   
@@ -1458,7 +1459,7 @@ class DesktopController < ApplicationController
     rq=Time.now.strftime("%Y-%m-%d")
     ss = params['ids'].split(',')
     for k in 0..ss.length-1
-      User.find_by_sql("update jylist set hdsj ='#{rq}' where daid ='#{ss[k]}' and jyid=#{params['id']};")
+      User.find_by_sql("update jylist set hdsj ='#{rq}',iPhoneList=2 where daid ='#{ss[k]}' and jyid=#{params['id']};")
     end
     user = User.find_by_sql("select * from jylist where jyid=#{params['id']} and hdsj IS NULL;")
 
@@ -1799,7 +1800,22 @@ class DesktopController < ApplicationController
     end  
     render :text => txt
   end
-  
+  #获取档案类别列表
+  def  get_dalb_grid
+    user = User.find_by_sql("select * from d_dalb where id<100 order by id;")
+
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
   #获得用户树
   def get_user_tree
     node, style = params["node"], params['style']
@@ -2395,8 +2411,19 @@ class DesktopController < ApplicationController
   									user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj limit #{params['limit']} offset #{params['start']};")
                   
 									when "24"
-										user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
-                  
+									  #年度_机构问题号_保管期限
+									  case ss.length
+								      when 3
+								        strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}'"
+							        when 4
+							          strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.jgwth='#{ss[3]}'"
+						          when 5
+						            strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.jgwth='#{ss[3]}' and a_wsda.bgqx='#{ss[4]}'"
+					            else
+					              strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"
+										    
+                    end
+                    user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
 									else
 										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh limit #{params['limit']} offset #{params['start']};")
 										
@@ -3350,4 +3377,24 @@ class DesktopController < ApplicationController
     system("ruby ./dady/bin/import_image_file.rb ./dady/#{params['filename']} #{params['dh']} #{params['dh']} ")    
     render :text =>"success"
   end
+  #档案打印
+  def print_da
+    if (params['dylb'].nil?) || (params['qzh'].nil?) || (params['dalb'].nil?)
+      txt="请选择打印类别、单位名称、档案类别。"
+    else
+      if (params['qajh']=="") || (params['zajh']=="")        
+        txt="起止案卷号不能为空。请输入。"
+      else
+        if !(params['qajh'].to_i.to_s==params['qajh']) || !(params['zajh'].to_i.to_s==params['zajh'])  
+          txt="起止案卷号必须是数字。请输入。"
+        else
+          
+          txt="success"
+        end
+      end
+      
+    end
+    render :text =>txt
+  end
+
 end

@@ -4,20 +4,20 @@ This file is part of Ext JS 4
 
 Copyright (c) 2011 Sencha Inc
 
-Contact:  http://www.sencha.com/contact
+Contact: http://www.sencha.com/contact
 
 GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file.  Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file. Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
 
 If you are unsure which license is appropriate for your use, please contact the sales department at http://www.sencha.com/contact.
 
 */
 /*!
- * Ext JS Library 4.0
- * Copyright(c) 2006-2011 Sencha Inc.
- * licensing@sencha.com
- * http://www.sencha.com/license
- */
+* Ext JS Library 4.0
+* Copyright(c) 2006-2011 Sencha Inc.
+* licensing@sencha.com
+* http://www.sencha.com/license
+*/
 Ext.define('MyDesktop.PrintData', {
   extend: 'Ext.ux.desktop.Module',
 
@@ -46,7 +46,7 @@ Ext.define('MyDesktop.PrintData', {
     
     var win = desktop.getWindow('printdata');
 
-    var tree_store  = Ext.create('Ext.data.TreeStore', {
+    var tree_store = Ext.create('Ext.data.TreeStore', {
         autoLoad: true,
         proxy: {
             type: 'ajax',
@@ -68,31 +68,31 @@ Ext.define('MyDesktop.PrintData', {
     
     Ext.regModel('archive_model', {
       fields: [
-        {name: 'id',    type: 'integer'},
-        {name: 'dwdm',    type: 'string'},
-        {name: 'dh',    type: 'string'},
-        {name: 'qzh',   type: 'string'},
-        {name: 'mlh',   type: 'string'},
-        {name: 'ajh',   type: 'string'},
-        {name: 'tm',    type: 'string'},
-        {name: 'flh',   type: 'string'},
-        {name: 'nd',    type: 'string'},
-        {name: 'qrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
-        {name: 'zrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
-        {name: 'js',    type: 'string'},
-        {name: 'ys',    type: 'string'},
-        {name: 'bgqx',    type: 'string'},
-        {name: 'mj',    type: 'string'},
-        {name: 'xh',    type: 'string'},
-        {name: 'cfwz',    type: 'string'},
-        {name: 'bz',    type: 'string'},
-        {name: 'boxstr',  type: 'string'},
+        {name: 'id', type: 'integer'},
+        {name: 'dwdm', type: 'string'},
+        {name: 'dh', type: 'string'},
+        {name: 'qzh', type: 'string'},
+        {name: 'mlh', type: 'string'},
+        {name: 'ajh', type: 'string'},
+        {name: 'tm', type: 'string'},
+        {name: 'flh', type: 'string'},
+        {name: 'nd', type: 'string'},
+        {name: 'qrq', type: 'date', dateFormat: 'Y-m-d H:i:s'},
+        {name: 'zrq', type: 'date', dateFormat: 'Y-m-d H:i:s'},
+        {name: 'js', type: 'string'},
+        {name: 'ys', type: 'string'},
+        {name: 'bgqx', type: 'string'},
+        {name: 'mj', type: 'string'},
+        {name: 'xh', type: 'string'},
+        {name: 'cfwz', type: 'string'},
+        {name: 'bz', type: 'string'},
+        {name: 'boxstr', type: 'string'},
         {name: 'boxrfid', type: 'string'},
         {name: 'rfidstr', type: 'string'},
-        {name: 'qny',   type: 'string'},
-        {name: 'zny',   type: 'string'},
-        {name: 'dalb',    type: 'string'},
-        {name: 'dyzt',    type: 'string'}
+        {name: 'qny', type: 'string'},
+        {name: 'zny', type: 'string'},
+        {name: 'dalb', type: 'string'},
+        {name: 'dyzt', type: 'string'}
       ]
     });
     
@@ -132,9 +132,9 @@ Ext.define('MyDesktop.PrintData', {
           xtype:"textfield",
           name:"dwjc",
           fieldLabel:"单位简称",
-          anchor:"95%"      
+          anchor:"95%"
         }
-        ]        
+        ]
       });
       
       var quz_win = new Ext.Window({
@@ -161,7 +161,7 @@ Ext.define('MyDesktop.PrintData', {
               myForm.submit({
                 url: '/desktop/add_qzh',
                 success: function(form, action){
-                  var isSuc = action.result.success; 
+                  var isSuc = action.result.success;
                   if (isSuc) {
 
                     Ext.getCmp('dwdm_combo').store.load();
@@ -174,10 +174,10 @@ Ext.define('MyDesktop.PrintData', {
                     muForm.findField('dwdm').setValue(qzh);
                     
                     Ext.getCmp('add_quz_win').close();
-                  } else { 
+                  } else {
                     msg('失败', '全宗已存在');
                   }
-                }, 
+                },
                 failure: function(){
                   msg('失败', '新增全宗失败');
                 }
@@ -196,13 +196,13 @@ Ext.define('MyDesktop.PrintData', {
       
       Ext.regModel('d_dalb_model', {
         fields: [
-          {name: 'id',     type: 'integer'},
-          {name: 'lbmc',     type: 'string'},
-          {name: 'lbsl',     type: 'integer'}
+          {name: 'id', type: 'integer'},
+          {name: 'lbmc', type: 'string'},
+          {name: 'lbsl', type: 'integer'}
         ]
       });
 
-      var dalb_store =  Ext.create('Ext.data.Store', {
+      var dalb_store = Ext.create('Ext.data.Store', {
         auto_load : true,
         model : 'd_dalb_model',
         proxy: {
@@ -220,12 +220,12 @@ Ext.define('MyDesktop.PrintData', {
       
       Ext.regModel('d_dwdm_model', {
         fields: [
-          {name: 'id',     type: 'integer'},
-          {name: 'dwdm',     type: 'string'}
+          {name: 'id', type: 'integer'},
+          {name: 'dwdm', type: 'string'}
         ]
       });
 
-      var dwdm_store =  Ext.create('Ext.data.Store', {
+      var dwdm_store = Ext.create('Ext.data.Store', {
         auto_load : true,
         model : 'd_dwdm_model',
         proxy: {
@@ -270,7 +270,7 @@ Ext.define('MyDesktop.PrintData', {
               var muForm =Ext.getCmp('mulu_panel_id').getForm();
               muForm.findField('qzh').setValue(record[0].data.id);
             }
-          }      
+          }
         },{
           xtype:"combo",
           name:"dalb",
@@ -298,16 +298,16 @@ Ext.define('MyDesktop.PrintData', {
                 form = Ext.getCmp('mulu_panel_id').form;
                 qzh = form.findField('qzh').value;
                 var pars = {mlh:field.getValue(),qzh:qzh};
-                new Ajax.Request("/desktop/check_mlh", 
+                new Ajax.Request("/desktop/check_mlh",
                   { method: "POST",
                     parameters: pars,
-                    onComplete:  function(request) {
+                    onComplete: function(request) {
                       var users = eval("("+request.responseText+")");
                       if (users.size() > 0) {
                         msg('重要提示', '该目录已经存在，继续操作将删除该目录所有数据！');
                       }
                     }
-                  });                                       
+                  });
               }
             }
           }
@@ -335,7 +335,7 @@ Ext.define('MyDesktop.PrintData', {
           name:"yxml",
           fieldLabel:"影像目录",
           hidden: true,
-          anchor:"95%"      
+          anchor:"95%"
         }
         ]
       });
@@ -354,7 +354,7 @@ Ext.define('MyDesktop.PrintData', {
         layout: 'fit',
         plain: true,
         items:muluPanel,
-        tbar : ['->', 
+        tbar : ['->',
         {
           text: '新增全宗',
           iconCls: 'add',
@@ -369,15 +369,15 @@ Ext.define('MyDesktop.PrintData', {
             var muForm =Ext.getCmp('mulu_panel_id').getForm();
             qzh = muForm.findField('qzh').value;
             
-            Ext.Msg.confirm("确认", "删除全宗"+qzh+"的全部数据?", 
+            Ext.Msg.confirm("确认", "删除全宗"+qzh+"的全部数据?",
               function(btn){
                 if (btn=='yes') {
                   pars = {qzh:qzh};
-                  new Ajax.Request("/desktop/delete_qzh", 
+                  new Ajax.Request("/desktop/delete_qzh",
                     { method: "POST",
                       parameters: pars,
-                      onComplete:  function(request) {
-                        Ext.getCmp('dwdm_combo').lastQuery = null; 
+                      onComplete: function(request) {
+                        Ext.getCmp('dwdm_combo').lastQuery = null;
                         Ext.getCmp('dwdm_combo').store.load();
                         muForm =Ext.getCmp('mulu_panel_id').getForm();
                         muForm.findField('qzh').setValue("");
@@ -411,13 +411,13 @@ Ext.define('MyDesktop.PrintData', {
                 url: '/desktop/upload_files',
                 waitMsg: '文件上传中...',
                 success: function(form, action){
-                  var isSuc = action.result.success; 
+                  var isSuc = action.result.success;
                   if (isSuc) {
                     msg('成功', '文件上传成功.');
-                  } else { 
+                  } else {
                     msg('失败', '文件上传失败.');
                   }
-                }, 
+                },
                 failure: function(){
                   msg('失败', '文件上传失败.');
                 }
@@ -425,6 +425,7 @@ Ext.define('MyDesktop.PrintData', {
             }
           }
         }]
+
       });  
 
       // tree_id, qrz|dalb|mlh
@@ -440,9 +441,9 @@ Ext.define('MyDesktop.PrintData', {
        +' width="700"'
        +' height="450"'
        +' mayscript>'
-       +'   <param name="uc_imageEditorEnabled" value="true"/>'
-       +'   <param name="uc_uploadUrl" value="/desktop/upload_images"/>'
-       +'   <param name="uc_partitionLength" value="10000000"/>'
+       +' <param name="uc_imageEditorEnabled" value="true"/>'
+       +' <param name="uc_uploadUrl" value="/desktop/upload_images"/>'
+       +' <param name="uc_partitionLength" value="10000000"/>'
        +'</applet>"';
       
       var jumper_win = new Ext.Window({
@@ -477,16 +478,16 @@ Ext.define('MyDesktop.PrintData', {
     }
     
     var show_origin = function() {
-      var canvas_string = 
+      var canvas_string =
       '<div id="wrapper">'
-      +'    <div id="buttonWrapper">'
-      +'      <input type="button" id="prev" value="<">'
-      +'      <input type="button" id="plus" value="+">'
-      +'      <input type="button" id="minus" value="—">'
-      +'      <input type="button" id="next" value=">">'
-      +'    </div>'
-      +'    <canvas id="myCanvas" width="530" height="800">'
-      +'    </canvas>'
+      +' <div id="buttonWrapper">'
+      +' <input type="button" id="prev" value="<">'
+      +' <input type="button" id="plus" value="+">'
+      +' <input type="button" id="minus" value="—">'
+      +' <input type="button" id="next" value=">">'
+      +' </div>'
+      +' <canvas id="myCanvas" width="530" height="800">'
+      +' </canvas>'
       +'</div>';
       
        var origin_win = new Ext.Window({
@@ -519,7 +520,7 @@ Ext.define('MyDesktop.PrintData', {
              }
            }
          }]
-       }); 
+       });
        
        origin_win.show();
     }
@@ -563,13 +564,13 @@ Ext.define('MyDesktop.PrintData', {
               url: '/desktop/upload_file',
               waitMsg: '文件上传中...',
               success: function(form, action){
-                var isSuc = action.result.success; 
+                var isSuc = action.result.success;
                 if (isSuc) {
                   msg('成功', '文件上传成功.');
-                } else { 
+                } else {
                   msg('失败', '文件上传失败.');
                 }
-              }, 
+              },
               failure: function(){
                 msg('失败', '文件上传失败.');
               }
@@ -593,30 +594,30 @@ Ext.define('MyDesktop.PrintData', {
       store: archive_store,
       columns: [
         //{ text : 'file_name', flex : 1, sortable : true, dataIndex: 'level4'},
-        //{ text : 'file_size',  width : 75, sortable : true, dataIndex: 'file_size'}
-        { text : 'id',   width : 75, sortable : true, dataIndex: 'id', hidden:true},
+        //{ text : 'file_size', width : 75, sortable : true, dataIndex: 'file_size'}
+        { text : 'id', width : 75, sortable : true, dataIndex: 'id', hidden:true},
         { text : '打印状态', width : 75, sortable : true, dataIndex: 'dyzt', renderer : printStatus },
-        { text : '档号',   width : 75, sortable : true, dataIndex: 'dh'},
+        { text : '档号', width : 75, sortable : true, dataIndex: 'dh'},
         { text : '单位代码', width : 75, sortable : true, dataIndex: 'dwdm'},
-        { text : '案件号',  width : 75, sortable : true, dataIndex: 'ajh'},
+        { text : '案件号', width : 75, sortable : true, dataIndex: 'ajh'},
         { text : '标题名称', width : 175, sortable : true, dataIndex: 'tm'},
-        { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
-        { text : '年度',   width : 75, sortable : true, dataIndex: 'nd'},
-        { text : '件数',   width : 75, sortable : true, dataIndex: 'js'},
-        { text : '页数',   width : 75, sortable : true, dataIndex: 'ys'},
+        { text : '分类号', width : 75, sortable : true, dataIndex: 'flh'},
+        { text : '年度', width : 75, sortable : true, dataIndex: 'nd'},
+        { text : '件数', width : 75, sortable : true, dataIndex: 'js'},
+        { text : '页数', width : 75, sortable : true, dataIndex: 'ys'},
         { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
-        { text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-        { text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-        { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
-        { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
-        { text : '备注',   flex : 1, sortable : true, dataIndex: 'bz'}
+        { text : '起日期', width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+        { text : '止日期', width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+        { text : '起年月', width : 75, sortable : true, dataIndex: 'qny'},
+        { text : '止年月', width : 75, sortable : true, dataIndex: 'zny'},
+        { text : '备注', flex : 1, sortable : true, dataIndex: 'bz'}
         ],
       width : 800,
       columnLines: true,
       layout:'fit',
       //height : 350,
       //selType:'checkboxmodel',
-			//multiSelect:true,
+//multiSelect:true,
       viewConfig: {
         stripeRows:true,
       },
@@ -636,15 +637,15 @@ Ext.define('MyDesktop.PrintData', {
     
     Ext.regModel('document_model', {
       fields: [
-        {name: 'id',    type: 'integer'},
-        {name: 'tm',    type: 'string'},
-        {name: 'sxh',   type: 'string'},
-        {name: 'yh',    type: 'string'},
-        {name: 'wh',    type: 'string'},
-        {name: 'zrz',   type: 'string'},
-        {name: 'rq',    type: 'date',  dateFormat: 'Y-m-d H:i:s'},
-        {name: 'bz',    type: 'string'},
-        {name: 'dh',    type: 'string'},
+        {name: 'id', type: 'integer'},
+        {name: 'tm', type: 'string'},
+        {name: 'sxh', type: 'string'},
+        {name: 'yh', type: 'string'},
+        {name: 'wh', type: 'string'},
+        {name: 'zrz', type: 'string'},
+        {name: 'rq', type: 'date', dateFormat: 'Y-m-d H:i:s'},
+        {name: 'bz', type: 'string'},
+        {name: 'dh', type: 'string'},
         {name: 'ownerid', type: 'integer'}
       ]
     });
@@ -666,16 +667,16 @@ Ext.define('MyDesktop.PrintData', {
       id: 'document-grid',
       store: document_store,
       columns: [
-        { text : 'id',  width : 75, sortable : true, dataIndex: 'id'},
-        { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
-        { text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
-        { text : '页号',  width : 75, sortable : true, dataIndex: 'yh'},
-        { text : '文号',  width : 75, sortable : true, dataIndex: 'wh'},
-        { text : '顺序号',  width : 75, sortable : true, dataIndex: 'sxh'},
-        { text : '责任人',  width : 75, sortable : true, dataIndex: 'zrz'},
-        { text : '日期',  width : 75, sortable : true, dataIndex: 'rq',  renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-        { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
-        { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'}
+        { text : 'id', width : 75, sortable : true, dataIndex: 'id'},
+        { text : '档号', width : 75, sortable : true, dataIndex: 'dh'},
+        { text : '标题名称', width : 175, sortable : true, dataIndex: 'tm'},
+        { text : '页号', width : 75, sortable : true, dataIndex: 'yh'},
+        { text : '文号', width : 75, sortable : true, dataIndex: 'wh'},
+        { text : '顺序号', width : 75, sortable : true, dataIndex: 'sxh'},
+        { text : '责任人', width : 75, sortable : true, dataIndex: 'zrz'},
+        { text : '日期', width : 75, sortable : true, dataIndex: 'rq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+        { text : '备注', width : 75, sortable : true, dataIndex: 'bz'},
+        { text : 'ownerid', flex : 1, sortable : true, dataIndex: 'ownerid'}
       ],
       width : 800,
       //height : 300,
@@ -685,8 +686,8 @@ Ext.define('MyDesktop.PrintData', {
       }
     });
     
-    treePanel.on("select",function(node){ 
-      data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
+    treePanel.on("select",function(node){
+      data = node.selected.items[0].data; // data.id, data.parent, data.text, data.leaf
       tree_id = data.id;
       if (data.leaf) {
         archive_store.proxy.extraParams.query=data.id;
@@ -702,8 +703,8 @@ Ext.define('MyDesktop.PrintData', {
     });
     
     archiveGrid.on("select",function(node){
-      data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
-      archive_id = data.id; 
+      data = node.selected.items[0].data; // data.id, data.parent, data.text, data.leaf
+      archive_id = data.id;
       archive_data = data;
       document_store.proxy.extraParams.query=data.id;
       document_store.load();
@@ -711,21 +712,21 @@ Ext.define('MyDesktop.PrintData', {
       timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
       timage_store.load();
       
-      Ext.getCmp('timage_combo').lastQuery = null; 
+      Ext.getCmp('timage_combo').lastQuery = null;
 
     });
     
     Ext.regModel('timage_model', {
       fields: [
-        {name: 'id',     type: 'integer'},
-        {name: 'dh',     type: 'string'},
-        {name: 'yxmc',     type: 'string'},
-        {name: 'yxdx',     type: 'string'},
-        {name: 'yxbh',     type: 'string'},
+        {name: 'id', type: 'integer'},
+        {name: 'dh', type: 'string'},
+        {name: 'yxmc', type: 'string'},
+        {name: 'yxdx', type: 'string'},
+        {name: 'yxbh', type: 'string'},
       ]
     });
     
-    var timage_store =  Ext.create('Ext.data.Store', {
+    var timage_store = Ext.create('Ext.data.Store', {
       model : 'timage_model',
       proxy: {
         type: 'ajax',
@@ -746,9 +747,9 @@ Ext.define('MyDesktop.PrintData', {
       new Ajax.Request("/desktop/get_timage_from_db", {
         method: "POST",
         parameters: pars,
-        onComplete:  function(request) {
+        onComplete: function(request) {
           var path = request.responseText;
-          if (path != '') { 
+          if (path != '') {
             Ext.getCmp('preview_img').getEl().dom.src = path;
           }
         }
@@ -793,19 +794,19 @@ Ext.define('MyDesktop.PrintData', {
                         
                           Ext.regModel('dyzt_model', {
                             fields: [
-                              {name: 'id',     type: 'integer'},
-                              {name: 'dydh',     type: 'string'},
-                              {name: 'mlh',     type: 'string'},
-                              {name: 'dqjh',     type: 'string'},
-                              {name: 'qajh',     type: 'string'},
-                              {name: 'zajh',     type: 'string'},
-                              {name: 'dylb',     type: 'string'},
-                              {name: 'dyzt',     type: 'string'}
+                              {name: 'id', type: 'integer'},
+                              {name: 'dydh', type: 'string'},
+                              {name: 'mlh', type: 'string'},
+                              {name: 'dqjh', type: 'string'},
+                              {name: 'qajh', type: 'string'},
+                              {name: 'zajh', type: 'string'},
+                              {name: 'dylb', type: 'string'},
+                              {name: 'dyzt', type: 'string'}
                             ]
                           });
                           
                           // 虚拟打印状态Grid
-                          var dyzt_store =  Ext.create('Ext.data.Store', {
+                          var dyzt_store = Ext.create('Ext.data.Store', {
                             model : 'dyzt_model',
                             proxy: {
                               type: 'ajax',
@@ -829,14 +830,14 @@ Ext.define('MyDesktop.PrintData', {
                             } else {
                                return '<span style="color:gray;">' + val + '</span>';
                             }
-                            return val;                          
+                            return val;
                           };
                         
                           var dyzt_grid = new Ext.grid.GridPanel({
                                store: dyzt_store,
                                id : 'dyzt_grid_id',
                                iconCls:'print',
-                               border : false, 
+                               border : false,
                                columns: [{
                                    xtype: 'gridcolumn',
                                    dataIndex: 'id',
@@ -847,31 +848,31 @@ Ext.define('MyDesktop.PrintData', {
                                    dataIndex: 'dydh',
                                    text: '档号',
                                    width: 60
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'mlh',
                                    text: '目录号',
                                    width: 60
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'qajh',
                                    text: '起案件号',
                                    width: 60
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'zajh',
                                    text: '止案件号',
                                    width: 60
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'dqjh',
                                    text: '当前件号',
                                    width: 60
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'dylb',
@@ -936,13 +937,13 @@ Ext.define('MyDesktop.PrintData', {
                                               vertical: true,
                                               anchor:"95%",
                                               items: [
-                                                { boxLabel: '封面', name: 'dylb-1',  checked: true},
-                                                { boxLabel: '卷内', name: 'dylb-2',  checked: true},
-                                                { boxLabel: '图像', name: 'dylb-3',  checked: false},
-                                                { boxLabel: '备考', name: 'dylb-4',  checked: true}
+                                                { boxLabel: '封面', name: 'dylb-1', checked: true},
+                                                { boxLabel: '卷内', name: 'dylb-2', checked: true},
+                                                { boxLabel: '图像', name: 'dylb-3', checked: false},
+                                                { boxLabel: '备考', name: 'dylb-4', checked: true}
                                               ]
                                             }
-                                            ]        
+                                            ]
                                           });
 
                                           var addPrintWin = new Ext.Window({
@@ -963,10 +964,10 @@ Ext.define('MyDesktop.PrintData', {
                                                 handler : function() {
                                                   var form = Ext.getCmp('print_panel_id').getForm();
                                                   pars = form.getValues();
-                                                  new Ajax.Request("/desktop/get_next_mulu", { 
+                                                  new Ajax.Request("/desktop/get_next_mulu", {
                                                     method: "POST",
                                                     parameters: pars,
-                                                    onComplete:  function(request) {
+                                                    onComplete: function(request) {
                                                       data = eval(request.responseText);
                                                       if (data.zajh > 0) {
                                                         form.findField('dalb').setValue(data.dalb);
@@ -982,10 +983,10 @@ Ext.define('MyDesktop.PrintData', {
                                                 hander : function() {
                                                   var form = Ext.getCmp('print_panel_id').getForm();
                                                   pars = form.getValues();
-                                                  new Ajax.Request("/desktop/get_prev_mulu", { 
+                                                  new Ajax.Request("/desktop/get_prev_mulu", {
                                                     method: "POST",
                                                     parameters: pars,
-                                                    onComplete:  function(request) {
+                                                    onComplete: function(request) {
 
                                                     }
                                                   });
@@ -996,10 +997,10 @@ Ext.define('MyDesktop.PrintData', {
                                               handler: function() {
                                                 var form = Ext.getCmp('print_panel_id').getForm();
                                                 pars = form.getValues();
-                                                new Ajax.Request("/desktop/add_print_task", { 
+                                                new Ajax.Request("/desktop/add_print_task", {
                                                   method: "POST",
                                                   parameters: pars,
-                                                  onComplete:  function(request) {
+                                                  onComplete: function(request) {
                                                     dyzt_store.load();
                                                   }
                                                 });
@@ -1009,10 +1010,10 @@ Ext.define('MyDesktop.PrintData', {
                                               handler : function () {
                                                 var form = Ext.getCmp('print_panel_id').getForm();
                                                 pars = form.getValues();
-                                                new Ajax.Request("/desktop/add_print_task_all", { 
+                                                new Ajax.Request("/desktop/add_print_task_all", {
                                                   method: "POST",
                                                   parameters: pars,
-                                                  onComplete:  function(request) {
+                                                  onComplete: function(request) {
                                                     dyzt_store.load();
                                                   }
                                                 });
@@ -1055,17 +1056,17 @@ Ext.define('MyDesktop.PrintData', {
                                      id_str = '';
                                      for (var i=0; i < items.length; i ++) {
                                        if (i==0) {
-                                         id_str = id_str+items[i].data.id 
+                                         id_str = id_str+items[i].data.id
                                        } else {
-                                         id_str = id_str + ',' +items[i].data.id 
+                                         id_str = id_str + ',' +items[i].data.id
                                        }
                                      
                                      }
                                      pars = {id:id_str};
-                                     new Ajax.Request("/desktop/delete_print_task", { 
+                                     new Ajax.Request("/desktop/delete_print_task", {
                                        method: "POST",
                                        parameters: pars,
-                                       onComplete:  function(request) {
+                                       onComplete: function(request) {
                                          dyzt_store.load();
                                        }
                                      });
@@ -1075,10 +1076,10 @@ Ext.define('MyDesktop.PrintData', {
                                    handler : function() {
                                      //id = Ext.getCmp('dyzt_grid_id').getSelectionModel().selected.items[0].data.id;
                                      pars = {};
-                                     new Ajax.Request("/desktop/delete_all_print_task", { 
+                                     new Ajax.Request("/desktop/delete_all_print_task", {
                                        method: "POST",
                                        parameters: pars,
-                                       onComplete:  function(request) {
+                                       onComplete: function(request) {
                                          dyzt_store.load();
                                        }
                                      });
@@ -1088,9 +1089,9 @@ Ext.define('MyDesktop.PrintData', {
                                    iconCls : 'x-tbar-loading',
                                    handler : function() {
                                      dyzt_store.load();
-                                   }                                 
+                                   }
                                }]
-                          }); 
+                          });
                         
                           var dyztPanel = new Ext.form.FormPanel({
                             id : 'dyzt_panel_id',
@@ -1116,10 +1117,10 @@ Ext.define('MyDesktop.PrintData', {
                               text: '打印',
                               handler: function() {
                                 var pars={id:archive_id};
-                                new Ajax.Request("/desktop/start_print_task", { 
+                                new Ajax.Request("/desktop/start_print_task", {
                                   method: "POST",
                                   parameters: pars,
-                                  onComplete:  function(request) {
+                                  onComplete: function(request) {
                                     dyzt_store.load();
                                   }
                                 });
@@ -1140,23 +1141,23 @@ Ext.define('MyDesktop.PrintData', {
                       
                       }
                     },'-',
-                    { 
+                    {
                       text:'封面',
                       tooltip:'',
                       iconCls:'add',
                       hidden:true,
                       handler: function() {
                         var pars={id:archive_id};
-                        new Ajax.Request("/desktop/generate_fm", 
+                        new Ajax.Request("/desktop/generate_fm",
                           { method: "POST",
                             parameters: pars,
-                            onComplete:  function(request) {
+                            onComplete: function(request) {
                               var path = request.responseText;
-                              if (path != '') { 
+                              if (path != '') {
                                 Ext.getCmp('preview_img').getEl().dom.src = path;
                               }
                             }
-                          }); 
+                          });
                       }
                     },{
                       text:'卷内',
@@ -1165,12 +1166,12 @@ Ext.define('MyDesktop.PrintData', {
                       hidden:true,
                       handler: function() {
                         var pars={id:archive_id};
-                        new Ajax.Request("/desktop/generate_jn", 
+                        new Ajax.Request("/desktop/generate_jn",
                           { method: "POST",
                             parameters: pars,
-                            onComplete:  function(request) {
+                            onComplete: function(request) {
                               var path = request.responseText;
-                              if (path != '') { 
+                              if (path != '') {
                                 Ext.getCmp('preview_img').getEl().dom.src = path;
                               }
                             }
@@ -1183,12 +1184,12 @@ Ext.define('MyDesktop.PrintData', {
                       hidden:true,
                       handler: function() {
                         var pars={id:archive_id};
-                        new Ajax.Request("/desktop/generate_bk", 
+                        new Ajax.Request("/desktop/generate_bk",
                           { method: "POST",
                             parameters: pars,
-                            onComplete:  function(request) {
+                            onComplete: function(request) {
                               var path = request.responseText;
-                              if (path != '') { 
+                              if (path != '') {
                                 Ext.getCmp('preview_img').getEl().dom.src = path;
                               }
                             }
@@ -1201,12 +1202,12 @@ Ext.define('MyDesktop.PrintData', {
                       hidden:true,
                       handler: function() {
                         var pars={id:archive_id};
-                        new Ajax.Request("/desktop/generate_sm", { 
+                        new Ajax.Request("/desktop/generate_sm", {
                           method: "POST",
                           parameters: pars,
-                          onComplete:  function(request) {
+                          onComplete: function(request) {
                             var path = request.responseText;
-                            if (path != '') { 
+                            if (path != '') {
                               Ext.getCmp('preview_img').getEl().dom.src = path;
                             }
                           }
@@ -1222,11 +1223,11 @@ Ext.define('MyDesktop.PrintData', {
                         
                           Ext.regModel('ptemplate_model', {
                             fields: [
-                              {name: 'mbmc',     type: 'string'}
+                              {name: 'mbmc', type: 'string'}
                             ]
                           });
 
-                          var ptemplate_store =  Ext.create('Ext.data.Store', {
+                          var ptemplate_store = Ext.create('Ext.data.Store', {
                             model : 'ptemplate_model',
                             proxy: {
                               type: 'ajax',
@@ -1251,16 +1252,16 @@ Ext.define('MyDesktop.PrintData', {
                         
                           Ext.regModel('p_setting_model', {
                             fields: [
-                              {name: 'id',    type: 'integer'},
-                              {name: 'mbmc',    type: 'string'},
-                              {name: 'mblb',    type: 'string'},
-                              {name: 'zdmc',   type: 'string'},
-                              {name: 'ztdx',   type: 'string'},
-                              {name: 'sptz',   type: 'string'},
-                              {name: 'cztz',    type: 'string'},
-                              {name: 'locx',   type: 'string'},
-                              {name: 'locy',    type: 'string'},
-                              {name: 'dy',      type: 'bool'}
+                              {name: 'id', type: 'integer'},
+                              {name: 'mbmc', type: 'string'},
+                              {name: 'mblb', type: 'string'},
+                              {name: 'zdmc', type: 'string'},
+                              {name: 'ztdx', type: 'string'},
+                              {name: 'sptz', type: 'string'},
+                              {name: 'cztz', type: 'string'},
+                              {name: 'locx', type: 'string'},
+                              {name: 'locy', type: 'string'},
+                              {name: 'dy', type: 'bool'}
                             ]
                           });
                         
@@ -1293,7 +1294,7 @@ Ext.define('MyDesktop.PrintData', {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'mbmc',
                                    text: '模板名称',
-                                   width: 60, 
+                                   width: 60,
                                    editor: {
                                      allowBlank: false
                                    }
@@ -1302,11 +1303,11 @@ Ext.define('MyDesktop.PrintData', {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'mblb',
                                    text: '模板类别',
-                                   width: 60, 
+                                   width: 60,
                                    editor: {
                                      allowBlank: false
                                    }
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'zdmc',
@@ -1315,7 +1316,7 @@ Ext.define('MyDesktop.PrintData', {
                                    editor: {
                                      allowBlank: false
                                    }
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'ztdx',
@@ -1324,7 +1325,7 @@ Ext.define('MyDesktop.PrintData', {
                                    editor: {
                                      allowBlank: false
                                    }
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'gridcolumn',
                                    dataIndex: 'sptz',
@@ -1360,7 +1361,7 @@ Ext.define('MyDesktop.PrintData', {
                                    editor: {
                                      allowBlank: false
                                    }
-                                 },                                  
+                                 },
                                  {
                                    xtype: 'datecolumn',
                                    dataIndex: 'date',
@@ -1433,7 +1434,7 @@ Ext.define('MyDesktop.PrintData', {
                                        form.findField('qzh').setValue(ss[0]);
                                        form.findField('dwdm').setValue(ss[0]);
                                        form.findField('dalb').setValue(ss[1]);
-                                     }  
+                                     }
                                    }
                                }],
                                plugins:[cellEditing],
@@ -1447,7 +1448,7 @@ Ext.define('MyDesktop.PrintData', {
                                    }
                                 }
                               }
-                          }); 
+                          });
                         
                         
                           var printPanel = new Ext.form.FormPanel({
@@ -1464,17 +1465,17 @@ Ext.define('MyDesktop.PrintData', {
                                 },{
 
                                 }]
-                            }]        
+                            }]
                           });
                         
                         
                           //this.el.on("keypress", keyPress, this);
                           p_grid.on("afteredit", function(e){
                             pars = {id:e.record.id, field:e.field, value:e.value};
-                            new Ajax.Request("/desktop/update_p_field", { 
+                            new Ajax.Request("/desktop/update_p_field", {
                               method: "POST",
                               parameters: pars,
-                              onComplete:  function(request) {
+                              onComplete: function(request) {
 
                               }
                             });
@@ -1504,10 +1505,10 @@ Ext.define('MyDesktop.PrintData', {
                                 var p = Ext.getCmp('print_progressbar_id');
                                 var form = Ext.getCmp('print_panel_id').getForm();
                                 pars = form.getValues();
-                                new Ajax.Request("/desktop/print_wizard", { 
+                                new Ajax.Request("/desktop/print_wizard", {
                                   method: "POST",
                                   parameters: pars,
-                                  onComplete:  function(request) {
+                                  onComplete: function(request) {
                                     Ext.TaskManager.start(pr_task);
                                   }
                                 });
@@ -1528,26 +1529,26 @@ Ext.define('MyDesktop.PrintData', {
                         //call print_setting()
                         print_setting();
 
-                      }                    
+                      }
                     },
                     '->',
                     new Ext.form.TextField({
                       width:200,
                       enableKeyEvents: true,
-                      hidden : true, 
-                      initEvents: function() { 
-                        var keyPress = function(e){ 
-                          if (e.getKey() == e.ENTER) { 
+                      hidden : true,
+                      initEvents: function() {
+                        var keyPress = function(e){
+                          if (e.getKey() == e.ENTER) {
                             
                           }
-                        }; 
+                        };
                         this.el.on("keypress", keyPress, this);
                       }
                     }),
                   ],
                   items:[{
                     layout:"fit",
-                    items: archiveGrid, 
+                    items: archiveGrid,
                     border : false
                   }]
                 },
@@ -1559,10 +1560,10 @@ Ext.define('MyDesktop.PrintData', {
                     collapsible:true,
                     autoScroll : true,
                     collapseMode:'mini',
-    								hideCollapseTool:true,
+     hideCollapseTool:true,
                     items:[{
                       layout:"fit",
-                      items: documentGrid, 
+                      items: documentGrid,
                       border : false
                     }]
                   }]
@@ -1597,13 +1598,13 @@ Ext.define('MyDesktop.PrintData', {
                         form.findField('qzh').setValue(ss[0]);
                         form.findField('dwdm').setValue(ss[0]);
                         form.findField('dalb').setValue(ss[1]);
-                      }  
+                      }
                     }
                   }, {
                     xtype:"textfield",
                     id:"tree_panel_style",
                     hidden:true,
-                    value : '0'                 
+                    value : '0'
                   },'-', {
                     text:'',
                     iconCls:'x-tbar-loading',
@@ -1649,44 +1650,42 @@ Ext.define('MyDesktop.PrintData', {
                         
                           // inverse Photo
                           /*
-                          var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
-                          var pixels = imageData.data;
-                          var numPixels = pixels.length/8;
-                        
-                          for (var i=0; i < numPixels; i ++) {
-                            pixels[i*4] = 255-pixels[i*4];
-                            pixels[i*4+1] = 255-pixels[i*4+1];
-                            pixels[i*4+2] = 255-pixels[i*4+2];
-                          }
-                        
-                          context.putImageData(imageData, 0, 0);
-                          */
+var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
+var pixels = imageData.data;
+var numPixels = pixels.length/8;
+for (var i=0; i < numPixels; i ++) {
+pixels[i*4] = 255-pixels[i*4];
+pixels[i*4+1] = 255-pixels[i*4+1];
+pixels[i*4+2] = 255-pixels[i*4+2];
+}
+context.putImageData(imageData, 0, 0);
+*/
                         
                           //tiles
                        
                           var imageData = context.getImageData(0,0, imgW, imgH);
                           var pixels = imageData.data;
                           //context.clearRect(0, 0, imgW*scale, imgH*scale);
-                          var numTileRows = 80; 
+                          var numTileRows = 80;
                           var numTileCols = 53;
-                          var tileWidth = imageData.width/numTileCols; 
+                          var tileWidth = imageData.width/numTileCols;
                           var tileHeight = imageData.height/numTileRows;
                           for (var r = 0; r < numTileRows; r++) {
                             for (var c = 0; c < numTileCols; c++) {
-                              var x = (c*tileWidth)+(tileWidth/2); 
+                              var x = (c*tileWidth)+(tileWidth/2);
                               var y = (r*tileHeight)+(tileHeight/2);
                               var pos = (Math.floor(y)*(imageData.width*4))+(Math.floor(x)*4);
                               var red = pixels[pos];
-                              var green = pixels[pos+1]; 
+                              var green = pixels[pos+1];
                               var blue = pixels[pos+2];
-                              context.fillStyle = "rgb("+red+", "+green+", "+blue+")"; 
+                              context.fillStyle = "rgb("+red+", "+green+", "+blue+")";
                             
                               context.beginPath();
                               context.arc(x, y, tileWidth/2, 0, Math.PI*2, false); context.closePath();
                               context.fill();
                             
                               //context.fillRect(x-(tileWidth/2), y-(tileHeight/2), tileWidth, tileHeight);
-                            }; 
+                            };
                           };
                        
                         };
@@ -1698,18 +1697,16 @@ Ext.define('MyDesktop.PrintData', {
                       
                         // inverse Photo
                         /*
-                        var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
-                        var pixels = imageData.data;
-                        var numPixels = pixels.length/8;
-                      
-                        for (var i=0; i < numPixels; i ++) {
-                          pixels[i*4] = 255-pixels[i*4];
-                          pixels[i*4+1] = 255-pixels[i*4+1];
-                          pixels[i*4+2] = 255-pixels[i*4+2];
-                        }
-                      
-                        context.putImageData(imageData, 0, 0);
-                        */
+var imageData = context.getImageData(0,0, imgW*scale, imgH*scale);
+var pixels = imageData.data;
+var numPixels = pixels.length/8;
+for (var i=0; i < numPixels; i ++) {
+pixels[i*4] = 255-pixels[i*4];
+pixels[i*4+1] = 255-pixels[i*4+1];
+pixels[i*4+2] = 255-pixels[i*4+2];
+}
+context.putImageData(imageData, 0, 0);
+*/
                       
                         //tiles
                         //tiles
@@ -1717,26 +1714,26 @@ Ext.define('MyDesktop.PrintData', {
                         var imageData = context.getImageData(0,0, imgW, imgH);
                         var pixels = imageData.data;
                         //context.clearRect(0, 0, imgW*scale, imgH*scale);
-                        var numTileRows = 80; 
+                        var numTileRows = 80;
                         var numTileCols = 53;
-                        var tileWidth = imageData.width/numTileCols; 
+                        var tileWidth = imageData.width/numTileCols;
                         var tileHeight = imageData.height/numTileRows;
                         for (var r = 0; r < numTileRows; r++) {
                           for (var c = 0; c < numTileCols; c++) {
-                            var x = (c*tileWidth)+(tileWidth/2); 
+                            var x = (c*tileWidth)+(tileWidth/2);
                             var y = (r*tileHeight)+(tileHeight/2);
                             var pos = (Math.floor(y)*(imageData.width*4))+(Math.floor(x)*4);
                             var red = pixels[pos];
-                            var green = pixels[pos+1]; 
+                            var green = pixels[pos+1];
                             var blue = pixels[pos+2];
-                            context.fillStyle = "rgb("+red+", "+green+", "+blue+")"; 
+                            context.fillStyle = "rgb("+red+", "+green+", "+blue+")";
                           
                             context.beginPath();
                             context.arc(x, y, tileWidth/2, 0, Math.PI*2, false); context.closePath();
                             context.fill();
                           
                             //context.fillRect(x-(tileWidth/2), y-(tileHeight/2), tileWidth, tileHeight);
-                          }; 
+                          };
                         };
                       
                         context.restore();
@@ -1757,7 +1754,7 @@ Ext.define('MyDesktop.PrintData', {
                       var mouseDown = false;
 
                       var imageObj = new Image();
-                      var image_id = 14; 
+                      var image_id = 14;
                       imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
 
                       // add button event listeners
@@ -1820,14 +1817,14 @@ Ext.define('MyDesktop.PrintData', {
 
                       draw(scale, translatePos,imageObj);
 
-                    }                  
+                    }
                   }],
                   items:[{
                     //title: '平望',
                     //tbar: favorBar,
                     layout:"fit",
                     autoScroll : true,
-                    items: treePanel, 
+                    items: treePanel,
                     border : false
                   }]
                   }]
@@ -1868,9 +1865,9 @@ Ext.define('MyDesktop.PrintData', {
                     new Ajax.Request("/desktop/get_timage_from_db", {
                       method: "POST",
                       parameters: pars,
-                      onComplete:  function(request) {
+                      onComplete: function(request) {
                         var path = request.responseText;
-                        if (path != '') { 
+                        if (path != '') {
                           Ext.getCmp('preview_img').getEl().dom.src = path;
                         }
                       }
@@ -1890,9 +1887,9 @@ Ext.define('MyDesktop.PrintData', {
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
-                    onComplete:  function(request) {
+                    onComplete: function(request) {
                       var path = request.responseText;
-                      if (path != '') { 
+                      if (path != '') {
                         Ext.getCmp('preview_img').getEl().dom.src = path;
                       }
                     }
@@ -1911,19 +1908,19 @@ Ext.define('MyDesktop.PrintData', {
                   new Ajax.Request("/desktop/get_timage_from_db", {
                     method: "POST",
                     parameters: pars,
-                    onComplete:  function(request) {
+                    onComplete: function(request) {
                       var path = request.responseText;
-                      if (path != '') { 
+                      if (path != '') {
                         Ext.getCmp('preview_img').getEl().dom.src = path;
                       }
                     }
-                  });             
+                  });
                 }
               },
               {
                 text: '打印图像',
                 handler : function() {
-                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   
+                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
                   LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_打印图片2");
                   //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
                   image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
@@ -1939,8 +1936,8 @@ Ext.define('MyDesktop.PrintData', {
               id: 'preview_img',
               width: 350, //图片宽度
               autoEl: {
-                tag: 'img',    //指定为img标签
-                alt: ''      //指定url路径
+                tag: 'img', //指定为img标签
+                alt: '' //指定url路径
               }
             }]
             
@@ -1953,4 +1950,3 @@ Ext.define('MyDesktop.PrintData', {
     return win;
   }
 });
-

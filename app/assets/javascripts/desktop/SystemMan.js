@@ -847,27 +847,8 @@ Ext.define('MyDesktop.SystemMan', {
 		
 		var qz_disp = function(record,add_new){
 			var win = Ext.getCmp('qz_disp_win');
-			Ext.regModel('qz_model', {
-				fields: [
-					{name: 'id',		type: 'integer'},
-					{name: 'dwdm',		type: 'string'}
-				]
-			});
-			var qz_store = Ext.create('Ext.data.Store', {
-					id:'qz_store',
-					model : 'qz_model',
-					proxy: {
-						type: 'ajax',
-						url : '/desktop/get_qz_grid',
-						//extraParams: {query:title},
-						reader: {
-							type: 'json',
-							root: 'rows',
-							totalProperty: 'results'
-						}
-					}				
-			});
-			qz_store.load();
+			
+			//qz_store.load();
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'qz_disp_win',
