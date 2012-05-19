@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
 require 'find'
@@ -49,14 +49,28 @@ def getimgsize(fname)
   ss
 end
 
+
 def save2timage(yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
+  if  fo[128..167] == "                                        "
+     fo = fo[168..-1]
+  end
+  
+  infile = rand(36**6).to_s(36)
+  outfile = rand(36**6).to_s(36)
+  File.open(infile, 'w').write(fo)
+  puts "./dady/bin/encrypt #{infile} #{outfile}"
+  system("./dady/bin/encrypt #{infile} #{outfile}")
+  
+  fo = File.open(outfile).read
+  
   if fo.size == 0
     $stderr.puts(" *** Import Image: #{path}  file size is zero.")
     return 
   end
   
   if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
+
     si = fo.index("\377\300")
     
     if si.nil?
@@ -120,8 +134,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  #puts "insert into timage (dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels});"
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels});")
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, #{width}), #{height};")
 end
 
 
