@@ -52,22 +52,22 @@ end
 
 def save2timage(yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
+  puts "yxdx: #{fo.size}"
+  
+  if fo.size == 0
+    $stderr.puts(" *** Import Image: #{path}  file size is zero.")
+    return 
+  end
+  
   if  fo[128..167] == "                                        "
      fo = fo[168..-1]
   end
   
   infile = rand(36**6).to_s(36)
   outfile = rand(36**6).to_s(36)
-  File.open(infile, 'w').write(fo)
-  puts "./dady/bin/encrypt #{infile} #{outfile}"
-  system("./dady/bin/encrypt #{infile} #{outfile}")
-  
-  fo = File.open(outfile).read
-  
-  if fo.size == 0
-    $stderr.puts(" *** Import Image: #{path}  file size is zero.")
-    return 
-  end
+  ff=File.open(infile, 'wb')
+  ff.write(fo)
+  ff.close
   
   if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
 
@@ -130,11 +130,20 @@ def save2timage(yxbh, path, dh, yx_prefix)
     end  
   end
   
+  puts "./dady/bin/encrypt #{infile} #{outfile}"
+  system("./dady/bin/encrypt #{infile} #{outfile}")
+  fo = File.open(outfile).read
+
+  puts "yxdx encrypted size: #{fo.size}"
+
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, #{width}), #{height};")
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height});")
+  
+  system("rm #{infile} #{outfile}")
+  
 end
 
 
