@@ -129,16 +129,20 @@ class MapController < ApplicationController
     # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
     rq=Time.now.strftime("%Y-%m-%d")
     strrid=params['strRfid'].split(';')
-    for k in 0..strrid.length-1
+    for k in 0..strrid.size-1
       if strrid[k]!=''
         strbox=strrid[k].split(',')
-        if strbox.length=4
-          User.find_by_sql("update archive set boxstr='#{strbox[1]}' where rfidstr=  '#{strbox[0]}';") 
-          if strbox[2] = 1
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
-          else
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
-          end
+        if strbox.size==4
+          if strbox[0]==""
+             User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}','#{rq}');") 
+          else  
+            User.find_by_sql("update archive set boxstr='#{strbox[1]}' where boxrfid= '#{strbox[0]}';") 
+            if strbox[2].to_i == 1
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
+            else
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
+            end
+          end  
         end
       end
     end
