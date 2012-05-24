@@ -207,6 +207,16 @@ Ext.define('MyDesktop.SystemStatus', {
                });
              }
            },'-',{
+             text : '挂接数据',
+             iconCls : 'import',
+             handler : function() {
+               
+               
+               
+               
+               
+             }
+           },'-',{
              text : '导入JSON',
              iconCls : 'import',
              handler : function() {
@@ -912,8 +922,10 @@ Ext.define('MyDesktop.SystemStatus', {
         id: 'systemstatus',
         title:'档案统计',
         iconCls:'datj16',
-        width:1200,
-        height:600,
+        width:800,
+        height:500,
+        x : 100,
+        y : 50,
         animCollapse:false,
         border: false,
         layout: 'fit',

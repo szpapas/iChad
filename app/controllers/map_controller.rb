@@ -98,10 +98,15 @@ class MapController < ApplicationController
   end
   
   
+  def resetShelf
+    dh = params['dh']
+    User.find_by_sql("update archive set boxstr='' where dh like '#{dh}-%';")
+    render :text => "Success"
+  end
+  
   #返回温湿度记录
   def  WsWsd
     #'intxl 1代表返回指定日期的最后一个小时的温湿度记录，2代表返回指定日期的全部温湿度记录
-
     if intlx==1
       user= User.find_by_sql("select * from wsd  where rq='#{strrq}' order by sj  DESC;") 
       size = user.size;
@@ -127,14 +132,14 @@ class MapController < ApplicationController
   #上架
   def wsRfidSetup
     # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
-    rq=Time.now.strftime("%Y-%m-%d")
-    strrid=params['strRfid'].split(';')
+    rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+    strrid=params['strRfid'].split('|')
     for k in 0..strrid.size-1
       if strrid[k]!=''
         strbox=strrid[k].split(',')
         if strbox.size==4
           if strbox[0]==""
-             User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}','#{rq}');") 
+            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}', TIMESTAMP '#{rq}');") 
           else  
             User.find_by_sql("update archive set boxstr='#{strbox[1]}' where boxrfid= '#{strbox[0]}';") 
             if strbox[2].to_i == 1
@@ -148,6 +153,24 @@ class MapController < ApplicationController
     end
     render :text => "Success" 
   end
+  
+  def wsPk    
+    #errlx 1 -- 正常（棕色）， 2 -- 标签读不出来（红色） 3 -- 未发现案卷 （紫色） 4 -- 异常标签
+    if !params['query'].nil?
+        rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+        qq = params['query'].split('|')
+        for k in 0..qq.size-1
+          if qq[k]!=""
+            ss=qq[k].split(',')
+            if ss[0]!=""                       
+              user = User.find_by_sql("INSERT INTO pkerr (rfidstr, archive_id, errlx, dqhbq, szhbq, user_id, rq, cs, sj) values('#{ss[0]}', '#{ss[1]}','#{ss[2]}', '#{ss[3]}','#{ss[4]}', '#{ss[5]}', TIMESTAMP '#{rq}', '#{ss[6]}','#{ss[7]}');")
+            end
+          end
+        end
+    end
+    render :text =>"Success"
+  end
+  
   
   #通过RFID获取档案
   def wsRFID(strrfid)
@@ -270,5 +293,11 @@ class MapController < ApplicationController
     render :text => text
   end
   
-
+  
+  #增加全部说明
+  def get_qztj
+    user = User.find_by_sql("select qzh, count(*) as mls, sum(zajh) as ajs, d_dwdm.dwdm from q_qzxx inner join d_dwdm on q_qzxx.qzh = d_dwdm.id group by qzh, d_dwdm.dwdm;")
+    render :text => user.to_json
+  end
+  
 end
