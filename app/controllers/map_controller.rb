@@ -12,7 +12,7 @@ class MapController < ApplicationController
   
   #返回和保存借还档列表
   def get_dalb 
-    user = Users.find_by_sql "select distinct dalb, dalb || '(' || count(*) || ')' as dd, d_dalb.lbmc from q_qzxx, d_dalb where qzh=#{params['qzh']} and d_dalb.id = dalb group by dalb, d_dalb.lbmc order by dalb;"
+    user = User.find_by_sql "select distinct dalb, dalb || ' ' || d_dalb.lbmc || '(' || count(*) || ')' as dd, d_dalb.lbmc from q_qzxx, d_dalb where qzh=#{params['qzh']} and d_dalb.id = dalb group by dalb, d_dalb.lbmc order by dalb;"
     outstr = ''
     for k in 0..user.size-1
       outstr = outstr + user[k].dd + ','
@@ -20,13 +20,60 @@ class MapController < ApplicationController
     render :text => outstr[0..-2] 
   end
 
-  def WsiPhoneJyList
+  #获取影像文件列表
+  def get_imageList
+    ss = []
+
+    user= User.find_by_sql("select id, yxbh from timage where dh='#{params['dh']}' and (yxbh like '%ML%' and yxbh not like 'MLBK%') order by yxbh;") 
+    for k in 0..user.size-1
+      ss << "#{user[k].id} #{user[k].yxbh}"
+    end
+
+    user= User.find_by_sql("select id, yxbh from timage where dh='#{params['dh']}' and yxbh not like '%ML%' order by yxbh;") 
+    for k in 0..user.size-1
+      ss << "#{user[k].id} #{user[k].yxbh}"
+    end
+
+    user= User.find_by_sql("select id, yxbh from timage where dh='#{params['dh']}' and yxbh like 'MLBK%' order by yxbh;") 
+    for k in 0..user.size-1
+      ss << "#{user[k].id} #{user[k].yxbh}"
+    end
+
+    text = ss.join(",")
+    render :text => text
+  end
+  
+  #通过ID获取影像文件
+  def get_timage
+    user= User.find_by_sql("select * from timage  where where id=#{param['id']};") 
+    size = user.size;
+    if size.to_i > 0
+      dh = user[0]['dh']
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"
+      end
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{gid}';")
+        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
+      end
+      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+    else
+      txt=""
+    end
+    render :text => txt
+  end
+
+  def get_jyList
     #intjhd 1代表还回借档列表，2代表还回还档案列表。intzt 1代表显示，2代表结束显示
-    if intzt = 2 
-        User.find_by_sql("update jylist set iPhoneList=3 where iPhoneList=  #{intjhd};") 
+    if params['zt'] == 2 
+        User.find_by_sql("update jylist set iPhoneList=3 where iPhoneList='#{params['jhd']}';") 
         text="success"         
     else
-      user= User.find_by_sql("SELECT  archive.boxstr,archive.mlh,archive.ajh,archive.rfidstr,d_dalb.lbmc,archive.tm,jylc.jyr,  jylc.jysj  FROM jylist, jylc,archive,d_dalb WHERE jylist.jyid = jylc.id and jylist.daid=archive.id and cast(archive.dalb as integer)=d_dalb.id and jylist.iPhoneList=#{intjhd};")
+      user= User.find_by_sql("SELECT  archive.boxstr,archive.mlh,archive.ajh,archive.rfidstr,d_dalb.lbmc,archive.tm,jylc.jyr, jylc.jysj  FROM jylist, jylc,archive,d_dalb WHERE jylist.jyid = jylc.id and jylist.daid=archive.id and cast(archive.dalb as integer)=d_dalb.id and jylist.iPhoneList='#{params['jhd']}';")
       #boxstr,目录号,案卷号,标签ID,档案类别,案卷标题,借阅人,借阅时间
       size = user.size;
       if size.to_i > 0
@@ -41,6 +88,16 @@ class MapController < ApplicationController
     end
     render :text => text
   end
+  
+  
+  #add at 05/20 by liujun
+  def get_quanz
+    qzh=params['qzh']
+    user = User.find_by_sql("select * from q_qzxx where qzh = '#{qzh}' order by id;")
+    render :text => user.to_json
+  end
+  
+  
   #返回温湿度记录
   def  WsWsd
     #'intxl 1代表返回指定日期的最后一个小时的温湿度记录，2代表返回指定日期的全部温湿度记录
@@ -66,40 +123,32 @@ class MapController < ApplicationController
     end
     render :text => text
   end
-  #获取影像文件列表
-  def WsImageList(dh)
-    user= User.find_by_sql("select * from timage  where dh='#{dh}' order by yxbh  ;") 
-    size = user.size;
-    if size.to_i > 0
-        text = "{results:#{size},rows:["          
-        for k in 0..user.size-1
-            text = text + user[k].to_json + ','
-        end
-        text = text[0..-2] + "]}"
-    else
-        text = "{results:0,rows:[]}"
-    end
-    render :text => text
-  end
+  
   #上架
-  def wsRfidSetup(strrfid)    
+  def wsRfidSetup
+    # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
     rq=Time.now.strftime("%Y-%m-%d")
-    strrid=strrfid.split(';')
-    for k in 0..strrid.length-1
+    strrid=params['strRfid'].split(';')
+    for k in 0..strrid.size-1
       if strrid[k]!=''
         strbox=strrid[k].split(',')
-        if strbox.length=4
-          User.find_by_sql("update archive set boxstr='#{strbox[1]}' where rfidstr=  '#{strbox[0]}';") 
-          if strbox[2] = 1
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
-          else
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
-          end
+        if strbox.size==4
+          if strbox[0]==""
+             User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}','#{rq}');") 
+          else  
+            User.find_by_sql("update archive set boxstr='#{strbox[1]}' where boxrfid= '#{strbox[0]}';") 
+            if strbox[2].to_i == 1
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
+            else
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
+            end
+          end  
         end
       end
     end
-    render :text => "success" 
+    render :text => "Success" 
   end
+  
   #通过RFID获取档案
   def wsRFID
     strrfid = params['strrfid']
@@ -116,34 +165,18 @@ class MapController < ApplicationController
     end
     render :text => text
   end
-  #通过ID获取影像文件
-  def wsImage(gid)
-    user= User.find_by_sql("select * from timage  where where id=#{gid};") 
-    size = user.size;
-    if size.to_i > 0
-      dh = user[0]['dh']
-      if !File.exists?("./dady/img_tmp/#{dh}/")
-        system"mkdir -p ./dady/img_tmp/#{dh}/"
-      end
-      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{gid}';")
-        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
-      end
-      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
-    else
-      txt=""
-    end
-    render :text => txt
-  end
+  
+
   #通过档号获取整目录档案  query 格式  qzh_dalb_mlh(文书处理24的mlh格式为 年度_机构问题号_保管期限 )
   def wsAjToTxt
+<<<<<<< HEAD
     query=params['query']
     puts query
     ss = query.split('_')
+=======
+    dh = params['query']
+    ss = params['query'].split('-')
+>>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
     
     case (ss[1]) 
 			when "0"
@@ -194,10 +227,11 @@ class MapController < ApplicationController
         end
         user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
 			else
-				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh ;")
+				user = User.find_by_sql("select * from archive where dh like '#{dh}-%' order by ajh ;")
 				
 		end
     
+<<<<<<< HEAD
     size = user.size;
     if size.to_i>0 
       txt = "{results:100,rows:["
@@ -209,6 +243,9 @@ class MapController < ApplicationController
       txt = "{results:0,rows:[]}"
     end
     render :text => txt
+=======
+    render :text => user.to_json
+>>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
   end
   
   #返回温湿度记录
@@ -237,6 +274,7 @@ class MapController < ApplicationController
     render :text => text
   end
   
+<<<<<<< HEAD
   #获取影像文件列表
   def get_imageList
     user= User.find_by_sql("select id, yxmbh from timage where dh='#{params['dh']}' order by yxbh;") 
@@ -272,6 +310,8 @@ class MapController < ApplicationController
     end
     render :text => "success" 
   end
+=======
+>>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
   
   #通过RFID获取档案
   def get_archiveByRfid
@@ -289,6 +329,7 @@ class MapController < ApplicationController
     render :text => text
   end
   
+<<<<<<< HEAD
   #通过ID获取影像文件
   def wsImage(gid)
     user= User.find_by_sql("select * from timage  where where id=#{gid};") 
@@ -579,5 +620,7 @@ class MapController < ApplicationController
                     
     render :text =>"success"
   end
+=======
+>>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
 
 end
