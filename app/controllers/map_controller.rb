@@ -93,7 +93,7 @@ class MapController < ApplicationController
   #add at 05/20 by liujun
   def get_quanz
     qzh=params['qzh']
-    user = User.find_by_sql("select * from q_qzxx where qzh = '#{qzh}' order by id;")
+    user = User.find_by_sql("select * from q_qzxx where qzh = '#{qzh}' order by mlh;")
     render :text => user.to_json
   end
   
