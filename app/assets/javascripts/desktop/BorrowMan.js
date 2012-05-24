@@ -2372,7 +2372,7 @@ Ext.define('MyDesktop.BorrowMan', {
 
 							},				  
 							{	
-								xtype:'button',text:'',tooltip:'全文检索',id:'query',iconCls:'search',
+								xtype:'button',text:'检索',tooltip:'全文检索',id:'query',iconCls:'search',
 								handler: function() {
 									console.log(Ext.getCmp('query_text').value);
 
@@ -2715,6 +2715,7 @@ Ext.define('MyDesktop.BorrowMan', {
 	      		}
 	      	}
       	});
+		Ext.getCmp('czrid').setValue(currentUser.id);
 	      return win;
 	  }
 
