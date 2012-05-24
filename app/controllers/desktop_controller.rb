@@ -9,7 +9,7 @@ class DesktopController < ApplicationController
   def index
   end
   
-  def get_user
+  def get_user    
     render :text => User.current.to_json
   end
   
@@ -3315,7 +3315,7 @@ class DesktopController < ApplicationController
   end
     
   #取登录的用户IDid
-  def get_userid
+  def get_userid    
     render :text => User.current.id
   end
   
@@ -3409,93 +3409,15 @@ class DesktopController < ApplicationController
             else
               strwhere =strwhere + " and bgqx='#{params['bgqx']}'"
             end
-            case (params['dalb']) 
-         		when "0"
-         			user = User.find_by_sql("select * from archive #{strwhere} order by ajh ;")
-        
-         		when "2"
-         			user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid #{strwhere} order by ajh ;")
-        
-         		when "3","5","6","7"
-         			user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh ;")
-         		when "15"
-         			user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid #{strwhere}  order by ajh ;")
-             when "18"
-         			user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid #{strwhere}  order by ajh ;")
-             when "25"
-         			user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid #{strwhere}  order by ajh ;")
-             when "27"
-         			user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid #{strwhere} order by ajh ;")
-             when "26"
-         			user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid #{strwhere}  order by ajh ;")
-             when "28"
-         			user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid #{strwhere}  order by ajh ;")
-             when "29"
-         			user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid #{strwhere}  order by ajh ;")
-             when "30"
-         			user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid #{strwhere}  order by djh ;")
-             when "31"
-         			user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid #{strwhere}  order by zt ;")
-             when "32"
-         			user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid #{strwhere}  order by jgmc ;")
-             when "33"
-         			user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq ;")
-             when "34"
-         			user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where #{strwhere}   order by sj ;")
-        
-         		 when "24"
-         		  #年度_机构问题号_保管期限
-         		  
+            if params['dalb']=="24"
               strwhere="where archive.qzh = '#{params['qzh']}' and dalb ='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jh>='#{params['qajh']}' and a_wsda.jh<='#{params['zajh']}'"
+            end
+            case params['dylb']
+            when "案卷目录打印"
+              txt=ajml_print(strwhere)
+            when "卷内目录打印"
               
-              puts strwhere
-                 
-               user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
-         		 else
-         			 user = User.find_by_sql("select * from archive  #{strwhere} order by ajh ;")
-        
-           	end
-            filenames=""
-            intys=0
-            intts=0
-            size = user.size;
-            if size.to_i>0 
-              intys=(size.to_i/10).to_i
-              for k in 0..intys
-                strfilename=""
-                convertstr=""
-                if k==intys
-                  intts=size.to_i-intys*10-1
-                else
-                  intts=9
-                end
-                for i in 0..intts
-                  intheight= i*173+564
-                  puts intheight
-                  user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
-                  
-                  convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text 428, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text 604, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text 772, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text 2337, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text 2497, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text 2627, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
-                  intheight=intheight-40
-                  tm=split_string(user[i+k*10]['tm'],27)
-                  strtm=tm.split("\n")
-                  for j in 0..strtm.length-1
-                    intheight=intheight+ j*50
-                    convertstr =convertstr + " -pointsize 50  -draw \"text 928, #{intheight} '#{strtm[j]}'\" "
-                  end
-                end
-                strfilename="./dady/ajml" + k.to_s + ".jpg"
-                puts strfilename
-                puts "convert ./dady/ajml.jpg #{convertstr}  #{strfilename}"
-                system("convert ./dady/ajml.jpg #{convertstr}  #{strfilename}")
-                if filenames==""
-                  filenames="ajml" + k.to_s + ".jpg"
-                else
-                  filenames=filenames + "," + "ajml" + k.to_s + ".jpg"
-                end
-              end
-              txt="success:" + filenames
-            else            
-              txt = "无此条件的数据，请重新输入条件。"
+            when "案卷封面打印"
             end
           end
         end
@@ -3503,6 +3425,213 @@ class DesktopController < ApplicationController
       
     end
     render :text =>txt
+  end
+  def ajml_print(strwhere)
+    case (params['dalb']) 
+ 		when "0"
+ 			user = User.find_by_sql("select * from archive #{strwhere} order by ajh ;")
+
+ 		when "2"
+ 			user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid #{strwhere} order by ajh ;")
+
+ 		when "3","5","6","7"
+ 			user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh ;")
+ 		when "15"
+ 			user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid #{strwhere}  order by ajh ;")
+     when "18"
+ 			user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid #{strwhere}  order by ajh ;")
+     when "25"
+ 			user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid #{strwhere}  order by ajh ;")
+     when "27"
+ 			user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid #{strwhere} order by ajh ;")
+     when "26"
+ 			user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid #{strwhere}  order by ajh ;")
+     when "28"
+ 			user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid #{strwhere}  order by ajh ;")
+     when "29"
+ 			user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid #{strwhere}  order by ajh ;")
+     when "30"
+ 			user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid #{strwhere}  order by djh ;")
+     when "31"
+ 			user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid #{strwhere}  order by zt ;")
+     when "32"
+ 			user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid #{strwhere}  order by jgmc ;")
+     when "33"
+ 			user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq ;")
+     when "34"
+ 			user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where #{strwhere}   order by sj ;")
+
+ 		 when "24"
+ 		  #年度_机构问题号_保管期限
+ 		  
+      
+      
+      puts strwhere
+         
+       user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
+ 		 else
+ 			 user = User.find_by_sql("select * from archive  #{strwhere} order by ajh ;")
+
+   	end
+    filenames=""
+    intys=0
+    intts=0
+    intwidth=[]
+    size = user.size;
+    if size.to_i>0 
+      
+      intys=(size.to_i/10).to_i
+      if intys==size.to_i/10.to_f
+        intys=intys-1
+      end
+      for k in 0..intys
+        strfilename=""
+        convertstr=""
+        if k==intys
+          intts=size.to_i-intys*10-1
+        else
+          intts=9
+        end
+        
+        for i in 0..intts
+          case (params['dalb'])
+          when "2"
+            intwidth<<537
+            intwidth<<692
+            intwidth<<871
+            intwidth<<1020
+            intwidth<<1964
+            intwidth<<2190
+            intwidth<<2331
+            intwidth<<2445
+            intwidth<<2652
+            intwidth<<2853
+            intwidth<<2993
+            printfilename="ajml_cw.jpg"
+            intheight= i*157+703
+            puts intheight
+            user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+
+            convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['jnzs'].center 4}'\" -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['fjzs'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{user[i+k*10]['pzqh'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['pzzh'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[10]}, #{intheight} '#{user[i+k*10]['bz'].center 4}'\""
+            intheight1=0
+            intheight1=intheight-45  
+            qrq  =Time.mktime(user[i+k*10]['qrq']).strftime("%Y%m%d")
+            zrq=Time.mktime(user[i+k*10]['zrq']).strftime("%Y%m%d")        
+            convertstr =convertstr + " -pointsize 40  -draw \"text #{intwidth[4]}, #{intheight1} '#{qrq}'\" "
+            intheight1=0
+            intheight1=intheight+40
+            convertstr =convertstr + " -pointsize 40  -draw \"text #{intwidth[4]}, #{intheight1} '#{zrq}'\" "
+            intheight=intheight-50
+            if !(user[i+k*10]['tm'].nil?)
+              tm=split_string(user[i+k*10]['tm'],8)
+              strtm=tm.split("\n")
+              intheight1=0
+              for j in 0..strtm.length-1
+                intheight1=intheight+ j*50
+                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
+              end
+            end
+          when "3"
+            intwidth<<335
+            intwidth<<528
+            intwidth<<718
+            intwidth<<882
+            intwidth<<1308
+            intwidth<<1881
+            intwidth<<2415
+            intwidth<<2580
+            intwidth<<2752
+            intwidth<<2882
+            intwidth<<3064
+            printfilename="ajml_tddj.jpg"
+            intheight= i*160+684
+            puts intheight
+            user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+
+            convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
+            intheight=intheight-60
+            if !(user[i+k*10]['djh'].nil?)
+              tm=split_string(user[i+k*10]['djh'],8)
+              strtm=tm.split("\n")
+              intheight1=0
+              for j in 0..strtm.length-1
+                intheight1=intheight+ j*50
+                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
+              end
+            end
+            puts tm
+            if !(user[i+k*10]['qlrmc'].nil?)
+              tm=split_string(user[i+k*10]['qlrmc'],11)
+              strtm=tm.split("\n")
+              intheight1=0
+              for j in 0..strtm.length-1
+                intheight1=intheight+ j*50
+                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight1} '#{strtm[j]}'\" "
+              end
+            end
+            if !(user[i+k*10]['tdzl'].nil?)
+              puts tm
+              tm=split_string(user[i+k*10]['tdzl'],10)
+              strtm=tm.split("\n")
+              intheight1=0
+              for j in 0..strtm.length-1
+                intheight1=intheight+ j*50
+                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight1} '#{strtm[j]}'\" "
+              end
+            end
+           puts tm
+           if !(user[i+k*10]['tdzh'].nil?)
+             tm=split_string(user[i+k*10]['tdzh'],6)
+             strtm=tm.split("\n")
+             intheight1=0
+             for j in 0..strtm.length-1
+               intheight1=intheight+ j*50
+               convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight1} '#{strtm[j]}'\" "
+             end
+            end
+            puts tm
+          else
+            intwidth<<428
+            intwidth<<604
+            intwidth<<772
+            intwidth<<928
+            intwidth<<2337
+            intwidth<<2497
+            intwidth<<2627
+            printfilename="ajml.jpg"
+            intheight= i*173+564
+            puts intheight
+            user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+
+            convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
+            intheight=intheight-40
+            if !(user[i+k*10]['tm'].nil?)
+              tm=split_string(user[i+k*10]['tm'],27)
+              strtm=tm.split("\n")
+              intheight1=0
+              for j in 0..strtm.length-1
+                intheight1=intheight+ j*50
+                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
+              end
+            end
+          end
+          
+        end
+        strfilename="./dady/ajml" + k.to_s + ".jpg"
+        puts strfilename
+        puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
+        system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")
+        if filenames==""
+          filenames="ajml" + k.to_s + ".jpg"
+        else
+          filenames=filenames + "," + "ajml" + k.to_s + ".jpg"
+        end
+      end
+      txt="success:" + filenames
+    else            
+      txt = "无此条件的数据，请重新输入条件。"
+    end
+    return txt
   end
   def split_string(text, length=16)
     char_array = text.unpack("U*")
@@ -3523,4 +3652,28 @@ class DesktopController < ApplicationController
     end
     return t1    
   end
+  #更新卷内目录
+	def update_document
+
+	  User.find_by_sql("update document set tm='#{params['tm']}', sxh=#{params['sxh']}, yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq='#{params['rq']}', dh='#{params['dh']}' where id = #{params['id']};")
+
+	  render :text => 'Success'
+	end
+	
+
+	
+  #新增卷内目录
+	def insert_document
+	  User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
+
+
+	  render :text => 'Success'
+	end
+		#删除卷内目录
+	def delete_document
+
+	  User.find_by_sql("delete from document  where id = #{params['id']};")
+
+	  render :text => 'Success'
+	end
 end

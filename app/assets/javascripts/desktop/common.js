@@ -10,13 +10,13 @@ Ext.Loader.setPath({
 });
 
 Ext.Loader.setConfig({enabled:true});
-new Ajax.Request("/desktop/get_userid", { 
-	method: "POST",
-	//parameters: eval(pars),
-	onComplete:	 function(request) {
-		user_id=request.responseText;
-	}
-});
+ new Ajax.Request("/desktop/get_userid", { 
+ 	method: "POST",
+ 	//parameters: eval(pars),
+ 	onComplete:	 function(request) {
+ 		user_id=request.responseText;
+ 	}
+ });
 var msg = function(title, msg){
 		Ext.Msg.show({
 				title: title,
@@ -7364,7 +7364,7 @@ var DispJr = function(recordad,add_new){
 						handler: function() {
 							var pars=this.up('panel').getForm().getValues();
 							if(add_new==false){
-								new Ajax.Request("/desktop/update_flow", { 
+								new Ajax.Request("/desktop/update_documentsssssssssssss", { 
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {

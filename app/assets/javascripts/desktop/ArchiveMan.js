@@ -6389,7 +6389,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 				proxy: {
 						type: 'ajax',
 						url: 'desktop/get_treeforuserid',
-						extraParams: {node:"root",userid:user_id
+						extraParams: {node:"root",userid:currentUser.id
 						//		mode: 'getTree'
 						},
 						actionMethods: 'POST'
@@ -6455,7 +6455,9 @@ Ext.define('MyDesktop.ArchiveMan', {
 							    	parameters: eval("({filename:'" + myForm._fields.items[0].lastValue + "',dh:'" + dh +"'})"),
 							    	onComplete:	 function(request) {
 										if (request.responseText=='success'){
+											
 											timage_store.load();
+											Ext.getCmp('timage_combo').lastQuery = null;
 							                msg('成功', '文件上传成功.');												
 										}else{
 											alert("文件上传失败，请重新上传。"+ request.responseText);
