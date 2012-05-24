@@ -300,4 +300,14 @@ class MapController < ApplicationController
     render :text => user.to_json
   end
   
+  
+  #0524 by Liujun
+  def report_zt
+    dh, zt = params['dh'], params['zt']
+    User.find_by_sql("update q_qzxx set zt='#{zt}' where dh_prefix='#{dh}';")
+    render :text => 'Success'
+  end
+  
+  
+  
 end
