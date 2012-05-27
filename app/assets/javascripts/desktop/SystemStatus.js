@@ -207,6 +207,160 @@ Ext.define('MyDesktop.SystemStatus', {
                });
              }
            },'-',{
+             text : '挂接数据',
+             iconCls : 'import',
+             handler : function() {
+               
+              //全宗设定
+              var qzsd_win = new Ext.Window({
+                id : 'qzsd_win',
+                iconCls : 'add',
+                title: '数据设定',
+                floating: true,
+                shadow: true,
+                draggable: true,
+                closable: true,
+                modal: true,
+                width: 640,
+                height: 400,
+                layout: 'absolute',
+                plain: true,
+                items:[
+                  { xtype: 'label',text: '全宗号:',x: 20,y: 10 },
+                  { xtype: 'label',text: '全宗全名:',x: 20,y: 40 },
+                  { xtype: 'label',text: '全宗简称:',x: 20,y: 70 },
+                  { xtype: 'label',text: '全宗缩写:',x: 20,y: 100 },
+                  { xtype: 'label',text: '输档文件:',x: 250,y: 10 },
+                  { xtype: 'label',text: '影像位置:',x: 250,y: 40 },
+                  { xtype: 'label',text: '挂接位置:',x: 250,y: 70 },
+                  { xtype: 'textfield', x: 80,y: 10,  name:'qzh' , id:'qzh_id',
+                    listeners:{
+                      scope: this,
+                      'blur': function(field){
+                        if (field.getValue().length > 0){
+                          var pars = {qzh:field.getValue()};
+                          new Ajax.Request("/desktop/check_qzh",
+                            { method: "POST",
+                              parameters: pars,
+                              onComplete: function(request) {
+                                var users = eval("("+request.responseText+")");
+                                if (users.size() > 0) {
+                                  //msg('重要提示', '该目录已经存在，继续操作将删除该目录所有数据！');
+                                  user =users[0]
+                                  Ext.getCmp('dwdm_id').setValue(user.dwdm);
+                                  Ext.getCmp('qzjc_id').setValue(user.dwjc);
+                                  Ext.getCmp('qzdj_id').setValue(user.qzdj);
+                                }
+                              }
+                            });
+                        }
+                      }
+                    }
+                  },
+                  { xtype: 'textfield', x: 80,y: 40,  name:'dwdm', id:'dwdm_id'},
+                  { xtype: 'textfield', x: 80,y: 70,  name:'qzjc', id:'qzjc_id'},
+                  { xtype: 'textfield', x: 80,y: 100, name:'qzdj', id:'qzdj_id'},
+                  {
+                    xtype: 'form', id:'sdwj_upload_form',  x: 310,y: 10, width:300,  height : 24,  //输档文件
+                    items :{ xtype : 'fileuploadfield', anchor: '99%', name:'sdwj', emptyText: '选择一个文件...', buttonText: '浏览'}
+                  },
+                  { xtype: 'textfield', x: 310,y: 40, width:300, name:'yxwz', id:'yxwz_id'},  //影像位置
+                  { xtype: 'textfield', x: 310,y: 70, width:300, name:'gjwz', id:'gjwz_id'},  //挂接位置
+                  {
+                     xtype: 'button',
+                     text: '设置全宗',
+                     x: 250,
+                     y: 105,
+                     width: 80,
+                     handler : function() {
+                       var qzh   = Ext.getCmp('qzh_id').getValue();
+                       var dwdm  = Ext.getCmp('dwdm_id').getValue();
+                       var dwjc  = Ext.getCmp('qzjc_id').getValue();
+                       var qzdj  = Ext.getCmp('qzdj_id').getValue();
+                       var pars  = {qzh:qzh, dwdm:dwdm, dwjc:dwjc, qzdj:qzdj};
+                       new Ajax.Request("/desktop/add_qzh2",{
+                         method: "POST",
+                         parameters: pars,
+                         onComplete: function(request) {
+                            if (request.responseText == 'Success') {
+                              msg('提示', '全宗保存成功！');
+                            }
+                         }
+                       });
+                     }
+                  },
+                  {
+                    xtype: 'button',
+                    text: '上传输档',
+                    x: 340,
+                    y: 105,
+                    width: 80,
+                    handler : function() {
+                      myForm = Ext.getCmp('sdwj_upload_form').getForm();
+                      if(myForm.isValid()){
+                        form_action=1;
+                        myForm.submit({
+                          url: '/desktop/upload_sdwj',
+                          waitMsg: '文件上传中...',
+                          success: function(form, action){
+                            var isSuc = action.result.success; 
+                            if (isSuc) {
+                              msg('成功', '文件上传成功.');
+                            } else { 
+                              msg('失败', '文件上传失败.');
+                            }
+                          }, 
+                          failure: function(){
+                            msg('失败', '文件上传失败.');
+                          }
+                        });
+                      }
+
+                    }
+                  },
+                  {
+                     xtype: 'button',
+                     text: '设定共享',
+                     x: 430,
+                     y: 105,
+                     width: 80,
+                     handler: function() {
+                       var yxwz  = Ext.getCmp('yxwz_id').getValue();
+                       var gjwz  = Ext.getCmp('gjwz_id').getValue();
+                       var pars = {yxwz:yxwz, gjwz:gjwz};
+                       new Ajax.Request("/desktop/set_gxml",{
+                         method: "POST",
+                         parameters: pars,
+                         onComplete: function(request) {
+                            if (request.responseText == 'Success') {
+                              msg('提示', '共享设定成功！');
+                            }
+                         }
+                       });
+                     }
+                  },
+                  {
+                     xtype: 'button',
+                     text: '刷新目录',
+                     x: 520,
+                     y: 105,
+                     width: 80
+                  },
+                  {
+                    xtype: 'panel',
+                    x : 5,
+                    y : 140,
+                    height : 220,
+                    width  : 620  
+
+                  }
+                 ]
+              });
+
+              qzsd_win.show();               
+               
+             }
+           },'-',{
              text : '导入JSON',
              iconCls : 'import',
              handler : function() {
@@ -912,8 +1066,10 @@ Ext.define('MyDesktop.SystemStatus', {
         id: 'systemstatus',
         title:'档案统计',
         iconCls:'datj16',
-        width:1200,
-        height:600,
+        width:800,
+        height:500,
+        x : 100,
+        y : 50,
         animCollapse:false,
         border: false,
         layout: 'fit',

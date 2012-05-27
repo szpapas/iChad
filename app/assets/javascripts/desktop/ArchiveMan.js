@@ -6719,7 +6719,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 	      		if (request.responseText=='success'){
 	    			win.show();
 	      		}else{
-	      			alert('您无国土档案管理的权限。' + request.responseText);
+	      			alert('您无国土档案管理的权限。');
 					Ext.getCmp('archiveman').close();
 	      		}
 	      	}
