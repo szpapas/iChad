@@ -1984,18 +1984,10 @@ Ext.define('MyDesktop.SystemMan', {
 							
 				items: sys_cd_tree_panel
 			});
-      	}
-    // 	new Ajax.Request("/desktop/get_sort", { 
-    //		method: "POST",
-	//    	parameters: eval("({userid:" + currentUser.id + ",qxid:8})"),
-	//    	onComplete:	 function(request) {
-	//    		if (request.responseText=='success'){
-	 			win.show();
-	//    		}else{
-	//    			alert('您无系统设置的权限。' + request.responseText);
-	//    		}
-	//    	}
-    //	});
+    }
+
+	 	win.show();
+
 	  
 		
       return win;

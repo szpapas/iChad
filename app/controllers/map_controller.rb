@@ -133,19 +133,19 @@ class MapController < ApplicationController
   def wsRfidSetup
     # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
     rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
-    strrid=params['strRfid'].split('|')
-    for k in 0..strrid.size-1
-      if strrid[k]!=''
-        strbox=strrid[k].split(',')
-        if strbox.size==4
-          if strbox[0]==""
-            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}', TIMESTAMP '#{rq}');") 
+    tt=params['strRfid'].split('|')
+    for k in 0..tt.size-1
+      if tt[k]!=''
+        ss=tt[k].split(',')
+        if ss.size==4
+          if ss[0]==""
+            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq, qajh, zajh) values ('#{ss[1]}', 2,'#{ss[3]}', TIMESTAMP '#{rq}', #{ss[4]}, #{ss[5]});") 
           else  
-            User.find_by_sql("update archive set boxstr='#{strbox[1]}' where boxrfid= '#{strbox[0]}';") 
-            if strbox[2].to_i == 1
-              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
+            User.find_by_sql("UPDATE ARCHIVE set boxstr='#{ss[1]}' where boxrfid= '#{ss[0]}';") 
+            if ss[2].to_i == 1
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{ss[1]}', '#{ss[0]}',1,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
             else
-              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{ss[1]}', '#{ss[0]}',0,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
             end
           end  
         end
@@ -505,7 +505,8 @@ class MapController < ApplicationController
     if size.to_i > 0
       text = "["          
       for k in 0..user.size-1
-          text = text + user[k].to_json + ','
+        user[k]["tm"]=user[k]["tm"].gsub("\"","") if !user[k]["tm"].nil?
+        text = text + user[k].to_json + ','
       end
       text = text[0..-2] + "]"
     else
@@ -544,7 +545,16 @@ class MapController < ApplicationController
     if params['query']!="" && params['strrfid']!=""
     
         
-            user = User.find_by_sql("update archive set boxrfid='#{params['strrfid']}' where id in (#{params['query']})  ;")
+        jy_rfid=params['query'].split('_')
+        rfid=""
+        for k in 0..jy_rfid.size-1
+          if rfid==""
+            rfid="'" + jy_rfid[k] + "'"
+          else
+            rfid=rfid +",'" + jy_rfid[k] + "'"
+          end
+        end
+            user = User.find_by_sql("update archive set boxrfid='#{params['strrfid']}' where rfidstr in (#{rfid})  ;")
             
             text="success"
         
@@ -556,8 +566,17 @@ class MapController < ApplicationController
   end
   #标签校验提取数据
   def get_rfidjy_data
-    if params['query']!="" && params['strrfid']!=""
-      user = User.find_by_sql("select * from  archive where  boxrfid='#{params['jy_box_rfid']}' and rfidstr in (#{params['jy_rfid']})  ;")
+    if params['jy_box_rfid']!="" && params['jy_rfid']!=""
+      jy_rfid=params['jy_rfid'].split('_')
+      rfid=""
+      for k in 0..jy_rfid.size-1
+        if rfid==""
+          rfid="'" + jy_rfid[k] + "'"
+        else
+          rfid=rfid +",'" + jy_rfid[k] + "'"
+        end
+      end
+      user = User.find_by_sql("select * from  archive where  boxrfid='#{params['jy_box_rfid']}' and rfidstr in (#{rfid})  ;")
       size = user.size;
       if size.to_i > 0
         text = "["          
@@ -576,11 +595,21 @@ class MapController < ApplicationController
   #标签组卷提取数据
   def get_rfidzj_data
     if  params['jy_rfid']!=""
-      user = User.find_by_sql("select * from  archive where  rfidstr in (#{params['jy_rfid']})  ;")
+      jy_rfid=params['jy_rfid'].split(',')
+      rfid=""
+      for k in 0..jy_rfid.size-1
+        if rfid==""
+          rfid="'" + jy_rfid[k] + "'"
+        else
+          rfid=rfid +",'" + jy_rfid[k] + "'"
+        end
+      end
+      user = User.find_by_sql("select * from  archive where  rfidstr in (#{rfid})  ;")
       size = user.size;
       if size.to_i > 0
         text = "["          
         for k in 0..user.size-1
+          user[k]["tm"]=user[k]["tm"].gsub("\"","") if !user[k]["tm"].nil?
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]"

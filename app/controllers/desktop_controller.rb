@@ -3653,27 +3653,61 @@ class DesktopController < ApplicationController
     return t1    
   end
   #更新卷内目录
-	def update_document
+  def update_document
 
-	  User.find_by_sql("update document set tm='#{params['tm']}', sxh=#{params['sxh']}, yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq='#{params['rq']}', dh='#{params['dh']}' where id = #{params['id']};")
+    User.find_by_sql("update document set tm='#{params['tm']}', sxh=#{params['sxh']}, yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq='#{params['rq']}', dh='#{params['dh']}' where id = #{params['id']};")
 
-	  render :text => 'Success'
-	end
-	
+    render :text => 'Success'
+  end
 
-	
+
+
   #新增卷内目录
-	def insert_document
-	  User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
+  def insert_document
+    User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
+    render :text => 'Success'
+  end
 
+  	#删除卷内目录
+  def delete_document
+    User.find_by_sql("delete from document  where id = #{params['id']};")
+    render :text => 'Success'
+  end
 
-	  render :text => 'Success'
-	end
-		#删除卷内目录
-	def delete_document
+  #add by liu 05/25
+  def upload_sdwj
+ 
+   render :text => "{success:true}"
+  end
 
-	  User.find_by_sql("delete from document  where id = #{params['id']};")
+  def check_qzh
+    qzh = params['qzh']
+    user = User.find_by_sql("select * from d_dwdm where id=#{qzh};")
+    render :text => user.to_json
+  end
 
-	  render :text => 'Success'
-	end
+  def add_qzh2
+    user = User.find_by_sql("select count (*) from d_dwdm where id = #{params['qzh']};")[0]
+    if user.count.to_i == 0
+      User.find_by_sql("insert into d_dwdm(id, dwdm, dwjc, qzdj) values (#{params['qzh']}, '#{params['dwdm']}', '#{params['dwjc']}', '#{params['qzdj']}');")
+      render :text => "Success"
+    else
+      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}', qzdj='#{params['qzdj']}' where id =  #{params['qzh']});")
+      render :text => "Success"
+    end
+  end
+  
+  def set_gxml
+    yxwz, gjwz = params['yxwz'], params['gjwz']
+    password = '512940q'
+    
+    if !File.exists?(gjwz)
+      system"mkdir -p #{gjwz}"
+    end
+    system "df | grep #{gjwz} |wc|  awk '{print $1}' > gggg"
+    system "umount #{gjwz}" if File.open('gggg').read.chomp.to_i > 0
+    system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
+  end
+  
+  
 end

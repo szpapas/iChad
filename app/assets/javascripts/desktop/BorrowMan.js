@@ -2710,7 +2710,7 @@ Ext.define('MyDesktop.BorrowMan', {
 	      		if (request.responseText=='success'){
 	    			win.show();
 	      		}else{
-	      			alert('您无借阅管理的权限。' + request.responseText);
+	      			alert('您无借阅管理的权限。');
 					Ext.getCmp('borrowman').close();
 	      		}
 	      	}
