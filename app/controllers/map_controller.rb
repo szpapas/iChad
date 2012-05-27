@@ -93,15 +93,20 @@ class MapController < ApplicationController
   #add at 05/20 by liujun
   def get_quanz
     qzh=params['qzh']
-    user = User.find_by_sql("select * from q_qzxx where qzh = '#{qzh}' order by id;")
+    user = User.find_by_sql("select * from q_qzxx where qzh = '#{qzh}' order by mlh;")
     render :text => user.to_json
   end
   
   
+  def resetShelf
+    dh = params['dh']
+    User.find_by_sql("update archive set boxstr='' where dh like '#{dh}-%';")
+    render :text => "Success"
+  end
+  
   #返回温湿度记录
   def  WsWsd
     #'intxl 1代表返回指定日期的最后一个小时的温湿度记录，2代表返回指定日期的全部温湿度记录
-
     if intlx==1
       user= User.find_by_sql("select * from wsd  where rq='#{strrq}' order by sj  DESC;") 
       size = user.size;
@@ -127,14 +132,14 @@ class MapController < ApplicationController
   #上架
   def wsRfidSetup
     # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
-    rq=Time.now.strftime("%Y-%m-%d")
-    strrid=params['strRfid'].split(';')
+    rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+    strrid=params['strRfid'].split('|')
     for k in 0..strrid.size-1
       if strrid[k]!=''
         strbox=strrid[k].split(',')
         if strbox.size==4
           if strbox[0]==""
-             User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}','#{rq}');") 
+            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq) values ('#{strbox[1]}', 2,'#{strbox[3]}', TIMESTAMP '#{rq}');") 
           else  
             User.find_by_sql("update archive set boxstr='#{strbox[1]}' where boxrfid= '#{strbox[0]}';") 
             if strbox[2].to_i == 1
@@ -149,9 +154,41 @@ class MapController < ApplicationController
     render :text => "Success" 
   end
   
+  def wsPk    
+    #errlx 1 -- 正常（棕色）， 2 -- 标签读不出来（红色） 3 -- 未发现案卷 （紫色） 4 -- 异常标签
+    if !params['query'].nil?
+        rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+        qq = params['query'].split('|')
+        for k in 0..qq.size-1
+          if qq[k]!=""
+            ss=qq[k].split(',')
+            if ss[0]!=""                       
+              user = User.find_by_sql("INSERT INTO pkerr (rfidstr, archive_id, errlx, dqhbq, szhbq, user_id, rq, cs, sj) values('#{ss[0]}', '#{ss[1]}','#{ss[2]}', '#{ss[3]}','#{ss[4]}', '#{ss[5]}', TIMESTAMP '#{rq}', '#{ss[6]}','#{ss[7]}');")
+            end
+          end
+        end
+    end
+    render :text =>"Success"
+  end
+  
+  #增加全部说明
+  def get_qztj
+    user = User.find_by_sql("select qzh, count(*) as mls, sum(zajh) as ajs, d_dwdm.dwdm from q_qzxx inner join d_dwdm on q_qzxx.qzh = d_dwdm.id group by qzh, d_dwdm.dwdm;")
+    render :text => user.to_json
+  end
+  
+  
+  #0524 by Liu JUN
+  def report_zt
+    dh, zt = params['dh'], params['zt']
+    User.find_by_sql("update q_qzxx set zt='#{zt}' where dh_prefix='#{dh}';")
+    render :text => 'Success'
+  end
+  
+  
+  #Add by Wu 
   #通过RFID获取档案
-  def wsRFID
-    strrfid = params['strrfid']
+  def wsRFID(strrfid)
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
     if size.to_i > 0
@@ -169,14 +206,8 @@ class MapController < ApplicationController
 
   #通过档号获取整目录档案  query 格式  qzh_dalb_mlh(文书处理24的mlh格式为 年度_机构问题号_保管期限 )
   def wsAjToTxt
-<<<<<<< HEAD
-    query=params['query']
-    puts query
-    ss = query.split('_')
-=======
     dh = params['query']
     ss = params['query'].split('-')
->>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
     
     case (ss[1]) 
 			when "0"
@@ -231,88 +262,10 @@ class MapController < ApplicationController
 				
 		end
     
-<<<<<<< HEAD
-    size = user.size;
-    if size.to_i>0 
-      txt = "{results:100,rows:["
-      for k in 0..user.size-1
-          txt = txt + user[k].to_json + ','
-      end
-      txt = txt[0..-2] + "]}"
-    else
-      txt = "{results:0,rows:[]}"
-    end
-    render :text => txt
-=======
     render :text => user.to_json
->>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
   end
   
-  #返回温湿度记录
-  def  WsWsd(strrq,intlx)
-    #'intxl 1代表返回指定日期的最后一个小时的温湿度记录，2代表返回指定日期的全部温湿度记录
 
-    if intlx==1
-      user= User.find_by_sql("select * from wsd  where rq='#{strrq}' order by sj  DESC;") 
-      size = user.size;
-      if size.to_i>0
-        user= User.find_by_sql("select * from wsd  where rq='#{strrq}' and sj='#{user[0]["sj"]}';")
-      end
-    else
-      user= User.find_by_sql("select * from wsd  where rq='#{strrq}' order by sj;") 
-    end
-    size = user.size;
-    if size.to_i > 0
-        text = "{results:#{size},rows:["          
-        for k in 0..user.size-1
-            text = text + user[k].to_json + ','
-        end
-        text = text[0..-2] + "]}"
-    else
-        text = "{results:0,rows:[]}"
-    end
-    render :text => text
-  end
-  
-<<<<<<< HEAD
-  #获取影像文件列表
-  def get_imageList
-    user= User.find_by_sql("select id, yxmbh from timage where dh='#{params['dh']}' order by yxbh;") 
-    size = user.size;
-    if size.to_i > 0
-        text = "{results:#{size},rows:["          
-        for k in 0..user.size-1
-            text = text + user[k].to_json + ','
-        end
-        text = text[0..-2] + "]}"
-    else
-        text = "{results:0,rows:[]}"
-    end
-    render :text => text
-  end
-  
-  #上架
-  def wsRfidSetup(strrfid)    
-    rq=Time.now.strftime("%Y-%m-%d")
-    strrid=strrfid.split(';')
-    for k in 0..strrid.length-1
-      if strrid[k]!=''
-        strbox=strrid[k].split(',')
-        if strbox.length==4
-          User.find_by_sql("update archive set boxstr='#{strbox[1]}' where rfidstr=  '#{strbox[0]}';") 
-          if strbox[2] == 1
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',1,'#{strbox[3]}','#{rq}');") 
-          else
-            User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{strbox[1]}', '#{strbox[0]}',0,'#{strbox[3]}','#{rq}');") 
-          end
-        end
-      end
-    end
-    render :text => "success" 
-  end
-=======
->>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
-  
   #通过RFID获取档案
   def get_archiveByRfid
     user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
@@ -329,7 +282,44 @@ class MapController < ApplicationController
     render :text => text
   end
   
-<<<<<<< HEAD
+  
+
+  
+  #通过RFID获取档案
+  def wsRFID
+    strrfid = params['strrfid']
+    user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
+    size = user.size;
+    if size.to_i > 0
+        text = "{results:#{size},rows:["          
+        for k in 0..user.size-1
+            text = text + user[k].to_json + ','
+        end
+        text = text[0..-2] + "]}"
+    else
+        text = "{results:0,rows:[]}"
+    end
+    render :text => text
+  end
+  
+
+  
+  #通过RFID获取档案
+  def get_archiveByRfid
+    user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
+    size = user.size;
+    if size.to_i > 0
+        text = "{results:#{size},rows:["          
+        for k in 0..user.size-1
+            text = text + user[k].to_json + ','
+        end
+        text = text[0..-2] + "]}"
+    else
+        text = "{results:0,rows:[]}"
+    end
+    render :text => text
+  end
+
   #通过ID获取影像文件
   def wsImage(gid)
     user= User.find_by_sql("select * from timage  where where id=#{gid};") 
@@ -515,7 +505,8 @@ class MapController < ApplicationController
     if size.to_i > 0
       text = "["          
       for k in 0..user.size-1
-          text = text + user[k].to_json + ','
+        user[k]["tm"]=user[k]["tm"].gsub("\"","") if !user[k]["tm"].nil?
+        text = text + user[k].to_json + ','
       end
       text = text[0..-2] + "]"
     else
@@ -554,7 +545,16 @@ class MapController < ApplicationController
     if params['query']!="" && params['strrfid']!=""
     
         
-            user = User.find_by_sql("update archive set boxrfid='#{params['strrfid']}' where id in (#{params['query']})  ;")
+        jy_rfid=params['query'].split('_')
+        rfid=""
+        for k in 0..jy_rfid.size-1
+          if rfid==""
+            rfid="'" + jy_rfid[k] + "'"
+          else
+            rfid=rfid +",'" + jy_rfid[k] + "'"
+          end
+        end
+            user = User.find_by_sql("update archive set boxrfid='#{params['strrfid']}' where rfidstr in (#{rfid})  ;")
             
             text="success"
         
@@ -566,8 +566,17 @@ class MapController < ApplicationController
   end
   #标签校验提取数据
   def get_rfidjy_data
-    if params['query']!="" && params['strrfid']!=""
-      user = User.find_by_sql("select * from  archive where  boxrfid='#{params['jy_box_rfid']}' and rfidstr in (#{params['jy_rfid']})  ;")
+    if params['jy_box_rfid']!="" && params['jy_rfid']!=""
+      jy_rfid=params['jy_rfid'].split('_')
+      rfid=""
+      for k in 0..jy_rfid.size-1
+        if rfid==""
+          rfid="'" + jy_rfid[k] + "'"
+        else
+          rfid=rfid +",'" + jy_rfid[k] + "'"
+        end
+      end
+      user = User.find_by_sql("select * from  archive where  boxrfid='#{params['jy_box_rfid']}' and rfidstr in (#{rfid})  ;")
       size = user.size;
       if size.to_i > 0
         text = "["          
@@ -586,11 +595,21 @@ class MapController < ApplicationController
   #标签组卷提取数据
   def get_rfidzj_data
     if  params['jy_rfid']!=""
-      user = User.find_by_sql("select * from  archive where  rfidstr in (#{params['jy_rfid']})  ;")
+      jy_rfid=params['jy_rfid'].split(',')
+      rfid=""
+      for k in 0..jy_rfid.size-1
+        if rfid==""
+          rfid="'" + jy_rfid[k] + "'"
+        else
+          rfid=rfid +",'" + jy_rfid[k] + "'"
+        end
+      end
+      user = User.find_by_sql("select * from  archive where  rfidstr in (#{rfid})  ;")
       size = user.size;
       if size.to_i > 0
         text = "["          
         for k in 0..user.size-1
+          user[k]["tm"]=user[k]["tm"].gsub("\"","") if !user[k]["tm"].nil?
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]"
@@ -602,25 +621,5 @@ class MapController < ApplicationController
     end
     render :text => text
   end
-  def wsPK    
-    #query格式：rfidstr,档案ID,zt(0/1),所在盒boxstr,档案类别,人员ID,错误说明;rfidstr,档案ID,zt(0/1),所在盒boxstr,档案类别,人员ID,错误说明
-    if params['query']!=""
-        rq=Time.now.strftime("%Y-%m-%d")
-        strrfid = params['query'].split(';')
-        for k in 0..strrfid.size-1
-          if strrfid[k]!=""
-            strbox=strrfid[k].split(',')
-            if strbox[0]!=""                       
-              user = User.find_by_sql("INSERT INTO pkerr (bcid,gsboxstr,szboxstr,DaID,ErrLx,psnID,dalb,rq,cs,sj) values ('#{strbox[0]}', '#{strbox[3]}', '#{strbox[4]}', '#{strbox[1]}','#{strbox[2]}', '#{strbox[6]}', '#{strbox[5]}','#{rq}', '#{strbox[7]}', '#{strbox[8]}');")
-            end
-          end
-          
-        end
-    end
-                    
-    render :text =>"success"
-  end
-=======
->>>>>>> 7dc73ad7049e7793c42680b85674461d2a3b4fc9
-
+  
 end
