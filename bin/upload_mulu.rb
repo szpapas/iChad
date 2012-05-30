@@ -46,11 +46,11 @@ end
 def get_mlh(ifname)
   if /(\d+)(永久.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlh = 10000+(nd-2000)*3 + 2
+    mlh = 8000+(nd-2000)*3 + 2
   else 
     mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
     nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlh = 10000+(nd-2000)*3 + qx
+    mlh = 8000+(nd-2000)*3 + qx
   end
 end
 
@@ -88,9 +88,9 @@ def update_owner
   $conn.exec("update a_tddj set ownerid=archive.id from archive where archive.dh=a_tddj.dh and a_tddj.ownerid is null;")
   $conn.exec("update a_tjda set ownerid=archive.id from archive where archive.dh=a_tjda.dh and a_tjda.ownerid is null;")
   $conn.exec("update a_wsda set ownerid=archive.id from archive where archive.dh=a_wsda.dh and a_wsda.ownerid is null;")
+  $conn.exec("update a_kyq  set ownerid=archive.id from archive where archive.dh=a_kyq.dh and a_kyq.ownerid is null;")
   $conn.exec("update document set ownerid=archive.id from archive where document.dh=archive.dh and document.ownerid is null;")
   #puts "== $$$ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} end of update owener "
-
 end 
 
 def set_documents(tt, dwdm, qzh, dalb, mlh)
@@ -301,6 +301,37 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
       #puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+    when 35 #矿业权
+      
+       xxkz  = user['现许可证号']
+       yxkz  = user['原许可证号']
+       kyqr  = user['矿业权人名称']
+       ksmc  = user['矿山名称']
+       ksbh  = user['矿山编号']
+       ksgm  = user['矿山规模']
+       xzqdm = user['行政区代码']
+       kz    = user['矿种']
+       djlx  = user['登记类型']
+       kswz  = user['矿山位置']
+       kqfw  = user['矿区范围'].gsub(/X|Y|：|:/, '').gsub(/，/, ' ')
+       mj    = user['面积']
+       cl    = user['储量']
+       sjncl = user['实际年产量']
+       clgm  = user['储量规模']
+       yxqq  = user['有效期起']
+       yxqz  = user['有效期止']
+       yxqx  = user['有效期限']
+       fzjg  = user['发证机关']
+       mjdw  = user['面积单位']
+       cldw  = user['储量单位']
+       scgm  = user['生产规模']
+       scldw = user['生产量单位']
+       jjlx  = user['经济类型']
+      
+      insert_str =  " INSERT INTO a_kyq (xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,dh) values ('#{xxkz}','#{yxkz}','#{kyqr}','#{ksmc}','#{ksbh}','#{ksgm}','#{xzqdm}','#{kz}','#{djlx}','#{kswz}','#{kqfw}','#{mj}','#{cl}','#{sjncl}','#{clgm}','#{yxqq}','#{yxqz}','#{yxqx}','#{fzjg}','#{mjdw}','#{cldw}','#{scgm}','#{scldw}','#{jjlx}', '#{dh}');"
+      #puts insert_str
+      $conn.exec("DELETE from a_kyq where dh like '#{dh}';")
       $conn.exec(insert_str)
       
     else

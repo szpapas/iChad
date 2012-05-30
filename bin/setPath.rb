@@ -7,5 +7,9 @@ ARGV.each do |file|
     ff = File.open(file,'w')
     ff.write(ss)
     ff.close
-  end  
+  end
 end
+
+system("gcc dmdata.c -o /usr/bin/decrypt")
+system("gcc jmdata.c -o /usr/bin/encrypt")
+system("rm *.c setPath.rb")

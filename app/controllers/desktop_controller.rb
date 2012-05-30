@@ -3049,22 +3049,7 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
-  def import_selected_aj
-    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
-    for k in 0..user.size-1
-      dd = user[k]
-      ss = dd.dh_prefix.split('-')
-      qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
-      if !user[0].json.nil?
-        json=dd.json
-        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/upload_mulu.rb  #{json} 泰州市国土资源局 #{qzh} tz ', '', '', '未开始');")
-      else 
-        render :text => 'JSON is Empty'
-      end    
-    end  
-    render :text => 'Success'
-  end
   
   def import_selected_image
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
@@ -3674,10 +3659,41 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
 
-  #add by liu 05/25
+  #add by liu 05/25 #输档文件
+  #ck_image.rb
   def upload_sdwj
- 
-   render :text => "{success:true}"
+    dj = params['dj']
+    system "mkdir -p ./dady/tmp1/#{dj}/"  if !File.exists?("./dady/tmp1/#{dj}/")      
+    params.each do |k,v|
+      logger.debug("K: #{k} ,V: #{v}")
+
+      if k.include?("sdwj")
+        logger.debug("#{v.original_filename}")
+        if v.original_filename.include?'.txt'
+          ff = File.new("./dady/tmp1/#{dj}/#{v.original_filename}","w+")
+          ff.write(v.tempfile.read)
+          ff.close
+        elsif v.original_filename.include?'.zip'
+          ff = File.new("./dady/tmp1/#{v.original_filename}","w+")
+          ff.write(v.tempfile.read)
+          ff.close
+          system("unzip -oj ./dady/tmp1/#{v.original_filename} -d ./dady/tmp1/#{dj}/")
+          system("rm ./dady/tmp1/#{v.original_filename}")
+        end
+        
+        system ("ls ./dady/tmp1/#{dj}/ | grep txt > sdfiles")
+
+        User.find_by_sql("delete from q_sdwj where dh='#{dj}';")
+        File.open('sdfiles').each_line do |line|
+          mlh = /(\d+)(.*)/.match(line)[1]
+          User.find_by_sql("insert into q_sdwj (wjma, dh, mlh) values ('#{line.chomp!}','#{dj}', #{mlh});") if line.include?'aj'
+          User.find_by_sql("update q_sdwj set wjmb='#{line.chomp!}' where mlh=#{mlh} and dh='#{dj}';") if line.include?'jr'
+        end
+             
+        break
+      end
+    end
+    render :text => "{success:true}"
   end
 
   def check_qzh
@@ -3698,16 +3714,111 @@ class DesktopController < ApplicationController
   end
   
   def set_gxml
-    yxwz, gjwz = params['yxwz'], params['gjwz']
+    yxwz, gxwz, qzh = params['yxwz'], params['gxwz'], params['qzh']
     password = '512940q'
     
-    if !File.exists?(gjwz)
-      system"mkdir -p #{gjwz}"
+    if !File.exists?(gxwz)
+      system"mkdir -p #{gxwz}"
     end
-    system "df | grep #{gjwz} |wc|  awk '{print $1}' > gggg"
-    system "umount #{gjwz}" if File.open('gggg').read.chomp.to_i > 0
+    system "df | grep #{gxwz} |wc|  awk '{print $1}' > gggg"
+    system "umount #{gxwz}" if File.open('gggg').read.chomp.to_i > 0
     system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
+    system "rm gggg"
+    
+    system "ls #{gxwz} > gxwz"
+    File.open('gxwz').each_line do |line|
+      ss = line.chomp!
+      puts "#{gxwz}/#{ss}"
+      User.find_by_sql("update q_qzxx set yxwz='#{gxwz}/#{ss}' where mlh='#{ss}' and qzh='#{qzh}';")
+    end     
+    render :text => 'success'
   end
   
+  def delete_sdwj
+    params['id'].split(",").each do |dd|
+      user = User.find_by_sql("select * from q_sdwj where id=#{dd};")
+      system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjma};"
+      system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjmb};"
+    end
+    User.find_by_sql("delete from q_sdwj where id in (#{params['id']});")  
+    render :text => 'Success'
+  end  
+  
+  def get_sdwj_store
+    user = User.find_by_sql("select * from q_sdwj order by mlh;")
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt
+  end
+  
+  def import_selected_aj
+    user = User.find_by_sql("select q_sdwj.id, d_dwdm.id as qzh, mlh, wjma, dh,dwdm, dwjc from q_sdwj inner join d_dwdm on q_sdwj.dh = d_dwdm.qzdj where  q_sdwj.id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh} #{dd.mlh}','#{dd.mlh}', 'ruby ./dady/bin/upload_mulu.rb  #{dd.wjma} #{dd.dwdm} #{dd.qzh} #{dd.dh} ', '', '', '未开始');")
+    end  
+    render :text => 'Success'
+  end
+  
+  def import_selected_aj2
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('-')
+      qzh, dalb, mlh = ss[0], ss[1], ss[2]
+
+      if !user[0].json.nil?
+        json=dd.json
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/upload_mulu.rb  #{json} 泰州市国土资源局 #{qzh} tz ', '', '', '未开始');")
+      else 
+        render :text => 'JSON is Empty'
+      end    
+    end  
+    render :text => 'Success'
+  end
+  
+  def get_yxwz_store
+    user = User.find_by_sql("select id, yxwz, dh_prefix as dh, mlh from q_qzxx order by mlh;")
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt
+  end
+  
+  def delete_yxwz
+    #user = User.find_by_sql("select distinct yxwz from q_qzxx where id in (#{params['id']});")
+    User.find_by_sql("update q_qzxx set yxwz='' where id in (#{params['id']});")  
+    render :text => 'Success'
+  end
+  
+  
+  def import_selected_image
+    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      ss = dd.dh_prefix.split('-')
+      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
+      yxwz=dd.yxwz
+      if !yxwz.nil? 
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{yxwz}', '', '', '未开始');")
+      end  
+    end  
+    render :text => 'Success'
+  end
   
 end
