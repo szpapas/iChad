@@ -3686,8 +3686,13 @@ class DesktopController < ApplicationController
         User.find_by_sql("delete from q_sdwj where dh='#{dj}';")
         File.open('sdfiles').each_line do |line|
           mlh = /(\d+)(.*)/.match(line)[1]
-          User.find_by_sql("insert into q_sdwj (wjma, dh, mlh) values ('#{line.chomp!}','#{dj}', #{mlh});") if line.include?'aj'
-          User.find_by_sql("update q_sdwj set wjmb='#{line.chomp!}' where mlh=#{mlh} and dh='#{dj}';") if line.include?'jr'
+          if line.include?'aj'
+            User.find_by_sql("insert into q_sdwj (wjma, dh, mlh) values ('#{line.chomp!}','#{dj}', #{mlh});") 
+            jrfile = line.gsub('aj','jr').chomp
+            if File.exists?("./dady/tmp1/#{dj}/#{jrfile}")
+              User.find_by_sql("update q_sdwj set wjmb='#{jrfile}' where mlh=#{mlh} and dh='#{dj}';")
+            end
+          end  
         end
              
         break
@@ -3708,7 +3713,7 @@ class DesktopController < ApplicationController
       User.find_by_sql("insert into d_dwdm(id, dwdm, dwjc, qzdj) values (#{params['qzh']}, '#{params['dwdm']}', '#{params['dwjc']}', '#{params['qzdj']}');")
       render :text => "Success"
     else
-      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}', qzdj='#{params['qzdj']}' where id =  #{params['qzh']});")
+      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}', qzdj='#{params['qzdj']}' where id =  #{params['qzh']};")
       render :text => "Success"
     end
   end
