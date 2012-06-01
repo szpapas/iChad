@@ -52,7 +52,7 @@ end
 
 def save2timage(yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
-  puts "yxdx: #{fo.size}"
+  #puts "yxdx: #{fo.size}"
   
   if fo.size == 0
     $stderr.puts(" *** Import Image: #{path}  file size is zero.")
@@ -130,11 +130,11 @@ def save2timage(yxbh, path, dh, yx_prefix)
     end  
   end
   
-  puts "./dady/bin/encrypt #{infile} #{outfile}"
-  system("./dady/bin/encrypt #{infile} #{outfile}")
+  #puts "encrypt #{infile} #{outfile}"
+  system("encrypt #{infile} #{outfile}")
   fo = File.open(outfile).read
 
-  puts "yxdx encrypted size: #{fo.size}"
+  #puts "yxdx encrypted size: #{fo.size}"
 
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)

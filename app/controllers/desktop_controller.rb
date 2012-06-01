@@ -3690,7 +3690,7 @@ class DesktopController < ApplicationController
             User.find_by_sql("insert into q_sdwj (wjma, dh, mlh) values ('#{line.chomp!}','#{dj}', #{mlh});") 
             jrfile = line.gsub('aj','jr').chomp
             if File.exists?("./dady/tmp1/#{dj}/#{jrfile}")
-              User.find_by_sql("update q_sdwj set wjmb='#{jrfile}' where mlh=#{mlh} and dh='#{dj}';")
+             # User.find_by_sql("update q_sdwj set wjmb='#{jrfile}' where mlh=#{mlh} and dh='#{dj}';")
             end
           end  
         end
@@ -3720,7 +3720,7 @@ class DesktopController < ApplicationController
   
   def set_gxml
     yxwz, gxwz, qzh = params['yxwz'], params['gxwz'], params['qzh']
-    password = '512940q'
+    password = 'wxhxgt*2011'
     
     if !File.exists?(gxwz)
       system"mkdir -p #{gxwz}"
@@ -3733,8 +3733,11 @@ class DesktopController < ApplicationController
     system "ls #{gxwz} > gxwz"
     File.open('gxwz').each_line do |line|
       ss = line.chomp!
-      puts "#{gxwz}/#{ss}"
-      User.find_by_sql("update q_qzxx set yxwz='#{gxwz}/#{ss}' where mlh='#{ss}' and qzh='#{qzh}';")
+      path = "#{gxwz}/#{ss}"
+      if File.exists?(path) and File.directory?(path) and ss.to_i > 0 and ss.length < 4
+        puts "#{path}" 
+        User.find_by_sql("update q_qzxx set yxwz='#{gxwz}/#{ss}' where mlh='#{ss}' and qzh='#{qzh}';")
+      end  
     end     
     render :text => 'success'
   end

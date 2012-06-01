@@ -48,6 +48,12 @@ def get_mlh(ifname)
   if /(\d+)(永久.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
     mlh = 8000+(nd-2000)*3 + 2
+  elsif /(\d+)(长期.*)/.match(ifname)
+    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
+    mlh = 8000+(nd-2000)*3 + 1  
+  elsif /(\d+)(短期.*)/.match(ifname)
+    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
+    mlh = 8000+(nd-2000)*3   
   else 
     mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
     nd, qx = mm[1].to_i, mm[3].to_i/30
@@ -59,6 +65,12 @@ def get_mlm(ifname)
   if /(\d+)(永久.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
     mlm = "#{nd}-永久"
+  elsif /(\d+)(长期.*)/.match(ifname)
+    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
+    mlh = "#{nd}-长期"  
+  elsif /(\d+)(短期.*)/.match(ifname)
+    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
+    mlh = "#{nd}-短期"   
   else 
     mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
     nd, qx = mm[1].to_i, mm[3].to_i/30
