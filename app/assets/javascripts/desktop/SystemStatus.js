@@ -211,6 +211,211 @@ Ext.define('MyDesktop.SystemStatus', {
              iconCls : 'import',
              handler : function() {
                
+               Ext.regModel('sdwj_model', {
+                 fields: [
+                   {name: 'id',       type: 'integer'},
+                   {name: 'dh',       type: 'string'},
+                   {name: 'mlh',      type: 'integer'},
+                   {name: 'wjma',      type: 'string'},
+                   {name: 'wjmb',      type: 'string'}
+                 ]
+               });
+
+               // 虚拟打印状态Grid
+               var sdwj_store =  Ext.create('Ext.data.Store', {
+                 model : 'sdwj_model',
+                 proxy: {
+                   type: 'ajax',
+                   url : '/desktop/get_sdwj_store',
+                   extraParams: {qzh:""},
+                   reader: {
+                     type: 'json',
+                     root: 'rows',
+                     totalProperty: 'results'
+                   }
+                 }
+               });
+               
+               sdwj_store.load();
+               
+               var sdwj_grid = new Ext.grid.GridPanel({
+                    title: '输档状态',
+                    store: sdwj_store,
+                    id : 'sdwj_grid_id',
+                    iconCls:'task16',
+                    columns: [
+                      { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+                      { text : '缩写',    align:"left",   width : 50, sortable : true, dataIndex: 'dh'},
+                      { text : '目录号',   align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+                      { text : '案卷名',   align:"left", width : 250, sortable : true, dataIndex: 'wjma'},
+                      { text : '卷内名',   align:"left", width : 250, sortable : true, dataIndex: 'wjmb'},
+                    ],
+                    selType:'checkboxmodel',
+                    multiSelect:true,
+                    viewConfig: {
+                      stripeRows:true
+                    },
+                    tbar : [
+                    {
+                       text : '删除选择',
+                       iconCls: 'delete',
+                       handler : function() {
+                         items = Ext.getCmp('sdwj_grid_id').getSelectionModel().selected.items;
+                         id_str = '';
+                         for (var i=0; i < items.length; i ++) {
+                           if (i==0) {
+                             id_str = id_str+items[i].data.id;
+                           } else {
+                             id_str = id_str + ',' +items[i].data.id ;
+                           }
+
+                         };
+                         pars = {id:id_str};
+                         new Ajax.Request("/desktop/delete_sdwj", { 
+                           method: "POST",
+                           parameters: pars,
+                           onComplete:  function(request) {
+                             sdwj_store.load();
+                           }
+                         });
+                       }
+                     },'-',{
+                       text : '导入JSON',
+                       iconCls : 'import',
+                       handler : function() {
+                         items = Ext.getCmp('sdwj_grid_id').getSelectionModel().selected.items;
+                         id_str = '';
+                         for (var i=0; i < items.length; i ++) {
+                           if (i==0) {
+                             id_str = id_str+items[i].data.id ;
+                           } else {
+                             id_str = id_str + ',' +items[i].data.id ;
+                           }
+
+                         };
+                         pars = {id:id_str};
+                         new Ajax.Request("/desktop/import_selected_aj", { 
+                           method: "POST",
+                           parameters: pars,
+                           onComplete:  function(request) {
+                             Ext.getCmp('qzgl_tabpanel_id').setActiveTab(2);
+                             qzzt_store.load();
+                           }
+                         });
+                       }
+                     },'-',
+                     {
+                        text : '刷新',
+                        iconCls : 'x-tbar-loading',
+                        handler : function() {
+                          sdwj_store.load();
+                        }                                 
+                    }]
+               }); 
+
+              
+              //挂接路径
+              Ext.regModel('yxwz_model', {
+                fields: [
+                  {name: 'id',       type: 'integer'},
+                  {name: 'dh',       type: 'string'},
+                  {name: 'mlh',      type: 'integer'},
+                  {name: 'yxwz',      type: 'string'}
+                ]
+              });
+
+              // 虚拟打印状态Grid
+              var yxwz_store =  Ext.create('Ext.data.Store', {
+                model : 'yxwz_model',
+                proxy: {
+                  type: 'ajax',
+                  url : '/desktop/get_yxwz_store',
+                  extraParams: {qzh:""},
+                  reader: {
+                    type: 'json',
+                    root: 'rows',
+                    totalProperty: 'results'
+                  }
+                }
+              });
+              
+              yxwz_store.load();
+              
+              var yxwz_grid = new Ext.grid.GridPanel({
+                   title: '影像位置',
+                   store: yxwz_store,
+                   id : 'yxwz_grid_id',
+                   iconCls:'task16',
+                   columns: [
+                     { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+                     { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dh'},
+                     { text : '目录号',   align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+                     { text : '影像位置',   align:"left", width : 250, sortable : true, dataIndex: 'yxwz'}
+                   ],
+                   selType:'checkboxmodel',
+                   multiSelect:true,
+                   viewConfig: {
+                     stripeRows:true
+                   },
+                   tbar : [
+                   {
+                      text : '删除选择',
+                      iconCls: 'delete',
+                      handler : function() {
+                        items = Ext.getCmp('yxwz_grid_id').getSelectionModel().selected.items;
+                        id_str = '';
+                        for (var i=0; i < items.length; i ++) {
+                          if (i==0) {
+                            id_str = id_str+items[i].data.id;
+                          } else {
+                            id_str = id_str + ',' +items[i].data.id ;
+                          }
+
+                        };
+                        pars = {id:id_str};
+                        new Ajax.Request("/desktop/delete_yxwz", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            sdwj_store.load();
+                          }
+                        });
+                      }
+                    },'-',{
+                      text : '导入影像',
+                      iconCls : 'import',
+                      handler : function() {
+                        items = Ext.getCmp('yxwz_grid_id').getSelectionModel().selected.items;
+                        id_str = '';
+                        for (var i=0; i < items.length; i ++) {
+                          if (i==0) {
+                            id_str = id_str+items[i].data.id ;
+                          } else {
+                            id_str = id_str + ',' +items[i].data.id ;
+                          }
+
+                        };
+                        pars = {id:id_str};
+                        new Ajax.Request("/desktop/import_selected_image", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            Ext.getCmp('qzgl_tabpanel_id').setActiveTab(2);
+                            qzzt_store.load();
+                          }
+                        });
+                      }
+                    },'-',
+                    {
+                       text : '刷新',
+                       iconCls : 'x-tbar-loading',
+                       handler : function() {
+                         yxwz_store.load();
+                       }                                 
+                   }]
+              }); 
+              
+               
               //全宗设定
               var qzsd_win = new Ext.Window({
                 id : 'qzsd_win',
@@ -220,9 +425,9 @@ Ext.define('MyDesktop.SystemStatus', {
                 shadow: true,
                 draggable: true,
                 closable: true,
-                modal: true,
+                modal: false,
                 width: 640,
-                height: 400,
+                height: 600,
                 layout: 'absolute',
                 plain: true,
                 items:[
@@ -262,10 +467,12 @@ Ext.define('MyDesktop.SystemStatus', {
                   { xtype: 'textfield', x: 80,y: 100, name:'qzdj', id:'qzdj_id'},
                   {
                     xtype: 'form', id:'sdwj_upload_form',  x: 310,y: 10, width:300,  height : 24,  //输档文件
-                    items :{ xtype : 'fileuploadfield', anchor: '99%', name:'sdwj', emptyText: '选择一个文件...', buttonText: '浏览'}
+                    items :[{ xtype : 'fileuploadfield', anchor: '99%', name:'sdwj', emptyText: '选择一个文件...', buttonText: '浏览'},
+                    { xtype: 'textfield', name:'dj', id:'sdwj_dj_id', hidden:true}  
+                    ]
                   },
-                  { xtype: 'textfield', x: 310,y: 40, width:300, name:'yxwz', id:'yxwz_id'},  //影像位置
-                  { xtype: 'textfield', x: 310,y: 70, width:300, name:'gjwz', id:'gjwz_id'},  //挂接位置
+                  { xtype: 'textfield', x: 310,y: 40, width:300, name:'yxwz', id:'yxwz_id', emptyText: '//192.168.114.50/jm1'},  //影像位置
+                  { xtype: 'textfield', x: 310,y: 70, width:300, name:'gxwz', id:'gxwz_id', emptyText: '//mnt/lh/jm1'},  //挂接位置
                   {
                      xtype: 'button',
                      text: '设置全宗',
@@ -297,6 +504,7 @@ Ext.define('MyDesktop.SystemStatus', {
                     width: 80,
                     handler : function() {
                       myForm = Ext.getCmp('sdwj_upload_form').getForm();
+                      Ext.getCmp("sdwj_dj_id").setValue(Ext.getCmp('qzdj_id').getValue());
                       if(myForm.isValid()){
                         form_action=1;
                         myForm.submit({
@@ -326,8 +534,9 @@ Ext.define('MyDesktop.SystemStatus', {
                      width: 80,
                      handler: function() {
                        var yxwz  = Ext.getCmp('yxwz_id').getValue();
-                       var gjwz  = Ext.getCmp('gjwz_id').getValue();
-                       var pars = {yxwz:yxwz, gjwz:gjwz};
+                       var gxwz  = Ext.getCmp('gxwz_id').getValue();
+                       var qzh   = Ext.getCmp('qzh_id').getValue();
+                       var pars = {yxwz:yxwz, gxwz:gxwz, qzh:qzh};
                        new Ajax.Request("/desktop/set_gxml",{
                          method: "POST",
                          parameters: pars,
@@ -350,39 +559,27 @@ Ext.define('MyDesktop.SystemStatus', {
                     xtype: 'panel',
                     x : 5,
                     y : 140,
-                    height : 220,
-                    width  : 620  
-
+                    height : 420,
+                    width  : 620,  
+                    items : [{
+                        xtype: 'tabpanel',
+                        id : 'sdwj_tabpanel_id',
+                        layout: 'fit',
+                        minHeight: 200,
+                        activeTab: 0,
+                        height: 420,
+                        width: 610,
+                        items: [sdwj_grid,yxwz_grid]
+                    }]
                   }
                  ]
               });
-
+              
+              
               qzsd_win.show();               
                
              }
-           },'-',{
-             text : '导入JSON',
-             iconCls : 'import',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
 
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/import_selected_aj", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzgl_store.load();
-                 }
-               });
-             }
            },'-',{
              text : '导入影像',
              iconCls : 'import',

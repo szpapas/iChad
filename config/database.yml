@@ -10,6 +10,7 @@ development:
   username: postgres
   password: brightechs
   host: localhost
+  pool: 8
   port: 5432
 
 # Warning: The database defined as "test" will be erased and

@@ -12,33 +12,34 @@ $conn.exec("set standard_conforming_strings = off")
 def get_dalb(ifname) 
   key = /(\d+)(.*)(aj|jr)/.match(ifname)[2]
   hh = {
-    "信访档案"=>13,
-    "图件目录"=>18,
-    "土地复垦"=>16,
-    "土地登记"=>3,
-    "土地规划"=>17,
-    "声像档案"=>15,
-    "照片档案"=>20,
-    "用地档案"=>10,
-    "科技信息"=>19,
     "综合档案"=>0,
     "计划财务"=>2,
+    "土地登记"=>3,
     "地籍管理档案"=>4,
+    "用地档案"=>10,
+    "信访档案"=>13,
     "监察案件档案"=>14,
+    "声像档案"=>15,
+    "土地复垦"=>16,
+    "土地规划"=>17,
+    "图件目录"=>18,
+    "科技信息"=>19,
+    "照片档案"=>20,
+    "地质矿产档案"=>21,
+    "测绘"=>23,
+    "永久文档一体化"=>24,
+    "短期文档一体化"=>24,
+    "长期文档一体化"=>24,
     "其他档案-电子档案目录"=>25,
     "其他档案-基建档案目录"=>26,
     "其他档案-设备档案目录"=>27,
     "其他档案-实物档案目录"=>28,
     "其他档案-资料信息档案"=>29,
-    "永久文档一体化"=>24,
-    "短期文档一体化"=>24,
-    "长期文档一体化"=>24,
-    "地质矿产档案"=>21,
+    "矿业权"=>35,
+    "登记查解封"=>36,
     "登记勘测定界"=>39,
     "登记抵押"=>37,
-    "登记抵押注解"=>38,
-    "登记查解封"=>36,
-    "矿业权"=>35
+    "登记抵押注解"=>38
   }
   hh[key]   
 end
@@ -46,11 +47,17 @@ end
 def get_mlh(ifname)
   if /(\d+)(永久.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlh = 10000+(nd-2000)*3 + 2
+    mlh = 8000+(nd-2000)*3 + 2
+  elsif /(\d+)(长期.*)/.match(ifname)
+    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
+    mlh = 8000+(nd-2000)*3 + 1  
+  elsif /(\d+)(短期.*)/.match(ifname)
+    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
+    mlh = 8000+(nd-2000)*3   
   else 
     mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
     nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlh = 10000+(nd-2000)*3 + qx
+    mlh = 8000+(nd-2000)*3 + qx
   end
 end
 
@@ -58,6 +65,12 @@ def get_mlm(ifname)
   if /(\d+)(永久.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
     mlm = "#{nd}-永久"
+  elsif /(\d+)(长期.*)/.match(ifname)
+    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
+    mlh = "#{nd}-长期"  
+  elsif /(\d+)(短期.*)/.match(ifname)
+    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
+    mlh = "#{nd}-短期"   
   else 
     mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
     nd, qx = mm[1].to_i, mm[3].to_i/30
@@ -88,9 +101,9 @@ def update_owner
   $conn.exec("update a_tddj set ownerid=archive.id from archive where archive.dh=a_tddj.dh and a_tddj.ownerid is null;")
   $conn.exec("update a_tjda set ownerid=archive.id from archive where archive.dh=a_tjda.dh and a_tjda.ownerid is null;")
   $conn.exec("update a_wsda set ownerid=archive.id from archive where archive.dh=a_wsda.dh and a_wsda.ownerid is null;")
+  $conn.exec("update a_kyq  set ownerid=archive.id from archive where archive.dh=a_kyq.dh and a_kyq.ownerid is null;")
   $conn.exec("update document set ownerid=archive.id from archive where document.dh=archive.dh and document.ownerid is null;")
   #puts "== $$$ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} end of update owener "
-
 end 
 
 def set_documents(tt, dwdm, qzh, dalb, mlh)
@@ -146,9 +159,7 @@ end
 def set_archive(tt, dwdm, qzh, dalb, mlh)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
-    #dalb = user['档案类别'].to_i
-    #mlh     = user['目录号']
-    ajh     = user['案卷号'].rjust(4,"0")
+    ajh     = user['案卷号']
     tm      = user['案卷标题']
     flh     = user['分类号']
     nd      = user['年度']
@@ -167,9 +178,13 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     qrq     = user['起日期']
     zrq     = user['止日期']
 
-    tm = user['案卷题名'] if tm.nil?
-    tm = user['题名'] if tm.nil?
-    ajh = user['件号'].rjust(4,"0") if ajh.to_i == 0
+    tm  = user['案卷题名'] if tm.nil?
+    tm  = user['题名'] if tm.nil?
+    tm  = user['图名'] if tm.nil?
+    ajh = user['件号'] if ajh.nil?
+    ajh = user['序号'] if ajh.nil?
+    ajh = ajh.rjust(4,"0")
+    
     js = 1 if js == 0
     
     dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
@@ -244,8 +259,8 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       
     when 3  #土地登记
       djh   = user['地籍号']
-      qlrmc = user['权利人名称']
-      tdzl  = user['土地座落']
+      qlrmc = user['权利人名称'].gsub("\\",'').gsub("、", " ")
+      tdzl  = user['土地座落'].gsub("\\","~")
       qsxz  = user['权属性质']
       ydjh  = user['原地籍号']
 
@@ -263,8 +278,18 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     when 14 #监查案件
     when 15 #Image
     when 17 #土地规划
+    when 18 #图件目录
+
+      sxh  =  user['序号']
+      tfh  =  user['图幅号']
+      tgh  =  user['图柜号']
+      insert_str =  " INSERT INTO a_tjda (sxh, tfh, tgh ) values ('#{sxh}', '#{tfh}', '#{tgh}');"
+      #puts insert_str
+      $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+
     when 19 #科技信息
-    when 20 #Image
+    when 20 #照片档案
     when 21 #地址矿产
     when 24 #文书档案
 
@@ -301,6 +326,38 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
       #puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 35 #矿业权
+      
+       xxkz  = user['现许可证号']
+       yxkz  = user['原许可证号']
+       kyqr  = user['矿业权人名称']
+       ksmc  = user['矿山名称']
+       ksbh  = user['矿山编号']
+       ksgm  = user['矿山规模']
+       xzqdm = user['行政区代码']
+       kz    = user['矿种']
+       djlx  = user['登记类型']
+       kswz  = user['矿山位置']
+       kqfw  = user['矿区范围'].gsub(/X|Y|：|:/, '').gsub(/，/, ' ')
+       mj    = user['面积']
+       cl    = user['储量']
+       sjncl = user['实际年产量']
+       clgm  = user['储量规模']
+       yxqq  = user['有效期起']
+       yxqz  = user['有效期止']
+       yxqx  = user['有效期限']
+       fzjg  = user['发证机关']
+       mjdw  = user['面积单位']
+       cldw  = user['储量单位']
+       scgm  = user['生产规模']
+       scldw = user['生产量单位']
+       jjlx  = user['经济类型']
+      
+      insert_str =  " INSERT INTO a_kyq (xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,dh) values ('#{xxkz}','#{yxkz}','#{kyqr}','#{ksmc}','#{ksbh}','#{ksgm}','#{xzqdm}','#{kz}','#{djlx}','#{kswz}','#{kqfw}','#{mj}','#{cl}','#{sjncl}','#{clgm}','#{yxqq}','#{yxqz}','#{yxqx}','#{fzjg}','#{mjdw}','#{cldw}','#{scgm}','#{scldw}','#{jjlx}', '#{dh}');"
+      #puts insert_str
+      $conn.exec("DELETE from a_kyq where dh like '#{dh}';")
       $conn.exec(insert_str)
       
     else

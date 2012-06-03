@@ -133,23 +133,20 @@ class MapController < ApplicationController
   def wsRfidSetup
     # 设置成功 传入参数不能为空 strRfid此标签不存在或此标签不是盒标签 设置失败在保存的时候报错 strrfid传入格式有问题
     rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
-
-     
-
     tt=params['strRfid'].split('|')
     for k in 0..tt.size-1
       if tt[k]!=''
         ss=tt[k].split(',')
-        if ss.size==4
+        if ss.size>=4
           if ss[0]==""
-            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,psnID,rq, qajh, zajh) values ('#{ss[1]}', 2,'#{ss[3]}', TIMESTAMP '#{rq}', #{ss[4]}, #{ss[5]});") 
+            User.find_by_sql("INSERT INTO bcerr (boxstr,ErrLx,user_id,rq, qajh, zajh) values ('#{ss[1]}', 2,'#{ss[3]}', TIMESTAMP '#{rq}', #{ss[4]}, #{ss[5]});") 
 
           else  
             User.find_by_sql("UPDATE ARCHIVE set boxstr='#{ss[1]}' where boxrfid= '#{ss[0]}';") 
             if ss[2].to_i == 1
-              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{ss[1]}', '#{ss[0]}',1,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,user_id,rq, qajh, zajh) values ('#{ss[1]}', '#{ss[0]}',1,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
             else
-              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,psnID,rq) values ('#{ss[1]}', '#{ss[0]}',0,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
+              User.find_by_sql("INSERT INTO bcerr (boxstr,bcid,ErrLx,user_id,rq, qajh, zajh) values ('#{ss[1]}', '#{ss[0]}',0,'#{ss[3]}','#{rq}',#{ss[4]}, #{ss[5]});") 
             end
           end  
         end
@@ -167,10 +164,11 @@ class MapController < ApplicationController
           if qq[k]!=""
             ss=qq[k].split(',')
             if ss[0]!=""                       
-              user = User.find_by_sql("INSERT INTO pkerr (rfidstr, archive_id, errlx, dqhbq, szhbq, user_id, rq, cs, sj) values('#{ss[0]}', '#{ss[1]}','#{ss[2]}', '#{ss[3]}','#{ss[4]}', '#{ss[5]}', TIMESTAMP '#{rq}', '#{ss[6]}','#{ss[7]}');")
+              user = User.find_by_sql("INSERT INTO pkerr (rfidstr, archive_id, errlx, dqhbq, gshbq, user_id, rq, cs, sj) values('#{ss[0]}', '#{ss[1]}',#{ss[2]}, '#{ss[3]}','#{ss[4]}', '#{ss[5]}', TIMESTAMP '#{rq}', '#{ss[6]}','#{ss[7]}');")
             end
           end
         end
+        User.find_by_sql("update pkerr set dh=archive.dh, ajh=archive.ajh from archive where archive.id = pkerr.archive_id;")
     end
     render :text =>"Success"
   end
@@ -753,4 +751,38 @@ class MapController < ApplicationController
     render :text => text
   end
   
+  def get_bkError
+    dh = params['dh']
+    if !(params['bindStr'] == "")
+      bindstr = params['bindStr'][0..-2]
+      user = User.find_by_sql("update bcerr set zt=1 where id in (#{bindstr});") 
+    end    
+    user = User.find_by_sql("select * from bcerr where zt=0 and errlx > 0;")
+    render :text => user.to_json
+  end
+  
+  def get_pkError
+    dh = params['dh']
+    if !(params['bindStr'] == "")
+      bindstr = params['bindStr'][0..-2]
+      user = User.find_by_sql("update pkerr set zt=1 where id in (#{bindstr});") 
+    end    
+    user = User.find_by_sql("select * from pkerr where zt=0 and errlx > 0 and dh like '#{dh}-%';")
+    render :text => user.to_json
+  end
+  
+  def yhdl
+    username=params['username']
+    password=params['password']
+    users = User.find_by_sql("select * from users where username='#{username}' ;")
+    txt='failed'
+    if users.size > 0
+      user = users[0]
+      if user.valid_password?password
+        txt = 'Success'
+      end
+    end
+    render :text => txt
+      
+  end
 end
