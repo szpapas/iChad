@@ -3011,7 +3011,7 @@ class DesktopController < ApplicationController
     dalb = params['dalb']
     where_str = where_str + " and dalb = '#{dalb}' " if !(dalb.nil?) && dalb !=''
 
-    user = User.find_by_sql("select * from q_qzxx #{where_str} order by mlh;")
+    user = User.find_by_sql("select *, (ajys-smyx) as wcz  from q_qzxx #{where_str} order by mlh;")
     
     size = user.size;
     if size > 0
@@ -3109,7 +3109,7 @@ class DesktopController < ApplicationController
   
   def update_qzxx
     qzh = params['qzh']
-    system("ruby ./dady/bin/update_qzxx.rb #{qzh} > ./log/update_qzxx &")
+    system("ruby ./dady/bin/update_qzxx_tj.rb #{qzh} > ./log/update_qzxx &")
     render :text => 'Success'
   end
   

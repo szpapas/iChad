@@ -55,6 +55,7 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'zt',       type: 'string'},
         {name: 'json',     type: 'string'},
         {name: 'dh_prefix',type: 'string'},
+        {name: 'wcz',      type: 'integer'}, 
         {name: 'yxwz',     type: 'string'}
       ]
     });
@@ -94,7 +95,7 @@ Ext.define('MyDesktop.SystemStatus', {
          store: qzgl_store,
          id : 'qzgl_grid_id',
          iconCls:'export',
-         height : 350,
+         //height : 350,
          layout : 'fit',
          columns: [
            { text : 'id',   align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
@@ -120,6 +121,7 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
            { text : '文件路径', align:"left", width : 100, sortable : true, dataIndex: 'yxwz'},
            
+           { text : '误差',   align:"left", width : 100, sortable : true, dataIndex: 'wcz'},
            { text : '状态',   align:"center", flex : 1, sortable : true, dataIndex: 'zt',  renderer:ztRenderer}
          ],
          //selModel : {selType:'cellmodel'},
