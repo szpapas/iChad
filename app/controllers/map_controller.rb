@@ -347,6 +347,7 @@ class MapController < ApplicationController
     end
     render :text => txt
   end
+  #获取未写　未绑案卷
   def get_cs_data_wb
     if params['query']==""
       user= User.find_by_sql("select id,dwdm from d_dwdm order by id;") 
@@ -364,40 +365,46 @@ class MapController < ApplicationController
           end
         else
           ss = params['query'].split('_')
-          strwhere=" and (boxrfid='' or rfidstr='' or boxrfid is null or rfidstr is null)"
+          strwhere=" where (boxrfid='' or rfidstr='' or boxrfid is null or rfidstr is null) and qzh = '#{ss[0]}'"          
+          if ss[1]!=""
+            strwhere=strwhere + " and dalb='#{ss[1]}'"
+          end
+          if ss[2]!=""
+            strwhere=strwhere + " and mlh='#{ss[2]}'"
+          end
           case (query[1]) 
       			when "0"
-      				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select * from archive  #{strwhere} order by ajh ;")
 
       			when "2"
-      				user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid  #{strwhere} order by ajh ;")
 
       			when "3","5","6","7"
       				user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' #{strwhere} order by ajh ;")
       			when "15"
-      				user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid  #{strwhere} order by ajh ;")
             when "18"
-      				user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere}  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid  #{strwhere}  order by ajh ;")
             when "25"
-      				user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere}  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid  #{strwhere}  order by ajh ;")
             when "27"
-      				user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid  #{strwhere} order by ajh ;")
             when "26"
-      				user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid   #{strwhere} order by ajh ;")
             when "28"
-      				user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid  #{strwhere} order by ajh ;")
             when "29"
-      				user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid  #{strwhere} order by ajh ;")
             when "30"
-      				user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' #{strwhere}  order by djh ;")
+      				user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid  #{strwhere}  order by djh ;")
             when "31"
-      				user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' #{strwhere}  order by zt ;")
+      				user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid  #{strwhere}  order by zt ;")
             when "32"
-      				user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' #{strwhere}  order by jgmc ;")
+      				user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid  #{strwhere}  order by jgmc ;")
             when "33"
-      				user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' #{strwhere}  order by fsrq ;")
+      				user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid  #{strwhere}  order by fsrq ;")
             when "34"
-      				user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' #{strwhere}  order by sj ;")
+      				user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid  #{strwhere}  order by sj ;")
 
       			when "24"
       			  #年度_保管期限_机构问题号
@@ -414,7 +421,7 @@ class MapController < ApplicationController
               end
               user = User.find_by_sql("select rfidstr,boxrfid,boxstr,archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
       			else
-      				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' #{strwhere} order by ajh ;")
+      				user = User.find_by_sql("select * from archive  #{strwhere} order by ajh ;")
 
       		end
         end
@@ -424,6 +431,7 @@ class MapController < ApplicationController
     if size.to_i > 0
       text = "["          
       for k in 0..user.size-1
+        user[k]["tm"]=user[k]["tm"].gsub("\"","") if !user[k]["tm"].nil?
           text = text + user[k].to_json + ','
       end
       text = text[0..-2] + "]"
@@ -443,46 +451,67 @@ class MapController < ApplicationController
         
       else
         if query.length==2
-          if query[1]=="24"
-            user= User.find_by_sql("select distinct a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth from archive left join a_wsda on archive.id=a_wsda.ownerid where qzh='#{query[0]}' and dalb='#{query[1]}' order by a_wsda.nd;")
+          if query[1]!="200"
+            if query[1]=="24"
+              user= User.find_by_sql("select distinct a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth from archive left join a_wsda on archive.id=a_wsda.ownerid where qzh='#{query[0]}' and dalb='#{query[1]}' order by a_wsda.nd;")
+            else
+              user= User.find_by_sql("select distinct mlh from archive    where qzh='#{query[0]}' and dalb='#{query[1]}' order by mlh;") 
+            end
           else
-            user= User.find_by_sql("select distinct mlh from archive    where qzh='#{query[0]}' and dalb='#{query[1]}' order by mlh;") 
+            user= User.find_by_sql("select  mlh from q_qzxx    where qzh='#{query[0]}'  order by mlm;") 
           end
         else
           ss = params['query'].split('_')
+          strwhere=" where qzh = '#{ss[0]}'"
+          if ss[1]!=""
+            strwhere=strwhere + " and dalb='#{ss[1]}'"
+          end
+          if ss[2]!=""
+            strwhere=strwhere + " and mlh='#{ss[2]}'"
+          end
+          if ss.length>3
+            if ss[3]!=""
+              if ss[3].length>3
+                strwhere=strwhere + " and ajh='#{ss[3]}'"
+              else
+                strwhere=strwhere + " and ajh='" + sprintf("%04d", ss[3]) + "'"
+              end
+            
+            end
+          end
           case (query[1]) 
       			when "0"
-      				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' order by ajh ;")
+      				user = User.find_by_sql("select * from archive #{strwhere} order by ajh ;")
 
       			when "2"
-      				user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid #{strwhere}  order by ajh ;")
 
       			when "3","5","6","7"
-      				user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh ;")
       			when "15"
-      				user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid #{strwhere}  order by ajh ;")
             when "18"
-      				user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid #{strwhere}  order by ajh ;")
             when "25"
-      				user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid #{strwhere}  order by ajh ;")
             when "27"
-      				user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid #{strwhere} order by ajh ;")
             when "26"
-      				user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid #{strwhere}  order by ajh ;")
             when "28"
-      				user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid #{strwhere}  order by ajh ;")
             when "29"
-      				user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+      				user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid #{strwhere}  order by ajh ;")
             when "30"
-      				user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh ;")
+      				user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid #{strwhere}   order by djh ;")
             when "31"
-      				user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by zt ;")
+      				user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid #{strwhere}   order by zt ;")
             when "32"
-      				user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by jgmc ;")
+      				user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid #{strwhere}   order by jgmc ;")
             when "33"
-      				user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by fsrq ;")
+      				user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq ;")
             when "34"
-      				user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj ;")
+      				user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid #{strwhere}   order by sj ;")
 
       			when "24"
       			  #年度_保管期限_机构问题号
@@ -497,9 +526,10 @@ class MapController < ApplicationController
                   strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"
 
               end
+              
               user = User.find_by_sql("select rfidstr,boxrfid,boxstr,archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
       			else
-      				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{data[0]['mlh']}' order by ajh ;")
+      				user = User.find_by_sql("select * from archive #{strwhere} order by ajh ;")
 
       		end
         end
@@ -592,14 +622,16 @@ class MapController < ApplicationController
         text = ""
       end
     else
-      text="false" 
+      text="" 
     end
     render :text => text
   end
-  #标签组卷提取数据
-  def get_rfidzj_data
+  
+  #标签门禁提取数据
+  def get_rfidmj_data
     if  params['jy_rfid']!=""
-      jy_rfid=params['jy_rfid'].split(',')
+      rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+      jy_rfid=params['jy_rfid'].split('_')
       rfid=""
       for k in 0..jy_rfid.size-1
         if rfid==""
@@ -609,6 +641,101 @@ class MapController < ApplicationController
         end
       end
       user = User.find_by_sql("select * from  archive where  rfidstr in (#{rfid})  ;")
+      size = user.size;
+      if size.to_i > 0
+        text = ""          
+        for k in 0..user.size-1
+          jylist = User.find_by_sql("select * from jylist where hdsj is null and daid=#{user[k]['id']}  ;")
+          sizejy=jylist.size
+          if sizejy>0
+            sizejy=1
+          else
+            sizejy=0
+          end
+          
+          if user[k]['dalb']=='24'
+            doc=User.find_by_sql("select * from  a_wsda where  ownerid=#{user[k]['id']};")
+            size1=doc.size;
+            if size1.to_i > 0
+              updatemj= User.find_by_sql("INSERT INTO mjerr (tm,dalb,mlh,ajh,sfcl,rq,errLx,daid) values ('#{doc[0]['tm']}',24,'#{doc[0]['nd']}_#{doc[0]['bgqx']}','#{doc[0]['jgwth']}_#{doc[0]['jh']}',0,'#{rq}', #{sizejy},#{user[k]['id']});")
+              if text==''
+                text=doc[0]['nd']+","+doc[0]['bgqx']+","+doc[0]['jgwth']+","+doc[0]['jh']+","+sizejy.to_s
+              else
+                text=text + ";"+doc[0]['nd']+","+doc[0]['bgqx']+","+doc[0]['jgwth']+","+doc[0]['jh']+","+sizejy.to_s
+              end
+            end
+          else
+            updatemj= User.find_by_sql("INSERT INTO mjerr (tm,dalb,mlh,ajh,sfcl,rq,errLx,daid) values ('#{user[k]['tm']}',#{user[k]['dalb']},'#{user[k]['mlh']}','#{user[k]['ajh']}',0,'#{rq}', #{sizejy},#{user[k]['id']});")
+            if text==''
+              text=user[k]['mlh']+","+user[k]['ajh']+","+sizejy.to_s
+            else
+              text=text + ";"+user[k]['mlh']+","+user[k]['ajh']+","+sizejy.to_s
+            end
+          end
+            
+        end
+        
+      else
+        text = ""
+      end
+    else
+      text="" 
+    end
+    render :text => text
+  end
+  
+  
+  #获取门禁报警信息   是否处理过（０代表未处理过，１代表处理过）_是否不正常带出(１代表正常借出，0代表非正常带出)
+  def get_mjerr_data
+    if params['query']!=""
+      query=params['query'].split('_')
+      if query.size==2
+          user=User.find_by_sql("select * from  mjerr where sfcl=#{query[0]} and errlx=#{query[1]} order by rq;")    
+          size = user.size;
+          if size.to_i > 0
+            text = "["          
+            for k in 0..user.size-1
+              user[k]["clyj"]=user[k]["clyj"].gsub("\"","") if !user[k]["clyj"].nil?
+              text = text + user[k].to_json + ','
+            end
+            text = text[0..-2] + "]"
+          else
+            text = ""
+          end   
+      else
+        text=""
+      end
+    else
+      text=""
+    end
+    render :text => text
+  end
+  
+  
+  #更新门禁报警处理信息
+  def update_mjerr
+    if params['mjid']!=""
+      user=User.find_by_sql("update  mjerr set sfcl=1,clyj='#{params['clyj']}' where id in (#{params['mjid']})  ;")
+      text="success"
+    else
+      text="false"
+    end
+    render :text => text
+  end
+  
+  #标签组卷提取数据
+  def get_rfidzj_data
+    if  params['jy_rfid']!=""
+      jy_rfid=params['jy_rfid'].split('_')
+      rfid=""
+      for k in 0..jy_rfid.size-1
+        if rfid==""
+          rfid="'" + jy_rfid[k] + "'"
+        else
+          rfid=rfid +",'" + jy_rfid[k] + "'"
+        end
+      end
+      user = User.find_by_sql("select * from  archive where  rfidstr in (#{rfid})  order by ajh;")
       size = user.size;
       if size.to_i > 0
         text = "["          
@@ -621,7 +748,7 @@ class MapController < ApplicationController
         text = ""
       end
     else
-      text="false" 
+      text="" 
     end
     render :text => text
   end
