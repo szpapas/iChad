@@ -3044,7 +3044,7 @@ class DesktopController < ApplicationController
       dd = user[k]
       ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_wizard.rb #{dd.dh_prefix} #{dd.qajh} #{dd.zajh} 13', '', '', '未开始');")
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh_prefix}','#{mlh}', 'ruby ./dady/bin/print_wizard.rb #{dd.dh_prefix} #{dd.qajh} #{dd.zajh} 13 1', '', '', '未开始');")
     end  
     render :text => 'Success'
   end
@@ -3119,7 +3119,7 @@ class DesktopController < ApplicationController
       dd = user[k]
       ss = dd.dh_prefix.split('-')
       qzh, dalb, mlh = ss[0], ss[1], ss[2]
-      system("ruby ./dady/bin/update_timage_tj2.rb #{dd.dh_prefix}")
+      system("ruby ./dady/bin/update_qzxx_tj.rb #{dd.dh_prefix}")
     end  
     render :text => 'Success'
   end
@@ -3710,10 +3710,10 @@ class DesktopController < ApplicationController
   def add_qzh2
     user = User.find_by_sql("select count (*) from d_dwdm where id = #{params['qzh']};")[0]
     if user.count.to_i == 0
-      User.find_by_sql("insert into d_dwdm(id, dwdm, dwjc, qzdj) values (#{params['qzh']}, '#{params['dwdm']}', '#{params['dwjc']}', '#{params['qzdj']}');")
+      User.find_by_sql("insert into d_dwdm(id, dwdm, dwjc, qzsx) values (#{params['qzh']}, '#{params['dwdm']}', '#{params['dwjc']}', '#{params['qzsx']}');")
       render :text => "Success"
     else
-      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}', qzdj='#{params['qzdj']}' where id =  #{params['qzh']};")
+      User.find_by_sql("update d_dwdm set dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}', qzsx='#{params['qzsx']}' where id =  #{params['qzh']};")
       render :text => "Success"
     end
   end
