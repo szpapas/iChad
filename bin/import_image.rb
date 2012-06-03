@@ -113,7 +113,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
     
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
     meta = ""
-    wh = getimgsize(path).split(",")
+    wh = getimgsize(infile).split(",")  #decrypted file
     width, height = wh[0].to_i, wh[1].to_i
     pixels = width * height
     
@@ -171,7 +171,7 @@ Find.find(path) do |path|
       dh = "#{dh_prefix}-#{ajh.to_i}"
       if dh != $dh
         $dh = dh
-        puts "processing #{dh}... "
+        $stderr.puts "processing #{dh}... "
       end
       
       #$stderr.puts("Import Image: #{path} ... ")

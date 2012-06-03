@@ -94,7 +94,7 @@ Ext.define('MyDesktop.SystemStatus', {
          store: qzgl_store,
          id : 'qzgl_grid_id',
          iconCls:'export',
-         height : 530,
+         height : 350,
          layout : 'fit',
          columns: [
            { text : 'id',   align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
@@ -115,7 +115,7 @@ Ext.define('MyDesktop.SystemStatus', {
            
            { text : 'A4',   align:"right", width : 60, sortable : true, dataIndex:  'a4',},
            { text : 'A3',   align:"right", width : 60, sortable : true, dataIndex:  'a3'},
-           { text : '小计',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
+           { text : '大图',   align:"right", width : 40, sortable : true, dataIndex:  'dt'},
 
            { text : '目录数据', align:"left", width : 150, sortable : true, dataIndex: 'json'},
            { text : '文件路径', align:"left", width : 100, sortable : true, dataIndex: 'yxwz'},
@@ -139,74 +139,87 @@ Ext.define('MyDesktop.SystemStatus', {
            }
          },
          tbar : [{
-             text : '打印汇总',
-             iconCls:'print',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id;   
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id; 
-                 }
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/print_selected_qzxx", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzzt_store.load();
-                 }
-               });
-             }
-           },{
-             text : '打印报表',
-             iconCls:'print',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
+              text:'打印统计',
+              //tooltip:'打印处理设置 ',
+              iconCls:'print',
+              split:true,
+              //handler: this.toggleTime.createDelegate(this, []),
+              menu: 
+              {
+                  id:'dycl-slelect-menu',
+                  //cls:'reading-menu',
+                  width:100,
+                  items: [{
+                    text : '打印汇总',
+                    iconCls:'print',
+                    handler : function() {
+                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                      id_str = '';
+                      for (var i=0; i < items.length; i ++) {
+                        if (i==0) {
+                          id_str = id_str+items[i].data.id;   
+                        } else {
+                          id_str = id_str + ',' +items[i].data.id; 
+                        }
+                      };
+                      pars = {id:id_str};
+                      new Ajax.Request("/desktop/print_selected_qzxx", { 
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          qzzt_store.load();
+                        }
+                      });
+                    }
+                  },{
+                    text : '打印报表',
+                    iconCls:'print',
+                    handler : function() {
+                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                      id_str = '';
+                      for (var i=0; i < items.length; i ++) {
+                        if (i==0) {
+                          id_str = id_str+items[i].data.id ;
+                        } else {
+                          id_str = id_str + ',' +items[i].data.id ;
+                        }
 
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/print_selected_qztj", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzzt_store.load();
-                 }
-               });
-             }
-           },'-',{
-             text : '虚拟打印',
-             iconCls:'print',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
+                      };
+                      pars = {id:id_str};
+                      new Ajax.Request("/desktop/print_selected_qztj", { 
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          qzzt_store.load();
+                        }
+                      });
+                    }
+                  },'-',{
+                    text : '虚拟打印',
+                    iconCls:'print',
+                    handler : function() {
+                      items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                      id_str = '';
+                      for (var i=0; i < items.length; i ++) {
+                        if (i==0) {
+                          id_str = id_str+items[i].data.id ;
+                        } else {
+                          id_str = id_str + ',' +items[i].data.id ;
+                        }
 
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/print_selected_mljn", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzzt_store.load();
-                 }
-               });
-             }
-           },'-',{
+                      };
+                      pars = {id:id_str};
+                      new Ajax.Request("/desktop/print_selected_mljn", { 
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          qzzt_store.load();
+                        }
+                      });
+                    }
+                  }]
+              }
+          },'-',{
              text : '挂接数据',
              iconCls : 'import',
              handler : function() {
@@ -454,7 +467,7 @@ Ext.define('MyDesktop.SystemStatus', {
                                   user =users[0]
                                   Ext.getCmp('dwdm_id').setValue(user.dwdm);
                                   Ext.getCmp('qzjc_id').setValue(user.dwjc);
-                                  Ext.getCmp('qzdj_id').setValue(user.qzdj);
+                                  Ext.getCmp('qzsx_id').setValue(user.qzsx);
                                 }
                               }
                             });
@@ -464,7 +477,7 @@ Ext.define('MyDesktop.SystemStatus', {
                   },
                   { xtype: 'textfield', x: 80,y: 40,  name:'dwdm', id:'dwdm_id'},
                   { xtype: 'textfield', x: 80,y: 70,  name:'qzjc', id:'qzjc_id'},
-                  { xtype: 'textfield', x: 80,y: 100, name:'qzdj', id:'qzdj_id'},
+                  { xtype: 'textfield', x: 80,y: 100, name:'qzsx', id:'qzsx_id'},
                   {
                     xtype: 'form', id:'sdwj_upload_form',  x: 310,y: 10, width:300,  height : 24,  //输档文件
                     items :[{ xtype : 'fileuploadfield', anchor: '99%', name:'sdwj', emptyText: '选择一个文件...', buttonText: '浏览'},
@@ -483,7 +496,7 @@ Ext.define('MyDesktop.SystemStatus', {
                        var qzh   = Ext.getCmp('qzh_id').getValue();
                        var dwdm  = Ext.getCmp('dwdm_id').getValue();
                        var dwjc  = Ext.getCmp('qzjc_id').getValue();
-                       var qzdj  = Ext.getCmp('qzdj_id').getValue();
+                       var qzsx  = Ext.getCmp('qzsx_id').getValue();
                        var pars  = {qzh:qzh, dwdm:dwdm, dwjc:dwjc, qzdj:qzdj};
                        new Ajax.Request("/desktop/add_qzh2",{
                          method: "POST",
@@ -855,6 +868,8 @@ Ext.define('MyDesktop.SystemStatus', {
          store: qzzt_store,
          id : 'qzzt_grid_id',
          iconCls:'task16',
+         layout : 'fit',
+         height : 350,
          columns: [
            { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
            { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
@@ -1001,7 +1016,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
       ],
       //width :  800,
-      //height : 350,
+      height : 350,
       columnLines: true,
       layout: 'fit',
       tbar:[{
@@ -1252,7 +1267,6 @@ Ext.define('MyDesktop.SystemStatus', {
           xtype: 'tabpanel',
           id : 'qzgl_tabpanel_id',
           layout: 'fit',
-          minHeight: 530,
           activeTab: 0,
           items: [qzgl_grid,mulu_qz_grid,qzzt_grid]
       }]        
