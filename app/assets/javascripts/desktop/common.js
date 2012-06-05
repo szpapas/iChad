@@ -365,6 +365,17 @@ var dalb_store = Ext.create('Ext.data.Store', {
 			}
 		}				
 });
+
+var zt_data = [	
+	['1','宋体'],
+	['2','黑体']
+];
+var zt_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : zt_data
+});
+
+
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
@@ -886,6 +897,14 @@ var DispAj_zh = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -1196,6 +1215,7 @@ var DispAj_cw = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 145,
 	                    fieldLabel: '起 日 期',
 	                    labelWidth: 60,
@@ -1206,6 +1226,7 @@ var DispAj_cw = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 145,
 	                    fieldLabel: '止日期',
 	                    labelWidth: 60,
@@ -2130,6 +2151,7 @@ var DispAj_wsda = function(record,add_new,title){
 	                },
 					{
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 160,
 	                    fieldLabel: '制文日期',
 	                    labelWidth: 60,
@@ -3707,6 +3729,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 170,
 	                    fieldLabel: '形成日期',
 						name: 'xcrq',
@@ -4241,6 +4264,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 155,
 	                    fieldLabel: '购置时间',
 						name: 'gzsj',
@@ -5166,6 +5190,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 160,
 	                    fieldLabel: '获奖时间',
 						name: 'sjsj',
@@ -5955,6 +5980,7 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 160,
 	                    fieldLabel: '出版日期',
 						name: 'cbrq',
@@ -6811,6 +6837,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'datefield',
+						format: 'Y-m-d',
 	                    width: 160,
 	                    fieldLabel: '发生日期',
 						name: 'fsrq',
@@ -6820,7 +6847,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 	                    y: 10
 	                },
 	                {
-	                    xtype: 'datefield',
+	                    xtype: 'datefield',format: 'Y-m-d',
 	                    width: 165,
 	                    fieldLabel: '记录日期',
 						name: 'jlrq',
@@ -7135,7 +7162,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 	                    y: 165
 	                },
 	                {
-	                    xtype: 'datefield',
+	                    xtype: 'datefield',format: 'Y-m-d',
 	                    width: 170,
 	                    fieldLabel: '时间',
 						name: 'sj',

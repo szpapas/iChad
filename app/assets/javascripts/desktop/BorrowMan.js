@@ -373,7 +373,7 @@ Ext.define('MyDesktop.BorrowMan', {
 												}
 											});
 										}else{
-											alert(request.responseText);
+											alert("登记失败，请重新登记。");
 										}
 									}
 								});
@@ -425,7 +425,7 @@ Ext.define('MyDesktop.BorrowMan', {
 													}
 												});
 											}else{
-												alert(request.responseText);
+												alert("阅览失败，请重新阅览。");
 											}
 										}
 									});
@@ -2014,7 +2014,7 @@ Ext.define('MyDesktop.BorrowMan', {
 														}
 													});
 												}else{
-													alert(request.responseText);
+													alert("借阅申请处理失败，请重新处理。");
 												}
 											}
 										});
@@ -2496,7 +2496,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																alert('请选择处于借阅请求状态的数据进行处理。');
 															}
 														}else{
-															alert('您无借阅审批的权限。' + request.responseText);
+															alert('您无借阅审批的权限。' );
 														}
 													}
 												});												

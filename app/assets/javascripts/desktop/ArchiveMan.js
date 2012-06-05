@@ -6460,7 +6460,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 											Ext.getCmp('timage_combo').lastQuery = null;
 							                msg('成功', '文件上传成功.');												
 										}else{
-											alert("文件上传失败，请重新上传。"+ request.responseText);
+											alert("文件上传失败，请重新上传。");
 										}
 									}
 						    	});

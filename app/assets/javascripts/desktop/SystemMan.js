@@ -264,7 +264,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert("修改失败，请重新修改。"+request.responseText);
+															alert("修改失败，请重新修改。");
 														}
 													
 													}
@@ -280,7 +280,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert("新增失败，请重新新增。"+request.responseText);
+															alert("新增失败，请重新新增。");
 														}
 													}
 												});
@@ -318,6 +318,7 @@ Ext.define('MyDesktop.SystemMan', {
 
 			win.show();
 		};
+		
 		var js_disp = function(record,add_new){
 			var win = Ext.getCmp('js_disp_win');
 
@@ -406,7 +407,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
 															Ext.getCmp('js_setup_grid').store.load();
 														}else{
-															alert("修改失败，请重新修改。"+request.responseText);
+															alert("修改失败，请重新修改。");
 														}
 													
 													}
@@ -422,7 +423,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
 															Ext.getCmp('js_setup_grid').store.load();
 														}else{
-															alert("新增失败，请重新新增。"+request.responseText);
+															alert("新增失败，请重新新增。");
 														}
 													}
 												});
@@ -645,7 +646,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
 															Ext.getCmp('user_setup_grid').store.load();
 														}else{
-															alert("删除失败，请重新删除。"+request.responseText);
+															alert("删除失败，请重新删除。");
 														}
 													}
 												});
@@ -816,7 +817,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('js_setup_grid').store.url='/desktop/get_js_grid';
 															Ext.getCmp('js_setup_grid').store.load();
 														}else{
-															alert("删除失败，请重新删除。"+request.responseText);
+															alert("删除失败，请重新删除。");
 														}
 													}
 												});
@@ -971,7 +972,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('qz_setup_grid').store.url='/desktop/get_qz_grid';
 															Ext.getCmp('qz_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("修改失败。");
 														}
 													
 													}
@@ -987,7 +988,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('qz_setup_grid').store.url='/desktop/get_qz_grid';
 															Ext.getCmp('qz_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("新增失败。");
 														}
 													}
 												});
@@ -1144,7 +1145,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('qz_setup_grid').store.url='/desktop/get_qz_grid';
 															Ext.getCmp('qz_setup_grid').store.load();
 														}else{
-															alert(request.responseText);
+															alert("删除失败。");
 														}
 													}
 												});
@@ -1559,7 +1560,7 @@ Ext.define('MyDesktop.SystemMan', {
 															//Ext.getCmp('lb_tree_panel1').store.proxy.extraParams.id=qz_lb_id;
 															Ext.getCmp('lb_tree_panel1').store.load();
 														}else{
-															alert(request.responseText);
+															alert("删除失败。");
 														}
 													}
 												});
@@ -1598,7 +1599,7 @@ Ext.define('MyDesktop.SystemMan', {
 														//Ext.getCmp('lb_tree_panel1').store.load();
 														alert("初使化完成。");
 													}else{
-														alert(request.responseText);
+														alert("初使化失败。");
 													}
 												}
 											});
@@ -1697,7 +1698,7 @@ Ext.define('MyDesktop.SystemMan', {
 															Ext.getCmp('lb_tree_panel1').store.proxy.extraParams.id=qz_lb_id;
 															Ext.getCmp('lb_tree_panel1').store.load();
 														}else{
-															alert(request.responseText);
+															alert("保存失败。");
 														}
 													}
 												});
