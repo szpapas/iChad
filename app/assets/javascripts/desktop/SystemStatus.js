@@ -519,7 +519,7 @@ Ext.define('MyDesktop.SystemStatus', {
                     width: 80,
                     handler : function() {
                       myForm = Ext.getCmp('sdwj_upload_form').getForm();
-                      Ext.getCmp("sdwj_dj_id").setValue(Ext.getCmp('qzdj_id').getValue());
+                      Ext.getCmp("sdwj_dj_id").setValue(Ext.getCmp('qzsx_id').getValue());
                       if(myForm.isValid()){
                         form_action=1;
                         myForm.submit({
@@ -680,20 +680,7 @@ Ext.define('MyDesktop.SystemStatus', {
                }
                  
              }
-           },{
-             text : '更新全部',
-             iconCls : 'x-tbar-loading',
-             handler : function() {
-               pars = {qzh:qzgl_store.proxy.extraParams.qzh};
-               new Ajax.Request("/desktop/update_qzxx", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzgl_store.load();
-                 }
-               });
-             }                                 
-         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
+           },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
            xtype:"textfield",
            id : 'lb_field',
            width: 40,
@@ -871,7 +858,7 @@ Ext.define('MyDesktop.SystemStatus', {
          id : 'qzzt_grid_id',
          iconCls:'task16',
          layout : 'fit',
-         height : 350,
+         //height : 350,
          columns: [
            { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
            { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
@@ -1018,7 +1005,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
       ],
       //width :  800,
-      height : 350,
+      //height : 350,
       columnLines: true,
       layout: 'fit',
       tbar:[{
@@ -1040,6 +1027,22 @@ Ext.define('MyDesktop.SystemStatus', {
               parameters: pars,
               onComplete:  function(request) {
                 qzzt_store.load();
+                msg('提示', '任务添加成功！');
+              }
+            });
+          }
+        },'-',{
+          text:'导入全部空卷',
+          iconCls:'',
+          handler : function() {
+            items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+            pars = {id:'all', dh:items[0].data.dh_prefix};
+            new Ajax.Request("/desktop/import_selected_timage_aj", { 
+              method: "POST",
+              parameters: pars,
+              onComplete:  function(request) {
+                qzzt_store.load();
+                msg('提示', '任务添加成功！');
               }
             });
           }
@@ -1061,7 +1064,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 }
               }
             );
-          }
+          }          
         },{
           text:'修改案卷',
            iconCls:'write16',

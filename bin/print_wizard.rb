@@ -20,11 +20,11 @@ $conn.exec("set standard_conforming_strings = off")
 #Print Helper funtion
 def bk_name(dalb)
   if dalb.to_i == 0 
-    ['杨建', '王宏喜']
-  elsif dalb.to_i == 14
-    ['王鹏','朱兵']
+    ['张玉梅','陶玉明']
+  elsif dalb.to_i == 10
+    ['张玉梅','陶玉明']
   else
-    ['张宁','庞佑林']  
+    ['张玉梅','陶玉明']
   end       
 end
 

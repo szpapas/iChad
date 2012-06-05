@@ -646,7 +646,13 @@ class DesktopController < ApplicationController
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       if !File.exists?(local_filename)
         user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{params['gid']}';")
-        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
+        
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(user[0]["data"])
+        ff.close
+        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        system("rm ./tmp/#{tmpfile}")
       end
       small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
@@ -3107,12 +3113,6 @@ class DesktopController < ApplicationController
     render :text => 'Success'
   end
   
-  def update_qzxx
-    qzh = params['qzh']
-    system("ruby ./dady/bin/update_qzxx_tj.rb #{qzh} > ./log/update_qzxx &")
-    render :text => 'Success'
-  end
-  
   def update_qzxx_selected
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
     for k in 0..user.size-1
@@ -3143,7 +3143,11 @@ class DesktopController < ApplicationController
   end
   
   def import_selected_timage_aj
-    user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
+    if params['id'] == 'all' 
+      user = User.find_by_sql("select * from timage_tj where dh_prefix like '#{params['dh']}' and zt='空卷';")
+    else
+      user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
+    end
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh.split('-')
@@ -3151,23 +3155,15 @@ class DesktopController < ApplicationController
       
       qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
       yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
-      
-      #if yxgs.size > 0
-      #  yy=yxgs[0].yxmc.split('$') 
-      #  yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
-      #  path = "#{qzxx.yxwz}/#{yxmc}".gsub('$','\$')
-      #  User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
-      #else
-        yxgs = lookup(qzxx.yxwz)
-        if yxgs.length > 0
-          #yy=yxgs.split('$') 
-          #yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
-          yxgs=
-          yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
-          path = "#{yxmc}".gsub('$','\$')
-          User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
-        end  
-      #end
+      yxgs = lookup(qzxx.yxwz)
+      if yxgs.length > 0
+        #yy=yxgs.split('$') 
+        #yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
+        yxgs=
+        yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
+        path = "#{yxmc}".gsub('$','\$')
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
+      end  
     end  
     render :text => 'Success'
   end

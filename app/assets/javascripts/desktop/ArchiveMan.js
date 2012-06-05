@@ -6555,6 +6555,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 			win = desktop.createWindow({
 				id: 'archiveman',
 				title:'档案管理',
+				x : 100,
+				y : 50,
 				width:1200,
 				height:600,
 				iconCls: 'archiveman',

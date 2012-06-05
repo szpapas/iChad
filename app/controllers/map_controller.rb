@@ -765,9 +765,13 @@ class MapController < ApplicationController
     dh = params['dh']
     if !(params['bindStr'] == "")
       bindstr = params['bindStr'][0..-2]
-      user = User.find_by_sql("update pkerr set zt=1 where id in (#{bindstr});") 
+      ss = bindstr.split("|")
+      for k in 0..ss.size-1
+        tt = ss[k].split('-')
+        user = User.find_by_sql("update pkerr set zt=1, errlx=#{tt[1]} where id = #{tt[0]};") 
+      end  
     end    
-    user = User.find_by_sql("select * from pkerr where zt=0 and errlx > 0 and dh like '#{dh}-%';")
+    user = User.find_by_sql("select * from pkerr where zt=0 and errlx > 1 and dh like '#{dh}-%';")
     render :text => user.to_json
   end
   
