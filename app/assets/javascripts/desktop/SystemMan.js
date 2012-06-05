@@ -1974,8 +1974,10 @@ Ext.define('MyDesktop.SystemMan', {
         win = desktop.createWindow({
         id: 'systemman',              
         title:'系统管理',
-				width:400,
+				width:200,
 				height:500,
+				x : 100,
+				y : 50,
 				iconCls: 'archiveman',
 				animCollapse:false,
 				border: false,

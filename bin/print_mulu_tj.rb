@@ -14,16 +14,25 @@ def save2timage(yxbh, path, dh, yx_prefix)
   $conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
 end
 
+
 def update_timage(dh_prefix)
+  
+  ss = dh_prefix.split('-')
+  qzh, dalb, mlh = ss[0], ss[1], ss[2]
+  
+  puts "update basic info for qz:#{qzh}, mlh:#{mlh}..."
+  $conn.exec("update timage_tj set ajys=archive.ys from archive where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
+  
   $stderr.puts"更新 #{dh_prefix} ..."
   puts "update ML00..."
-  $conn.exec"update timage_tj set ml00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to 'ML00%') where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set ml00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML00%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update MLBK..." 
   $conn.exec"update timage_tj set mlbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'MLBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
   
   puts "update MLJN..."  
-  $conn.exec"update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%') - (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh similar to 'ML[BK|00].*') where timage_tj.dh_prefix='#{dh_prefix}';"
+  puts "update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%') - (select count(*) from timage where timage.dh=timage_tj.dh and (timage.yxbh like 'MLBK.%' or  timage.yxbh like 'ML00.%')) where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set mljn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'ML%') - (select count(*) from timage where timage.dh=timage_tj.dh and (timage.yxbh like 'MLBK.%' or  timage.yxbh like 'ML00.%')) where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update JN00..."
   $conn.exec"update timage_tj set jn00 = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JN00%') where timage_tj.dh_prefix='#{dh_prefix}';"
@@ -32,7 +41,7 @@ def update_timage(dh_prefix)
   $conn.exec"update timage_tj set jnbk = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JNBK%') where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update JNJN..."  
-  $conn.exec"update timage_tj set jnjn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO 'JN[0123456789][123456789]%') where timage_tj.dh_prefix='#{dh_prefix}';"
+  $conn.exec"update timage_tj set jnjn = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh like 'JN%') - (select count(*) from timage where timage.dh=timage_tj.dh and (timage.yxbh like 'JNBK.%' or  timage.yxbh like 'JN00.%')) where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update SMYX..."  
   $conn.exec"update timage_tj set smyx = (select count(*) from timage where timage.dh=timage_tj.dh and timage.yxbh SIMILAR TO '[0..9]%') where timage_tj.dh_prefix='#{dh_prefix}';"
@@ -45,6 +54,8 @@ def update_timage(dh_prefix)
 
   puts "update meta 大图"
   $conn.exec"update timage_tj set DT = (select count(*) from timage where timage.dh=timage_tj.dh and timage.meta_tz=2) where timage_tj.dh_prefix='#{dh_prefix}';"
+  
+  #$conn.exec"update timage_tj set DT = A4+A3*2 where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update 状态"
 
@@ -55,7 +66,7 @@ def update_timage(dh_prefix)
   
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh_prefix='#{dh_prefix}';")
   
-end
+end 
 
 def print_timage(dh_prefix)
   dh = dh_prefix

@@ -93,22 +93,27 @@ def save2timage(yxbh, path, dh, yx_prefix)
         meta_tz = 0    
       end
     else
-      meta = fo[fb..fe-1]
-      meta = meta.split("\377\376")[-1]
       pixels = width * height
       if pixels > 1000000000
         wh = getimgsize(path).split(",")
         width, height = wh[0].to_i, wh[1].to_i
         pixels = width * height
-      end  
-      mm = meta.split("\;")
-      if mm.size > 5 && meta.size < 100
-        meta=mm[0..5].join("\;")[2..-1] 
-        meta_tz =mm[2].to_i
-      else
+      end 
+      meta = fo[fb..fe-1]
+      meta = meta.split("\377\376")[-1]
+      if meta.nil?
         $stderr.puts "Tags error: #{path}"
         meta, meta_tz = "", 0
-      end     
+      else
+        mm = meta.split("\;")
+        if mm.size > 5 && meta.size < 100
+          meta=mm[0..5].join("\;")[2..-1] 
+          meta_tz =mm[2].to_i
+        else
+          $stderr.puts "Tags error: #{path}"
+          meta, meta_tz = "", 0
+        end
+      end       
     end
     
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
@@ -164,25 +169,28 @@ Find.find(path) do |path|
       end
       
       pp = path.split("\/")
-      file_title = pp[pp.size-1]
+      #file_title = pp[pp.size-1]
       ss = pp[pp.size-1].split("$")
       mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
       
-      dh = "#{dh_prefix}-#{ajh.to_i}"
-      if dh != $dh
-        $dh = dh
-        $stderr.puts "processing #{dh}... "
-      end
-      
-      #$stderr.puts("Import Image: #{path} ... ")
-      yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-      save2timage(sxh, path, $dh, yxqz)
+      #/mnt/lh/jm1/13/13$F$0172/  13$F$0171$MLBK.jpg
+      sp = pp[pp.size-2].split("$")
+      if (ss[2] != sp[2]) 
+        $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+      else
+        dh = "#{dh_prefix}-#{ajh.to_i}"
+        if dh != $dh
+          $dh = dh
+          $stderr.puts "processing #{dh}... "
+        end
+        #$stderr.puts("Import Image: #{path} ... ")
+        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        save2timage(sxh, path, $dh, yxqz)
+      end  
     end
   end
 end
 
-$conn.exec("update timage set yxmc=split_part(yxmc,'ml',1) || 'JN'|| split_part(yxmc,'ml', '2'), yxbh= split_part(yxbh,'ml',1) || 'JN'|| split_part(yxbh,'ml', '2')  where yxbh like '%ml0%';")
-$conn.exec("update timage set meta_tz = 0 where yxbh like 'JN%' and dh like '#{qzh}-#{dalb}-#{mlh}-%';")
 $conn.exec("update timage set dh_prefix = split_part(dh, '-', 1) || '-' || split_part(dh, '-', 2)  ||  '-' || split_part(dh, '-', 3) where dh_prefix is null;")
 $conn.close
 
