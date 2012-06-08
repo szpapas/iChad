@@ -29,6 +29,70 @@ Ext.define('MyDesktop.SystemStatus', {
     
     var win = desktop.getWindow('systemstatus');
     
+    //图像显示窗口
+    var show_image = function() {
+    
+      var canvas_string =
+        '<div id="wrapper">'
+        +' <div id="buttonWrapper">'
+        +' <input type="button" id="prev" value="<">'
+        +' <input type="button" id="plus" value="+">'
+        +' <input type="button" isd="minus" value="—">'
+        +' <input type="button" id="next" value=">">'
+        +' </div>'
+        +' <canvas id="myCanvas" width="530" height="800">'
+        +' </canvas>'
+        +'</div>';
+    
+      var yxxs_win = new Ext.Window({
+        id : 'yxxs_win',
+        iconCls : 'image',
+        title: '影像浏览',
+        floating: true,
+        shadow: true,
+        draggable: true,
+        closable: true,
+        modal: true,
+        width: 800,
+        height: 600,
+        layout: 'fit',
+        plain: true,
+        items: [{
+        layout:"border",
+        items:[{
+            region:"center",
+            title:"图像",
+            tbar:[{
+                text : '放大',
+                iconCls:'',
+                handler : function() {
+                
+                }
+              },{
+                text : '缩小',
+                iconCls:'',
+                handler : function() {
+                }
+            }],
+            items:[{
+                 xtype: 'panel', //或者xtype: 'component',
+                 html:canvas_string
+             }]
+          },{
+            region:"west",
+            title:"影像列表",
+            width:150,
+            split:true,
+            collapsible:true,
+            titleCollapse:true
+          }]
+        }]
+      });
+      
+      yxxs_win.show();
+      
+    }
+    
     Ext.regModel('qzgl_model', {
       fields: [
         {name: 'id',       type: 'integer'},
@@ -75,7 +139,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'6',filter:"全部", dalb:""};
+    qzgl_store.proxy.extraParams={qzh:'9',filter:"全部", dalb:""};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -641,6 +705,13 @@ Ext.define('MyDesktop.SystemStatus', {
                });
              }
            },'-', {
+             text : '查看影像',
+             iconCls:'',
+             handler : function () {
+               show_image();
+               
+             }
+           },'-', {
              text : '目录详细',
              iconCls:'x-tree-icon-leaf',
              handler : function() {
@@ -718,7 +789,7 @@ Ext.define('MyDesktop.SystemStatus', {
            id : 'qzh_field',
            name : 'qzh',
            width: 40,
-           value: '6',
+           value: '9',
            listeners:{
              'blur': function(field){
                qzgl_store.proxy.extraParams.qzh=field.getValue();
@@ -973,14 +1044,31 @@ Ext.define('MyDesktop.SystemStatus', {
           return '<span style="color:gray;">' + val + '</span>';
       }
       return val;
-    }
+    };
 
     var ztRenderer = function(val) {
       if (val == "空卷") {
           return '<span style="color:red;">' + val + '</span>';
       } 
       return val;
-    }
+    };
+    
+    function Run(strPath){  
+       try{  
+           var objShell = new ActiveXObject("wscript.shell");  
+           objShell.Run(strPath);  
+           objShell = null;  
+       }  
+       catch(e){
+            alert('找不到文件"'+strPath+'"(或它的组件之一)。请确定路径和文件名是否正确.')  
+       }  
+    };
+    
+    var ajhRender = function(val) {
+      return '<a href="file:///c:/test" target= "_BLANK ">';
+      //return '<a href="C:/Program%20Files/ACDSee/ACDSee.exe">打开目录</a>'
+      //return  '<a href=\"#\" onclick=\"Run(\'file:///C:/Program%20Files/ACDSee/ACDSee.exe\')\">打开目录</a>'  
+    };
 
     var mulu_qz_grid = new Ext.grid.GridPanel({
       id: 'mulu_qz_grid_id',
@@ -1002,7 +1090,8 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '旧封', align:"right", width : 40, sortable : true, dataIndex: 'jn00'},
         { text : '旧卷', align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
         { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
-        { text : '状态', align:"center", flex : 1, sortable : true, dataIndex: 'zt',    renderer:ztRenderer}
+        { text : '状态', align:"center", width : 40, sortable : true, dataIndex: 'zt', renderer:ztRenderer},
+        { text : '打开', align:"center", width : 40, sortable : true, dataIndex: 'ajh', renderer:ajhRender},
       ],
       //width :  800,
       //height : 350,
@@ -1064,9 +1153,9 @@ Ext.define('MyDesktop.SystemStatus', {
                 }
               }
             );
-          }          
+          }   
         },{
-          text:'修改案卷',
+           text:'修改案卷',
            iconCls:'write16',
            handler : function() {
              items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
@@ -1188,7 +1277,6 @@ Ext.define('MyDesktop.SystemStatus', {
     mulu_qz_grid.on("select", function(node){
     });
     
-    
     mulu_qz_grid.on('itemdblclick', function(grid, item, r){
       data = item.data;
       
@@ -1261,7 +1349,6 @@ Ext.define('MyDesktop.SystemStatus', {
       modi_win.show();
     });
     
-        
     var qzglPanel = new Ext.form.FormPanel({
       id : 'qzgl_panel_id',
       labelWidth:40,
@@ -1276,6 +1363,7 @@ Ext.define('MyDesktop.SystemStatus', {
           items: [qzgl_grid,mulu_qz_grid,qzzt_grid]
       }]        
     });
+    
     
     if(!win){
       win = desktop.createWindow({

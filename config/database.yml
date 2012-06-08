@@ -9,7 +9,7 @@ development:
   encoding: utf8
   username: postgres
   password: brightechs
-  host: 192.168.114.56
+  host: localhost
   pool: 8
   port: 5432
 

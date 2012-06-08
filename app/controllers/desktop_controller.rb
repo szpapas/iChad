@@ -1,6 +1,8 @@
 # encoding: utf-8
 require 'socket'
 require 'find'
+require 'serialport'
+
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images]
@@ -727,10 +729,11 @@ class DesktopController < ApplicationController
         system("decrypt ./tmp/#{tmpfile} #{local_filename}")
         system("rm ./tmp/#{tmpfile}")
       end
-      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+      #small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+      #puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      #system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
+      #txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+      txt = "/assets/#{local_filename}"
     end
     render :text => txt
   end
