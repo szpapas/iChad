@@ -1,12 +1,15 @@
 # encoding: utf-8
 require 'socket'
 require 'find'
+require 'serialport'
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images]
   before_filter :set_current_user
-  
+  #$sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
+  #puts $sp
   def index
+    
   end
   
   def get_user    
@@ -98,7 +101,7 @@ class DesktopController < ApplicationController
     if (params['query'].nil?)
         txt = "{results:0,rows:[]}"
       else
-        user = User.find_by_sql("select * from document where ownerid = #{params['query']};")
+        user = User.find_by_sql("select * from document where ownerid = #{params['query']} order by sxh;")
         size = user.size;
         if size > 0
           txt = "{results:#{size},rows:["
@@ -3431,8 +3434,8 @@ class DesktopController < ApplicationController
   end
   def save_image_db
     #system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
-    system("ruby ./dady/bin/import_image_file.rb ./dady/#{params['filename']} #{params['dh']} #{params['dh']} ")    
-    render :text =>"success"
+    text=system("ruby ./dady/bin/import_image_file.rb ./dady/#{params['filename']} #{params['dh']} #{params['dh']} ")    
+    render :text =>text
   end
   #档案打印
   def print_da
@@ -4457,6 +4460,465 @@ class DesktopController < ApplicationController
      txt='success'
    
    render :text => txt
+  end
+  
+  
+  
+  #获得智能菜单树
+  def get_zn_tree
+    
+      text="["
+      
+      text=text+"{'text':'楼宇设置','id' :'1','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'楼层设置','id' :'2','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'房间设置','id' :'3','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'设备设置','id' :'4','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'人员设备设置','id' :'6','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'设备状态及操作','id' :'5','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'设备操作日志','id' :'7','checked':false,'leaf':true,'cls':'folder'}"
+      text=text + "]"
+      render :text => text
+    
+  end
+  
+  #获得楼宇设置列表
+  def  get_zn_ly_grid
+    user = User.find_by_sql("select * from  zn_ly order by id;")
+
+    size = user.size
+    puts size
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
+  
+  #新增楼宇信息
+  def insert_zn_ly    
+    user=User.find_by_sql("select * from zn_ly where  lymc='#{params['lymc']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("insert into zn_ly(lymc, lysm) values ('#{params['lymc']}', '#{params['lysm']}');")
+      txt='success'
+    else
+      txt= 'false:楼宇名称已经存在，请重新输入楼宇名称。'
+    end
+    render :text => txt
+  end
+  
+  
+  #更新楼宇信息
+  def update_zn_ly
+    user=User.find_by_sql("select * from zn_ly where id <> #{params['id']} and lymc='#{params['lymc']}';")
+    size = user.size
+    if size == 0
+      User.find_by_sql("update zn_ly set lymc='#{params['lymc']}', lysm='#{params['lysm']}' where id = #{params['id']};")
+      txt='success'
+    else
+      txt= 'false:楼宇名称已经存在，请重新输入楼宇名称。'
+    end
+    render :text => txt
+  end
+  
+   #删除楼宇信息
+  def delete_zn_ly
+    user = User.find_by_sql("delete from zn_ly where id = #{params['id']};")
+    render :text => 'success'
+  end
+  
+  #获得楼层设置列表
+  def  get_zn_lc_grid
+    if (params['param'].nil?) 
+    
+      user = User.find_by_sql("select zn_lc.*,zn_ly.lymc from  zn_lc left join zn_ly on zn_lc.ssly=zn_ly.id order by id;")
+
+      size = user.size
+      puts size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end
+    else
+      user = User.find_by_sql("select zn_lc.*,zn_ly.lymc from  zn_lc left join zn_ly on zn_lc.ssly=zn_ly.id  where ssly=#{params['param']} order by id;")
+
+      size = user.size
+      puts size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end
+    end  
+    render :text => txt
+  end
+  
+  
+  #新增楼层信息
+  def insert_zn_lc 
+    if !(params['ssly'].nil?)  
+      user=User.find_by_sql("select * from zn_lc where  lcmc='#{params['lcmc']}' and ssly=#{params['ssly']};")
+      size = user.size
+      if size == 0
+        User.find_by_sql("insert into zn_lc(lcmc, lcsm,ssly) values ('#{params['lcmc']}', '#{params['lcsm']}',#{params['ssly']});")
+        txt='success'
+      else
+        txt= 'false:此楼宇的楼层名称已经存在，请重新输入楼层名称。'
+      end
+    else
+      txt= 'false:所属楼宇不能为空，请重新选择楼宇名称。'
+    end
+    render :text => txt
+  end
+  
+  
+  #更新楼层信息
+  def update_zn_lc
+    user=User.find_by_sql("select * from zn_lc where id <> #{params['id']} and lcmc='#{params['lcmc']}' and ssly=#{params['ssly']};")
+    size = user.size
+    if size == 0
+      User.find_by_sql("update zn_lc set lcmc='#{params['lcmc']}', lcsm='#{params['lcsm']}' , ssly=#{params['ssly']} where id = #{params['id']};")
+      txt='success'
+    else
+      txt= 'false:此楼宇的楼层名称已经存在，请重新输入楼层名称。'
+    end
+    render :text => txt
+  end
+  
+   #删除楼层信息
+  def delete_zn_lc
+    user = User.find_by_sql("delete from zn_lc where id = #{params['id']};")
+    render :text => 'success'
+  end
+  
+  #获得房间设置列表
+  def  get_zn_fj_grid
+    user = User.find_by_sql("select zn_fj.*,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly where  zn_fj.ssly=zn_ly.id and zn_fj.sslc=zn_lc.id order by id;")
+
+    size = user.size
+    puts size
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
+  
+  #新增房间信息
+  def insert_zn_fj 
+    if !(params['sslc'].nil?)
+      if !(params['ssly'].nil?)  
+        user=User.find_by_sql("select * from zn_fj where  fjmc='#{params['fjmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']};")
+        size = user.size
+        if size == 0
+          User.find_by_sql("insert into zn_fj(fjmc, fjsm,ssly,sslc) values ('#{params['fjmc']}', '#{params['fjsm']}',#{params['ssly']},#{params['sslc']});")
+          txt='success'
+        else
+          txt= 'false:此楼层的房间号已经存在，请重新输入房间号。'
+        end
+      else
+        txt= 'false:所属楼宇不能为空，请重新输入楼宇。'
+      end
+    else
+      txt= 'false:所属楼层不能为空，请重新输入楼层。'
+    end
+    render :text => txt
+  end
+  
+  
+  #更新房间信息
+  def update_zn_fj
+    user=User.find_by_sql("select * from zn_fj where id <> #{params['id']} and fjmc='#{params['fjmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']};")
+    size = user.size
+    if size == 0
+      User.find_by_sql("update zn_fj set fjmc='#{params['fjmc']}', fjsm='#{params['fjsm']}' , ssly=#{params['ssly']}, sslc=#{params['sslc']} where id = #{params['id']};")
+      txt='success'
+    else
+      txt= 'false:此楼层的房间号已经存在，请重新输入房间号。'
+    end
+    render :text => txt
+  end
+  
+   #删除房间信息
+  def delete_zn_fj
+    user = User.find_by_sql("delete from zn_fj where id = #{params['id']};")
+    render :text => 'success'
+  end
+  
+  
+  #获得设备设置列表
+  def  get_zn_sb_grid
+    if (params['query'].nil?)
+      user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id order by id;")
+
+      size = user.size
+      
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end
+    else
+      if (params['query']=="")
+        txt = "{results:0,rows:[]}"
+      else
+        query=params['query'].split("|")
+        case query.length
+        when 1
+          user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} order by id;")
+        when 2
+          user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} and zn_sb.sslc=#{query[1]} order by id;")
+        when 3
+          user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} and zn_sb.sslc=#{query[1]} and zn_sb.ssfj=#{query[2]} order by id;")
+        end
+        size = user.size
+
+        if size > 0 
+         txt = "{results:#{size},rows:["
+         for k in 0..user.size-1
+           txt = txt + user[k].to_json + ','
+         end
+         txt = txt[0..-2] + "]}"
+        else
+         txt = "{results:0,rows:[]}"  
+        end
+      end
+    end      
+    render :text => txt
+  end
+  
+  
+  #新增设备信息
+  def insert_zn_sb 
+    if !(params['sslc'].nil?)
+      if !(params['ssly'].nil?)  
+        if !(params['ssfj'].nil?)
+          user=User.find_by_sql("select * from zn_sb where  sbmc='#{params['sbmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']}  and ssfj=#{params['ssfj']};")
+          size = user.size
+          if size == 0
+            User.find_by_sql("insert into zn_sb(sbmc, sbsm,ssly,sslc,ssfj,kzl,gzl) values ('#{params['sbmc']}', '#{params['sbsm']}',#{params['ssly']},#{params['sslc']},#{params['ssfj']}, '#{params['kzl']}', '#{params['gzl']}');")
+            txt='success'
+          else
+            txt= 'false:此房间的设备名称已经存在，请重新输入设备名称。'
+          end
+        else
+          txt= 'false:所属房间不能为空，请重新输入房间。'
+        end
+      else
+        txt= 'false:所属楼宇不能为空，请重新输入楼宇。'
+      end
+    else
+      txt= 'false:所属楼层不能为空，请重新输入楼层。'
+    end
+    render :text => txt
+  end
+  
+  
+  #更新设备信息
+  def update_zn_sb
+    user=User.find_by_sql("select * from zn_sb where id <> #{params['id']} and sbmc='#{params['sbmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']} and ssfj=#{params['ssfj']};")
+    size = user.size
+    if size == 0
+      User.find_by_sql("update zn_sb set kzl='#{params['kzl']}',gzl='#{params['gzl']}', sbmc='#{params['sbmc']}', sbsm='#{params['sbsm']}' , ssly=#{params['ssly']}, sslc=#{params['sslc']}  ,ssfj=#{params['ssfj']} where id = #{params['id']};")
+      txt='success'
+    else
+      txt= 'false:此房间的设备名称已经存在，请重新输入设备名称。'
+    end
+    render :text => txt
+  end
+  
+   #删除设备信息
+  def delete_zn_sb
+    user = User.find_by_sql("delete from zn_sb where id = #{params['id']};")
+    render :text => 'success'
+  end
+  
+  
+  #控制开关
+  def zn_kg_kz
+    if !(params['kzzl']=='')
+      sp = SerialPort.new "/dev/tty.PL2303-000013FA", 9600
+      kzzl=params['kzzl']            
+      kzzl="0a,0d,06,f2,50,22,00,00,64"      
+      puts kzzl
+      ss="012345678"
+      kzzl = kzzl.split(',') 
+      for k in 0..ss.length-1
+        ss[k]=kzzl[k].to_i(16)
+      end
+      sp.write(ss)      
+      sp.close
+      rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
+      case params['cz']
+      when "1"
+        user = User.find_by_sql("update zn_sb  set kgzt='开' where id = #{params['sbid']};")
+        user = User.find_by_sql("insert into zn_cz_rz(czsm,sbid,czid,userid,rq) values ('开','#{params['sbid']}','#{params['cz']}', '#{params['userid']}','#{rq}')  ;")     
+        
+      when "2"
+        user = User.find_by_sql("update zn_sb  set kgzt='关' where id = #{params['sbid']};")
+        user = User.find_by_sql("insert into zn_cz_rz(czsm,sbid,czid,userid,rq) values ('关','#{params['sbid']}','#{params['cz']}', '#{params['userid']}','#{rq}')  ;")  
+      end      
+       
+      text='success' 
+    # sum=0
+    # for k in 3..ss.length-2
+    #   sum=sum+ss[k]
+    # end
+    # ss[k-1]=sum%256
+    else
+      text="false:控制指令不能为空。"
+    end
+    render :text => text
+  end
+  
+  
+  #获取房间树
+  def get_fj_tree
+    text = []
+    node, style = params["node"], params['style']
+   
+    if node == "root"
+      data = User.find_by_sql("select * from zn_ly order by id;")
+      data.each do |dd|
+        text << {:text => " #{dd['lymc']}", :id => dd["id"], :cls => "folder"}
+      end
+    else
+      pars = node.split('|') || []
+      
+      
+        if pars.length == 1
+          data = User.find_by_sql("select * from zn_lc where ssly='#{pars[0]}' order by id;")
+          data.each do |dd|
+            text << {:text => " #{dd['lcmc']}", :id => node+"|#{dd["id"]}", :cls => "folder"}
+          end
+        end
+        if pars.length == 2
+          
+          data = User.find_by_sql("select * from zn_fj where ssly='#{pars[0]}' and sslc=#{pars[1]} order by id;;")
+          data.each do |dd|
+              text << {:text => "#{dd['fjmc']}", :id => node+"|#{dd["id"]}", :leaf => true, :cls => "file"}
+          end
+        end
+        
+    end
+
+    render :text => text.to_json
+  end
+  
+  
+  #获取设备权
+  def get_sb_tree
+    
+      
+      text="["
+      dalb=User.find_by_sql("select * from zn_ly order by id;")
+      dalb.each do |lb|
+        text=text+"{'text':'#{lb['lymc']}','id':'ly#{lb['id']}','leaf':false,'checked':false,'cls':'folder','children':["        
+        dalbml=User.find_by_sql("select * from zn_lc where ssly='#{lb['id']}' order by id;")
+        size=dalbml.size
+        if size>0 
+          dalbml.each do |lbml|
+            text=text+"{'text':'#{lbml['lcmc']}','id' :'lc#{lbml['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+            dafj=User.find_by_sql("select * from zn_fj where ssly='#{lb['id']}' and sslc=#{lbml['id']} order by id;")
+            size=dafj.size
+            if size>0
+              dafj.each do |fj|
+                text=text+"{'text':'#{fj['fjmc']}','id' :'fj#{fj['id']}','leaf':false,'checked':false,'cls':'folder','children':["
+                dasb=User.find_by_sql("select * from zn_sb where ssly='#{lb['id']}' and sslc=#{lbml['id']} and ssfj=#{fj['id']} order by id;")
+                size=dasb.size
+                if size>0
+                  dasb.each do |sb|
+                    text=text+"{'text':'#{sb['sbmc']}','id' :'#{sb['id']}','leaf':true,'checked':false,'cls':'folder'},"
+                  end
+                  text=text+"]},"
+                else
+                  text=text+"]},"
+                end                               
+              end
+              text=text+"]},"
+            else
+              text=text+"]},"  
+            end                                     
+          end
+          text=text+"]},"
+       else         
+         text=text+"]},"
+       end
+     end
+    
+     text=text + "]"
+    render :text => text
+  end
+  
+  
+  #获得用户设备
+  def get_user_sb
+    data = User.find_by_sql("select * from  u_sb where userid = '#{params['id']}' order by id;")
+    text=""
+    data.each do |dd|
+      if text==""
+        text="#{dd['sbid']}" 
+      else
+        text=text+"|#{dd['sbid']}" 
+      end
+    end
+    render :text => text      
+  end
+
+  #保存用户设备
+  def insert_user_sb
+    User.find_by_sql("delete from u_sb where userid = '#{params['userid']}';")
+    ss = params['insert_qx'].split('$')
+    for k in 0..ss.length-1
+      
+          User.find_by_sql("insert into u_sb(userid, sbid) values ('#{params['userid']}', '#{ss[k]}');")
+        
+    end
+    render :text => 'success'
+  end
+  
+  
+  #获取设备操作日志
+  def get_cz_rz_grid
+    user = User.find_by_sql("select zn_cz_rz.*,zn_sb.sbmc,zn_fj.fjmc,zn_lc.lcmc,zn_ly,lymc from  zn_sb,zn_lc,zn_ly,zn_fj,zn_cz_rz where  zn_sb.id=zn_cz_rz.sbid and zn_sb.ssfj=zn_fj.id and zn_sb.sslc=zn_lc.id and zn_sb.ssly=zn_ly.id order by id;")
+
+    size = user.size
+    puts size
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
   end
   
 end

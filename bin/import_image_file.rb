@@ -47,8 +47,8 @@ def save2timage(filename,dh,dh_prefix)
     $stderr.puts(" *** Import Image: #{path}  file size is zero.")
     return 
   end
-  
-  if (filename.include?'jpg') ||  (filename.include?'JPG')  
+  puts filename
+  if (filename.include?'jpg') ||  (filename.include?'JPG')  || (filename.upcase.include?'JPEG')
     si = fo.index("\377\300")
     
     if si.nil?
@@ -89,7 +89,7 @@ def save2timage(filename,dh,dh_prefix)
       end     
     end
     
-  elsif (filename.include?'TIF') || (filename.include?'tif') 
+  elsif (filename.include?'TIF') || (filename.include?'tif')  || (filename.upcase.include?'TIFF')
     meta = ""
     wh = getimgsize(filename).split(",")
     width, height = wh[0].to_i, wh[1].to_i
@@ -123,7 +123,7 @@ end
 
 #filename.downcase 转成小写
 
-if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF')
+if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG')
   save2timage(filename,dh,dh_prefix)
 else
   if (filename.upcase.include?'RAR') || (filename.upcase.include?'ZIP')
@@ -143,7 +143,9 @@ else
           next
         end
       else
-        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF')
+        puts filename
+        puts (filename.upcase.include?'JPEG')
+        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG')
           puts path
           save2timage(path,dh,dh_prefix)
         end

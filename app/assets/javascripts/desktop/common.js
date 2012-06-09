@@ -7358,11 +7358,12 @@ var DispJr = function(recordad,add_new){
 					
 					{
 						xtype: 'datefield',
+						format: 'Y-m-d',
 						x: 130,
 						y: 190,
 						width: 200,
 						id:'jr_rq',
-						name: 'rq', dateFormat: 'Y-m-d H:i:s'
+						name: 'rq'
 					},
 					{
 						xtype: 'textfield',
@@ -7391,7 +7392,7 @@ var DispJr = function(recordad,add_new){
 						handler: function() {
 							var pars=this.up('panel').getForm().getValues();
 							if(add_new==false){
-								new Ajax.Request("/desktop/update_documentsssssssssssss", { 
+								new Ajax.Request("/desktop/update_document", { 
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {
@@ -7423,6 +7424,7 @@ var DispJr = function(recordad,add_new){
 			}]
 		});
 	}
+	Ext.getCmp('jr_dh').readOnly=true;
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('dagljr_form').getForm().setValues(recordad.data);

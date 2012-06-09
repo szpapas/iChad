@@ -134,6 +134,7 @@ Ext.define('MyDesktop.SystemMan', {
 					//closeAction: 'hide',
 					width: 370,
 					height: 240,
+					
 					//minHeight: 200,
 					layout: 'fit',
 					modal: true,
@@ -564,11 +565,13 @@ Ext.define('MyDesktop.SystemMan', {
 				win = new Ext.Window({
 					id : 'user_setup_win',
 					title: '用户设置',
+					x : 300,
+					y : 50,
 					width: 670,
-					height: 530,
-					minHeight: 530,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'用户列表',
@@ -708,6 +711,7 @@ Ext.define('MyDesktop.SystemMan', {
 
 			win.show();
 		};
+
 		var js_setup = function(){
 			var win = Ext.getCmp('js_setup_win');
 
@@ -761,10 +765,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '角色设置',
 					//closeAction: 'hide',
 					width: 570,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'fit',
-					modal: true,
+					//modal: true,
 					plain: true,
 					items:js_setup_grid,					
 					tbar:[{
@@ -1089,10 +1095,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗设置',
 					//closeAction: 'hide',
 					width: 570,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'fit',
-					modal: true,
+					//modal: true,
 					plain: true,
 					items:qz_setup_grid,					
 					tbar:[{
@@ -1278,10 +1286,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗档案类别设置',
 					//closeAction: 'hide',
 					width: 670,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'全宗列表',
@@ -1482,10 +1492,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗档案类别设置',
 					//closeAction: 'hide',
 					width:670,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'全宗列表',
@@ -1834,13 +1846,15 @@ Ext.define('MyDesktop.SystemMan', {
 				win = new Ext.Window({
 					id : 'js_qx_setup_win',
 					title: '角色权限设置',
-					width:1000,
-					height:600,
+					width:800,
+					x : 300,
+					y : 50,
+					height:500,
 					iconCls: 'archiveman',
 					animCollapse:false,
 					border: false,
 					hideMode: 'offsets',
-					modal: true,
+					//modal: true,
 					layout: 'border',
 					split:true,
 					tbar:[

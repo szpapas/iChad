@@ -321,8 +321,15 @@
     background-image: url(/assets/bogus.png ) !important;
 }
 
+.zhwl {
+    background-image: url(/assets/zhwl16x16.png ) !important;
+}
 .printdata {
     background-image: url(/assets/printdata.png ) !important;
+}
+
+.zhwl-shortcut{
+    background-image: url(/assets/zhwl46x46.png ) !important;
 }
 
 .archiveman {

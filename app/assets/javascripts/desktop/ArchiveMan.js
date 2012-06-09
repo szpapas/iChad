@@ -6448,19 +6448,24 @@ Ext.define('MyDesktop.ArchiveMan', {
 			              waitMsg: '文件上传中...',
 			              success: function(form, action){
 			                var isSuc = action.result.success; 
+							
+							filename=myForm._fields.items[0].lastValue.split('\\');
+							
+							file=filename[filename.length-1];
+							//msg('sd',file)
 			                if (isSuc) {
 								//myForm._fields.items[0].lastValue
 								new Ajax.Request("/desktop/save_image_db", { 
 						    		method: "POST",
-							    	parameters: eval("({filename:'" + myForm._fields.items[0].lastValue + "',dh:'" + dh +"'})"),
+							    	parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
 							    	onComplete:	 function(request) {
-										if (request.responseText=='success'){
+										if (request.responseText=='true'){
 											
 											timage_store.load();
 											Ext.getCmp('timage_combo').lastQuery = null;
 							                msg('成功', '文件上传成功.');												
 										}else{
-											alert("文件上传失败，请重新上传。");
+											alert("文件上传失败，请重新上传。" + request.responseText);
 										}
 									}
 						    	});
@@ -6555,8 +6560,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			win = desktop.createWindow({
 				id: 'archiveman',
 				title:'档案管理',
-				x : 100,
-				y : 50,
+				
 				width:1200,
 				height:600,
 				iconCls: 'archiveman',
