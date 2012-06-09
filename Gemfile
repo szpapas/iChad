@@ -9,7 +9,7 @@ gem 'rails', '3.1.3'
 #gem 'sqlite3'
 gem 'pg'
 gem 'execjs'
-gem 'therubyracer'
+gem 'therubyracer', '0.9.10'
 
 gem 'mongrel'
 
@@ -30,6 +30,8 @@ end
 gem 'devise'
 
 gem 'jquery-rails'
+gem 'ruby-serialport'
+
 gem 'ruby-serialport'
 
 # To use ActiveModel has_secure_password
