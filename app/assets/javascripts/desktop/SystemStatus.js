@@ -139,7 +139,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'9',filter:"全部", dalb:""};
+    qzgl_store.proxy.extraParams={qzh:'8',filter:"全部", dalb:""};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -563,7 +563,7 @@ Ext.define('MyDesktop.SystemStatus', {
                        var dwdm  = Ext.getCmp('dwdm_id').getValue();
                        var dwjc  = Ext.getCmp('qzjc_id').getValue();
                        var qzsx  = Ext.getCmp('qzsx_id').getValue();
-                       var pars  = {qzh:qzh, dwdm:dwdm, dwjc:dwjc, qzdj:qzdj};
+                       var pars  = {qzh:qzh, dwdm:dwdm, dwjc:dwjc, qzsx:qzsx};
                        new Ajax.Request("/desktop/add_qzh2",{
                          method: "POST",
                          parameters: pars,
@@ -789,7 +789,7 @@ Ext.define('MyDesktop.SystemStatus', {
            id : 'qzh_field',
            name : 'qzh',
            width: 40,
-           value: '9',
+           value: '8',
            listeners:{
              'blur': function(field){
                qzgl_store.proxy.extraParams.qzh=field.getValue();
@@ -1019,7 +1019,8 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'a3',    type: 'string'},
         {name: 'a4',    type: 'string'},
         {name: 'dt',    type: 'string'},
-        {name: 'zt',    type: 'string'}
+        {name: 'zt',    type: 'string'},
+        {name: 'yx_path',    type: 'string'}
       ]
     });
 
@@ -1065,7 +1066,8 @@ Ext.define('MyDesktop.SystemStatus', {
     };
     
     var ajhRender = function(val) {
-      return '<a href="file:///c:/test" target= "_BLANK ">';
+      return '<a href="'+val+'" target="_BLANK">打开目录</a>';
+      <A HREF="newwindow.html" TARGET="_blank">a new window</A>
       //return '<a href="C:/Program%20Files/ACDSee/ACDSee.exe">打开目录</a>'
       //return  '<a href=\"#\" onclick=\"Run(\'file:///C:/Program%20Files/ACDSee/ACDSee.exe\')\">打开目录</a>'  
     };
@@ -1091,7 +1093,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '旧卷', align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
         { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
         { text : '状态', align:"center", width : 40, sortable : true, dataIndex: 'zt', renderer:ztRenderer},
-        { text : '打开', align:"center", width : 40, sortable : true, dataIndex: 'ajh', renderer:ajhRender},
+        { text : '打开', align:"center", width : 100, sortable : true, dataIndex: 'yx_path', renderer:ajhRender},
       ],
       //width :  800,
       //height : 350,
