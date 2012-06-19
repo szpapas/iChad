@@ -325,26 +325,27 @@ var print_lb_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
 	data : print_lb_data
 });
-Ext.regModel('qz_model', {
-	fields: [
-		{name: 'id',		type: 'integer'},
-		{name: 'dwdm',		type: 'string'}
-	]
-});
-var qz_store = Ext.create('Ext.data.Store', {
-		id:'qz_store',
-		model : 'qz_model',
-		proxy: {
-			type: 'ajax',
-			url : '/desktop/get_qz_grid',
-			//extraParams: {query:title},
-			reader: {
-				type: 'json',
-				root: 'rows',
-				totalProperty: 'results'
-			}
-		}				
-});
+   Ext.regModel('qz_model', {
+   	fields: [
+   		{name: 'id',		type: 'integer'},
+   		{name: 'dwdm',		type: 'string'}
+   	]
+   });
+   var qz_store = Ext.create('Ext.data.Store', {
+   		id:'qz_store',
+   		model : 'qz_model',
+   		proxy: {
+   			type: 'ajax',
+   			url : '/desktop/get_qz_grid',
+   			//extraParams: {query:title},
+   			reader: {
+   				type: 'json',
+   				root: 'rows',
+   				totalProperty: 'results'
+   			}
+   		}				
+   });
+   //qz_store.load();
 Ext.regModel('dalb_model', {
 	fields: [
 		{name: 'id',		type: 'integer'},
@@ -659,6 +660,7 @@ var DispAj_zh = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -1102,6 +1104,7 @@ var DispAj_cw = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid_cw').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -1539,7 +1542,7 @@ var DispAj_tddj = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_grid_tddj').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
@@ -1554,7 +1557,8 @@ var DispAj_tddj = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid_wsda').store.load();
+										Ext.getCmp('archive_grid_tddj').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -1938,56 +1942,56 @@ var DispAj_wsda = function(record,add_new,title){
 		//id: title,
 		id : 'com_document_grid',
 		store: com_document_store,
-		tbar:[
-			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
-				handler: function() {
-					var grid = Ext.getCmp('archive_grid_wsda');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
-
-				}
-			},
-			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
-				handler: function() {
-
-					var grid = Ext.getCmp('com_document_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-
-					var pars="id="+record.data.id;
-					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
-								if(id=="yes"){
-									new Ajax.Request("/desktop/delete_document", { 
-										method: "POST",
-										parameters: pars,
-										onComplete:	 function(request) {
-											Ext.getCmp('com_document_grid').store.load();
-
-										}
-									});
-								}else{
-									//alert('O,no');
-								}
-
-						});
-
-				}},
-			{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
-			handler: function() {
-				var grid  = this.ownerCt.ownerCt;
-				//alert(grid);
-					var store = grid.getStore(); 
-					var records = grid.getSelectionModel().getSelection();
-					var data = [];
-					Ext.Array.each(records,function(model){
-						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
-					});
-				}
-			}
-
-		],
+	 //  tbar:[
+	 //  	{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+	 //  		handler: function() {
+	 //  			var grid = Ext.getCmp('archive_grid_wsda');
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var record = records[0];
+	 //  			DispJr(record,true);
+     //
+	 //  		}
+	 //  	},
+	 //  	{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+	 //  		handler: function() {
+     //
+	 //  			var grid = Ext.getCmp('com_document_grid');
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var record = records[0];
+     //
+	 //  			var pars="id="+record.data.id;
+	 //  			Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+	 //  						if(id=="yes"){
+	 //  							new Ajax.Request("/desktop/delete_document", { 
+	 //  								method: "POST",
+	 //  								parameters: pars,
+	 //  								onComplete:	 function(request) {
+	 //  									Ext.getCmp('com_document_grid').store.load();
+     //
+	 //  								}
+	 //  							});
+	 //  						}else{
+	 //  							//alert('O,no');
+	 //  						}
+     //
+	 //  				});
+     //
+	 //  		}},
+	 //  	{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+	 //  	handler: function() {
+	 //  		var grid  = this.ownerCt.ownerCt;
+	 //  		//alert(grid);
+	 //  			var store = grid.getStore(); 
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var data = [];
+	 //  			Ext.Array.each(records,function(model){
+	 //  				data.push(Ext.JSON.encode(model.get('id')));
+	 //  				DispJr(model,false);
+	 //  			});
+	 //  		}
+	 //  	}
+     //
+	 //  ],
 		columns: [
 			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
@@ -2058,6 +2062,7 @@ var DispAj_wsda = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid_wsda').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -2637,6 +2642,7 @@ var DispAj_sx = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -3094,6 +3100,7 @@ var DispAj_tjml = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -3473,6 +3480,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -4028,6 +4036,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -4513,6 +4522,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -4957,6 +4967,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -5419,6 +5430,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -5860,6 +5872,7 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -6201,6 +6214,7 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -6485,6 +6499,7 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -6767,6 +6782,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										////Ext.getCmp('archive_tree')//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -7093,6 +7109,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 									if (request.responseText=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_tree').store.load();
 										Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
@@ -7396,8 +7413,20 @@ var DispJr = function(recordad,add_new){
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {
-										Ext.getCmp('document_grid').store.load();
-										Ext.getCmp('document_detail_win').close();
+										fhz=request.responseText.split(":")
+										if (fhz[0]=='success'){
+											alert("卷内修改成功。");
+											Ext.getCmp('document_grid').store.load();
+											Ext.getCmp('document_detail_win').close();												
+										}else{
+											if (fhz[0]=='false')
+											{
+												alert(fhz[1]);
+											}else
+											{
+												alert("卷内修改失败，请重新保存。"+request.responseText);
+											}
+										}
 									}
 								});}
 							else{
@@ -7405,8 +7434,21 @@ var DispJr = function(recordad,add_new){
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {
-										Ext.getCmp('document_grid').store.load();
-										Ext.getCmp('document_detail_win').close();
+										fhz=request.responseText.split(":")
+										if (fhz[0]=='success'){
+											alert("卷内新增成功。");
+											Ext.getCmp('document_grid').store.load();
+											Ext.getCmp('document_detail_win').close();												
+										}else{
+											if (fhz[0]=='false')
+											{
+												alert(fhz[1]);
+											}else
+											{
+												alert("卷内新增失败，请重新保存。"+request.responseText);
+											}
+										}
+										
 									}
 								});
 							}

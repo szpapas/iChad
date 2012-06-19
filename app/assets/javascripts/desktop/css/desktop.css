@@ -482,8 +482,15 @@
 .exit {
     background-image: url(/assets/borman/exit.png ) !important;
 }
-
-
+.refresh {
+    background-image: url(/assets/table_refresh.png ) !important;
+}
+.dksb {
+    background-image: url(/assets/fam/accept.png ) !important;
+}
+.jw {
+    background-image: url(/assets/table_remove.gif ) !important;
+}
 /*
   SettingMan
 */

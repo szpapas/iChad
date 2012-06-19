@@ -6398,9 +6398,19 @@ Ext.define('MyDesktop.ArchiveMan', {
 	
 		var treePanel = Ext.create('Ext.tree.Panel', {
 			store: store1,
+			id:'archive_tree',
 			rootVisible: false,
 			useArrows: true,
 			singleExpand: true,
+			tbar:[
+			{xtype:'button',text:'刷新目录',tooltip:'刷新目录',iconCls:'refresh',
+				handler: function() {
+					Ext.getCmp('archive_tree').store.load();
+					
+				}
+			}
+			],
+			
 			width: 200
 			
 		});
@@ -6561,8 +6571,10 @@ Ext.define('MyDesktop.ArchiveMan', {
 				id: 'archiveman',
 				title:'档案管理',
 				
-				width:1200,
+				width:1000,
 				height:600,
+				x:0,
+				y:0,
 				iconCls: 'archiveman',
 				animCollapse:false,
 				border: false,
@@ -6610,15 +6622,16 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 							],
 							bbar:[
-				              {
-				                text:'图像列表',
-				                tooltip:'',
-				                //iconCls:'add',
-				                handler: function() {
-				                  timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-				                  timage_store.load();
-				                }
-				              },{
+				          //   {
+				          //     text:'图像列表',
+				          //     tooltip:'',
+				          //     //iconCls:'add',
+				          //     handler: function() {
+				          //       timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+				          //       timage_store.load();
+				          //     }
+				          //   },
+								{
 				                xtype: 'combo',
 				                x: 130,
 				                y: 190,
@@ -6703,7 +6716,32 @@ Ext.define('MyDesktop.ArchiveMan', {
 				                  //LODOP.PREVIEW();
 								  LODOP.PRINT();
 				                }
-				              }
+				              },
+								{
+					                text: '删除图像',
+					                handler : function() {
+										if (dh!=''){
+											combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc
+											if (combo!=''){
+												var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";
+												new Ajax.Request("/desktop/delete_timage", {
+								                    method: "POST",
+								                    parameters: {yxmc:combo,dh:dh},
+								                    onComplete:  function(request) {
+								                      var path = request.responseText;
+								                      if (path == 'success') { 
+								                        timage_store.proxy.extraParams = {dh:dh, type:'0'};
+													    timage_store.load();
+														Ext.getCmp('timage_combo').lastQuery = null;
+								                      }
+								                    }
+												});
+											}
+											
+					                 
+					              }
+								}
+							}
 				            ],
 				            items:[{
 				              xtype: 'box', //或者xtype: 'component',

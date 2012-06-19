@@ -41,6 +41,18 @@ Ext.define('MyDesktop.Notepad', {
     createWindow : function(){
         var desktop = this.app.getDesktop();
         var win = desktop.getWindow('notepad');
+		qjms_id="";
+		qjms_name="";
+		var tjlx_data = [
+		 ['0','按设备'],
+		 ['1','按人员'],
+		 ['2','按设备类型']
+		];
+
+		var tjlx_store = new Ext.data.SimpleStore({
+			fields: ['value', 'text'],
+			data : tjlx_data
+		});
 		var myStore = new Ext.data.ArrayStore({
 
 		    fields: ['name', 'url'],idIndex: 0
@@ -179,7 +191,98 @@ Ext.define('MyDesktop.Notepad', {
 						}
 					}				
 			});
-			fj_store.load();
+			Ext.regModel('user_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'username',		type: 'string'}
+				]
+			});
+			var user_store = Ext.create('Ext.data.Store', {
+					id:'user_store',
+					model : 'user_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_user_grid',
+						//extraParams: {query:title},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			user_store.load();
+			
+			
+			
+			
+			Ext.regModel('sb_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'sbmc',		type: 'string'}
+				]
+			});
+			var sb_store = Ext.create('Ext.data.Store', {
+					id:'sb_store',
+					model : 'sb_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_user_sb_grid',
+						extraParams: {id:currentUser.id},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			sb_store.load();
+			
+			Ext.regModel('sb_cz_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'czsm',		type: 'string'}
+				]
+			});
+			var sb_cz_store = Ext.create('Ext.data.Store', {
+					id:'sb_cz_store',
+					model : 'sb_cz_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_sb_cz_grid',
+						//extraParams: {id:currentUser.id},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			sb_cz_store.load();
+			
+			
+			Ext.regModel('qjms_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'msmc',		type: 'string'}
+				]
+			});
+			var qjms_store = Ext.create('Ext.data.Store', {
+					id:'qjms_store',
+					model : 'qjms_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_qjms_grid',
+						extraParams: {query:currentUser.id},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
+			qjms_store.load();
+			
 	      	function getNodes(node,tf) {
 				//遍历所有子节点
 				if (node.childNodes.size() == 0) return;
@@ -193,6 +296,7 @@ Ext.define('MyDesktop.Notepad', {
 
 			};
 			function get_mlqx_NodesChecked(node) {
+				//insert_qx="";
 				//获取用户目录权限树
 				if (node.childNodes.size() == 0) return;
 				node.eachChild(function(n){
@@ -780,6 +884,7 @@ Ext.define('MyDesktop.Notepad', {
 						{name: 'ssfj',		type: 'integer'},
 						{name: 'kzl',		type: 'string'},
 						{name: 'gzl',		type: 'string'},
+						{name: 'sbh',		type: 'string'},
 						{name: 'kgzt',		type: 'string'}
 
 					]
@@ -813,8 +918,8 @@ Ext.define('MyDesktop.Notepad', {
 						{ text : '所属房间',	width : 100, sortable : true, dataIndex: 'fjmc'},
 						{ text : '所属楼层',	width : 100, sortable : true, dataIndex: 'lcmc'},
 						{ text : '所属楼宇',	width : 100, sortable : true, dataIndex: 'lymc'},
-						{ text : '开指令',	width : 100, sortable : true, dataIndex: 'kzl'},
-						{ text : '关指令',	width : 100, sortable : true, dataIndex: 'gzl'}
+						{ text : '设备号',	width : 50, sortable : true, dataIndex: 'sbh'}
+						
 						],
 						selType:'checkboxmodel',
 						//multiSelect:true,
@@ -859,6 +964,30 @@ Ext.define('MyDesktop.Notepad', {
 
 					Ext.getCmp('sb_cz_setup_grid').store.load();
 				});
+				loopable=false;
+				i =0;
+				function loopCheck(sf,lp) {
+
+				          //if (loopCheck == false) return;
+
+				          if (lp) {
+							loopable=true;
+				            //move to new position
+				            alert(i);
+							if (i>5){
+								loopable=false;
+							};
+				            //Set Delay
+				            i = i +1;
+				            
+				              sf = 0;
+				              td = 5*1000 ; //60s 
+				            
+
+				            var f = function() { loopCheck(sf,loopable); };
+				            var t = setTimeout(f,td);
+				          }
+				        };
 				if (win==null) {
 					win = new Ext.Window({
 						id : 'sb_cz_setup_win',
@@ -900,43 +1029,40 @@ Ext.define('MyDesktop.Notepad', {
 
 						tbar:[{
 							xtype: 'button',
-							iconCls: 'add',
+							iconCls: 'dksb',
 							text:'打开设备',
 							handler: function() {
-								//this.up('window').hide();
-								//var pars="kzzl=0a,0d,06,f2,50,22,00,01,63";
-								var grid = Ext.getCmp('sb_cz_setup_grid');
-								var records = grid.getSelectionModel().getSelection();
-								if (records.length==1){
-									var record = records[0];
-									if (record.data.kzl!=""){
-										var pars={kzzl:record.data.kzl,cz:1,sbid:record.data.id,userid:currentUser.id};
-										new Ajax.Request("/desktop/zn_kg_kz", { 
-											method: "POST",
-											parameters: pars,
-											onComplete:	 function(request) {
-												text=request.responseText.split(':');
-												if (request.responseText=='success'){
-													alert("设备打开成功。");																						
-													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-													Ext.getCmp('sb_cz_setup_grid').store.load();
-												}else{
-													if (text[0]=='false'){
-														alert(text[1]);
-													}else{
-														alert("设备打开失败。");
-													}
-												}
-
-											}
-										})
-									}else{
-										alert("此设备的开指令为空，请先设置。");
-									}
-
-								}else{
-									alert("请选择一个设备进行打开。");
-								}
+								loopCheck(1,true);
+							//	var grid = Ext.getCmp('sb_cz_setup_grid');
+							//	var records = grid.getSelectionModel().getSelection();
+							//	if (records.length==1){
+							//		var record = records[0];
+							//		
+							//			var pars={sbh:record.data.sbh,kzzl:record.data.kzl,cz:'开',sbid:record.data.id,userid:currentUser.id};
+							//			new Ajax.Request("/desktop/zn_kg_kz", { 
+							//				method: "POST",
+							//				parameters: pars,
+							//				onComplete:	 function(request) {
+							//					text=request.responseText.split(':');
+							//					if (request.responseText=='success'){
+							//						alert("设备打开成功。");																						
+							//						Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+							//						Ext.getCmp('sb_cz_setup_grid').store.load();
+							//					}else{
+							//						if (text[0]=='false'){
+							//							alert(text[1]);
+							//						}else{
+							//							alert("设备打开失败。");
+							//						}
+							//					}
+                            //
+							//				}
+							//			})
+							//		
+                            //
+							//	}else{
+							//		alert("请选择一个设备进行打开。");
+							//	}
 							}
 						},
 						{
@@ -949,8 +1075,8 @@ Ext.define('MyDesktop.Notepad', {
 								var records = grid.getSelectionModel().getSelection();
 								if (records.length==1){
 									var record = records[0];
-									if (record.data.gzl!=""){
-										var pars={kzzl:record.data.gzl,cz:2,sbid:record.data.id,userid:currentUser.id};
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'关',sbid:record.data.id,userid:currentUser.id};
 										new Ajax.Request("/desktop/zn_kg_kz", { 
 											method: "POST",
 											parameters: pars,
@@ -970,12 +1096,127 @@ Ext.define('MyDesktop.Notepad', {
 
 											}
 										})
-									}else{
-										alert("此设备的关指令为空，请先设置。");
-									}
+									
 
 								}else{
 									alert("请选择一个设备进行关闭。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'add',
+							text:'加温',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'加温',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (request.responseText=='success'){
+													alert("设备加温成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("设备加温失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个加温进行关闭。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'jw',
+							text:'减温',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'减温',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (request.responseText=='success'){
+													alert("设备减温成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("设备减温失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个设备进行减温。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'refresh',
+							text:'模式转换',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'模式转换',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (request.responseText=='success'){
+													alert("模式转换成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("模式转换失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个设备进行模式转换。");
 								}
 
 							}
@@ -996,6 +1237,7 @@ Ext.define('MyDesktop.Notepad', {
 
 				win.show();
 			};
+
 			var js_setup = function(){
 				var win = Ext.getCmp('js_setup_win');
 
@@ -1973,6 +2215,7 @@ Ext.define('MyDesktop.Notepad', {
 
 				win.show();
 			};
+
 			var fj_setup = function(){
 				var win = Ext.getCmp('fj_setup_win');
 
@@ -2189,20 +2432,7 @@ Ext.define('MyDesktop.Notepad', {
 									y: 130,
 									width: 100
 								},
-								{
-									xtype: 'label',
-									text: '开指令：',
-									x: 10,
-									y: 160,
-									width: 100
-								},
-								{
-									xtype: 'label',
-									text: '关指令：',
-									x: 10,
-									y: 190,
-									width: 100
-								},
+								
 								{
 									xtype: 'textfield',
 									hidden : true,
@@ -2300,23 +2530,8 @@ Ext.define('MyDesktop.Notepad', {
 									listConfig: { loadMask: false },
 									name: 'ssfj',
 									id:'sb_ssfj'
-								},
-								{
-									xtype: 'textfield',
-									x: 130,
-									y: 160,
-									width: 200,
-									name: 'kzl',
-									id:'sb_kzl'
-								},
-								{
-									xtype: 'textfield',
-									x: 130,
-									y: 190,
-									width: 200,
-									name: 'gzl',
-									id:'sb_gzl'
 								}
+								
 
 
 							],
@@ -2424,6 +2639,7 @@ Ext.define('MyDesktop.Notepad', {
 						{name: 'fjmc',		type: 'string'},
 						{name: 'ssfj',		type: 'integer'},
 						{name: 'kzl',		type: 'string'},
+						{name: 'sbh',		type: 'string'},
 						{name: 'gzl',		type: 'string'}
 
 					]
@@ -2456,8 +2672,7 @@ Ext.define('MyDesktop.Notepad', {
 						{ text : '所属房间',	width : 100, sortable : true, dataIndex: 'fjmc'},
 						{ text : '所属楼层',	width : 100, sortable : true, dataIndex: 'lcmc'},
 						{ text : '所属楼宇',	width : 100, sortable : true, dataIndex: 'lymc'},
-						{ text : '开指令',	width : 100, sortable : true, dataIndex: 'kzl'},
-						{ text : '关指令',	width : 100, sortable : true, dataIndex: 'gzl'}
+						{ text : '设备号',	width : 100, sortable : true, dataIndex: 'sbh'}
 						],
 						selType:'checkboxmodel',
 						//multiSelect:true,
@@ -2530,7 +2745,7 @@ Ext.define('MyDesktop.Notepad', {
 								}else{
 									var record = records[0];
 									var pars="id="+record.data.id;
-									Ext.Msg.confirm("提示信息","是否要删除设备名称为：！"+record.data.fjmc+"的设备？",function callback(id){
+									Ext.Msg.confirm("提示信息","是否要删除设备名称为：！"+record.data.sbmc+"的设备？",function callback(id){
 												if(id=="yes"){
 													new Ajax.Request("/desktop/delete_zn_sb", { 
 														method: "POST",
@@ -2574,6 +2789,800 @@ Ext.define('MyDesktop.Notepad', {
 
 				win.show();
 			};	
+
+			var qjms_disp = function(record,add_new){
+				var win = Ext.getCmp('qjms_disp_win');
+
+				//qz_store.load();
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'qjms_disp_win',
+						title: '修改情景模式',
+						//closeAction: 'hide',
+						width: 370,
+						height: 150,
+						//minHeight: 200,
+						layout: 'fit',
+						modal: true,
+						plain: true,
+						//items:user_setup_grid,					
+						items: [{
+							width: 370,
+							height: 150,
+							xtype:'form',
+							layout: 'absolute',
+							id : 'qjms_disp_form',
+							items: [
+								{
+									xtype: 'label',
+									text: '情景模式名称：',
+									x: 10,
+									y: 10,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '所属人员：',
+									x: 10,
+									y: 40,
+									width: 100
+								},
+								{
+									xtype: 'textfield',
+									hidden : true,
+									name : 'id' ,
+									id:'qjms_id'										
+								},
+
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 10,
+									width: 200,
+									name: 'msmc',
+									id:'qjms_msmc'
+								},
+								
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 40,
+									width: 200,
+									store: user_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'username',
+									triggerAction:'all',
+									name: 'userid',
+									id:'qjms_userid'
+
+								}
+
+
+							],
+							buttons:[{
+									xtype: 'button',
+									iconCls: 'option',
+									id:'button_qz_add',
+									text:'修改',
+									handler: function() {
+										var pars=this.up('panel').getForm().getValues();
+										if(pars['sbmc']!=''){
+											if(pars['sbsm']!=''){
+												if(pars['sbly']!=''){
+													if(add_new==false){
+														new Ajax.Request("/desktop/update_zn_qjms", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (request.responseText=='success'){
+
+																	Ext.getCmp('qjms_disp_win').close();
+
+																	Ext.getCmp('qjms_setup_grid').store.url='/desktop/get_zn_qjms_grid';
+																	Ext.getCmp('qjms_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("修改失败。");
+																	}
+																}
+
+															}
+														});
+													}else{
+														new Ajax.Request("/desktop/insert_zn_qjms", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (text[0]=='success'){
+
+																	Ext.getCmp('qjms_disp_win').close();
+																	Ext.getCmp('qjms_setup_grid').store.url='/desktop/get_zn_qjms_grid';
+																	Ext.getCmp('qjms_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("新增失败。");
+																	}
+																}
+															}
+														});
+													}
+												}else{
+													alert("所属楼宇不能为空。");
+												}
+											}else{
+												alert("设备说明不能为空。");
+											}
+										}else{
+											alert("设备名称不能为空。");
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									iconCls: 'exit',
+									text:'退出',
+									handler: function() {
+										//this.up('window').hide();
+										Ext.getCmp('qjms_disp_win').close();
+									}
+								}]
+						}]
+
+					});
+				}
+				if(add_new==false){
+				//设置数据
+					Ext.getCmp('qjms_disp_form').getForm().setValues(record.data);
+
+				}else{
+					Ext.getCmp('qjms_disp_win').title="新增情景模式";
+					Ext.getCmp('button_qz_add').text="新增";
+					Ext.getCmp('button_qz_add').iconCls="add";
+				}
+
+				win.show();
+			};
+			var qjms_setup = function(){
+				var win = Ext.getCmp('qjms_setup_win');
+
+				Ext.regModel('qjms_setup_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'msmc',		type: 'string'},
+						{name: 'userid',		type: 'integer'},
+						{name: 'username',		type: 'string'}
+						
+
+					]
+				});
+
+				var qjms_setup_store = Ext.create('Ext.data.Store', {
+					id:'qjms_setup_store',
+					model : 'qjms_setup_model',
+					autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_zn_qjms_grid',
+						//extraParams: cx_tj,
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+					//sortInfo:{field: 'level4', direction: "ASC"},
+					//baseParams: {start:0, limit:25, query:""}
+				});
+				var qjms_setup_grid = new Ext.grid.GridPanel({
+					id : 'qjms_setup_grid',
+					store: qjms_setup_store,				
+					columns: [
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+						{ text : '情景模式名称',	width : 100, sortable : true, dataIndex: 'msmc'},
+						{ text : '所属人员',	width : 150, sortable : true, dataIndex: 'username'}
+						
+						],
+						selType:'checkboxmodel',
+						//multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									var tt=r.get("zrq");
+
+									//DispAj(r,false);
+								}
+							}
+						},
+
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'qjms_setup_win',
+						title: '情景模式名称设置',
+						//closeAction: 'hide',
+						width: 670,
+						x : 300,
+						y : 50,
+						height: 500,
+						minHeight: 500,
+						layout: 'fit',
+						//modal: true,
+						plain: true,
+						items:qjms_setup_grid,					
+						tbar:[{
+							xtype: 'button',
+							iconCls: 'add',
+							text:'新增',
+							handler: function() {
+								//this.up('window').hide();
+
+								qjms_disp("record",true);
+							}
+						},
+
+						{
+							xtype: 'button',
+							iconCls: 'option',
+							text:'修改',
+							handler: function() {
+								//this.up('window').hide();
+
+								var grid = Ext.getCmp('qjms_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									qjms_disp(record,false);
+								}else{
+									alert("请选择一个情景模式进行修改。");
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'delete',
+							text:'删除',
+							handler: function() {
+								var grid = Ext.getCmp('qjms_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==0){
+									alert("请选择一个情景模式进行删除。");
+
+								}else{
+									var record = records[0];
+									var pars="id="+record.data.id;
+									Ext.Msg.confirm("提示信息","是否要删除情景模式名称为：！"+record.data.fjmc+"的情景模式？",function callback(id){
+												if(id=="yes"){
+													new Ajax.Request("/desktop/delete_qjms", { 
+														method: "POST",
+														parameters: pars,
+														onComplete:	 function(request) {
+															text=request.responseText.split(':');
+															if (request.responseText=='success'){
+																Ext.getCmp('qjms_setup_grid').store.url='/desktop/get_qjms_grid';
+																Ext.getCmp('qjms_setup_grid').store.load();
+															}else{
+																if (text[0]=='false'){
+																	alert(text[1]);
+																}else{
+																	alert("删除失败。");
+																}
+
+															}
+														}
+													});
+												}else{
+													//alert('O,no');
+												}
+
+										});	
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'exit',
+							text:'退出',
+							handler: function() {
+								//this.up('window').hide();
+								Ext.getCmp('qjms_setup_win').close();
+							}
+						}]
+
+					});
+				}
+
+
+				win.show();
+			};	
+
+
+			var qjms_sb_cz_setup = function(){
+				var win = Ext.getCmp('qjms_sb_cz_setup_win');
+
+				Ext.regModel('qjms_sb_cz_setup_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'sbmc',		type: 'string'},
+						{name: 'sbid',		type: 'integer'},
+						{name: 'qjmsid',		type: 'integer'},
+						{name: 'sbczid',		type: 'integer'},
+						{name: 'czsm',		type: 'string'},
+						{name: 'msmc',		type: 'string'}
+
+					]
+				});
+
+				var qjms_sb_cz_setup_store = Ext.create('Ext.data.Store', {
+					id:'qjms_sb_cz_setup_store',
+					model : 'qjms_sb_cz_setup_model',
+					autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_zn_qjms_sb_cz_grid',
+						extraParams: {query:""},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+					//sortInfo:{field: 'level4', direction: "ASC"},
+					//baseParams: {start:0, limit:25, query:""}
+				});
+				var qjms_sb_cz_setup_grid = new Ext.grid.GridPanel({
+					id : 'qjms_sb_cz_setup_grid',
+					store: qjms_sb_cz_setup_store,				
+					columns: [
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+						{ text : '设备名称',	width : 70, sortable : true, dataIndex: 'sbmc'},
+						{ text : '操作说明',	width : 70, sortable : true, dataIndex: 'czsm'},
+						{ text : '情景模式',	width : 100, sortable : true, dataIndex: 'msmc'}
+						
+						],
+						selType:'checkboxmodel',
+						//multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									var tt=r.get("zrq");
+
+									//DispAj(r,false);
+								}
+							}
+						},
+
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+
+				var qjms_tree_store	= Ext.create('Ext.data.TreeStore', {
+						autoLoad: true,
+						proxy: {
+								type: 'ajax',
+								url: 'desktop/get_qjms_tree',
+								extraParams: {userid:currentUser.id},
+								actionMethods: 'POST'
+						}
+				});	
+				var qjms_tree_panel = Ext.create('Ext.tree.Panel', {
+					id : 'qjms_tree_panel',
+					store: qjms_tree_store,
+					rootVisible:false,
+					useArrows: true,
+					singleExpand: true,
+					width: 200,
+					listeners:{
+						checkchange:function(node,checked,option){
+							if(checked){
+								root=Ext.getCmp('qjms_tree_panel').store.getRootNode();			
+								getNodes(root,false);
+								node.data.checked=true;
+								node.updateInfo({checked:true});
+								data=node.data;
+								qjms_id=data.id;
+								qjms_name=data.text;
+								Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
+								Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
+								Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
+
+								Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
+							}
+						}
+					}
+
+				});
+			//   qjms_tree_panel.on("select",function(node){ 
+			//   	data = node.selected.items[0].data;	 // data.id, data.parent, data.text, data.leaf
+			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
+			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
+			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
+            //
+			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
+			//   });
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'qjms_sb_cz_setup_win',
+						title: '情景模式设备操作设置',
+						x : 300,
+						y : 50,
+						width: 670,
+						height: 500,
+						minHeight: 500,
+						layout: 'border',
+						//modal: true,
+						plain: true,					
+						items: [
+							{	title:'情景模式树',
+								region:'west',
+								iconCls:'users',
+								xtype:'panel',
+								margins:'0 0 0 0',
+								width: 200,
+								collapsible:true,//可以被折叠							
+								layout:'fit',
+								split:true,
+								items:qjms_tree_panel
+
+							},
+							{	title:'设备操作列表',
+								region:'center',
+								iconCls:'dept_tree',
+								xtype:'panel',
+								margins:'0 0 0 0',
+								//width: 250,
+								//collapsible:true,//可以被折叠						
+								//id:'user-qx-tree',
+								layout:'fit',
+								split:true,
+								items:qjms_sb_cz_setup_grid
+							}
+						],
+
+						tbar:[{
+							xtype: 'button',
+							iconCls: 'add',
+							text:'新增设备操作',
+							handler: function() {
+								//this.up('window').hide();
+
+								qjms_sb_cz_disp("record",true);
+							}
+						},
+
+						{
+							xtype: 'button',
+							iconCls: 'option',
+							text:'修改设备操作',
+							handler: function() {
+								//this.up('window').hide();
+
+								var grid = Ext.getCmp('qjms_sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									qjms_sb_cz_disp(record,false);
+								}else{
+									alert("请选择一个设备操作进行修改。");
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'delete',
+							text:'删除设备操作',
+							handler: function() {
+								var grid = Ext.getCmp('qjms_sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==0){
+									alert("请选择一个设备操作进行删除。");
+
+								}else{
+									var record = records[0];
+									var pars="id="+record.data.id;
+									Ext.Msg.confirm("提示信息","是否要删除设备名称为：！"+record.data.sbmc+"的" + record.data.czsm + "操作？",function callback(id){
+												if(id=="yes"){
+													new Ajax.Request("/desktop/zn_qjms_sb_cz", { 
+														method: "POST",
+														parameters: pars,
+														onComplete:	 function(request) {
+															text=request.responseText.split(':');
+															if (request.responseText=='success'){
+																Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
+																Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
+															}else{
+																if (text[0]=='false'){
+																	alert(text[1]);
+																}else{
+																	alert("删除失败。");
+																}
+
+															}
+														}
+													});
+												}else{
+													//alert('O,no');
+												}
+
+										});
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'save',
+							text:'运行情景模式',
+							handler: function() {
+								var grid = Ext.getCmp('qjms_sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (qjms_id==""){
+									alert("请选择一个情意模式进行操作。");
+
+								}else{
+									Ext.Msg.confirm("提示信息","是否要开启名称为：！"+qjms_name+"的情景模式？",function callback(id){
+												if(id=="yes"){
+													new Ajax.Request("/desktop/insert_zn_sb_cz", { 
+														method: "POST",
+														parameters: {qjms_id:qjms_id},
+														onComplete:	 function(request) {
+															text=request.responseText.split(':');
+															if (request.responseText=='success'){
+																alert("正在开启。");
+															}else{
+																if (text[0]=='false'){
+																	alert(text[1]);
+																}else{
+																	alert("开启失败。");
+																}
+
+															}
+														}
+													});
+												}else{
+													//alert('O,no');
+												}
+
+										});
+									
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'exit',
+							text:'退出',
+							handler: function() {
+								//this.up('window').hide();
+								Ext.getCmp('qjms_sb_cz_setup_win').close();
+							}
+						}]
+
+					});
+				}
+
+
+				win.show();
+			};
+
+			var qjms_sb_cz_disp = function(record,add_new){
+				var win = Ext.getCmp('qjms_sb_cz_disp_win');
+
+				//qz_store.load();
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'qjms_sb_cz_disp_win',
+						title: '修改情景模式设备操作',
+						//closeAction: 'hide',
+						width: 370,
+						height: 210,
+						//minHeight: 200,
+						layout: 'fit',
+						modal: true,
+						plain: true,
+						//items:user_setup_grid,					
+						items: [{
+							width: 370,
+							height: 140,
+							xtype:'form',
+							layout: 'absolute',
+							id : 'qjms_sb_cz_disp_form',
+							items: [
+								{
+									xtype: 'label',
+									text: '情景模式名称：',
+									x: 10,
+									y: 10,
+									width: 100
+								},
+								
+								{
+									xtype: 'label',
+									text: '设备名称：',
+									x: 10,
+									y: 40,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '设备操作：',
+									x: 10,
+									y: 70,
+									width: 100
+								},
+								{
+									xtype: 'textfield',
+									hidden : true,
+									name : 'id' ,
+									id:'qjms_sb_cz_id'										
+								},
+
+								
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 10,
+									width: 200,
+									store: qjms_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'msmc',
+									//triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'qjmsid',
+									id:'qjms_sb_cz_qjmsid'
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 40,
+									width: 200,
+									store: sb_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'sbmc',
+									triggerAction:'all',
+									name: 'sbid',
+									id:'qjms_sb_cz_sbid',
+									listConfig: { loadMask: false },
+									listeners:{  
+									  select:function(combo, record,index){
+
+									//userAdd = record.data.name;
+										var parent=Ext.getCmp('qjms_sb_cz_sbczid');
+
+										parent.clearValue();
+
+										parent.store.load({params:{sbid:this.value}});
+										//Ext.getCmp('fj_sslc').lastQuery = null;
+										}
+
+									}
+
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 70,
+									width: 200,
+									store: sb_cz_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'czsm',
+									triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'sbczid',
+									id:'qjms_sb_cz_sbczid'
+								}
+
+							],
+							buttons:[{
+									xtype: 'button',
+									iconCls: 'option',
+									id:'button_qz_add',
+									text:'修改',
+									handler: function() {
+										var pars=this.up('panel').getForm().getValues();
+										if(pars['sbczid']!=''){
+											if(pars['sbid']!=''){
+												if(pars['qjmsid']!=''){
+													if(add_new==false){
+														new Ajax.Request("/desktop/update_zn_qjms_sb_cz", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (request.responseText=='success'){
+
+																	Ext.getCmp('qjms_sb_cz_disp_win').close();
+
+																	Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
+																	Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("修改失败。");
+																	}
+																}
+
+															}
+														});
+													}else{
+														new Ajax.Request("/desktop/insert_zn_qjms_sb_cz", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (text[0]=='success'){
+
+																	Ext.getCmp('qjms_sb_cz_disp_win').close();
+																	Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
+																	Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("新增失败。");
+																	}
+																}
+															}
+														});
+													}
+												}else{
+													alert("情景模式不能为空。");
+												}
+											}else{
+												alert("设备不能为空。");
+											}
+										}else{
+											alert("设备操作不能为空。");
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									iconCls: 'exit',
+									text:'退出',
+									handler: function() {
+										//this.up('window').hide();
+										Ext.getCmp('qjms_sb_cz_disp_win').close();
+									}
+								}]
+						}]
+
+					});
+				}
+				if(add_new==false){
+				//设置数据
+					Ext.getCmp('qjms_sb_cz_disp_form').getForm().setValues(record.data);
+
+				}else{
+					Ext.getCmp('qjms_sb_cz_disp_win').title="新增情景模式设备操作";
+					Ext.getCmp('button_qz_add').text="新增";
+					Ext.getCmp('button_qz_add').iconCls="add";
+				}
+
+				win.show();
+			};
+
 
 			var cz_rz_setup = function(){
 				var win = Ext.getCmp('cz_rz_setup_win');
@@ -2744,6 +3753,719 @@ Ext.define('MyDesktop.Notepad', {
 			};	
 
 
+			var sb_nx_setup = function(){
+				var win = Ext.getCmp('sb_nx_setup_win');
+
+				Ext.regModel('sb_nx_setup_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'czsm',		type: 'string'},
+						{name: 'czid',		type: 'integer'},
+						
+						{name: 'sbmc',		type: 'string'}
+						
+
+					]
+				});
+
+				var sb_nx_setup_store = Ext.create('Ext.data.Store', {
+					id:'sb_nx_setup_store',
+					model : 'sb_nx_setup_model',
+					autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_sb_nx_grid',
+						//extraParams: cx_tj,
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+					//sortInfo:{field: 'level4', direction: "ASC"},
+					//baseParams: {start:0, limit:25, query:""}
+				});
+				var sb_nx_setup_grid = new Ext.grid.GridPanel({
+					id : 'sb_nx_setup_grid',
+					store: sb_nx_setup_store,				
+					columns: [
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+						{ text : '操作说明',	width : 100, sortable : true, dataIndex: 'czsm',renderer:ztRender},
+						{ text : '设备名称',	width : 150, sortable : true, dataIndex: 'sbmc'}
+						
+						],
+						selType:'checkboxmodel',
+						//multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									var tt=r.get("zrq");
+
+									//DispAj(r,false);
+								}
+							}
+						},
+
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'sb_nx_setup_win',
+						title: '设备轮巡设置',
+						//closeAction: 'hide',
+						width: 670,
+						x : 300,
+						y : 50,
+						height: 500,
+						minHeight: 500,
+						layout: 'fit',
+						//modal: true,
+						plain: true,
+						items:sb_nx_setup_grid,					
+						tbar:[{
+							xtype: 'button',
+							iconCls: 'add',
+							text:'新增',
+							handler: function() {
+								//this.up('window').hide();
+
+								sb_nx_disp("record",true);
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'option',
+							text:'修改',
+							handler: function() {
+								//this.up('window').hide();
+
+								var grid = Ext.getCmp('sb_nx_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									sb_nx_disp(record,false);
+								}else{
+									alert("请选择一个设备轮巡进行修改。");
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'delete',
+							text:'删除',
+							handler: function() {
+								var grid = Ext.getCmp('sb_nx_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==0){
+									alert("请选择一个设备轮巡进行删除。");
+
+								}else{
+									var record = records[0];
+									var pars="id="+record.data.id;
+									Ext.Msg.confirm("提示信息","是否要把名称为："+record.data.sbmc+"从轮巡中的删除？",function callback(id){
+												if(id=="yes"){
+													new Ajax.Request("/desktop/delete_sb_nx", { 
+														method: "POST",
+														parameters: pars,
+														onComplete:	 function(request) {
+															text=request.responseText.split(':');
+															if (request.responseText=='success'){
+																Ext.getCmp('sb_nx_setup_grid').store.url='/desktop/get_sb_nx_grid';
+																Ext.getCmp('sb_nx_setup_grid').store.load();
+															}else{
+																if (text[0]=='false'){
+																	alert(text[1]);
+																}else{
+																	alert("删除失败。");
+																}
+
+															}
+														}
+													});
+												}else{
+													//alert('O,no');
+												}
+
+										});	
+								}
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'exit',
+							text:'退出',
+							handler: function() {
+								//this.up('window').hide();
+								Ext.getCmp('sb_nx_setup_win').close();
+							}
+						}]
+
+					});
+				}
+
+
+				win.show();
+			};	
+			var sb_nx_disp = function(record,add_new){
+				var win = Ext.getCmp('sb_nx_disp_win');
+
+				//qz_store.load();
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'sb_nx_disp_win',
+						title: '修改设备轮巡操作',
+						//closeAction: 'hide',
+						width: 370,
+						height: 140,
+						//minHeight: 200,
+						layout: 'fit',
+						modal: true,
+						plain: true,
+						//items:user_setup_grid,					
+						items: [{
+							width: 370,
+							height: 140,
+							xtype:'form',
+							layout: 'absolute',
+							id : 'sb_nx_disp_form',
+							items: [
+								
+								
+								{
+									xtype: 'label',
+									text: '设备名称：',
+									x: 10,
+									y: 10,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '设备操作：',
+									x: 10,
+									y: 40,
+									width: 100
+								},
+								{
+									xtype: 'textfield',
+									hidden : true,
+									name : 'id' ,
+									id:'sb_nx_id'										
+								},
+
+								
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 10,
+									width: 200,
+									store: sb_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'sbmc',
+									triggerAction:'all',
+									name: 'sbid',
+									id:'sb_nx_sbid',
+									listConfig: { loadMask: false },
+									listeners:{  
+									  select:function(combo, record,index){
+
+									//userAdd = record.data.name;
+										var parent=Ext.getCmp('sb_nx_sbczid');
+
+										parent.clearValue();
+
+										parent.store.load({params:{sbid:this.value}});
+										//Ext.getCmp('fj_sslc').lastQuery = null;
+										}
+
+									}
+
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 40,
+									width: 200,
+									store: sb_cz_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'czsm',
+									triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'sbczid',
+									id:'sb_nx_sbczid'
+								}
+
+							],
+							buttons:[{
+									xtype: 'button',
+									iconCls: 'option',
+									id:'button_qz_add',
+									text:'修改',
+									handler: function() {
+										var pars=this.up('panel').getForm().getValues();
+										if(pars['sbczid']!=''){
+											if(pars['sbid']!=''){
+												
+													if(add_new==false){
+														new Ajax.Request("/desktop/update_sb_nx", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (request.responseText=='success'){
+
+																	Ext.getCmp('sb_nx_disp_win').close();
+
+																	Ext.getCmp('sb_nx_setup_grid').store.url='/desktop/get_sb_nx_grid';
+																	Ext.getCmp('sb_nx_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("修改失败。");
+																	}
+																}
+
+															}
+														});
+													}else{
+														new Ajax.Request("/desktop/insert_sb_nx", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (text[0]=='success'){
+
+																	Ext.getCmp('sb_nx_disp_win').close();
+																	Ext.getCmp('sb_nx_setup_grid').store.url='/desktop/get_sb_nx_grid';
+																	Ext.getCmp('sb_nx_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("新增失败。");
+																	}
+																}
+															}
+														});
+													}
+												
+												
+											}else{
+												alert("设备不能为空。");
+											}
+										}else{
+											alert("设备操作不能为空。");
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									iconCls: 'exit',
+									text:'退出',
+									handler: function() {
+										//this.up('window').hide();
+										Ext.getCmp('sb_nx_disp_win').close();
+									}
+								}]
+						}]
+
+					});
+				}
+				if(add_new==false){
+				//设置数据
+					Ext.getCmp('sb_nx_disp_form').getForm().setValues(record.data);
+
+				}else{
+					Ext.getCmp('sb_nx_disp_win').title="新增轮巡设备操作";
+					Ext.getCmp('button_qz_add').text="新增";
+					Ext.getCmp('button_qz_add').iconCls="add";
+				}
+
+				win.show();
+			};
+
+			var sb_gl_tj_setup = function(){
+				var win = Ext.getCmp('sb_gl_tj_setup_win');
+				tjxl=0;
+				Ext.regModel('sb_gl_tj_setup_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'czsm',		type: 'string'},
+						{name: 'czid',		type: 'integer'},
+						{name: 'id',		type: 'integer'},
+						{name: 'userid',		type: 'integer'},
+						{name: 'sbmc',		type: 'string'},
+						{name: 'shgl',		type: 'string'},
+						{name: 'wdz',		type: 'string'},
+						{name: 'sdz',		type: 'string'},
+						{name: 'dlz',		type: 'string'},
+						{name: 'fjmc',		type: 'string'},
+						{name: 'lcmc',		type: 'string'},
+						{name: 'lymc',		type: 'string'},
+						{name: 'zsj',		type: 'string',stringFormat: '0.00'},
+						{name: 'rq',		type: 'date', dateFormat: 'Y-m-d H:i:s'}
+					]
+				});
+
+				var sb_gl_tj_setup_store = Ext.create('Ext.data.Store', {
+					id:'sb_gl_tj_setup_store',
+					model : 'sb_gl_tj_setup_model',
+					//autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_sb_gl_tj_grid',
+						//extraParams: cx_tj,
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+				});
+				var sb_gl_tj_setup_grid = new Ext.grid.GridPanel({
+					id : 'sb_gl_tj_setup_grid',
+					store: sb_gl_tj_setup_store,				
+					columns: [
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},						
+						{ text : '名称',	width : 150, sortable : true, dataIndex: 'sbmc'},
+						{ text : '所耗功率',	width : 50, sortable : true, dataIndex: 'shgl'},
+						{ text : '使用时间',	width : 50, sortable : true, dataIndex: 'zsj'},
+						{ text : '房间名称',	width : 50, sortable : true, dataIndex: 'fjmc'},
+						{ text : '楼层名称',	width : 50, sortable : true, dataIndex: 'lcmc'},
+						{ text : '楼宇名称',	width : 100, sortable : true, dataIndex: 'lymc'}				
+						
+						],
+						selType:'checkboxmodel',
+						//multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									//var tt=r.get("zrq");
+									if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
+										if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
+											Ext.getCmp("chartCmp").axes.items[0].title="功率（瓦）"
+											Ext.getCmp("chartCmp").axes.items[1].title="时间（小时）"
+											sb_gl_tj_zz_store.proxy.extraParams={qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue,sbid:r.get('id')}
+											sb_gl_tj_zz_store.load();
+											}else{
+												alert("起日期不能为空。");
+											}
+										}else{
+											alert("止日期不能为空。");
+										}	
+									//DispAj(r,false);
+								}
+							}
+						},
+
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+				Ext.regModel('sb_kg_tj_setup_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						{name: 'czsm',		type: 'string'},
+						{name: 'czid',		type: 'integer'},
+						{name: 'id',		type: 'integer'},
+						{name: 'userid',		type: 'integer'},
+						{name: 'sbmc',		type: 'string'},
+						{name: 'shgl',		type: 'string'},
+						{name: 'kgcs',		type: 'integer'},
+						{name: 'wdz',		type: 'string'},
+						{name: 'sdz',		type: 'string'},
+						{name: 'dlz',		type: 'string'},
+						{name: 'fjmc',		type: 'string'},
+						{name: 'lcmc',		type: 'string'},
+						{name: 'lymc',		type: 'string'},
+						{name: 'zsj',		type: 'string',stringFormat: '0.00'},
+						{name: 'rq',		type: 'date', dateFormat: 'Y-m-d H:i:s'}
+					]
+				});
+
+				var sb_kg_tj_setup_store = Ext.create('Ext.data.Store', {
+					id:'sb_kg_tj_setup_store',
+					model : 'sb_kg_tj_setup_model',
+					//autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_sb_kg_tj_grid',
+						//extraParams: cx_tj,
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+				});
+				var sb_kg_tj_setup_grid = new Ext.grid.GridPanel({
+					id : 'sb_kg_tj_setup_grid',
+					store: sb_kg_tj_setup_store,				
+					columns: [
+						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},						
+						{ text : '设备名称',	width : 150, sortable : true, dataIndex: 'sbmc'},
+						{ text : '开关次数',	width : 50, sortable : true, dataIndex: 'kgcs'},
+						
+						{ text : '房间名称',	width : 50, sortable : true, dataIndex: 'fjmc'},
+						{ text : '楼层名称',	width : 50, sortable : true, dataIndex: 'lcmc'},
+						{ text : '楼宇名称',	width : 100, sortable : true, dataIndex: 'lymc'}				
+						
+						],
+						selType:'checkboxmodel',
+						//multiSelect:true,
+						listeners:{
+							itemdblclick:{
+								fn:function(v,r,i,n,e,b){
+									//var tt=r.get("zrq");
+									if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
+										if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
+											Ext.getCmp("chartCmp").axes.items[0].title="开关次数"
+											Ext.getCmp("chartCmp").axes.items[1].title="时间（小时）"
+											sb_gl_tj_zz_store.proxy.extraParams={qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue,sbid:r.get('id')}
+											sb_gl_tj_zz_store.load();
+											}else{
+												alert("起日期不能为空。");
+											}
+										}else{
+											alert("止日期不能为空。");
+										}	
+									//DispAj(r,false);
+								}
+							}
+						},
+
+					viewConfig: {
+						stripeRows:true
+					}
+				});
+				Ext.regModel('sb_gl_tj_zz_model', {
+					fields: [
+						{name: 'id',		type: 'integer'},
+						
+						{name: 'name',		type: 'string'},
+						{name: 'data1',		type: 'string'},
+						{name: 'userid',		type: 'integer'},
+						{name: 'sbmc',		type: 'string'},
+						{name: 'shgl',		type: 'string'},
+						{name: 'wdz',		type: 'string'},
+						{name: 'sdz',		type: 'string'},
+						{name: 'dlz',		type: 'string'},
+						{name: 'fjmc',		type: 'string'},
+						{name: 'lcmc',		type: 'string'},
+						{name: 'lymc',		type: 'string'},
+						{name: 'zsj',		type: 'string',stringFormat: '0.00'},
+						{name: 'rq',		type: 'date', dateFormat: 'Y-m-d H:i:s'}
+
+					]
+				});
+				var sb_gl_tj_zz_store = Ext.create('Ext.data.Store', {
+					id:'sb_gl_tj_zz_store',
+					model : 'sb_gl_tj_zz_model',
+					//autoLoad: true,
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_sb_gl_tj_zz_grid',
+						//extraParams: cx_tj,
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}
+					//sortInfo:{field: 'level4', direction: "ASC"},
+					//baseParams: {start:0, limit:25, query:""}
+				});
+				var sb_gl_tj_tab = Ext.createWidget('tabpanel', {
+			        
+			        activeTab: 0,
+			        width: 600,
+			        height: 250,
+					margins:'5 2 5 5',
+			        plain: true,
+			        defaults :{
+			            autoScroll: true,
+			            bodyPadding: 10
+			        },
+			        items: [{
+			                title: '设备功率统计',
+							margins:'5 2 5 5',
+			                items:sb_gl_tj_setup_grid,
+							listeners: {
+			                    activate: function(tab){
+			                        tjlx=0;
+			                    }
+			                }
+			            },{
+			                title: '设备开关统计',
+			                items:sb_kg_tj_setup_grid,
+			                listeners: {
+			                    activate: function(tab){
+			                        tjlx=1;
+			                    }
+			                }
+			            }
+			        ]
+			    });
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'sb_gl_tj_setup_win',
+						title: '设备功率统计',
+						//closeAction: 'hide',
+						width: 670,
+						x : 300,
+						y : 50,
+						height: 500,
+						minHeight: 500,
+						layout: 'border',
+						//modal: true,
+						plain: true,
+						items:[{
+								id:'title',
+								region: 'center',
+								//height: 200,
+								layout: 'fit',
+								split:true,
+								margins:'5 2 5 5',
+								items: sb_gl_tj_tab
+							},{
+								region: 'south',
+								iconCls:'icon-grid',
+								layout: 'fit',
+								height: 150,
+								split: true,
+								collapsible: true,
+								title: '设备分时统计图',
+								items: {
+						            id: 'chartCmp',
+						            xtype: 'chart',
+						            style: 'background:#fff',
+						            animate: true,
+						            shadow: true,
+						            store: sb_gl_tj_zz_store,
+						            axes: [{
+						                type: 'Numeric',
+						                position: 'left',
+						                fields: ['data1'],
+						                label: {
+						                    renderer: Ext.util.Format.numberRenderer('0,0')
+						                },
+						                title: '功率（瓦）',
+						                grid: true,
+						                minimum: 0
+						            }, {
+						                type: 'Category',
+						                position: 'bottom',
+						                fields: ['name'],
+						                title: '时间（小时）'
+						            }],
+						            series: [{
+						                type: 'column',
+						                axis: 'left',
+						                highlight: true,
+						                tips: {
+						                  trackMouse: true,
+						                  width: 140,
+						                  height: 28,
+						                  renderer: function(storeItem, item) {
+						                    this.setTitle(storeItem.get('name') + ': ' + storeItem.get('data1'));
+						                  }
+						                },
+						                label: {
+						                  display: 'insideEnd',
+						                  'text-anchor': 'middle',
+						                    field: 'data1',
+						                    renderer: Ext.util.Format.numberRenderer('0'),
+						                    orientation: 'vertical',
+						                    color: '#333'
+						                },
+						                xField: 'name',
+						                yField: 'data1'
+						            }]
+						        }
+
+							}],
+										
+						tbar:[
+						{
+							xtype: 'button',
+							iconCls: 'exit',
+							text:'退出',
+							handler: function() {
+								//this.up('window').hide();
+								Ext.getCmp('sb_gl_tj_setup_win').close();
+							}
+						},
+						'->',
+						'<span style=" font-size:12px;font-weight:600;color:#3366FF;">统计类型</span>:&nbsp;&nbsp;',
+						{
+							xtype: 'combo',
+							name: 'tjlx',
+							store: tjlx_data,
+							emptyText:'请选择',
+							mode: 'local',
+							minChars : 2,
+							valueField:'text',
+							displayField:'text',
+							triggerAction:'all',
+							width:90,
+							id:'sb_tjlx'
+						},
+									'<span style=" font-size:12px;font-weight:600;color:#3366FF;">起日期</span>:&nbsp;&nbsp;',
+									{
+										xtype: 'datefield',format: 'Y-m-d',id:'sb_gl_tj_qrq',width:90
+									},
+									'<span style=" font-size:12px;font-weight:600;color:#3366FF;">止日期</span>:&nbsp;&nbsp;',
+									{
+										xtype: 'datefield',format: 'Y-m-d',id:'sb_gl_tj_zrq',width:90
+									},				  
+									{xtype:'button',text:'统计',tooltip:'设备功率统计',iconCls:'search',
+											handler: function() {												
+												if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
+													if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
+														if (Ext.getCmp("sb_tjlx").rawValue!=''){
+															switch (tjlx) { 
+																case 0: 
+																	var grid = Ext.getCmp('sb_gl_tj_setup_grid');
+																	grid.store.proxy.url="/desktop/get_sb_gl_tj_grid";
+																	grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:0,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
+																	grid.store.load();
+																	break; 
+																case 1:
+																	var grid = Ext.getCmp('sb_kg_tj_setup_grid');
+																	grid.store.proxy.url="/desktop/get_sb_kg_tj_grid";
+																	grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:1,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
+																	grid.store.load();
+																	break;
+																}
+															}else{
+																alert("统计类型不能为空。");
+															}																
+													}else{
+														alert("起日期不能为空。");
+													}
+												}else{
+													alert("止日期不能为空。");
+												}
+											}
+									}
+						]
+
+					});
+				}
+
+
+				win.show();
+			};	
+
+
 			var sys_zn_store	= Ext.create('Ext.data.TreeStore', {
 				autoLoad: true,
 				proxy: {
@@ -2753,6 +4475,7 @@ Ext.define('MyDesktop.Notepad', {
 						actionMethods: 'POST'
 				}
 			});
+			
 			var sys_zn_panel = Ext.create('Ext.tree.Panel', {
 				id : 'sys_zn_panel',
 				store: sys_zn_store,
@@ -2773,6 +4496,13 @@ Ext.define('MyDesktop.Notepad', {
 							if (Ext.getCmp('sb_cz_setup_win')!=undefined){Ext.getCmp('sb_cz_setup_win').close();}
 							if (Ext.getCmp('user_sb_setup_win')!=undefined){Ext.getCmp('user_sb_setup_win').close();}
 							if (Ext.getCmp('cz_rz_setup_win')!=undefined){Ext.getCmp('cz_rz_setup_win').close();}
+							
+							if (Ext.getCmp('qjms_setup_win')!=undefined){Ext.getCmp('qjms_setup_win').close();}
+							if (Ext.getCmp('qjms_sb_cz_setup_win')!=undefined){Ext.getCmp('qjms_sb_cz_setup_win').close();}
+							
+							if (Ext.getCmp('sb_nx_setup_win')!=undefined){Ext.getCmp('sb_nx_setup_win').close();}
+							
+							if (Ext.getCmp('sb_gl_tj_setup_win')!=undefined){Ext.getCmp('sb_gl_tj_setup_win').close();}
 							switch (node.data.id) { 
 								case "1": 
 									ly_setup();
@@ -2794,6 +4524,18 @@ Ext.define('MyDesktop.Notepad', {
 									break;
 								case "7": 
 									cz_rz_setup();
+									break;
+								case "8": 
+									qjms_setup();
+									break;
+								case "9": 
+									qjms_sb_cz_setup();
+									break;
+								case "10": 
+									sb_nx_setup();
+									break;
+								case "11": 
+									sb_gl_tj_setup();
 									break;
 
 							}

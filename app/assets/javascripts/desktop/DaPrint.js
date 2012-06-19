@@ -372,8 +372,8 @@ Ext.define('MyDesktop.DaPrint', {
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 					{ text : '字段名称',	width : 100, sortable : true, dataIndex: 'bt'},
-					{ text : 'x坐标',	width : 50, sortable : true, dataIndex: 'xx'},
-					{ text : 'y坐标',	width : 50, sortable : true, dataIndex: 'yy'},
+					{ text : 'x坐标(横向调节)',	width : 50, sortable : true, dataIndex: 'xx'},
+					{ text : 'y坐标(纵向调节)',	width : 50, sortable : true, dataIndex: 'yy'},
 					{ text : '字体',	width : 50, sortable : true, dataIndex: 'zt'},
 					{ text : '大小',	width : 50, sortable : true, dataIndex: 'dx'},
 					{ text : '是否打印',	width : 50, sortable : true, dataIndex: 'sfdy'},
@@ -395,7 +395,7 @@ Ext.define('MyDesktop.DaPrint', {
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'ym_setup_win',
-					title: '页面设置',
+					title: '页面设置(单位：0.1毫米)',
 					
 					width: 700,
 					height: 580,
@@ -597,9 +597,24 @@ Ext.define('MyDesktop.DaPrint', {
 										method: "POST",
 										parameters: pars,
 										onComplete:	 function(request) {
-											fhz=request.responseText.split(":")
+											fhz=request.responseText.split(":");
 											if (fhz[0]=='success'){
-												alert("打印成功。" + fhz[1]);
+												
+											      printfile=fhz[1].split(",");
+											    for (k=0;k<printfile.length;k++){
+											      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
+									              //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+									              image_path = "http://192.168.10.193:3000/assets/dady/sc/" + printfile[k];
+											      LODOP.PRINT_INIT(image_path);
+									              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+									              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+									              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+									              LODOP.PREVIEW();
+											      //LODOP.PRINT();
+												}
+													alert("打印成功。"+fhz[1] );
+													
+												
 											}else{
 												alert("打印失败。");
 											}
