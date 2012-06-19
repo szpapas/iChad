@@ -44,7 +44,27 @@ Ext.define('MyDesktop.SystemMan', {
 	  var insert_qx="";
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('systemman');
-		
+		Ext.regModel('qz_model', {
+			fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'dwdm',		type: 'string'}
+			]
+		});
+		var qz_store = Ext.create('Ext.data.Store', {
+				id:'qz_store',
+				model : 'qz_model',
+				proxy: {
+					type: 'ajax',
+					url : '/desktop/get_qz_grid',
+					//extraParams: {query:title},
+					reader: {
+						type: 'json',
+						root: 'rows',
+						totalProperty: 'results'
+					}
+				}				
+		});
+		qz_store.load();	
 		
 
 		
@@ -106,27 +126,7 @@ Ext.define('MyDesktop.SystemMan', {
 		};
 		var user_disp = function(record,add_new){
 			var win = Ext.getCmp('user_disp_win');
-			Ext.regModel('qz_model', {
-				fields: [
-					{name: 'id',		type: 'integer'},
-					{name: 'dwdm',		type: 'string'}
-				]
-			});
-			var qz_store = Ext.create('Ext.data.Store', {
-					id:'qz_store',
-					model : 'qz_model',
-					proxy: {
-						type: 'ajax',
-						url : '/desktop/get_qz_grid',
-						//extraParams: {query:title},
-						reader: {
-							type: 'json',
-							root: 'rows',
-							totalProperty: 'results'
-						}
-					}				
-			});
-			qz_store.load();
+			
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'user_disp_win',
@@ -134,6 +134,7 @@ Ext.define('MyDesktop.SystemMan', {
 					//closeAction: 'hide',
 					width: 370,
 					height: 240,
+					
 					//minHeight: 200,
 					layout: 'fit',
 					modal: true,
@@ -161,25 +162,27 @@ Ext.define('MyDesktop.SystemMan', {
 								width: 100
 							}
 							,
+							
 							{
 								xtype: 'label',
-								text: '密码:',
+								text: '是否显示下级档案:',
 								x: 10,
 								y: 70,
 								width: 100
 							},
 							{
 								xtype: 'label',
-								text: '是否显示下级档案:',
+								text: '所属全宗:',
 								x: 10,
 								y: 100,
 								width: 100
 							},
 							{
 								xtype: 'label',
-								text: '所属全宗:',
+								text: '密码:',
 								x: 10,
 								y: 130,
+								id: 'user_ma',
 								width: 100
 							},
 							{
@@ -204,18 +207,11 @@ Ext.define('MyDesktop.SystemMan', {
 								name: 'email',
 								id:'user_email'
 							},
-							{
-								xtype: 'textfield',
-								x: 130,
-								y: 70,
-								width: 200,
-								name: 'encrypted_password',
-								id:'user_encrypted_password'
-							}	,
+							
 							{
 								xtype: 'combobox',
 								x: 130,
-								y: 100,
+								y: 70,
 								width: 200,
 								store: sf_store,
 								emptyText:'请选择',
@@ -230,7 +226,7 @@ Ext.define('MyDesktop.SystemMan', {
 							{
 								xtype: 'combobox',
 								x: 130,
-								y: 130,
+								y: 100,
 								width: 200,
 								store: qz_store,
 								emptyText:'请选择',
@@ -239,9 +235,18 @@ Ext.define('MyDesktop.SystemMan', {
 								valueField:'id',
 								displayField:'dwdm',
 								triggerAction:'all',
+								listConfig: { loadMask: false },
 								name: 'dwdm',
 								id:'user_ssqz'
-							}
+							},
+							{
+								xtype: 'textfield',
+								x: 130,
+								y: 130,
+								width: 200,
+								name: 'encrypted_password',
+								id:'user_encrypted_password'
+							}	,
 						],
 						buttons:[{
 								xtype: 'button',
@@ -251,7 +256,7 @@ Ext.define('MyDesktop.SystemMan', {
 								handler: function() {
 									var pars=this.up('panel').getForm().getValues();
 									if(pars['email']!=''){
-										if(pars['encrypted_password']!=''){
+										
 											if(add_new==false){
 												new Ajax.Request("/desktop/update_user", { 
 													method: "POST",
@@ -270,23 +275,25 @@ Ext.define('MyDesktop.SystemMan', {
 													}
 												});
 											}else{
-												new Ajax.Request("/desktop/insert_user", { 
-													method: "POST",
-													parameters: pars,
-													onComplete:	 function(request) {
-														if (request.responseText=='success'){
-															alert("新增成功。");
-															Ext.getCmp('user_disp_win').close();
-															Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
-															Ext.getCmp('user_setup_grid').store.load();
-														}else{
-															alert("新增失败，请重新新增。");
+												if(pars['encrypted_password']!='' && pars['encrypted_password'].length>5){
+													new Ajax.Request("/desktop/insert_user", { 
+														method: "POST",
+														parameters: pars,
+														onComplete:	 function(request) {
+															if (request.responseText=='success'){
+																alert("新增成功。");
+																Ext.getCmp('user_disp_win').close();
+																Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+																Ext.getCmp('user_setup_grid').store.load();
+															}else{
+																alert("新增失败，请重新新增。");
+															}
 														}
-													}
-												});
+													});
+												}else{
+													alert("密码不能为空或长度必须大于等于6位。");
 											}
-										}else{
-											alert("密码不能为空。");
+										
 										}
 									}else{
 										alert("用户名称不能为空。");
@@ -309,6 +316,9 @@ Ext.define('MyDesktop.SystemMan', {
 			if(add_new==false){
 			//设置数据
 				Ext.getCmp('user_disp_form').getForm().setValues(record.data);
+				
+				Ext.getCmp('user_ma').hidden=true;				
+				Ext.getCmp('user_encrypted_password').hidden=true;				
 				
 			}else{
 				Ext.getCmp('user_disp_win').title="新增用户信息";
@@ -564,11 +574,13 @@ Ext.define('MyDesktop.SystemMan', {
 				win = new Ext.Window({
 					id : 'user_setup_win',
 					title: '用户设置',
+					x : 300,
+					y : 50,
 					width: 670,
-					height: 530,
-					minHeight: 530,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'用户列表',
@@ -708,6 +720,7 @@ Ext.define('MyDesktop.SystemMan', {
 
 			win.show();
 		};
+
 		var js_setup = function(){
 			var win = Ext.getCmp('js_setup_win');
 
@@ -761,10 +774,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '角色设置',
 					//closeAction: 'hide',
 					width: 570,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'fit',
-					modal: true,
+					//modal: true,
 					plain: true,
 					items:js_setup_grid,					
 					tbar:[{
@@ -1089,10 +1104,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗设置',
 					//closeAction: 'hide',
 					width: 570,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'fit',
-					modal: true,
+					//modal: true,
 					plain: true,
 					items:qz_setup_grid,					
 					tbar:[{
@@ -1278,10 +1295,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗档案类别设置',
 					//closeAction: 'hide',
 					width: 670,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'全宗列表',
@@ -1482,10 +1501,12 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '全宗档案类别设置',
 					//closeAction: 'hide',
 					width:670,
-					height: 530,
-					minHeight: 530,
+					x : 300,
+					y : 50,
+					height: 500,
+					minHeight: 500,
 					layout: 'border',
-					modal: true,
+					//modal: true,
 					plain: true,					
 					items: [
 						{	title:'全宗列表',
@@ -1834,13 +1855,15 @@ Ext.define('MyDesktop.SystemMan', {
 				win = new Ext.Window({
 					id : 'js_qx_setup_win',
 					title: '角色权限设置',
-					width:1000,
-					height:600,
+					width:800,
+					x : 300,
+					y : 50,
+					height:500,
 					iconCls: 'archiveman',
 					animCollapse:false,
 					border: false,
 					hideMode: 'offsets',
-					modal: true,
+					//modal: true,
 					layout: 'border',
 					split:true,
 					tbar:[

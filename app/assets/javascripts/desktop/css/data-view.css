@@ -1,0 +1,57 @@
+#images-view .x-panel-body {
+    background: none repeat scroll 0 0 white;
+    font: 11px Arial,Helvetica,sans-serif;
+}
+
+
+#images-view {
+    background: white;
+    font: 11px Arial, Helvetica, sans-serif;
+}
+
+#images-view .thumb {
+    padding: 3px;
+}
+
+#images-view .thumb img {
+    height: 60px;
+    width: 80px;
+}
+#images-view .thumb-wrap {
+    float: left;
+    margin: 4px 0 4px 4px;
+    padding: 5px;
+}
+#images-view .thumb-wrap span {
+    display: block;
+    overflow: hidden;
+    text-align: center;
+}
+#images-view .x-view-over {
+    border:1px solid #dddddd;
+    background-color: #efefef;
+    padding: 4px;
+
+}
+
+#images-view .x-item-selected {
+    background: #DFEDFF;
+    border: 1px solid #6593cf;
+    padding: 4px;
+}
+
+#images-view .x-item-selected .thumb {
+    background:transparent;
+}
+
+#images-view .x-item-selected span {
+    color:#1A4D8F;
+}
+#images-view .loading-indicator {
+    background-image: url("../../resources/images/default/grid/loading.gif");
+    background-position: left center;
+    background-repeat: no-repeat;
+    font-size: 11px;
+    margin: 10px;
+    padding-left: 20px;
+}

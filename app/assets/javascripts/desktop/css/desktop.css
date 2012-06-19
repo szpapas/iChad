@@ -321,8 +321,15 @@
     background-image: url(/assets/bogus.png ) !important;
 }
 
+.zhwl {
+    background-image: url(/assets/zhwl16x16.png ) !important;
+}
 .printdata {
     background-image: url(/assets/printdata.png ) !important;
+}
+
+.zhwl-shortcut{
+    background-image: url(/assets/zhwl46x46.png ) !important;
 }
 
 .archiveman {
@@ -475,8 +482,15 @@
 .exit {
     background-image: url(/assets/borman/exit.png ) !important;
 }
-
-
+.refresh {
+    background-image: url(/assets/table_refresh.png ) !important;
+}
+.dksb {
+    background-image: url(/assets/fam/accept.png ) !important;
+}
+.jw {
+    background-image: url(/assets/table_remove.gif ) !important;
+}
 /*
   SettingMan
 */

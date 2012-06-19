@@ -30,6 +30,7 @@ end
 gem 'devise'
 
 gem 'jquery-rails'
+gem 'ruby-serialport'
 
 gem 'ruby-serialport'
 

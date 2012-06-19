@@ -6398,9 +6398,19 @@ Ext.define('MyDesktop.ArchiveMan', {
 	
 		var treePanel = Ext.create('Ext.tree.Panel', {
 			store: store1,
+			id:'archive_tree',
 			rootVisible: false,
 			useArrows: true,
 			singleExpand: true,
+			tbar:[
+			{xtype:'button',text:'刷新目录',tooltip:'刷新目录',iconCls:'refresh',
+				handler: function() {
+					Ext.getCmp('archive_tree').store.load();
+					
+				}
+			}
+			],
+			
 			width: 200
 			
 		});
@@ -6448,19 +6458,24 @@ Ext.define('MyDesktop.ArchiveMan', {
 			              waitMsg: '文件上传中...',
 			              success: function(form, action){
 			                var isSuc = action.result.success; 
+							
+							filename=myForm._fields.items[0].lastValue.split('\\');
+							
+							file=filename[filename.length-1];
+							//msg('sd',file)
 			                if (isSuc) {
 								//myForm._fields.items[0].lastValue
 								new Ajax.Request("/desktop/save_image_db", { 
 						    		method: "POST",
-							    	parameters: eval("({filename:'" + myForm._fields.items[0].lastValue + "',dh:'" + dh +"'})"),
+							    	parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
 							    	onComplete:	 function(request) {
-										if (request.responseText=='success'){
+										if (request.responseText=='true'){
 											
 											timage_store.load();
 											Ext.getCmp('timage_combo').lastQuery = null;
 							                msg('成功', '文件上传成功.');												
 										}else{
-											alert("文件上传失败，请重新上传。");
+											alert("文件上传失败，请重新上传。" + request.responseText);
 										}
 									}
 						    	});
@@ -6555,10 +6570,11 @@ Ext.define('MyDesktop.ArchiveMan', {
 			win = desktop.createWindow({
 				id: 'archiveman',
 				title:'档案管理',
-				x : 100,
-				y : 50,
-				width:1200,
+				
+				width:1000,
 				height:600,
+				x:0,
+				y:0,
 				iconCls: 'archiveman',
 				animCollapse:false,
 				border: false,
@@ -6606,15 +6622,16 @@ Ext.define('MyDesktop.ArchiveMan', {
 							
 							],
 							bbar:[
-				              {
-				                text:'图像列表',
-				                tooltip:'',
-				                //iconCls:'add',
-				                handler: function() {
-				                  timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-				                  timage_store.load();
-				                }
-				              },{
+				          //   {
+				          //     text:'图像列表',
+				          //     tooltip:'',
+				          //     //iconCls:'add',
+				          //     handler: function() {
+				          //       timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+				          //       timage_store.load();
+				          //     }
+				          //   },
+								{
 				                xtype: 'combo',
 				                x: 130,
 				                y: 190,
@@ -6699,7 +6716,32 @@ Ext.define('MyDesktop.ArchiveMan', {
 				                  //LODOP.PREVIEW();
 								  LODOP.PRINT();
 				                }
-				              }
+				              },
+								{
+					                text: '删除图像',
+					                handler : function() {
+										if (dh!=''){
+											combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc
+											if (combo!=''){
+												var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";
+												new Ajax.Request("/desktop/delete_timage", {
+								                    method: "POST",
+								                    parameters: {yxmc:combo,dh:dh},
+								                    onComplete:  function(request) {
+								                      var path = request.responseText;
+								                      if (path == 'success') { 
+								                        timage_store.proxy.extraParams = {dh:dh, type:'0'};
+													    timage_store.load();
+														Ext.getCmp('timage_combo').lastQuery = null;
+								                      }
+								                    }
+												});
+											}
+											
+					                 
+					              }
+								}
+							}
 				            ],
 				            items:[{
 				              xtype: 'box', //或者xtype: 'component',
