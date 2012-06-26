@@ -728,7 +728,9 @@ class DesktopController < ApplicationController
         ff = File.open("./tmp/#{tmpfile}",'w')
         ff.write(user[0]["data"])
         ff.close
-        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        #system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        system("scp ./tmp/#{tmpfile} #{local_filename}")
         system("rm ./tmp/#{tmpfile}")
       end
       #small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
@@ -1341,7 +1343,7 @@ class DesktopController < ApplicationController
         cx_tj=" archive.ajh like '%#{params['ajh']}%'"
       end
     end
-    
+        
     if !(params['ajtm'].nil?)
       if (cx_tj!='')
         cx_tj=cx_tj + " and archive.tm like '%#{params['ajtm']}%'"
@@ -2140,7 +2142,7 @@ class DesktopController < ApplicationController
    user=User.find_by_sql("select * from users where id <> #{params['id']} and (email='#{params['email']}' or username='#{params['username']}');")
    size = user.size
    if size == 0
-     User.find_by_sql("update users set ssqz='#{params['dwdm']}',email='#{params['email']}', username='#{params['username']}', sfxsxyisj='#{params['sfxsxyisj']}' where id = #{params['id']};")
+     User.find_by_sql("update users set ssqz='#{params['ssqz']}',email='#{params['email']}', username='#{params['username']}', sfxsxyisj='#{params['sfxsxyisj']}' where id = #{params['id']};")
      txt='success'
    else
      txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
@@ -2160,7 +2162,7 @@ class DesktopController < ApplicationController
       user.email=params['email']
       user.username=params['username']
       user.sfxsxyisj=params['sfxsxyisj']
-      user.ssqz=params['dwdm']
+      user.ssqz=params['ssqz']
       user.password_confirmation=params['encrypted_password']
    
       user.password = params['encrypted_password']
@@ -4896,11 +4898,18 @@ class DesktopController < ApplicationController
     if !(params['sslc'].nil?)
       if !(params['ssly'].nil?)  
         if !(params['ssfj'].nil?)
-          user=User.find_by_sql("select * from zn_sb where  sbmc='#{params['sbmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']}  and ssfj=#{params['ssfj']};")
-          size = user.size
-          if size == 0
-            User.find_by_sql("insert into zn_sb(sbmc, sbsm,ssly,sslc,ssfj) values ('#{params['sbmc']}', '#{params['sbsm']}',#{params['ssly']},#{params['sslc']},#{params['ssfj']});")
-            txt='success'
+          if !(params['sblx'].nil?)
+            user=User.find_by_sql("select * from zn_sb where  sbmc='#{params['sbmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']}  and ssfj=#{params['ssfj']};")
+            size = user.size
+            if size == 0
+              if (params['edgl']=='')
+                params['edgl']=0
+              end
+              User.find_by_sql("insert into zn_sb(ktzt,sbmc, sbsm,ssly,sslc,ssfj,sbh,edgl,sblx) values ('20,20,0,0,0','#{params['sbmc']}', '#{params['sbsm']}',#{params['ssly']},#{params['sslc']},#{params['ssfj']},'#{params['sbh']}',#{params['edgl']},#{params['sblx']});")
+              txt='success'
+            else
+              txt= 'false:设备类型不能为空，请重选择设备类型。'
+            end
           else
             txt= 'false:此房间的设备名称已经存在，请重新输入设备名称。'
           end
@@ -4922,7 +4931,7 @@ class DesktopController < ApplicationController
     user=User.find_by_sql("select * from zn_sb where id <> #{params['id']} and sbmc='#{params['sbmc']}' and ssly=#{params['ssly']} and sslc=#{params['sslc']} and ssfj=#{params['ssfj']};")
     size = user.size
     if size == 0
-      User.find_by_sql("update zn_sb set  sbmc='#{params['sbmc']}', sbsm='#{params['sbsm']}' , ssly=#{params['ssly']}, sslc=#{params['sslc']}  ,ssfj=#{params['ssfj']} where id = #{params['id']};")
+      User.find_by_sql("update zn_sb set ktzt='20,20,0,0,0',sbh='#{params['sbh']}',edgl=#{params['edgl']},sblx=#{params['sblx']}, sbmc='#{params['sbmc']}', sbsm='#{params['sbsm']}' , ssly=#{params['ssly']}, sslc=#{params['sslc']}  ,ssfj=#{params['ssfj']} where id = #{params['id']};")
       txt='success'
     else
       txt= 'false:此房间的设备名称已经存在，请重新输入设备名称。'
@@ -4944,11 +4953,12 @@ class DesktopController < ApplicationController
       sbcz= User.find_by_sql("select zn_sb_cz.* from zn_sb_cz,zn_sb where zn_sb_cz.lxid=zn_sb.sblx and zn_sb.id=#{params['sbid']} and zn_sb_cz.czsm='#{params['cz']}';")       
       size = sbcz.size   
       if size>0
-        if params['cz']=='开' || params['cz']=='关'
-          user = User.find_by_sql("update zn_sb  set kgzt='#{params['cz']}' where id = #{params['sbid']};")
-        end
+       # if params['cz']=='开' || params['cz']=='关'
+        #  user = User.find_by_sql("update zn_sb  set kgzt='#{params['cz']}' where id = #{params['sbid']};")
+       # end
+        user=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['sbid']} ;")
         user = User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{params['sbid']}, '#{params['sbh']}', #{sbcz[0]['id']},'#{sbcz[0]['czzl']}','#{params['userid']}');")  
-        text='success' 
+        text='success:'  +params['sbid']
       else
         text='false:此设备无 ' +params['cz'] + ' 操作，请重新输入设备操作。'
       end
@@ -5043,7 +5053,7 @@ class DesktopController < ApplicationController
   
   #获得用户设备列表
   def get_user_sb_grid
-    user = User.find_by_sql("select zn_sb.* from  u_sb,zn_sb where u_sb.sbid=zn_sb.id and  userid = '#{params['id']}' order by id;")
+    user = User.find_by_sql("select zn_sb.*,zn_sb.id as sbid from  u_sb,zn_sb where u_sb.sbid=zn_sb.id and  userid = '#{params['id']}' order by id;")
     size = user.size
     puts size
     if size > 0 
@@ -5061,7 +5071,7 @@ class DesktopController < ApplicationController
   #获得设备操作列表
   def get_sb_cz_grid
     if !(params['sbid'].nil?)
-      user = User.find_by_sql("select zn_sb_cz.* from  zn_sb,zn_sb_lx,zn_sb_cz where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb.id = #{params['sbid']} order by id;")
+      user = User.find_by_sql("select zn_sb_cz.*,zn_sb_cz.id as czid from  zn_sb,zn_sb_lx,zn_sb_cz where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb.id = #{params['sbid']} order by id;")
       size = user.size
       puts size
       if size > 0 
@@ -5074,7 +5084,7 @@ class DesktopController < ApplicationController
        txt = "{results:0,rows:[]}"  
       end 
     else
-      user = User.find_by_sql("select zn_sb_cz.* from  zn_sb_cz   order by id;")
+      user = User.find_by_sql("select zn_sb_cz.*,zn_sb_cz.id as czid from  zn_sb_cz   order by id;")
       size = user.size
       puts size
       if size > 0 
@@ -5117,7 +5127,24 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   
-  
+ 
+ 
+  #获取设备类型
+  def get_zn_sb_lx_grid
+    user = User.find_by_sql("select * from  zn_sb_lx order by id;")
+    size = user.size
+    puts size
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end 
   
   
   #新增情景模式
@@ -5398,7 +5425,7 @@ class DesktopController < ApplicationController
             user=User.find_by_sql("select * from zn_nx where  sbid=#{params['sbid']}  and czid=#{params['sbczid']};")
             size = user.size
             if size == 0
-              User.find_by_sql("insert into zn_nx(sbid,czid) values (#{params['sbid']}, #{params['sbczid']});")
+              User.find_by_sql("insert into zn_nx(sbid,czid,nxdj) values (#{params['sbid']}, #{params['sbczid']},#{params['nxdj']});")
               txt='success'
             else
               txt= 'false:此情景模式中已经存在此操作，请重新输入设备操作。'
@@ -5414,7 +5441,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from zn_nx where id <> #{params['id']} and sbid=#{params['sbid']}  and czid=#{params['sbczid']};")
       size = user.size
       if size == 0
-        User.find_by_sql("update zn_nx set  sbid='#{params['sbid']}',czid=#{params['sbczid']} where id = #{params['id']};")
+        User.find_by_sql("update zn_nx set  nxdj=#{params['nxdj']},sbid='#{params['sbid']}',czid=#{params['sbczid']} where id = #{params['id']};")
         txt='success'
       else
         txt= 'false:轮巡中已经存在此操作，请重新输入设备操作。'
@@ -5441,13 +5468,14 @@ class DesktopController < ApplicationController
       sb_id=[]
       gl_tj=[]
       zsj_tj=[]
+      edgl=[]
       sbs=""
       gls=0
       if size > 0 
         txt = "{results:#{size},rows:["
         for k in 0..user.size-1
            #txt = txt + user[k].to_json + ','
-          gl=User.find_by_sql("select zn_cz_rz.* from zn_cz_rz,zn_sb_cz where zn_cz_rz.czid=zn_sb_cz.id and zn_sb_cz.czsm='读取电流' and zn_cz_rz.sj > '#{qrq}' and zn_cz_rz.sj<'#{zrq}' and zn_cz_rz.userid=0 and zn_cz_rz.sbid=#{user[k]['sbid']} order by sj ;")
+          gl=User.find_by_sql("select zn_cz_rz.*,zn_sb.edgl from zn_sb,zn_cz_rz,zn_sb_cz where zn_cz_rz.sbid=zn_sb.id and zn_cz_rz.czid=zn_sb_cz.id and zn_sb_cz.czsm='读取电流' and zn_cz_rz.sj > '#{qrq}' and zn_cz_rz.sj<'#{zrq}' and zn_cz_rz.userid=0 and zn_cz_rz.sbid=#{user[k]['sbid']} order by sj ;")
           size=gl.size
           if size>0
             gltj=0
@@ -5455,6 +5483,7 @@ class DesktopController < ApplicationController
             dlz=0
             jgsj=0
             zsj=0
+            edgls=0
             for j in 0..gl.size-1
               if gl[j]['dlz']==""
                 gl[j]['dlz']=0
@@ -5485,7 +5514,13 @@ class DesktopController < ApplicationController
             else
               sbs=sbs + "," + user[k]['sbid']
             end
-            
+            puts  gl[0]['edgl']
+            puts gl[0]['edgl']==''
+            if gl[0]['edgl']==''
+              edgl<<0
+            else
+              edgl<<gl[0]['edgl'].to_f*10
+            end
           
         end
         if sbs!=""
@@ -5495,7 +5530,7 @@ class DesktopController < ApplicationController
               sb=User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=#{sb_id[xx]} order by id;")
               size=sb.size
               if size>0            
-                txt=txt + "{'zsj':'#{zsj_tj[xx]}','sbmc':'#{sb[0]['sbmc']}','id':'#{sb[0]['id']}','fjmc':'#{sb[0]['fjmc']}','lcmc':'#{sb[0]['lcmc']}','lymc':'#{sb[0]['lymc']}','shgl':'#{gl_tj[xx]}'},"
+                txt=txt + "{'edgl':'#{edgl[xx].to_i}','zsj':'#{zsj_tj[xx]}','sbmc':'#{sb[0]['sbmc']}','id':'#{sb[0]['id']}','fjmc':'#{sb[0]['fjmc']}','lcmc':'#{sb[0]['lcmc']}','lymc':'#{sb[0]['lymc']}','shgl':'#{gl_tj[xx].to_i}'},"
               end
             end
           when "按设备类型"  
@@ -5518,11 +5553,13 @@ class DesktopController < ApplicationController
                 #sb_id=[3,4]
                 if sb_id.include?sssb[zz]['id']
                   i=sb_id.index sssb[zz]['id']
-                  gls=gls+gl_tj[i].to_f                  
+                  gls=gls+gl_tj[i].to_f 
+                  edgls=edgls+edgl[i].to_f              
                 end
               end
-              txt=txt + "{'sbmc':'#{users[yy]['lxsm']}','shgl':'#{gls}'},"
+              txt=txt + "{'sbmc':'#{users[yy]['lxsm']}','shgl':'#{gls.to_i}','edgl':'#{edgls.to_i}'},"
               gls=0
+              edgls=0
             end  
           when "按人员"
             users=User.find_by_sql("select * from users order by id;")
@@ -5535,11 +5572,13 @@ class DesktopController < ApplicationController
                 puts sbs
                 if sb_id.include?sssb[zz]['sbid']
                   i=sb_id.index sssb[zz]['sbid']
-                  gls=gls+gl_tj[i].to_f                  
+                  gls=gls+gl_tj[i].to_f 
+                  edgls=edgls+edgl[i].to_f               
                 end
               end
-              txt=txt + "{'sbmc':'#{users[yy]['username']}','shgl':'#{gls}'},"
+              txt=txt + "{'sbmc':'#{users[yy]['username']}','shgl':'#{gls.to_i}','edgl':'#{edgls.to_i}'},"
               gls=0
+              edgls=0
             end                                    
      
           else       
@@ -5624,6 +5663,23 @@ class DesktopController < ApplicationController
     end
 
 
+    def get_sb_gl_dj_zz_grid
+      #txt="[{'name':'1','data1':'11'},{'name':'2','data1':'12'}]"
+        name=[]
+        gl=params['gl'].split(',')
+        gl[2]=((gl[1].to_f-gl[0].to_f)*0.785).to_i
+        name[0]="实耗功率"
+        name[1]="额定功率"
+        name[2]="减少碳排放"
+        txt="["
+        for k in 0..2
+            txt=txt+ "{'name':'#{name[k]}','data1':'#{gl[k]}'},"
+        end    
+        txt=txt+ "]"
+        render :text => txt
+    end
+
+
     #获取设备开关次数
     def get_sb_kg_tj_grid
       qrqs=params['qrq'].split('-')
@@ -5643,7 +5699,6 @@ class DesktopController < ApplicationController
           sb=User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly,zn_sb where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=#{user[k]['sbid']} order by id;")
           size=sb.size
           txt=txt + "{'kgcs':'#{gl.size}','sbmc':'#{sb[0]['sbmc']}','id':'#{sb[0]['id']}','fjmc':'#{sb[0]['fjmc']}','lcmc':'#{sb[0]['lcmc']}','lymc':'#{sb[0]['lymc']}'},"
-
         end
         txt = txt + "]}"
       else
@@ -5652,5 +5707,129 @@ class DesktopController < ApplicationController
       render :text => txt
     end
     
+    
+    def get_sb_byid
+      user = User.find_by_sql("select * from zn_sb where  id  in (#{params['sbid']}) order by id;")
+      user = User.find_by_sql("select * from zn_sb  order by id;")
+      size = user.size
+      if size > 0 
+       txt = "{["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{[]}"  
+      end
+      render :text => txt
+    end
+
+    #获取设备操作状态
+    def get_sb_zt
+      user = User.find_by_sql("select * from zn_sb where  id  in (#{params['sbid']}) and czzt='成功' order by id;")
+      sbid=params['sbid'].split(',')
+      if user.size==sbid.size
+        txt='success'
+      else
+        sbzt = User.find_by_sql("select * from zn_sb where  id  in (#{params['sbid']})  order by id;")
+        txt='false:'
+        for k in 0..sbzt.size-1
+          txt = txt +'<p>'+ sbzt[k]['sbmc'] +'...' + sbzt[k]['czzt'] + '</p>'
+        end
+      end
+        
+      
+      render :text => txt
+    end
+    
+    #设定空调当前状态
+    def update_ktjz
+      if !(params['kg'].nil?) 
+        if (params['kg'].to_i.to_s==params['kg']) 
+          if !(params['ktms'].nil?) 
+            if (params['ktms'].to_i.to_s==params['ktms']) 
+              if (params['sw'].to_i.to_s==params['sw']) 
+                if (params['kw'].to_i.to_s==params['kw']) 
+                  ktzt=params['sw']+','+params['kw']+','+params['ktms']+','+params['kg']+',0'
+                  User.find_by_sql("update zn_sb set  ktzt='#{ktzt}' where id = #{params['id']};")
+                  txt='success'
+                else
+                  txt='false:空调温度必须是整形数字，请重新输入。'
+                end
+              else
+                txt='false:室内温度必须是整形数字，请重新输入。'
+              end              
+            else
+              txt='false:空调模式有问题，请重新选择。'
+            end
+          else
+            txt='false:空调模式不能为空，请重新选择。'
+          end
+        else
+          txt='false:开关状态有问题，请重新选择。'
+        end
+      else
+        txt='false:开关状态不能为空，请重新选择。'
+      end
+      render :text => txt
+    end
  
+    #获取专项借阅列表
+    def get_zxjy
+      user = User.find_by_sql("select * from jy_zxjy  order by id;")
+      size = user.size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:#{size},rows:[]}"
+      end
+      render :text => txt
+    end
+    
+    # 插入专项借阅列表
+    def insert_zxjy
+      if  (params['tm'].nil?) && (params['ajtm'].nil?) && (params['wh'].nil?)
+        render :text => "false"
+      else
+        tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
+        request_id = rand(36**32).to_s(36);
+        User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
+        render :text => "success"        
+      end
+    end
+    
+    #获取专项借阅查询列表
+    def get_zxjydjlist
+      
+    end
+    
+    def get_timage_tree
+      text="["
+       
+       qjms=User.find_by_sql("select id,dh,yxbh from timage where dh='#{params['dh']}' order by id;")
+       size=qjms.size
+       if size>0
+         qjms.each do |sb|
+           text=text+"{'text':'#{sb['yxbh']}','id' :'#{sb['id']}','checked':false,'leaf':true,'cls':'folder'},"
+         end   
+       end                               
+               
+      text=text + "]"
+     render :text => text
+    end
+
+
+    def insert_zxjylist
+        imageids=params['imageids'].split('$');
+        User.find_by_sql("delete from jy_zxjylist;")
+        for k in 0..imageids.size-1          
+          User.find_by_sql("insert into jy_zxjylist (imageid) values ( #{imageids[k]});")
+        end
+        render :text => "success"        
+    end
+
 end

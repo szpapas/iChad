@@ -191,6 +191,26 @@ Ext.define('MyDesktop.Notepad', {
 						}
 					}				
 			});
+			Ext.regModel('sblx_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'lxsm',		type: 'string'}
+				]
+			});
+			var sblx_store = Ext.create('Ext.data.Store', {
+					id:'sblx_store',
+					model : 'sblx_model',
+					proxy: {
+						type: 'ajax',
+						url : '/desktop/get_zn_sb_lx_grid',
+						//extraParams: {query:title},
+						reader: {
+							type: 'json',
+							root: 'rows',
+							totalProperty: 'results'
+						}
+					}				
+			});
 			Ext.regModel('user_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
@@ -218,7 +238,7 @@ Ext.define('MyDesktop.Notepad', {
 			
 			Ext.regModel('sb_model', {
 				fields: [
-					{name: 'id',		type: 'integer'},
+					{name: 'sbid',		type: 'integer'},
 					{name: 'sbmc',		type: 'string'}
 				]
 			});
@@ -240,7 +260,7 @@ Ext.define('MyDesktop.Notepad', {
 			
 			Ext.regModel('sb_cz_model', {
 				fields: [
-					{name: 'id',		type: 'integer'},
+					{name: 'czid',		type: 'integer'},
 					{name: 'czsm',		type: 'string'}
 				]
 			});
@@ -867,6 +887,199 @@ Ext.define('MyDesktop.Notepad', {
 				win.show();
 			};
 
+			var ktjz_disp = function(record,add_new){
+				var win = Ext.getCmp('ktjz_disp_win');
+
+				//qz_store.load();
+				if (win==null) {
+					win = new Ext.Window({
+						id : 'ktjz_disp_win',
+						title: '空调校准--根据当前空调的实际情况进行校准',
+						//closeAction: 'hide',
+						width: 370,
+						height: 300,
+						//minHeight: 200,
+						layout: 'fit',
+						modal: true,
+						plain: true,
+						//items:user_setup_grid,					
+						items: [{
+							width: 370,
+							height: 300,
+							xtype:'form',
+							layout: 'absolute',
+							id : 'ktjz_disp_form',
+							items: [
+								{
+									xtype: 'label',
+									text: '设备名称：',
+									x: 10,
+									y: 10,
+									
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '当前室内温度：',
+									x: 10,
+									y: 40,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '空调设定温度：',
+									x: 10,
+									y: 70,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '当前开关状态：',
+									x: 10,
+									y: 100,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '当前空调模式：',
+									x: 10,
+									y: 130,
+									width: 100
+								},
+								
+								{
+									xtype: 'textfield',
+									hidden : true,
+									name : 'id' ,
+									id:'sb_id'										
+								},
+
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 10,
+									width: 200,
+									name: 'sbmc',
+									readonly:true,
+									id:'sb_sbmc'
+								},
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 40,
+									width: 200,
+									name: 'sw',
+									id:'sb_sw'
+								},
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 70,
+									width: 200,
+									name: 'kw',
+									id:'sb_kw'
+
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 100,
+									width: 200,
+									store: kg_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'value',
+									displayField:'text',
+									triggerAction:'all',
+									listConfig: { loadMask: false },									
+									name: 'kg',
+									id:'sb_kg'
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 130,
+									width: 200,
+									store: ktms_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'value',
+									displayField:'text',
+									triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'ktms',
+									id:'sb_ktms'
+								}
+								
+
+
+							],
+							buttons:[{
+									xtype: 'button',
+									iconCls: 'option',
+									id:'button_qz_add',
+									text:'校准',
+									handler: function() {
+										var pars=this.up('panel').getForm().getValues();
+										if(pars['sbmc']!=''){
+											if(pars['kw']!=''){
+												if(pars['sw']!=''){
+													
+														new Ajax.Request("/desktop/update_ktjz", { 
+															method: "POST",
+															parameters: pars,
+															onComplete:	 function(request) {
+																text=request.responseText.split(':');
+																if (request.responseText=='success'){
+
+																	Ext.getCmp('ktjz_disp_win').close();
+
+																	Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+																	Ext.getCmp('sb_cz_setup_grid').store.load();
+																}else{
+																	if (text[0]=='false'){
+																		alert(text[1]);
+																	}else{
+																		alert("校准失败。");
+																	}
+																}
+
+															}
+														});
+													
+												}else{
+													alert("当前室内温度不能为空。");
+												}
+											}else{
+												alert("当前空调温度不能为空。");
+											}
+										}else{
+											alert("设备名称不能为空。");
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									iconCls: 'exit',
+									text:'退出',
+									handler: function() {
+										//this.up('window').hide();
+										Ext.getCmp('ktjz_disp_win').close();
+									}
+								}]
+						}]
+
+					});
+				}
+				
+					Ext.getCmp('ktjz_disp_form').getForm().setValues(record.data);
+
+				
+				win.show();
+			};
+
 
 			var sb_cz_setup = function(){
 				var win = Ext.getCmp('sb_cz_setup_win');
@@ -885,7 +1098,8 @@ Ext.define('MyDesktop.Notepad', {
 						{name: 'kzl',		type: 'string'},
 						{name: 'gzl',		type: 'string'},
 						{name: 'sbh',		type: 'string'},
-						{name: 'kgzt',		type: 'string'}
+						{name: 'kgzt',		type: 'string'},
+						{name: 'sblx',		type: 'string'}
 
 					]
 				});
@@ -1032,37 +1246,38 @@ Ext.define('MyDesktop.Notepad', {
 							iconCls: 'dksb',
 							text:'打开设备',
 							handler: function() {
-								loopCheck(1,true);
-							//	var grid = Ext.getCmp('sb_cz_setup_grid');
-							//	var records = grid.getSelectionModel().getSelection();
-							//	if (records.length==1){
-							//		var record = records[0];
-							//		
-							//			var pars={sbh:record.data.sbh,kzzl:record.data.kzl,cz:'开',sbid:record.data.id,userid:currentUser.id};
-							//			new Ajax.Request("/desktop/zn_kg_kz", { 
-							//				method: "POST",
-							//				parameters: pars,
-							//				onComplete:	 function(request) {
-							//					text=request.responseText.split(':');
-							//					if (request.responseText=='success'){
-							//						alert("设备打开成功。");																						
-							//						Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-							//						Ext.getCmp('sb_cz_setup_grid').store.load();
-							//					}else{
-							//						if (text[0]=='false'){
-							//							alert(text[1]);
-							//						}else{
-							//							alert("设备打开失败。");
-							//						}
-							//					}
-                            //
-							//				}
-							//			})
-							//		
-                            //
-							//	}else{
-							//		alert("请选择一个设备进行打开。");
-							//	}
+								//loopCheck(1,true);
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.kzl,cz:'开',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (text[0]=='success'){
+													alert("设备打开成功。");	
+													//sb_cz_msg(text[1]);																					
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("设备打开失败。");
+													}
+												}
+                            
+											}
+										})
+									
+                            
+								}else{
+									alert("请选择一个设备进行打开。");
+								}
 							}
 						},
 						{
@@ -1074,15 +1289,14 @@ Ext.define('MyDesktop.Notepad', {
 								var grid = Ext.getCmp('sb_cz_setup_grid');
 								var records = grid.getSelectionModel().getSelection();
 								if (records.length==1){
-									var record = records[0];
-									
+									var record = records[0];									
 										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'关',sbid:record.data.id,userid:currentUser.id};
 										new Ajax.Request("/desktop/zn_kg_kz", { 
 											method: "POST",
 											parameters: pars,
 											onComplete:	 function(request) {
 												text=request.responseText.split(':');
-												if (request.responseText=='success'){
+												if (text[0]=='success'){
 													alert("设备关闭成功。");																							
 													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
 													Ext.getCmp('sb_cz_setup_grid').store.load();
@@ -1121,7 +1335,7 @@ Ext.define('MyDesktop.Notepad', {
 											parameters: pars,
 											onComplete:	 function(request) {
 												text=request.responseText.split(':');
-												if (request.responseText=='success'){
+												if (text[0]=='success'){
 													alert("设备加温成功。");																							
 													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
 													Ext.getCmp('sb_cz_setup_grid').store.load();
@@ -1160,7 +1374,7 @@ Ext.define('MyDesktop.Notepad', {
 											parameters: pars,
 											onComplete:	 function(request) {
 												text=request.responseText.split(':');
-												if (request.responseText=='success'){
+												if (text[0]=='success'){
 													alert("设备减温成功。");																							
 													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
 													Ext.getCmp('sb_cz_setup_grid').store.load();
@@ -1199,7 +1413,7 @@ Ext.define('MyDesktop.Notepad', {
 											parameters: pars,
 											onComplete:	 function(request) {
 												text=request.responseText.split(':');
-												if (request.responseText=='success'){
+												if (text[0]=='success'){
 													alert("模式转换成功。");																							
 													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
 													Ext.getCmp('sb_cz_setup_grid').store.load();
@@ -1213,6 +1427,30 @@ Ext.define('MyDesktop.Notepad', {
 
 											}
 										})
+									
+
+								}else{
+									alert("请选择一个设备进行模式转换。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'settings',
+							text:'空调校准',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+										if (record.data.sblx==3){
+											ktjz_disp(record,false);
+										}											
+										else{
+											alert("只有空调才需要进行校准。");
+										}
 									
 
 								}else{
@@ -2384,7 +2622,7 @@ Ext.define('MyDesktop.Notepad', {
 						title: '修改设备信息',
 						//closeAction: 'hide',
 						width: 370,
-						height: 300,
+						height: 330,
 						//minHeight: 200,
 						layout: 'fit',
 						modal: true,
@@ -2392,7 +2630,7 @@ Ext.define('MyDesktop.Notepad', {
 						//items:user_setup_grid,					
 						items: [{
 							width: 370,
-							height: 300,
+							height: 330,
 							xtype:'form',
 							layout: 'absolute',
 							id : 'sb_disp_form',
@@ -2432,7 +2670,27 @@ Ext.define('MyDesktop.Notepad', {
 									y: 130,
 									width: 100
 								},
-								
+								{
+									xtype: 'label',
+									text: '设备类型：',
+									x: 10,
+									y: 160,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '设备号：',
+									x: 10,
+									y: 190,
+									width: 100
+								},
+								{
+									xtype: 'label',
+									text: '额定功率：',
+									x: 10,
+									y: 220,
+									width: 100
+								},
 								{
 									xtype: 'textfield',
 									hidden : true,
@@ -2530,6 +2788,38 @@ Ext.define('MyDesktop.Notepad', {
 									listConfig: { loadMask: false },
 									name: 'ssfj',
 									id:'sb_ssfj'
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 160,
+									width: 200,
+									store: sblx_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'lxsm',
+									triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'sblx',
+									id:'sb_sblx'
+								},
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 190,
+									width: 200,
+									name: 'sbh',
+									id:'sb_sbh'
+								},
+								{
+									xtype: 'textfield',
+									x: 130,
+									y: 220,
+									width: 200,
+									name: 'edgl',
+									id:'sb_edgl'
 								}
 								
 
@@ -2624,6 +2914,7 @@ Ext.define('MyDesktop.Notepad', {
 
 				win.show();
 			};
+
 			var sb_setup = function(){
 				var win = Ext.getCmp('sb_setup_win');
 
@@ -2640,7 +2931,9 @@ Ext.define('MyDesktop.Notepad', {
 						{name: 'ssfj',		type: 'integer'},
 						{name: 'kzl',		type: 'string'},
 						{name: 'sbh',		type: 'string'},
-						{name: 'gzl',		type: 'string'}
+						{name: 'gzl',		type: 'string'},
+						{name: 'edgl',		type: 'string'},
+						{name: 'sblx',		type: 'integer'}
 
 					]
 				});
@@ -2672,7 +2965,9 @@ Ext.define('MyDesktop.Notepad', {
 						{ text : '所属房间',	width : 100, sortable : true, dataIndex: 'fjmc'},
 						{ text : '所属楼层',	width : 100, sortable : true, dataIndex: 'lcmc'},
 						{ text : '所属楼宇',	width : 100, sortable : true, dataIndex: 'lymc'},
-						{ text : '设备号',	width : 100, sortable : true, dataIndex: 'sbh'}
+						{ text : '设备号',	width : 100, sortable : true, dataIndex: 'sbh'},
+						{ text : '额定功率',	width : 100, sortable : true, dataIndex: 'edgl'},
+						{ text : '设备类型',	width : 100, sortable : true, dataIndex: 'sblx'}
 						],
 						selType:'checkboxmodel',
 						//multiSelect:true,
@@ -3197,21 +3492,12 @@ Ext.define('MyDesktop.Notepad', {
 								Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
 								Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
 								Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
-
 								Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
 							}
 						}
 					}
-
 				});
-			//   qjms_tree_panel.on("select",function(node){ 
-			//   	data = node.selected.items[0].data;	 // data.id, data.parent, data.text, data.leaf
-			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
-			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
-			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.url='/desktop/get_zn_qjms_sb_cz_grid';
-            //
-			//   	Ext.getCmp('qjms_sb_cz_setup_grid').store.load();
-			//   });
+			
 				if (win==null) {
 					win = new Ext.Window({
 						id : 'qjms_sb_cz_setup_win',
@@ -3294,7 +3580,7 @@ Ext.define('MyDesktop.Notepad', {
 									var pars="id="+record.data.id;
 									Ext.Msg.confirm("提示信息","是否要删除设备名称为：！"+record.data.sbmc+"的" + record.data.czsm + "操作？",function callback(id){
 												if(id=="yes"){
-													new Ajax.Request("/desktop/zn_qjms_sb_cz", { 
+													new Ajax.Request("/desktop/delete_zn_qjms_sb_cz", { 
 														method: "POST",
 														parameters: pars,
 														onComplete:	 function(request) {
@@ -3454,7 +3740,7 @@ Ext.define('MyDesktop.Notepad', {
 									emptyText:'请选择',
 									mode: 'remote',
 									minChars : 2,
-									valueField:'id',
+									valueField:'sbid',
 									displayField:'sbmc',
 									triggerAction:'all',
 									name: 'sbid',
@@ -3484,7 +3770,7 @@ Ext.define('MyDesktop.Notepad', {
 									emptyText:'请选择',
 									mode: 'remote',
 									minChars : 2,
-									valueField:'id',
+									valueField:'czid',
 									displayField:'czsm',
 									triggerAction:'all',
 									listConfig: { loadMask: false },
@@ -3761,7 +4047,8 @@ Ext.define('MyDesktop.Notepad', {
 						{name: 'id',		type: 'integer'},
 						{name: 'czsm',		type: 'string'},
 						{name: 'czid',		type: 'integer'},
-						
+						{name: 'sbid',		type: 'integer'},
+						{name: 'nxdj',		type: 'integer'},
 						{name: 'sbmc',		type: 'string'}
 						
 
@@ -3791,7 +4078,8 @@ Ext.define('MyDesktop.Notepad', {
 					columns: [
 						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 						{ text : '操作说明',	width : 100, sortable : true, dataIndex: 'czsm',renderer:ztRender},
-						{ text : '设备名称',	width : 150, sortable : true, dataIndex: 'sbmc'}
+						{ text : '设备名称',	width : 150, sortable : true, dataIndex: 'sbmc'},
+						{ text : '轮巡等级',	width : 50, sortable : true, dataIndex: 'nxdj'}
 						
 						],
 						selType:'checkboxmodel',
@@ -3918,7 +4206,7 @@ Ext.define('MyDesktop.Notepad', {
 						title: '修改设备轮巡操作',
 						//closeAction: 'hide',
 						width: 370,
-						height: 140,
+						height: 170,
 						//minHeight: 200,
 						layout: 'fit',
 						modal: true,
@@ -3926,7 +4214,7 @@ Ext.define('MyDesktop.Notepad', {
 						//items:user_setup_grid,					
 						items: [{
 							width: 370,
-							height: 140,
+							height: 170,
 							xtype:'form',
 							layout: 'absolute',
 							id : 'sb_nx_disp_form',
@@ -3948,6 +4236,13 @@ Ext.define('MyDesktop.Notepad', {
 									width: 100
 								},
 								{
+									xtype: 'label',
+									text: '轮巡等级：',
+									x: 10,
+									y: 70,
+									width: 100
+								},
+								{
 									xtype: 'textfield',
 									hidden : true,
 									name : 'id' ,
@@ -3964,7 +4259,7 @@ Ext.define('MyDesktop.Notepad', {
 									emptyText:'请选择',
 									mode: 'remote',
 									minChars : 2,
-									valueField:'id',
+									valueField:'sbid',
 									displayField:'sbmc',
 									triggerAction:'all',
 									name: 'sbid',
@@ -3994,12 +4289,28 @@ Ext.define('MyDesktop.Notepad', {
 									emptyText:'请选择',
 									mode: 'remote',
 									minChars : 2,
-									valueField:'id',
+									valueField:'czid',
 									displayField:'czsm',
 									triggerAction:'all',
 									listConfig: { loadMask: false },
 									name: 'sbczid',
 									id:'sb_nx_sbczid'
+								},
+								{
+									xtype: 'combobox',
+									x: 130,
+									y: 70,
+									width: 200,
+									store: sb_nxdj_store,
+									emptyText:'请选择',
+									mode: 'remote',
+									minChars : 2,
+									valueField:'id',
+									displayField:'text',
+									triggerAction:'all',
+									listConfig: { loadMask: false },
+									name: 'nxdj',
+									id:'sb_nx_nxdj'
 								}
 
 							],
@@ -4098,6 +4409,7 @@ Ext.define('MyDesktop.Notepad', {
 				Ext.regModel('sb_gl_tj_setup_model', {
 					fields: [
 						{name: 'id',		type: 'integer'},
+						{name: 'edgl',		type: 'integer'},
 						{name: 'czsm',		type: 'string'},
 						{name: 'czid',		type: 'integer'},
 						{name: 'id',		type: 'integer'},
@@ -4138,6 +4450,7 @@ Ext.define('MyDesktop.Notepad', {
 						{ text : '名称',	width : 150, sortable : true, dataIndex: 'sbmc'},
 						{ text : '所耗功率',	width : 50, sortable : true, dataIndex: 'shgl'},
 						{ text : '使用时间',	width : 50, sortable : true, dataIndex: 'zsj'},
+						{ text : '额定功率',	width : 50, sortable : true, dataIndex: 'edgl'},
 						{ text : '房间名称',	width : 50, sortable : true, dataIndex: 'fjmc'},
 						{ text : '楼层名称',	width : 50, sortable : true, dataIndex: 'lcmc'},
 						{ text : '楼宇名称',	width : 100, sortable : true, dataIndex: 'lymc'}				
@@ -4149,19 +4462,24 @@ Ext.define('MyDesktop.Notepad', {
 							itemdblclick:{
 								fn:function(v,r,i,n,e,b){
 									//var tt=r.get("zrq");
-									if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
-										if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
-											Ext.getCmp("chartCmp").axes.items[0].title="功率（瓦）"
-											Ext.getCmp("chartCmp").axes.items[1].title="时间（小时）"
-											sb_gl_tj_zz_store.proxy.extraParams={qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue,sbid:r.get('id')}
-											sb_gl_tj_zz_store.load();
-											}else{
-												alert("起日期不能为空。");
-											}
-										}else{
-											alert("止日期不能为空。");
-										}	
+								   // if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
+								   // 	if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
+								   // 		Ext.getCmp("chartCmp").axes.items[0].title="功率（瓦）"
+								   // 		Ext.getCmp("chartCmp").axes.items[1].title="时间（小时）"
+								   // 		sb_gl_tj_zz_store.proxy.extraParams={qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue,sbid:r.get('id')}
+								   // 		sb_gl_tj_zz_store.load();
+								   // 		}else{
+								   // 			alert("起日期不能为空。");
+								   // 		}
+								   // 	}else{
+								   // 		alert("止日期不能为空。");
+								   // 	}	
 									//DispAj(r,false);
+											Ext.getCmp("chartCmp").axes.items[0].title="功率（瓦）"
+									   		Ext.getCmp("chartCmp").axes.items[1].title=""
+									   		sb_gl_tj_zz_store.proxy.extraParams={gl:r.get('shgl')+','+r.get('edgl')}
+									   		sb_gl_tj_zz_store.load();
+									
 								}
 							}
 						},
@@ -4272,7 +4590,7 @@ Ext.define('MyDesktop.Notepad', {
 					//autoLoad: true,
 					proxy: {
 						type: 'ajax',
-						url : '/desktop/get_sb_gl_tj_zz_grid',
+						url : '/desktop/get_sb_gl_dj_zz_grid',
 						//extraParams: cx_tj,
 						reader: {
 							type: 'json',
