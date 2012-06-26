@@ -787,6 +787,30 @@ class MapController < ApplicationController
       end
     end
     render :text => txt
-      
+  end
+  
+  def get_device_list
+    username = params['username']
+    dd = User.find_by_sql("select id from users where username='#{username}';")
+    
+    txt = ""
+    if dd.size > 0
+      user = User.find_by_sql("select zn_sb.id, sbmc, ssly || '-' || sslc || '-' || ssfj  as dh, sblx, sbmc, kgzt from zn_sb inner join u_sb on zn_sb.id=u_sb.sbid where userid = #{dd[0]['id']} order by zn_sb.id;")
+      txt = user.to_json
+    end
+    render :text => txt   
+  end  
+  
+  def check_device_zt
+    device_id = params['device_id']
+    txt = ""
+    user = User.find_by_sql("select kgzt from zn_sb where id = #{device_id};")
+    txt = user.to_json
+    render :text => txt   
+  end  
+  
+  def set_device_zt
+    
+    render :text => 'Success'
   end
 end

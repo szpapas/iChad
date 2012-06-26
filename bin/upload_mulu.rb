@@ -30,6 +30,8 @@ def get_dalb(ifname)
     "永久文档一体化"=>24,
     "短期文档一体化"=>24,
     "长期文档一体化"=>24,
+    "定期-10年文档一体化"=>24,
+    "定期-30年文档一体化"=>24,
     "其他档案-电子档案目录"=>25,
     "其他档案-基建档案目录"=>26,
     "其他档案-设备档案目录"=>27,
@@ -44,38 +46,34 @@ def get_dalb(ifname)
   hh[key]   
 end
 
+#2005短期00文档一体化aj.txt
 def get_mlh(ifname)
-  if /(\d+)(永久.*)/.match(ifname)
+  if /(\d+)(永久)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3 + 2
-  elsif /(\d+)(长期.*)/.match(ifname)
+    jg = /(\d+)(永久.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5
+  elsif /(\d+)(长期)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3 + 1  
-  elsif /(\d+)(短期.*)/.match(ifname)
+    jg = /(\d+)(长期.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+1  
+  elsif /(\d+)(短期)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3   
-  else 
-    mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
-    nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlh = 8000+(nd-2000)*3 + qx
+    jg = /(\d+)(短期.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+2  
+  elsif /(\d+)(定期-10年)(.*)(文档一体化.*)/.match(ifname)
+    nd = /(\d+)(定期-10年)/.match(ifname)[1].to_i
+    jg = /(\d+)(定期-10年)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+3
+  elsif /(\d+)(定期-30年)(.*)(文档一体化.*)/.match(ifname)  
+    nd = /(\d+)(定期-30年)/.match(ifname)[1].to_i
+    jg = /(\d+)(定期-30年)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+4
   end
 end
 
 def get_mlm(ifname)
-  if /(\d+)(永久.*)/.match(ifname)
-    nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlm = "#{nd}-永久"
-  elsif /(\d+)(长期.*)/.match(ifname)
-    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
-    mlh = "#{nd}-长期"  
-  elsif /(\d+)(短期.*)/.match(ifname)
-    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
-    mlh = "#{nd}-短期"   
-  else 
-    mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
-    nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlm = "#{nd}-#{mm[3]}"
-  end
+  ss=/(.*)(文档一体化.*)/.match(ifname)
+  mlh=ss[1]
 end
 
 
