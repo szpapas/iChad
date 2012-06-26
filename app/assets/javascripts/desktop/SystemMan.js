@@ -236,7 +236,7 @@ Ext.define('MyDesktop.SystemMan', {
 								displayField:'dwdm',
 								triggerAction:'all',
 								listConfig: { loadMask: false },
-								name: 'dwdm',
+								name: 'ssqz',
 								id:'user_ssqz'
 							},
 							{

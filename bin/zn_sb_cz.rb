@@ -28,8 +28,8 @@ end
 def write_sb(li,sp)
   sbczzl=li['sbczzl']
   sbh=li['sbh']
-  puts sbh
-  puts sbczzl
+#  puts sbh
+#  puts sbczzl
 #sbh="50,8a,00"
 #sbczzl="f2,01"    #如果是空调01如果是开的状态就是关，如果是关的状态就是开，f2 设备加减，04减，02增，08模式转换,
 #
@@ -46,7 +46,7 @@ def write_sb(li,sp)
   sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
   kzzl = sy.split(',') 
   yy=0
-  puts sy
+#  puts sy
   for k in 3..7
     yy=kzzl[k].to_i(16)+yy
   end
@@ -61,19 +61,61 @@ def write_sb(li,sp)
   sp.write(ss)
 end
 
+#开一个进程用来监听串口
+   Thread.new {
+     fhz=""
+     js=0
+     fhz1=""
+     while true do
+       ss = sprintf("%02X", sp.getc)
+      puts ss
+       if ss.to_i(16)==10
+         js=0
+         fhz=ss
+       else  
+         if fhz==""
+           fhz= ss
+         else
+           fhz=fhz + "," + ss
+         end
+         fhzs=fhz.split(',')
+         if fhzs.length==9
+           puts "jianting " + fhz 
+           #puts fhzs[5].to_i(16)
+          if fhzs[5].to_i(16)==255
+            list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
+            size=list.count
+            if size>0
+              puts "jianting " +"update  zn_sb_cz_list set zt=2 id=#{list[0]['id']};"
+              zt=  $conn.exec("update  zn_sb_cz_list set zt=2 where id=#{list[0]['id']};") 
+            end
+          else
+            list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
+            size=list.count
+            if size>0
+               puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"               
+               zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};")                 
+            end
+          end     
+         end
+         js=js+1
+       end
+     end
+   }
+
 every_n_seconds(1) do     
   list=$conn.exec("select * from zn_sb_cz_list order by id;")
   for k in 0..list.count-1
     li = list[k]
     write_sb(li,sp)
     
-    for j in 0..2
-     sleep 2
+    for j in 0..10000
+     sleep 0.05
      rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
      sj=Time.now.strftime("%Y%m%d%H%M%S")
      zt=$conn.exec("select * from zn_sb_cz_list where id=#{li['id']};") 
-     puts  li['id'].to_s + "dddddd"
-     puts zt[0]['zt']=='1'
+     #puts  li['id'].to_s + "dddddd"
+     #puts zt[0]['zt']=='1'
      if zt.count==1
       if zt[0]['zt']=='1'
         if li['userid']==''
@@ -81,20 +123,61 @@ every_n_seconds(1) do
         end
         puts "insert into zn_cz_rz(czid, userid, sbid, rq) values ('#{li['sbczid']}', '#{li['userid']}', #{li['sbid']}, '#{rq}');"
         $conn.exec("insert into zn_cz_rz(czid, userid, sbid, rq,sj) values ('#{li['sbczid']}', '#{li['userid']}', #{li['sbid']}, '#{rq}', '#{sj}');")
-        $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+        zt=  $conn.exec("update  zn_sb set czzt='成功' where id=#{li['sbid']};")
+        sb_cz=$conn.exec("select zn_sb.* ,zn_sb_lx.lxsm,zn_sb_cz.id as czid,zn_sb_cz.czsm from zn_sb,zn_sb_lx,zn_sb_cz where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb.id=#{li['sbid']} and zn_sb_cz.id=#{li['sbczid']};")
+        if sb_cz.count>0
+          if sb_cz[0]['lxsm']=='空调'
+            sbzt=sb_cz[0]['ktzt'].split(',')
+            case sb_cz[0]['czsm']
+            when '开'
+              sbzt[3]=1              
+            when '关'
+              sbzt[3]=0              
+            when '加温'
+              sbzt[1]=sbzt[1].to_i+1              
+            when '减温'
+              sbzt[1]=sbzt[1].to_i-1
+            when '模式转换'
+              sbzt[2]=sbzt[2].to_i+1
+              if sbzt[2]>2
+                sbzt[2]=0
+              end
+            when '读取电流'
+              
+            else
+            end
+            ktzt=sbzt.join(',')
+            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+          else
+            czzt=$conn.exec("select * from  zn_sb_cz  where id=#{li['sbczid']};")
+            zt=  $conn.exec("update  zn_sb set kgzt='#{czzt[0]['czsm']}' where id=#{li['sbid']};")
+            $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+          end
+        end
+        
         
         break
       else
-        if zt[0]['zt']=2  #说明设备操作出错了
-          if j==2
+        #puts zt[0]['zt']
+        #puts zt[0]['zt']=='2'
+        if zt[0]['zt']=='2' #说明设备操作出错了
+          #if j==2
             puts "insert into zn_sb_cz_err(sbczid,  sbid, rq) values ('#{li['sbczid']}', #{li['sbid']}, '#{rq}');"
             $conn.exec("insert into zn_sb_cz_err(sbczid,  sbid, rq) values ('#{li['sbczid']}', #{li['sbid']}, '#{rq}');")
+            puts "update  zn_sb set czzt='失败' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set czzt='失败' where id=#{li['sbid']};")
+            puts "delete from zn_sb_cz_list where id=#{li['id']};"
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
-          else
-            write_sb(li,sp)
-          end
+            break
+            
+          #else
+            #write_sb(li,sp)
+          #end
         end
       end
+      
     end
   end
     

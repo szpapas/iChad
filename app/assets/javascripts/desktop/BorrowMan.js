@@ -45,6 +45,7 @@ Ext.define('MyDesktop.BorrowMan', {
 	  createWindow : function(){
 		var jyqq_add_change='1';
 		var jydj_jyzt='2';
+		insert_qx="";
 		var DispAj = function(record,add_new){
 			var win = Ext.getCmp('archive_detail_win');
 			if (win==null) {
@@ -314,9 +315,29 @@ Ext.define('MyDesktop.BorrowMan', {
 
 			win.show();
 		};	
-	      var desktop = this.app.getDesktop();
-	      var win = desktop.getWindow('borrowman');
-		 var jydjform= new Ext.FormPanel({
+	    var desktop = this.app.getDesktop();
+	
+		function get_mlqx_NodesChecked(node) {
+			//insert_qx="";
+			//获取用户目录权限树
+			if (node.childNodes.size() == 0) return;
+			node.eachChild(function(n){
+						if(n.data.leaf==true){
+			   				if (n.data.checked==true){
+								if (insert_qx==""){
+									insert_qx= n.data.id 
+								}else{
+									insert_qx=insert_qx+ "$" + n.data.id 
+								}
+							};
+		   				};
+						get_mlqx_NodesChecked(n);
+			   			});
+
+
+		};
+	    var win = desktop.getWindow('borrowman');
+		var jydjform= new Ext.FormPanel({
 				id : 'jydj_form',
 				fileUpload: true,
 				width: 200,
@@ -1216,6 +1237,139 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 			});	
 
+			Ext.regModel('zxjydjlc_model', {
+				fields: [
+					{name: 'id',		type: 'integer'},
+					{name: 'ajtm',		type: 'string'},
+					{name: 'tm',		type: 'string'},
+					{name: 'wh',		type: 'string'},
+					{name: 'request_id',		type: 'string'}
+					
+				]
+			});
+			var zxjydjlc_store = Ext.create('Ext.data.Store', {
+				id:'zxjydjlc_store',
+				model : 'zxjydjlc_model',
+				autoload:true,
+				proxy: {
+					type: 'ajax',
+					url : '/desktop/get_zxjy',
+					extraParams: {query:''},
+					reader: {
+						type: 'json',
+						root: 'rows',
+						totalProperty: 'results'
+					}
+				}
+				//sortInfo:{field: 'level4', direction: "ASC"},
+				//baseParams: {start:0, limit:25, query:""}
+			});
+			var zxjydjlc_grid = new Ext.grid.GridPanel({
+				id : 'zxjydjlc_grid',
+				store: zxjydjlc_store,
+				
+				
+				columns: [
+					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+					{ text : '案卷标题',	width : 120, sortable : true, dataIndex: 'ajtm'},
+					{ text : '卷内题名',	width : 120, sortable : true, dataIndex: 'tm'},
+					{ text : '文号',	width : 120, sortable : true, dataIndex: 'wh'}					
+					],
+				viewConfig: {
+					stripeRows:true
+				}
+			});
+			zxjydjlc_grid.on("select",function(node){
+				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf
+				archive_id = data.id; 
+				cx_tj="";	
+				if(data.ajtm!=''){
+					if (cx_tj!=''){
+						cx_tj=cx_tj + ",ajtm:'" +data.ajtm+ "'";
+					}else{
+						cx_tj="{ajtm:'" +data.ajtm+ "'";
+					}
+				};	
+				if(data.tm!=''){
+					if (cx_tj!=''){
+						cx_tj=cx_tj + ",tm:'" +data.tm+ "'";
+					}else{
+						cx_tj="{tm:'" +data.tm+ "'";
+					}
+				};
+				if(data.wh!=''){
+					if (cx_tj!=''){
+						cx_tj=cx_tj + ",wh:'" +data.wh+ "'";
+					}else{
+						cx_tj="{wh:'" +data.wh+ "'";
+					}
+				};	
+				cx_tj="(" + cx_tj + "})";		
+				zxjydjlist_store.proxy.extraParams=eval(cx_tj);
+				zxjydjlist_store.load();					
+			});
+			
+			
+			var zxjydjlist_store = Ext.create('Ext.data.Store', {
+				id:'zxjydjlist_store',
+				model : 'jydjlist_model',
+				proxy: {
+					type: 'ajax',
+					url : '/desktop/archive_query_jygl',
+					extraParams: {query:''},
+					reader: {
+						type: 'json',
+						root: 'rows',
+						totalProperty: 'results'
+					}
+				}
+			});
+			var zxjydjlist_grid = new Ext.grid.GridPanel({
+				id : 'zxjydjlist_grid',
+				store: zxjydjlist_store,				
+				columns: [
+					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+					{ text : 'dalb',	width : 0, sortable : true, dataIndex: 'dalb'},
+					{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+					{ text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},					
+					{ text : '分类号',	 width : 75, sortable : true, dataIndex: 'flh'},
+					{ text : '案件号',	 width : 75, sortable : true, dataIndex: 'ajh'},
+					{ text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},					
+					{ text : '年度',	width : 75, sortable : true, dataIndex: 'nd'},
+					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
+					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
+					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
+					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
+					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
+					{ text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
+					{ text : '地籍号',	 width : 75, sortable : true, dataIndex: 'djh'},
+					{ text : '备注',	flex : 1, sortable : true, dataIndex: 'bz'}					
+					],
+					listeners:{
+						itemdblclick:{
+							fn:function(v,r,i,n,e,b){
+								var tt=r.get("zrq");
+								//showContactForm();
+								DispAj(r,false);
+							}
+						}
+					},
+					selType:'checkboxmodel',
+					multiSelect:true,
+				//width : 800,
+				//height : 300,
+				viewConfig: {
+					stripeRows:true
+				}
+			});
+			zxjydjlist_grid.on("select",function(node){
+				data = node.selected.items[0].data;
+			    timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
+			    timage_store.load();			
+			});
+			
 			var jyqq = function(recordad){//add_change 1代表新增，２代表修改
 				var js_jyqq_form= new Ext.FormPanel({
 						id : 'js_jyqq_form',
@@ -2352,11 +2506,46 @@ Ext.define('MyDesktop.BorrowMan', {
 				
 				win.show();
 			};	
+		
+			var timage_store	= Ext.create('Ext.data.TreeStore', {
+				//autoLoad: true,
+				proxy: {
+						type: 'ajax',
+						url : '/desktop/get_timage_tree',
+				        extraParams: {dh:"",type:"0"},
+						actionMethods: 'POST'
+				}
+			});
+			
+			var image_tree1 = Ext.create('Ext.tree.Panel', {
+				id : 'image_tree1',
+				store: timage_store,
+				rootVisible:false,
+				useArrows: true,
+				listeners:{
+					checkchange:function(node,checked,option){
+						if(checked){
+							var pars={gid:node.data.id, type:0};
+			                  new Ajax.Request("/desktop/get_timage_from_db", {
+			                    method: "POST",
+			                    parameters: pars,
+			                    onComplete:  function(request) {
+			                      var path = request.responseText;
+			                      if (path != '') { 
+			                        Ext.getCmp('preview_img').getEl().dom.src = path;
+			                      }
+			                    }
+			                  });
+						}
+
+					}
+				}
+			});
+		    
 			var tabPanel = new Ext.TabPanel({
 				activeTab : 0,//默认激活第一个tab页
 				animScroll : true,//使用动画滚动效果
-				enableTabScroll : true,//tab标签超宽时自动出现滚动按钮
-				
+				enableTabScroll : true,//tab标签超宽时自动出现滚动按钮				
 				items: [
 					{
 						title: '借阅登记',
@@ -2369,13 +2558,11 @@ Ext.define('MyDesktop.BorrowMan', {
 							{
 								xtype:'textfield',
 								id:'query_text',
-
 							},				  
 							{	
 								xtype:'button',text:'检索',tooltip:'全文检索',id:'query',iconCls:'search',
 								handler: function() {
 									console.log(Ext.getCmp('query_text').value);
-
 									var grid = Ext.getCmp('archive_grid');
 									grid.store.proxy.url="/desktop/get_archive_where";
 									archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
@@ -2387,17 +2574,16 @@ Ext.define('MyDesktop.BorrowMan', {
 							{	
 								xtype:'button',text:'展开高级查询',tooltip:'高级查询',id:'gjcx_button',iconCls:'zk',
 								handler: function() {
-
-										var gjcx = Ext.getCmp('gjcx_id');
-										var bt=Ext.getCmp('gjcx_button');
-										//gjcx.collapsed=false;
-										if (gjcx.isHidden()){
-											bt.text="收起高级查询";
-											gjcx.expand(true);}
-										else {
-											bt.text="展开高级查询";
-											gjcx.collapse(true);
-										};
+									var gjcx = Ext.getCmp('gjcx_id');
+									var bt=Ext.getCmp('gjcx_button');
+									//gjcx.collapsed=false;
+									if (gjcx.isHidden()){
+										bt.text="收起高级查询";
+										gjcx.expand(true);}
+									else {
+										bt.text="展开高级查询";
+										gjcx.collapse(true);
+									};
 								}
 							}
 						],
@@ -2420,7 +2606,6 @@ Ext.define('MyDesktop.BorrowMan', {
 								layout: 'fit',
 								//title: '查询结果列表',
 								items: archiveGrid
-
 							},{
 								region: 'south',
 								//iconCls:'icon-grid',
@@ -2433,7 +2618,6 @@ Ext.define('MyDesktop.BorrowMan', {
 								//title: '',
 								hideCollapseTool:true,
 								items:jydjform
-
 								}]
 					},{
 						title: '借阅管理',
@@ -2525,8 +2709,7 @@ Ext.define('MyDesktop.BorrowMan', {
 												var record = records[0];
 												var jyzt=record.data.jyzt;
 												if (record.data.jyzt==1 || record.data.jyzt==3){
-													jyqq_add_change='2';
-													
+													jyqq_add_change='2';													
 													jyqq(record);
 													
 												}else{
@@ -2538,8 +2721,7 @@ Ext.define('MyDesktop.BorrowMan', {
 						                    xtype: 'button',
 											iconCls:'delete',
 						                    text: '删除请求',
-											handler: function() {
-												
+											handler: function() {												
 												var grid = Ext.getCmp('jydjlc_grid');
 												var records = grid.getSelectionModel().getSelection();
 												var record = records[0];
@@ -2563,14 +2745,11 @@ Ext.define('MyDesktop.BorrowMan', {
 																}else{
 																	//alert('O,no');
 																}
-
 														});
-
 												}else{
 													alert('请选择处于借阅请求状态或打回状态的数据进行删除处理。');
 												}
-											}	
-												
+											}													
 						                },
 						                {
 						                    xtype: 'button',
@@ -2589,8 +2768,7 @@ Ext.define('MyDesktop.BorrowMan', {
 															if (jylist_records.length>0){
 																var ids=[];
 																Ext.Array.each(jylist_records,function(record){
-																	ids.push(record.get("id"));
-
+																	ids.push(record.get("id"));																																		
 																});
 																jylc_pars="({"+jylc_pars+",ids:'" +ids+"'})";
 															
@@ -2663,19 +2841,189 @@ Ext.define('MyDesktop.BorrowMan', {
 								width:100,
 								items: jydjlc_grid
 
-							},	{
+							},{
+								region: 'east',
+								//iconCls:'icon-grid',
+								//layout: 'fit',
+								split:true,
+								width:550,
+								items: jydjlist_grid
+
+							}]
+					},
+					{
+						title: '专项借阅',
+						layout: 'border',
+						//height:500,
+						///collapsi:true,
+						//split:true,
+						listeners: {
+		                    activate: function(tab){
+		                        zxjydjlc_store.load();
+		                    }
+		                },
+						dockedItems:[
+						{xtype: 'toolbar',
+			            anchor: '100%',
+			            dock: 'bottom',
+			            items: [			                
+								'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">借阅人</span>:&nbsp;&nbsp;',
+								{
+									xtype:'textfield',
+									id:'zx_jyr'									
+								},
+								{	
+									xtype:'button',text:'同意查看',tooltip:'同意查看',id:'zx_yes',iconCls:'save',
+									handler: function() {
+										if (Ext.getCmp('zx_jyr')==undefined){
+											alert("请您输入借阅人再同意查看。");											
+										}else{
+											root=Ext.getCmp('image_tree1').store.getRootNode();
+											insert_qx="";
+											get_mlqx_NodesChecked(root);										
+											if (insert_qx==""){
+												alert("请您选择一些扫描文件再同意查看。");
+											}else{
+												
+												insert_qx="({imageids:'" + insert_qx + "',jyr:'" + Ext.getCmp('zx_jyr').value + "'})";
+												new Ajax.Request("/desktop/insert_zxjylist", { 
+													method: "POST",
+													parameters: eval(insert_qx),
+													onComplete:	 function(request) {
+														if (request.responseText=='success'){
+															alert("同意查看成功。");												
+														}else{
+															alert("同意查看失败，请重新同意。");
+														}
+													}
+												});									
+											}
+										}										
+									}
+								}
+							]
+						}
+						],
+						tbar:[
+							{	
+								xtype:'button',text:'刷新请求',tooltip:'刷新请求',id:'zx_refresh',iconCls:'refresh',
+								handler: function() {
+									zxjydjlc_store.load();									
+								}
+							},
+							'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">案卷标题</span>:&nbsp;&nbsp;',
+							{
+								xtype:'textfield',
+								id:'zx_ajtm',
+							},
+							'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">卷内题名</span>:&nbsp;&nbsp;',
+							{
+								xtype:'textfield',
+								id:'zx_tm',
+							},
+							'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">文号</span>:&nbsp;&nbsp;',
+							{
+								xtype:'textfield',
+								id:'zx_wh',
+							},				  
+							{	
+								xtype:'button',text:'检索',tooltip:'全文检索',id:'zx_query',iconCls:'search',
+								handler: function() {
+									var grid = Ext.getCmp('archive_grid');
+									if (Ext.getCmp('zx_ajtm').value==undefined && Ext.getCmp('zx_ajtm').value==undefined && Ext.getCmp('zx_ajtm').value==undefined){
+										alert("请输入一个查询条件。");										
+									}else{
+										if (Ext.getCmp('zx_ajtm').value==undefined){
+											ajtm=''}
+										else{
+											ajtm=Ext.getCmp('zx_ajtm').value
+										};
+										if (Ext.getCmp('zx_tm').value==undefined){
+											tm=''}
+										else{
+											tm=Ext.getCmp('zx_tm').value
+										};
+										if (Ext.getCmp('zx_wh').value==undefined){
+											wh=''}
+										else{
+											wh=Ext.getCmp('zx_wh').value
+										};										
+										if (ajtm=="" && tm =="" && wh==""){
+											alert("请输入一个查询条件。");										
+										}else{
+											new Ajax.Request("/desktop/insert_zxjy", { 
+												method: "POST",
+												parameters: eval("({ajtm:'" + ajtm + "',tm:'" + tm + "',wh:'" + wh+ "'})"),
+												onComplete:	 function(request) {
+													zxjydjlc_store.load();	
+												}
+											});
+										}
+									}																
+								}
+							}
+						],
+						items:[
+							{
+							region: 'center',
+							//iconCls:'icon-grid',
+							layout: 'border',							
+							//title: '查询结果列表',
+							items: [{
+										region: 'center',
+										//iconCls:'icon-grid',
+										layout: 'fit',
+										split:true,
+										width:100,
+										items: zxjydjlc_grid
+									},{
 										region: 'east',
 										//iconCls:'icon-grid',
-										//layout: 'fit',
+										layout: 'fit',
 										split:true,
 										width:550,
-										items: jydjlist_grid
+										items: zxjydjlist_grid
+								}]
+							},{
+								region: 'south',
+								//iconCls:'icon-grid',
+								//id:'dj_form',
+								layout: 'border',
+								height: 380,
+								split: true,
+								collapseMode:'mini',
+								collapsible: true,
+								//title: '',
+								hideCollapseTool:true,
+								items:[{
+										region: 'center',
+										//iconCls:'icon-grid',
+										layout: 'fit',
+										split:true,
+										//width:100,
+										items: image_tree1
 
+									},{
+										region: 'east',
+										//iconCls:'icon-grid',
+										layout: 'fit',
+										split:true,
+										width:550,
+										items: [{
+							              xtype: 'box', //或者xtype: 'component',
+							              id: 'preview_img',
+										  layout: 'fit',
+							              //width: 350, //图片宽度
+							              autoEl: {
+							                tag: 'img',    //指定为img标签
+							                alt: ''      //指定url路径
+							              }
+							            }]
 									}]
+								}]
 					}
 				]	
-			});
-
+			});			
 	      if(!win){
 	          win = desktop.createWindow({
 	              id: 'borrowman',
@@ -2685,23 +3033,19 @@ Ext.define('MyDesktop.BorrowMan', {
 	              iconCls: 'borrowman',
 	              animCollapse:false,
 	              border: false,
-
-
 	              hideMode: 'offsets',
 				  layout: 'border',
 					//height:500,
 					//collapsible:true,
-					split:true,
-					items:[{
-						
-							region: 'center',
-							//height: 200,
-							layout: 'fit',
-							split:true,
-							items:tabPanel
-						}]
-				});
-              
+				　　split:true,
+				　　items:[{						
+						region: 'center',
+						//height: 200,
+						layout: 'fit',
+						split:true,
+						items:tabPanel
+					}]
+				});             
 	      }
 	      new Ajax.Request("/desktop/get_sort", { 
       		method: "POST",
@@ -2718,6 +3062,5 @@ Ext.define('MyDesktop.BorrowMan', {
 		Ext.getCmp('czrid').setValue(currentUser.id);
 	      return win;
 	  }
-
 });
 

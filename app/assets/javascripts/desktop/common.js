@@ -376,6 +376,36 @@ var zt_store = new Ext.data.SimpleStore({
 	data : zt_data
 });
 
+var ktms_data = [
+ ['0','制冷'],
+ ['1','通风'],
+ ['2','制热']
+];
+
+var ktms_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : ktms_data
+});
+
+var kg_data = [
+ ['0','关'],
+ ['1','开']
+];
+
+
+var kg_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : kg_data
+});
+
+var sb_nxdj_data = [
+ ['1','5秒钟一次'],
+ ['2','5分钟一次']
+];
+var sb_nxdj_store = new Ext.data.SimpleStore({
+	fields: ['id', 'text'],
+	data : sb_nxdj_data
+});
 
 var sprintf = (function() {
 	function get_type(variable) {
@@ -7485,4 +7515,107 @@ var DispJr = function(recordad,add_new){
 		Ext.getCmp('jr_bz').setValue("");
 	}
 	win.show();
+};
+
+
+//设备正在操作窗口
+var sb_cz_msg = function(sbid){
+	var win = Ext.getCmp('sb_cz_msg_win');
+	if (win==null) {
+		loopable=false;
+		i =0;
+		sb_name='';
+		czdz=['正在操作','完成操作'];
+		sbname=[];
+		strdisp='';
+		//sb_id=sbid.split(';');
+		new Ajax.Request("/desktop/get_sb_zt", { 
+			method: "POST",
+			parameters: {sbid:sbid},
+			onComplete:	 function(request) {
+				text=request.responseText.split(':')
+				if (text[0]=='success'){
+					alert("设备操作成功。");
+																
+				}else{
+					if (text[0]=='false'){
+						loopCheck(text[1],true);
+					}
+				}
+				
+				
+				
+			}
+		});
+		function loopCheck(sb,lp) {
+		  if (lp) {
+			loopable=true;	
+		   //if (i=='0'){	
+		   //	if (sb_name==''){
+		   //		sb_name=sb['sbmc']
+		   //	}else{
+		   //		sb_name= sb['sbmc'] +','+sb_name 
+		   //	}
+		   //	sbname=sb_name.split(',');
+		   //	strdisp='';
+		   //	for (x=0;x<sbname.length;x++){
+		   //		if (x=='0'){						
+		   //			strdisp=strdisp + '<p>' + sbname[x] + '......' + czdz[0] + '</p>' 
+		   //		}else{
+		   //			strdisp=strdisp + '<p>' + sbname[x] + '......' + czdz[1] + '</p>' 
+		   //		}						
+		   //	}
+				Ext.getCmp('zzcz_disp').getEl().dom.innerHTML = Ext.getCmp('zzcz_disp').initialConfig.html + sb;
+			//};									
+			if (i>3){
+					Ext.getCmp('sb_cz_msg_win').close();	
+			}else{				
+				i = i +1;		            
+	            sf = 0;
+	            td = 1*1000 ; //60s 
+	            var f = function() { loopCheck(sb,loopable); };
+	            var t = setTimeout(f,td);				
+			};            
+          }
+        };
+		
+		win = new Ext.Window({
+			id : 'sb_cz_msg_win',
+			title: '设备正在操作窗口',
+			//closeAction: 'hide',
+			width: 270,
+			height: 200,
+			layout: 'fit',
+			modal: true,
+			plain: true,
+			items:[{	//title:'情景模式树',
+				//region:'west',
+				//iconCls:'users',
+				xtype:'panel',
+				margins:'0 0 0 0',
+				width: 200,
+				//collapsible:true,//可以被折叠							
+				layout:'fit',
+				autoscroll:true,
+				split:true,
+				items:[{
+					xtype: 'box',
+					autoscroll:true,
+					html:"<img src='/assets/zzcz.gif' />",
+					x:10,
+					y:10,
+					width: 8,
+					height:8,
+					id:'zzcz_disp'
+					}]
+
+			}]
+								
+			
+		})
+	}
+
+
+	win.show();
+	
 };

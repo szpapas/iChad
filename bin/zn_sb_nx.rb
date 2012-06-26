@@ -28,47 +28,28 @@ def every_n_seconds(n)
      end 
 end 
 
-
-
-every_n_seconds(20) do 
+#电流值5分种  #烟感和门禁　要５秒轮一次
+sj=0
+every_n_seconds(5) do  
 
   rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
-
-  list=$conn.exec("select zn_nx.*,zn_sb_cz.czzl,zn_sb.sbh from zn_sb_cz,zn_sb,zn_nx where zn_sb_cz.id=zn_nx.czid and zn_sb.id=zn_nx.sbid;")
+  puts rq
+  list=$conn.exec("select zn_nx.*,zn_sb_cz.czzl,zn_sb.sbh from zn_sb_cz,zn_sb,zn_nx where zn_sb_cz.id=zn_nx.czid and zn_sb.id=zn_nx.sbid and zn_nx.nxdj=1;")
   for k in 0..list.count-1
     li = list[k]
     puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);"
-    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);")
-    
- #  sbczzl=li['czzl']
- #  sbh=li['sbh']
- #  puts sbh
- #  puts sbczzl
- #
- #  czzl=sbczzl.split(',')
- #  sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
- #  kzzl = sy.split(',') 
- #  yy=0
- #  for k in 3..7
- #    yy=kzzl[k].to_i(16)+yy
- #  end
- #  xx=(yy%256).to_s(16)
- #  sy=sy + "," +xx
- #  kzzl = sy.split(',') 
- #  ss="012345678"
- #  for k in 0..kzzl.length-1
- #    ss[k]=kzzl[k].to_i(16)
- #  end
- #  puts sy
- #  
- #  sp.write(ss)
- #  
- #  if li['userid']==''
- #    li['userid']=0
- #  end
-#    puts "insert into zn_nx_cz(czid, sbh, sbid, rq) values ('#{li['czid']}', '#{li['sbh']}', #{li['sbid']}, '#{rq}');"
- #   $conn.exec("insert into zn_nx_cz(czid, sbh, sbid, rq) values ('#{li['czid']}', '#{li['sbh']}', #{li['sbid']}, '#{rq}');")
-    
- #   sleep 2
+    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);")     
+  end
+  sj=sj+1
+  if sj==60
+    list=$conn.exec("select zn_nx.*,zn_sb_cz.czzl,zn_sb.sbh from zn_sb_cz,zn_sb,zn_nx where zn_sb_cz.id=zn_nx.czid and zn_sb.id=zn_nx.sbid and zn_nx.nxdj=2;")
+    for k in 0..list.count-1
+      li = list[k]
+      puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);"
+      $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);")
+    end
+    sj=0
   end
 end
+
+#烟感和门禁　要５秒轮一次
