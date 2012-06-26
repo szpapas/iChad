@@ -3167,7 +3167,7 @@ class DesktopController < ApplicationController
   end
   
   def get_qzzt_store
-    user = User.find_by_sql("select * from q_status order by mlh;")
+    user = User.find_by_sql("select * from q_status order by mlh limit 100;")
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["
@@ -4543,7 +4543,7 @@ class DesktopController < ApplicationController
   end
   
   def import_selected_aj
-    user = User.find_by_sql("select q_sdwj.id, d_dwdm.id as qzh, mlh, wjma, dh,dwdm, dwjc from q_sdwj inner join d_dwdm on q_sdwj.dh = d_dwdm.qzdj where  q_sdwj.id in (#{params['id']});")
+    user = User.find_by_sql("select q_sdwj.id, d_dwdm.id as qzh, mlh, wjma, dh,dwdm, dwjc from q_sdwj inner join d_dwdm on q_sdwj.dh = d_dwdm.qzsx where  q_sdwj.id in (#{params['id']});")
     for k in 0..user.size-1
       dd = user[k]
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dd.dh} #{dd.mlh}','#{dd.mlh}', 'ruby ./dady/bin/upload_mulu.rb  #{dd.wjma} #{dd.dwdm} #{dd.qzh} #{dd.dh} ', '', '', '未开始');")
