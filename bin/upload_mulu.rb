@@ -118,8 +118,14 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     zrz     = user['责任者']
     rq      = user['日期']
     bz      = user['备注']
-    dh      = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-
+    
+    if dalb == 24
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    else
+      jgwth = user['机构问题号']  
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth}"
+    end
+      
     if rq.length==0
       rq = 'null' 
     elsif rq.length==4
@@ -175,6 +181,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     boxrfid = user['盒标签']
     qrq     = user['起日期']
     zrq     = user['止日期']
+    jgwth   = user['机构问题号']
 
     tm  = user['案卷题名'] if tm.nil?
     tm  = user['题名'] if tm.nil?
@@ -185,7 +192,11 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     
     js = 1 if js == 0
     
-    dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    if dalb==24
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth.to_i}"
+    else  
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    end
     
     if nd.nil? || nd==''
       $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"
