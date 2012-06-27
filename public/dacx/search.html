@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>常熟市档案查询系统</title>
+  <link rel="stylesheet" href="css/jive.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="prototype.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+	//window.addEventListener('load',init,false);
+	function save_result() {
+	  var tm   = $("user_tm").value;
+	  var ajtm = $("user_ajtm").value;
+	  var wh   = $("user_wh").value;
+	  //var pars = {tm:tm, tdzh:tdzh, ajtm:ajtm, wh:wh};
+	  
+	  var pars = {tm:tm, ajtm:ajtm, wh:wh}
+ 	  //new Ajax.Request('http://192.168.100.109:3000/desktop/get_archive_where',{
+	  new Ajax.Request('/map/get_archive_where',{
+	    method: "POST",
+	    parameters: pars,
+	    onSuccess: function(transport){
+	      var response = transport.responseText || "no response text";
+	      //alert("Success! \n\n" + response);
+				console.log(response);
+	      store = window.localStorage;
+	      store.setItem("request_id", response);
+				window.location = "result.html";
+	    },
+	    onFailure: function(){ alert('服务器连接错误！') }
+	  });
+	
+	}
+</script>
+</head>
+<body class="jive-body-formpage jive-body-formpage-login">
+  <div id="jive-wrapper" class="clearfix">
+    <div id='logo2'> 
+			<div class='back-home' onclick='window.location = "/dacx/index.html"'>返回</div>  
+    </div>
+    <div id="jive-body-full">
+      <div id="jive-body-main">
+				<div id="search-container">
+					<div id="search-header">请输入查询条件</div>
+					<div id="search-condition">
+            <!-- BEGIN login form -->
+            <div class="jive-standard-formblock-container jive-login-formblock">
+                <div class="jive-standard-formblock">
+                  <div id="search_tm">
+	                  <label>案卷标题:</label>
+	                  <input type="text"   size="30" maxlength="150" value="" id="user_tm">
+                  </div>
+                  <div id="search_qlrmc">
+	                  <label>卷内题名:</label>
+	                  <input type="text" size="30" maxlength="150" value="" id="user_ajtm">
+                  </div>
+                  <div id="search_tdzl">
+	                  <label>文号:</label>
+	                  <input type="text"  size="30"  maxlength="150" value="" id="user_wh">
+                  </div>
+									<div class="search_button" onclick="save_result()">
+			                <p>查询</p>
+			            </div>
+								</div>	
+						<!-- END login form -->
+						</div>
+						
+					</div>	
+				</div>	
+			</div>
+		</div>					
+  </div>
+
+  <!-- BEGIN footer -->
+  <div id="jive-footer" class="clearfix">
+    <div class="jive-footer-nav">
+      Copyright © 2011, Brightechs, Inc.            
+        <div class="jiveVersion" style="display: none;">
+          Webgis Software Version: 33            
+        </div>
+      -  <a href="mailto:szpapas@qq.com">技术支持Email</a>
+     </div>
+
+  </div>
+  <!-- END footer -->
+</html>

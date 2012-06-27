@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>常熟市档案查询系统</title>
+  <link rel="stylesheet" href="css/display.css?1234" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+  <script src="js/jcollage.js?6" type="text/javascript" charset="utf-8"></script>
+  <script src="js/display.js?2"  type="text/javascript" charset="utf-8"></script>
+<script>
+	var pb_strConfirmCloseMessage;
+	var pb_blnCloseWindow = false;
+	pb_strConfirmCloseMessage ="您真的要离开本页吗?";
+	
+	function ConfirmClose() {
+	     window.event.returnValue = pb_strConfirmCloseMessage;
+			 //alert (pb_strConfirmCloseMessage);
+	     pb_blnCloseWindow = true;
+	}
+	
+	function ShowConfirmClose(blnValue) {
+	     if(blnValue) {
+	         document.body.onbeforeunload = ConfirmClose;
+	     } else {
+	         document.body.onbeforeunload = null;
+	     }
+	}
+	
+	function show_pic() {
+		var store = window.localStorage;
+		var response = store.getItem("pics_response");
+		var datas = eval("("+response+")");
+		
+		for (var i=0; i < datas.length; i ++) {
+			var dd = datas[i];
+			var img = $("<img/>").attr("src",dd['image_path']);
+			img.attr("title", dd['image_id']);
+			$("<li></li>").append(img).appendTo(".search ul");
+		}
+		
+		ShowConfirmClose(true);
+	}
+	
+	window.addEventListener('load',show_pic,false);
+	
+</script>
+</head>
+<body>
+	<div id="pics_container" class="search">
+		<ul>
+		</ul>
+	</div>
+	<canvas id="collage" width="720" height="1000"></canvas>
+</html>

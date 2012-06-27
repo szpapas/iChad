@@ -715,14 +715,14 @@ class DesktopController < ApplicationController
     if (params['gid'].nil?)
       txt = ""
     else
-      user = User.find_by_sql("select id, dh, yxmc from timage where id='#{params['gid']}';")
+      user = User.find_by_sql("select id, dh, yxmc from timage where id=#{params['gid']};")
       dh = user[0]['dh']
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"
       end
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{params['gid']}';")
+        user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{params['gid']};")
         
         tmpfile = rand(36**10).to_s(36)
         ff = File.open("./tmp/#{tmpfile}",'w')
