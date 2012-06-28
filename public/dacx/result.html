@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>常熟市档案查询系统</title>
+  <link rel="stylesheet" href="css/jive.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="prototype.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+	//window.addEventListener('load',init,false);
+	var interval;
+	
+	function close_message() {
+		store = window.localStorage;
+		store.removeItem("request_id");
+		clearInterval(interval);
+		Close();
+	};
+	
+	function  display_result (response) {
+		console.log(response);
+		store = window.localStorage;
+    store.setItem("pics_response", response);
+		window.location = "display.html";
+	};
+	
+	function checkResult() {
+		store = window.localStorage;
+		//console.log("check result:"+store.getItem("request_id"));
+
+		pars = {request_id:store.getItem("request_id")}
+		new Ajax.Request('/map/check_result',{
+	    method: "POST",
+	    parameters: pars,
+	    onSuccess: function(transport){
+ 				response = transport.responseText;
+				if  (response == "查找中" ) {
+					console.log("查找中...");
+				} else if  (response == "未找到" ) {
+					console.log("未找到符合条件的档案.");
+					alert("未找到符合条件的档案.");
+					window.location = "search.html"
+					close_message();
+				} else {
+					close_message();
+					display_result(response);
+				}	
+				//添加查询结果
+	    },
+	    onFailure: function(){ alert('服务器连接错误！') }
+	  });
+	
+	};
+	
+	function show_message() {
+		var message="亲，档案管理员正在为你查找，请稍等...";
+    Show(message);
+		interval = setInterval("checkResult()",2000);//渐变效果
+	}
+	
+</script>
+</head>
+<body class="jive-body-formpage jive-body-formpage-login" onload="show_message();">
+  <div id="jive-wrapper" class="clearfix">
+    <div id='logo2'> 
+			<div class='back-home' onclick='window.location = "/dacx/index.html"'>返回</div>  
+    </div>
+    <div id="jive-body-full">
+      <div id="jive-body-main">
+				<div id="search-container">
+					<div id="search-header">查询结果</div>
+				</div>	
+			</div>
+		</div>					
+  </div>
+
+  <!-- BEGIN footer -->
+  <div id="jive-footer" class="clearfix">
+    <div class="jive-footer-nav">
+      Copyright © 2011, Brightechs, Inc.            
+        <div class="jiveVersion" style="display: none;">
+          Webgis Software Version: 33            
+        </div>
+      -  <a href="mailto:szpapas@qq.com">技术支持Email</a>
+     </div>
+
+  </div>
+  <!-- END footer -->
+</html>

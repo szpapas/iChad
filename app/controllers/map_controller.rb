@@ -1,5 +1,5 @@
 class MapController < ApplicationController
-  
+
   def get_temp
     render :text=>"{\"sd\":\"45\",\"wd\":\"25.6\"}"
   end
@@ -787,54 +787,95 @@ class MapController < ApplicationController
       end
     end
     render :text => txt
-      
   end
   
-  
   def get_device_list
-      username = params['username']
-      dd = User.find_by_sql("select id from users where username='#{username}';")
-
-      txt = ""
-      if dd.size > 0
-        user = User.find_by_sql("select zn_sb.id, sbmc, ssly || '-' || sslc || '-' || ssfj  as dh, sblx, sbmc, kgzt from zn_sb inner join u_sb on zn_sb.id=u_sb.sbid where userid = #{dd[0]['id']} order by zn_sb.id;")
-        txt = user.to_json
-      end
-      render :text => txt   
-    end  
-
-    def check_device_zt
-      device_id = params['device_id']
-      txt = ""
-      user = User.find_by_sql("select kgzt,ktzt from zn_sb where id = #{device_id};")
+    username = params['username']
+    dd = User.find_by_sql("select id from users where username='#{username}';")
+    
+    txt = ""
+    if dd.size > 0
+      user = User.find_by_sql("select zn_sb.id, sbmc, ssly || '-' || sslc || '-' || ssfj  as dh, sblx, sbmc, kgzt from zn_sb inner join u_sb on zn_sb.id=u_sb.sbid where userid = #{dd[0]['id']} order by zn_sb.id;")
       txt = user.to_json
-      render :text => txt   
-    end  
-
-
-
-    def set_device_zt
- #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
-
-      case params['zt']
-      when '1'
-        zt='开'
-      when '0'
-        zt='关'
-      when '2'
-        zt='加温'
-      when '3'
-        zt='减温'
-      when '4'
-        zt='模式转换'
-      when '5'
-        zt='关'
-      else
-      end
-      sb=User.find_by_sql("select zn_sb_cz.*,zn_sb.id as sbid,zn_sb.sbh from zn_sb,zn_sb_cz,zn_sb_lx where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb_cz.czsm='#{zt}' and zn_sb.id=#{params['device_id']};")
-      qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
-      render :text => 'Success'
     end
+    render :text => txt   
+  end  
+  
+  def check_device_zt
+    device_id = params['device_id']
+    txt = ""
+    user = User.find_by_sql("select kgzt,ktzt from zn_sb where id = #{device_id};")
+    txt = user.to_json
+    render :text => txt   
+  end  
+
+  def set_device_zt   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
+    case params['zt']
+    when '1'
+      zt='开'
+    when '0'
+      zt='关'
+    when '2'
+      zt='加温'
+    when '3'
+      zt='减温'
+    when '4'
+      zt='模式转换'
+    when '5'
+      zt='关'
+    else
+    end
+    sb=User.find_by_sql("select zn_sb_cz.*,zn_sb.id as sbid,zn_sb.sbh from zn_sb,zn_sb_cz,zn_sb_lx where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb_cz.czsm='#{zt}' and zn_sb.id=#{params['device_id']};")
+    qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
+    render :text => 'Success'
+  end
+  
+  def get_archive_where
+    tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
+    request_id = rand(36**32).to_s(36);
+    User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
+    render :text => request_id
+  end
+  
+  def get_timage_from_db(gid)
+    user = User.find_by_sql("select id, dh, yxmc from timage where id=#{gid};")
+    dh = user[0]['dh']
+    if !File.exists?("./dady/img_tmp/#{dh}/")
+      system"mkdir -p ./dady/img_tmp/#{dh}/"
+    end
+    local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
+    if !File.exists?(local_filename)
+      user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{gid};")
+      tmpfile = rand(36**10).to_s(36)
+      ff = File.open("./tmp/#{tmpfile}",'w')
+      ff.write(user[0]["data"])
+      ff.close
+      puts "./tmp/#{tmpfile} #{local_filename}"
+      #system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+      system("scp ./tmp/#{tmpfile} #{local_filename}")
+      system("rm ./tmp/#{tmpfile}")
+    end
+    txt = "/assets/#{local_filename}".gsub('/./','/')
+  end
+  
+  def check_result
+    request_id = params['request_id']
+    users = User.find_by_sql("select id, zt from jy_zxjy where request_id='#{request_id}';")
+    txt=""
+    if users[0].zt == "完成" 
+      users = User.find_by_sql("select dh, image_id from  jy_zxjylist where zxjyid=#{users[0].id}")
+      ss = []
+      for k in 0..users.size-1
+       pp = {"image_path"=>get_timage_from_db(users[k].image_id), "image_id"=>image_id}
+       ss << pp 
+      end
+      txt = ss.to_json
+    elsif users[0].zt == "未找到"
+      txt = "未找到档案,请重新查询."
+    elsif users[0].zt == "查找中"
+      txt = "查找中"
+    end
+<<<<<<< HEAD
     
     
     #add on 6/26
@@ -860,4 +901,9 @@ class MapController < ApplicationController
       end
       render :text => txt;
     end
+=======
+    render :text => txt;
+  end
+  
+>>>>>>> 221ca6700a31c208e568e68dae271dc715424c07
 end
