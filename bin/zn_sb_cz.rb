@@ -25,8 +25,8 @@ def every_n_seconds(n)
          sleep(interval) if interval>0 
      end 
 end 
-
-def write_sb(li,sp)
+tbt=0
+def write_sb(li,sp,tbt)
   sbczzl=li['sbczzl']
   sbh=li['sbh']
 #  puts sbh
@@ -44,20 +44,30 @@ def write_sb(li,sp)
 #sbczzl="f2,00"    #如如果是读电流值 
  
   czzl=sbczzl.split(',')
-  sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
+  
+  #sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
+  
+
+puts tbt
+  sy=tbt.to_s(16)+ "," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
+  
   kzzl = sy.split(',') 
   yy=0
-#  puts sy
-  for k in 3..7
+  for k in 0..16
     yy=kzzl[k].to_i(16)+yy
   end
   xx=(yy%256).to_s(16)
-  sy=sy + "," +xx
+  sy="0a,0d," +xx+","+ sy
+  
+
+  
   kzzl = sy.split(',') 
-  ss="012345678"
+  ss="01234567800000000000"
+  puts kzzl.length-1
   for k in 0..kzzl.length-1
     ss[k]=kzzl[k].to_i(16)
   end
+
   puts sy  
   sp.write(ss)
 end
@@ -69,7 +79,7 @@ end
      fhz1=""
      while true do
        ss = sprintf("%02X", sp.getc)
-      puts ss
+       #puts ss
        if ss.to_i(16)==10
          js=0
          fhz=ss
@@ -80,10 +90,10 @@ end
            fhz=fhz + "," + ss
          end
          fhzs=fhz.split(',')
-         if fhzs.length==9
+         if fhzs.length==20
            puts "jianting " + fhz 
            #puts fhzs[5].to_i(16)
-          if fhzs[5].to_i(16)==255
+          if fhzs[6].to_i(16)==255
             list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
             size=list.count
             if size>0
@@ -95,7 +105,7 @@ end
             size=list.count
             if size>0
                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"               
-               zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};")                 
+               zt=  $conn.exec("update  zn_sb_cz_list set fhz='#{fhz}', zt=1 where id=#{list[0]['id']};")                 
             end
           end     
          end
@@ -103,12 +113,14 @@ end
        end
      end
    }
-
+tbt=50
 every_n_seconds(1) do     
   list=$conn.exec("select * from zn_sb_cz_list order by id;")
   for k in 0..list.count-1
     li = list[k]
-    write_sb(li,sp)
+    
+    tbt=tbt+1
+    write_sb(li,sp,tbt)
     
     for j in 0..10000
      sleep 0.05
@@ -124,10 +136,12 @@ every_n_seconds(1) do
         end
         puts "insert into zn_cz_rz(czid, userid, sbid, rq) values ('#{li['sbczid']}', '#{li['userid']}', #{li['sbid']}, '#{rq}');"
         $conn.exec("insert into zn_cz_rz(czid, userid, sbid, rq,sj) values ('#{li['sbczid']}', '#{li['userid']}', #{li['sbid']}, '#{rq}', '#{sj}');")
-        zt=  $conn.exec("update  zn_sb set czzt='成功' where id=#{li['sbid']};")
+        $conn.exec("update  zn_sb set czzt='成功' where id=#{li['sbid']};")
         sb_cz=$conn.exec("select zn_sb.* ,zn_sb_lx.lxsm,zn_sb_cz.id as czid,zn_sb_cz.czsm from zn_sb,zn_sb_lx,zn_sb_cz where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb.id=#{li['sbid']} and zn_sb_cz.id=#{li['sbczid']};")
         if sb_cz.count>0
-          if sb_cz[0]['lxsm']=='空调'
+          puts sb_cz[0]['lxsm']
+          case sb_cz[0]['lxsm']
+          when '空调'
             sbzt=sb_cz[0]['ktzt'].split(',')
             case sb_cz[0]['czsm']
             when '开'
@@ -150,6 +164,22 @@ every_n_seconds(1) do
             ktzt=sbzt.join(',')
             puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
             zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+          when '温湿度'
+            ktzt=zt[0]['fhz']
+            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+          when '烟感'
+            ktzt=zt[0]['fhz']
+            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+          when '门磁'
+            ktzt=zt[0]['fhz'].split(',')
+            
+            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt[8]}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt[8]}' where id=#{li['sbid']};")
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
           else
             czzt=$conn.exec("select * from  zn_sb_cz  where id=#{li['sbczid']};")
@@ -176,6 +206,16 @@ every_n_seconds(1) do
           #else
             #write_sb(li,sp)
           #end
+        else
+         #if j==10
+         #  puts "insert into zn_sb_cz_err(sbczid,  sbid, rq) values ('#{li['sbczid']}', #{li['sbid']}, '#{rq}');"
+         #  $conn.exec("insert into zn_sb_cz_err(sbczid,  sbid, rq) values ('#{li['sbczid']}', #{li['sbid']}, '#{rq}');")
+         #  puts "update  zn_sb set czzt='失败' where id=#{li['sbid']};"
+         #  zt=  $conn.exec("update  zn_sb set czzt='失败' where id=#{li['sbid']};")
+         #  puts "delete from zn_sb_cz_list where id=#{li['id']};"
+         #  $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
+         #  break
+         #end
         end
       end
       

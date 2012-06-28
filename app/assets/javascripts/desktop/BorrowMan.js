@@ -46,6 +46,7 @@ Ext.define('MyDesktop.BorrowMan', {
 		var jyqq_add_change='1';
 		var jydj_jyzt='2';
 		insert_qx="";
+		zxjyid="";
 		var DispAj = function(record,add_new){
 			var win = Ext.getCmp('archive_detail_win');
 			if (win==null) {
@@ -1282,6 +1283,7 @@ Ext.define('MyDesktop.BorrowMan', {
 			zxjydjlc_grid.on("select",function(node){
 				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf
 				archive_id = data.id; 
+				zxjyid=data.id;
 				cx_tj="";	
 				if(data.ajtm!=''){
 					if (cx_tj!=''){
@@ -2885,7 +2887,7 @@ Ext.define('MyDesktop.BorrowMan', {
 												alert("请您选择一些扫描文件再同意查看。");
 											}else{
 												
-												insert_qx="({imageids:'" + insert_qx + "',jyr:'" + Ext.getCmp('zx_jyr').value + "'})";
+												insert_qx="({imageids:'" + insert_qx + "',jyr:'" + Ext.getCmp('zx_jyr').value + "',zxjyid:'" + zxjyid + "'})";
 												new Ajax.Request("/desktop/insert_zxjylist", { 
 													method: "POST",
 													parameters: eval(insert_qx),
@@ -2909,6 +2911,23 @@ Ext.define('MyDesktop.BorrowMan', {
 								xtype:'button',text:'刷新请求',tooltip:'刷新请求',id:'zx_refresh',iconCls:'refresh',
 								handler: function() {
 									zxjydjlc_store.load();									
+								}
+							},
+							{	
+								xtype:'button',text:'删除请求',tooltip:'删除请求',id:'zx_del',iconCls:'delete',
+								handler: function() {
+									new Ajax.Request("/desktop/delete_zxjy", { 
+										method: "POST",
+										parameters: '',
+										onComplete:	 function(request) {
+											if (request.responseText=='success'){
+												alert("删除成功。");	
+												zxjydjlc_store.load();												
+											}else{
+												alert("删除失败，请重新删除。");
+											}
+										}
+									});								
 								}
 							},
 							'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">案卷标题</span>:&nbsp;&nbsp;',

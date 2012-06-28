@@ -2387,12 +2387,15 @@ class DesktopController < ApplicationController
         if pars.length == 2
           if pars[1].to_i<99 
             txt=[]  
-            text=""         
-            data = User.find_by_sql("select distinct mlh from archive    where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
-            data.each do |dd|
-              txt << {:text => "目录 #{dd['mlh']}", :id => node+"_#{dd["mlh"]}", :leaf => true, :cls => "file"}
+            text=""
+            if pars[1].to_i==24
+              
+            else         
+              data = User.find_by_sql("select distinct mlh from archive    where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
+              data.each do |dd|
+                txt << {:text => "目录 #{dd['mlh']}", :id => node+"_#{dd["mlh"]}", :leaf => true, :cls => "file"}
+              end
             end
-            
           else
             dwdj=User.find_by_sql("select * from  d_dwdm where id= #{pars[0]};")
             data = User.find_by_sql("select distinct qxdm ,qxmc ,qxid,sx from qx_mlqx,d_dalb where user_id in (#{jsid}) and qxlb=0 and d_dalb.id=qxid and d_dalb.ownerid='#{pars[1]}' order by qxid;")
@@ -5809,12 +5812,20 @@ class DesktopController < ApplicationController
     
     def get_timage_tree
       text="["
-       
+       bh=''
        qjms=User.find_by_sql("select id,dh,yxbh from timage where dh='#{params['dh']}' order by id;")
        size=qjms.size
        if size>0
          qjms.each do |sb|
-           text=text+"{'text':'#{sb['yxbh']}','id' :'#{sb['id']}','checked':false,'leaf':true,'cls':'folder'},"
+           
+            bh=sb['yxbh'].split('.')
+            if sb['yxbh'].include?('ML')
+              yxbh='卷内第' +bh[0]+ '页'
+            else
+              yxbh='正文第' +bh[0]+ '页'
+            end
+            #yxbh='正文第'　+ bh[0] + '页'
+           text=text+"{'text':'#{yxbh}','id' :'#{sb['id']}','checked':false,'leaf':true,'cls':'folder'},"
          end   
        end                               
                
@@ -5826,10 +5837,43 @@ class DesktopController < ApplicationController
     def insert_zxjylist
         imageids=params['imageids'].split('$');
         User.find_by_sql("delete from jy_zxjylist;")
+        User.find_by_sql("update  jy_zxjy set zt='完成' where id=#{params['zxjyid']};")
         for k in 0..imageids.size-1          
-          User.find_by_sql("insert into jy_zxjylist (imageid) values ( #{imageids[k]});")
+          User.find_by_sql("insert into jy_zxjylist (image_id,zxjyid) values ( #{imageids[k]},#{params['zxjyid']});")
         end
         render :text => "success"        
+    end
+    
+    
+    def delete_zxjy
+        
+        User.find_by_sql("delete from jy_zxjy;")
+        
+        render :text => "success"        
+    end
+    
+    
+    #add on 6/26
+    def get_archive_where1
+      tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
+      request_id = rand(36**32).to_s(36);
+      User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
+      render :text => request_id
+    end
+
+    def check_result
+      request_id = params['request_id']
+      users = User.find_by_sql("select id, zt from jy_zxjy where request_id='#{request_id}';")
+      txt=""
+      if users[0] == "完成" 
+        users = User.find_by_sql("select dh, image_id from  jy_zxjylist where zxjyid=#{users[0].id}")
+        txt = users.to_json
+      elsif users[0].zt == "未找到"
+        txt = "未找到档案,请重新查询."
+      elsif users[0].zt == "查找中"
+        txt = "查找中"
+      end
+      render :text => txt;
     end
 
 end

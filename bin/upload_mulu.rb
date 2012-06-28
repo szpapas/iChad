@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
-
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
 require 'pg'
 require 'active_support'
 
@@ -30,6 +30,8 @@ def get_dalb(ifname)
     "永久文档一体化"=>24,
     "短期文档一体化"=>24,
     "长期文档一体化"=>24,
+    "定期-10年文档一体化"=>24,
+    "定期-30年文档一体化"=>24,
     "其他档案-电子档案目录"=>25,
     "其他档案-基建档案目录"=>26,
     "其他档案-设备档案目录"=>27,
@@ -44,38 +46,34 @@ def get_dalb(ifname)
   hh[key]   
 end
 
+#2005短期00文档一体化aj.txt
 def get_mlh(ifname)
-  if /(\d+)(永久.*)/.match(ifname)
+  if /(\d+)(永久)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3 + 2
-  elsif /(\d+)(长期.*)/.match(ifname)
+    jg = /(\d+)(永久.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5
+  elsif /(\d+)(长期)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3 + 1  
-  elsif /(\d+)(短期.*)/.match(ifname)
+    jg = /(\d+)(长期.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+1  
+  elsif /(\d+)(短期)(.*)(文档一体化.*)/.match(ifname)
     nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
-    mlh = 8000+(nd-2000)*3   
-  else 
-    mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
-    nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlh = 8000+(nd-2000)*3 + qx
+    jg = /(\d+)(短期.*)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+2  
+  elsif /(\d+)(定期-10年)(.*)(文档一体化.*)/.match(ifname)
+    nd = /(\d+)(定期-10年)/.match(ifname)[1].to_i
+    jg = /(\d+)(定期-10年)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+3
+  elsif /(\d+)(定期-30年)(.*)(文档一体化.*)/.match(ifname)  
+    nd = /(\d+)(定期-30年)/.match(ifname)[1].to_i
+    jg = /(\d+)(定期-30年)/.match(ifname)[3].to_i
+    mlh = 8000+(nd-2000)*50 + jg*5+4
   end
 end
 
 def get_mlm(ifname)
-  if /(\d+)(永久.*)/.match(ifname)
-    nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    mlm = "#{nd}-永久"
-  elsif /(\d+)(长期.*)/.match(ifname)
-    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
-    mlh = "#{nd}-长期"  
-  elsif /(\d+)(短期.*)/.match(ifname)
-    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
-    mlh = "#{nd}-短期"   
-  else 
-    mm = /(\d+)(.*)-(\d+年)(.*)/.match(ifname)
-    nd, qx = mm[1].to_i, mm[3].to_i/30
-    mlm = "#{nd}-#{mm[3]}"
-  end
+  ss=/(.*)(文档一体化.*)/.match(ifname)
+  mlh=ss[1]
 end
 
 
@@ -120,8 +118,14 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     zrz     = user['责任者']
     rq      = user['日期']
     bz      = user['备注']
-    dh      = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-
+    
+    if dalb == 24
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    else
+      jgwth = user['机构问题号']  
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth}"
+    end
+      
     if rq.length==0
       rq = 'null' 
     elsif rq.length==4
@@ -177,6 +181,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     boxrfid = user['盒标签']
     qrq     = user['起日期']
     zrq     = user['止日期']
+    jgwth   = user['机构问题号']
 
     tm  = user['案卷题名'] if tm.nil?
     tm  = user['题名'] if tm.nil?
@@ -187,7 +192,11 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     
     js = 1 if js == 0
     
-    dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    if dalb==24
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth.to_i}"
+    else  
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    end
     
     if nd.nil? || nd==''
       $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"

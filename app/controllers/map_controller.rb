@@ -835,4 +835,29 @@ class MapController < ApplicationController
       qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
       render :text => 'Success'
     end
+    
+    
+    #add on 6/26
+    def get_archive_where
+      tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
+      request_id = rand(36**32).to_s(36);
+      User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
+      render :text => request_id
+    end
+
+    def check_result
+      request_id = params['request_id']
+      users = User.find_by_sql("select id, zt from jy_zxjy where request_id='#{request_id}';")
+      txt=""
+      if users[0].zt == "完成" 
+        users = User.find_by_sql("select dh, image_id from  jy_zxjylist where zxjyid=#{users[0].id}")
+        txt = users.to_json
+        puts txt
+      elsif users[0].zt == "未找到"
+        txt = "未找到档案,请重新查询."
+      elsif users[0].zt == "查找中"
+        txt = "查找中"
+      end
+      render :text => txt;
+    end
 end

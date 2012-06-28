@@ -1437,6 +1437,123 @@ Ext.define('MyDesktop.Notepad', {
 						},
 						{
 							xtype: 'button',
+							iconCls: 'refresh',
+							text:'读取状态',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'读取状态',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (text[0]=='success'){
+													alert("读取状态成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("读取状态失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个设备进行模式转换。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'refresh',
+							text:'清除状态',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'清除状态',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (text[0]=='success'){
+													alert("读取状态成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("读取状态失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个设备进行模式转换。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
+							iconCls: 'refresh',
+							text:'读取温湿度',
+							handler: function() {
+								//this.up('window').hide();
+								var grid = Ext.getCmp('sb_cz_setup_grid');
+								var records = grid.getSelectionModel().getSelection();
+								if (records.length==1){
+									var record = records[0];
+									
+										var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'读取温湿度',sbid:record.data.id,userid:currentUser.id};
+										new Ajax.Request("/desktop/zn_kg_kz", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												text=request.responseText.split(':');
+												if (text[0]=='success'){
+													alert("读取状态成功。");																							
+													Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+													Ext.getCmp('sb_cz_setup_grid').store.load();
+												}else{
+													if (text[0]=='false'){
+														alert(text[1]);
+													}else{
+														alert("读取状态失败。");
+													}
+												}
+
+											}
+										})
+									
+
+								}else{
+									alert("请选择一个设备进行模式转换。");
+								}
+
+							}
+						},
+						{
+							xtype: 'button',
 							iconCls: 'settings',
 							text:'空调校准',
 							handler: function() {
