@@ -151,6 +151,10 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
 end
 
+def get_mlh(qx, nd, jg)
+  qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+  mlh = 8000+(nd-2000)*50 + jg*5 + qq.index(qx)
+end
 
 $dh, $archive_id = '', 0
 Find.find(path) do |path|
@@ -162,6 +166,31 @@ Find.find(path) do |path|
     end
   else
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
+      #./ws2010/长期$2010$0003$001/0002.jpg
+      
+      if !/(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path).nil?
+        ss = /(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path)
+        #1.	./ws2010
+        #2.	长期
+        #3.	2010
+        #4.	0003
+        #5.	001
+        #6.	0002.jpg
+
+        qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+        mlh = 8000+(ss[3].to_i-2000)*50 + ss[5].to_i*5 + qq.index(ss[2])
+        dh  = "#{qzh}-#{dalb}-#{mlh}-#{ss[4].to_i}-#{ss[5].to_i}"
+
+        if dh != $dh
+          $dh = dh
+          $stderr.puts "processing #{dh}... "
+        end
+        yxqz = "#{ss[3]}\$#{ss[4]}\$#{ss[5]}" 
+        sxh = ss[6]
+        
+        save2timage(sxh, path, $dh, yxqz)
+        next
+      end
       
       if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
         $stderr.puts(" *** Import Image: #{path} Format error.")
