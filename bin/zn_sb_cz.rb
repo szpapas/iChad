@@ -1,10 +1,12 @@
 #!/usr/bin/ruby
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/ruby-serialport-0.7.0/lib'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/ruby-serialport-0.7.0/lib'
 
+$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/'
 require 'serialport'
 require 'pg'
 require 'find'
-sp = SerialPort.new "/dev/ttyUSB0", 9600
+sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
 
 # ********************************************************************************************
 #
@@ -47,9 +49,10 @@ def write_sb(li,sp,tbt)
   #sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
   
 
-puts tbt
+
+
   sy=tbt.to_s(16)+ "," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
-  
+  #sy="09," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
   kzzl = sy.split(',') 
   yy=0
   for k in 0..16
@@ -96,13 +99,20 @@ end
             list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
             size=list.count
             if size>0
-              puts "jianting " +"update  zn_sb_cz_list set zt=2 id=#{list[0]['id']};"
-              zt=  $conn.exec("update  zn_sb_cz_list set zt=2 where id=#{list[0]['id']};") 
+              kt=$conn.exec("select * from zn_sb where id=#{list[0]['sbid']};") 
+              if kt[0]['sblx']=='3'  #空调返回值有问题，都是ff
+                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
+                zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};") 
+              else
+                puts "jianting " +"update  zn_sb_cz_list set zt=2 id=#{list[0]['id']};"
+                zt=  $conn.exec("update  zn_sb_cz_list set zt=2 where id=#{list[0]['id']};")
+              end
             end
           else
             list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
             size=list.count
             if size>0
+              
                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"               
                zt=  $conn.exec("update  zn_sb_cz_list set fhz='#{fhz}', zt=1 where id=#{list[0]['id']};")                 
             end
@@ -165,20 +175,31 @@ every_n_seconds(1) do
             zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
           when '温湿度'
-            ktzt=zt[0]['fhz']
-            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
-            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            ktzt=zt[0]['fhz'].split(',')
+            wsd=ktzt[11].to_i(16)
+            wsd=wsd.to_s + "," + ktzt[9].to_i(16).to_s
+            puts "update  zn_sb set kgzt='#{wsd}',ktzt='#{wsd}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{wsd}',ktzt='#{wsd}' where id=#{li['sbid']};")
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
           when '烟感'
-            ktzt=zt[0]['fhz']
-            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};"
-            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt}' where id=#{li['sbid']};")
+            ktzt=zt[0]['fhz'].split(',')
+            if ktzt[7]=='00'
+              kgzt='关'
+            else
+              kgzt='开'
+            end
+            puts "update  zn_sb set kgzt='#{kgzt}',ktzt='#{ktzt[7]}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{kgzt}',ktzt='#{ktzt[7].to_i}' where id=#{li['sbid']};")
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
           when '门磁'
             ktzt=zt[0]['fhz'].split(',')
-            
-            puts "update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt[8]}' where id=#{li['sbid']};"
-            zt=  $conn.exec("update  zn_sb set kgzt='#{sb_cz[0]['czsm']}',ktzt='#{ktzt[8]}' where id=#{li['sbid']};")
+            if ktzt[8]=='00'
+              kgzt='关'
+            else
+              kgzt='开'
+            end
+            puts "update  zn_sb set kgzt='#{kgzt}',ktzt='#{ktzt[8]}' where id=#{li['sbid']};"
+            zt=  $conn.exec("update  zn_sb set kgzt='#{kgzt}',ktzt='#{ktzt[8].to_i}' where id=#{li['sbid']};")
             $conn.exec("delete from zn_sb_cz_list where id=#{li['id']};")
           else
             czzt=$conn.exec("select * from  zn_sb_cz  where id=#{li['sbczid']};")

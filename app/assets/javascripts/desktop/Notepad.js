@@ -45,8 +45,9 @@ Ext.define('MyDesktop.Notepad', {
 		qjms_name="";
 		var tjlx_data = [
 		 ['0','按设备'],
-		 ['1','按人员'],
-		 ['2','按设备类型']
+		 ['1','按房间'],
+		 ['2','按设备类型'],
+		 ['3','按楼层']
 		];
 
 		var tjlx_store = new Ext.data.SimpleStore({
@@ -1126,7 +1127,7 @@ Ext.define('MyDesktop.Notepad', {
 					store: sb_cz_setup_store,				
 					columns: [
 						{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
-						{ text : '开关状态',	width : 30, sortable : true, dataIndex: 'kgzt',renderer:ztRender},
+						{ text : '开关状态',	width : 60, sortable : true, dataIndex: 'kgzt',renderer:ztRender},
 						{ text : '设备名称',	width : 70, sortable : true, dataIndex: 'sbmc'},
 						{ text : '设备说明',	width : 250, sortable : true, dataIndex: 'sbsm'},
 						{ text : '所属房间',	width : 100, sortable : true, dataIndex: 'fjmc'},
@@ -4687,6 +4688,8 @@ Ext.define('MyDesktop.Notepad', {
 						
 						{name: 'name',		type: 'string'},
 						{name: 'data1',		type: 'string'},
+						{name: 'data2',		type: 'string'},
+						{name: 'data3',		type: 'string'},
 						{name: 'userid',		type: 'integer'},
 						{name: 'sbmc',		type: 'string'},
 						{name: 'shgl',		type: 'string'},
@@ -4762,22 +4765,25 @@ Ext.define('MyDesktop.Notepad', {
 						layout: 'border',
 						//modal: true,
 						plain: true,
-						items:[{
-								id:'title',
+						items:[
+						  //  {
+						  //  	id:'title',
+						  //  	region: 'center',
+						  //  	//height: 200,
+						  //  	layout: 'fit',
+						  //  	split:true,
+						  //  	margins:'5 2 5 5',
+						  //  	items: sb_gl_tj_tab
+						  //  },
+							{
 								region: 'center',
-								//height: 200,
-								layout: 'fit',
-								split:true,
-								margins:'5 2 5 5',
-								items: sb_gl_tj_tab
-							},{
-								region: 'south',
 								iconCls:'icon-grid',
 								layout: 'fit',
 								height: 150,
 								split: true,
 								collapsible: true,
-								title: '设备分时统计图',
+								title: '设备能耗统计图（绿色：传统能耗，蓝色：实际能耗，红色：减少的碳排放）',
+								
 								items: {
 						            id: 'chartCmp',
 						            xtype: 'chart',
@@ -4785,45 +4791,48 @@ Ext.define('MyDesktop.Notepad', {
 						            animate: true,
 						            shadow: true,
 						            store: sb_gl_tj_zz_store,
+						            legend: {
+						              position: 'right'  
+						            },
 						            axes: [{
 						                type: 'Numeric',
-						                position: 'left',
-						                fields: ['data1'],
+						                position: 'bottom',
+						                fields: ['data1', 'data2', 'data3'],
+						                minimum: 0,
 						                label: {
 						                    renderer: Ext.util.Format.numberRenderer('0,0')
 						                },
-						                title: '功率（瓦）',
 						                grid: true,
-						                minimum: 0
+						                title: '能耗（度）'
 						            }, {
 						                type: 'Category',
-						                position: 'bottom',
+						                position: 'left',
 						                fields: ['name'],
-						                title: '时间（小时）'
+						                title: ''
 						            }],
 						            series: [{
-						                type: 'column',
-						                axis: 'left',
-						                highlight: true,
-						                tips: {
-						                  trackMouse: true,
-						                  width: 140,
-						                  height: 28,
-						                  renderer: function(storeItem, item) {
-						                    this.setTitle(storeItem.get('name') + ': ' + storeItem.get('data1'));
-						                  }
-						                },
-						                label: {
-						                  display: 'insideEnd',
-						                  'text-anchor': 'middle',
-						                    field: 'data1',
-						                    renderer: Ext.util.Format.numberRenderer('0'),
-						                    orientation: 'vertical',
-						                    color: '#333'
-						                },
+						                type: 'bar',
+						                axis: 'bottom',
+										highlight: true,
+										tips: {  
+										                  trackMouse: true,  
+										                  width: 140,  
+										                  height: 28,  
+										                  renderer: function(storeItem, item) {  
+										                    this.setTitle( item.value  );  
+										                  }},
 						                xField: 'name',
-						                yField: 'data1'
+									  // label: {  
+									  //                   display: 'insideEnd',  
+									  //                   'text-anchor': 'middle',  
+									  //                     field:  ['data1', 'data2', 'data3'],  
+									  //                     renderer: Ext.util.Format.numberRenderer('0'),  
+									  //                     orientation: 'vertical',  
+									  //                     color: '#333'  
+									  //                 },
+						                yField: ['data1', 'data2', 'data3']
 						            }]
+						           
 						        }
 
 							}],
@@ -4866,23 +4875,25 @@ Ext.define('MyDesktop.Notepad', {
 												if (Ext.getCmp("sb_gl_tj_zrq").rawValue!=''){
 													if (Ext.getCmp("sb_gl_tj_qrq").rawValue!=''){
 														if (Ext.getCmp("sb_tjlx").rawValue!=''){
-															switch (tjlx) { 
-																case 0: 
-																	var grid = Ext.getCmp('sb_gl_tj_setup_grid');
-																	grid.store.proxy.url="/desktop/get_sb_gl_tj_grid";
-																	grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:0,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
-																	grid.store.load();
-																	break; 
-																case 1:
-																	var grid = Ext.getCmp('sb_kg_tj_setup_grid');
-																	grid.store.proxy.url="/desktop/get_sb_kg_tj_grid";
-																	grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:1,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
-																	grid.store.load();
-																	break;
-																}
-															}else{
-																alert("统计类型不能为空。");
-															}																
+															sb_gl_tj_zz_store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:0,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};
+													   		sb_gl_tj_zz_store.load();
+														  // switch (tjlx) { 
+														  // 	case 0: 
+														  // 		var grid = Ext.getCmp('sb_gl_tj_setup_grid');
+														  // 		grid.store.proxy.url="/desktop/get_sb_gl_tj_grid";
+														  // 		grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:0,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
+														  // 		grid.store.load();
+														  // 		break; 
+														  // 	case 1:
+														  // 		var grid = Ext.getCmp('sb_kg_tj_setup_grid');
+														  // 		grid.store.proxy.url="/desktop/get_sb_kg_tj_grid";
+														  // 		grid.store.proxy.extraParams={tjzl:Ext.getCmp("sb_tjlx").rawValue,tjlx:1,qrq:Ext.getCmp("sb_gl_tj_qrq").rawValue,zrq:Ext.getCmp("sb_gl_tj_zrq").rawValue};																
+														  // 		grid.store.load();
+														  // 		break;
+														  // 	}
+														  }else{
+														  	alert("统计类型不能为空。");
+														  }																
 													}else{
 														alert("起日期不能为空。");
 													}

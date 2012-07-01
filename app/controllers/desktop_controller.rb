@@ -720,6 +720,7 @@ class DesktopController < ApplicationController
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"
       end
+      user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       if !File.exists?(local_filename)
         user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{params['gid']};")
@@ -4657,7 +4658,7 @@ class DesktopController < ApplicationController
       text=text+"{'text':'情景模式名称设置','id' :'8','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'情景模式设备操作设置','id' :'9','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'设备轮巡设置','id' :'10','checked':false,'leaf':true,'cls':'folder'},"
-      text=text+"{'text':'设备功率统计','id' :'11','checked':false,'leaf':true,'cls':'folder'},"
+      text=text+"{'text':'设备能耗统计分析','id' :'11','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'设备操作日志','id' :'7','checked':false,'leaf':true,'cls':'folder'}"
       text=text + "]"
       render :text => text
@@ -5668,17 +5669,63 @@ class DesktopController < ApplicationController
 
     def get_sb_gl_dj_zz_grid
       #txt="[{'name':'1','data1':'11'},{'name':'2','data1':'12'}]"
-        name=[]
-        gl=params['gl'].split(',')
-        gl[2]=((gl[1].to_f-gl[0].to_f)*0.785).to_i
-        name[0]="实耗功率"
-        name[1]="额定功率"
-        name[2]="减少碳排放"
-        txt="["
-        for k in 0..2
-            txt=txt+ "{'name':'#{name[k]}','data1':'#{gl[k]}'},"
-        end    
-        txt=txt+ "]"
+      case params['tjzl']
+        when "按设备"
+          txt="["
+            sb=User.find_by_sql("select distinct sbid from  zn_nh where rq>='#{params['qrq']}' and rq<='#{params['zrq']}';")
+            size=sb.size
+            for k in 0..size-1
+              sbname=User.find_by_sql("select  * from  zn_sb where id = #{sb[k]['sbid']}  ;")
+              nh=User.find_by_sql("select sum(ednh) as ednh,sum(sjnh) as sjnh from  zn_nh  where sbid=#{sb[k]['sbid']};")
+              gl=((nh[0]['ednh'].to_f-nh[0]['sjnh'].to_f)*0.785).to_i
+              txt=txt+ "{'name':'#{sbname[0]['sbmc']}','data1':'#{nh[0]['ednh']}','data2':'#{nh[0]['sjnh']}','data3':'#{gl}'},"
+            end
+          txt=txt+ "]"  
+        when "按房间"
+          txt="["
+            sb=User.find_by_sql("select * from  zn_fj where id in (7,8,9,10) ;")
+            size=sb.size
+            for k in 0..size-1
+              
+              nh=User.find_by_sql("select sum(ednh) as ednh,sum(sjnh) as sjnh from zn_nh,zn_fj,zn_sb where zn_nh.sbid=zn_sb.id and zn_sb.ssfj=zn_fj.id and  zn_fj.id=#{sb[k]['id']} and rq>='#{params['qrq']}' and rq<='#{params['zrq']}';")
+              gl=((nh[0]['ednh'].to_f-nh[0]['sjnh'].to_f)*0.785).to_i
+              txt=txt+ "{'name':'#{sb[k]['fjmc']}','data1':'#{nh[0]['ednh']}','data2':'#{nh[0]['sjnh']}','data3':'#{gl}'},"
+            end
+          txt=txt+ "]"
+        when "按设备类型"
+          txt="["
+            sb=User.find_by_sql("select * from  zn_sb_lx where id in (1,2,3) ;")
+            size=sb.size
+            for k in 0..size-1
+
+              nh=User.find_by_sql("select sum(ednh) as ednh,sum(sjnh) as sjnh from zn_nh,zn_sb_lx,zn_sb where zn_nh.sbid=zn_sb.id and zn_sb.sblx=zn_sb_lx.id and  zn_sb_lx.id=#{sb[k]['id']} and rq>='#{params['qrq']}' and rq<='#{params['zrq']}';")
+              gl=((nh[0]['ednh'].to_f-nh[0]['sjnh'].to_f)*0.785).to_i
+              txt=txt+ "{'name':'#{sb[k]['lxsm']}','data1':'#{nh[0]['ednh']}','data2':'#{nh[0]['sjnh']}','data3':'#{gl}'},"
+            end
+          txt=txt+ "]"
+        when "按楼层"
+          txt="["
+            sb=User.find_by_sql("select * from  zn_lc where id in (5) ;")
+            size=sb.size
+            for k in 0..size-1
+
+              nh=User.find_by_sql("select sum(ednh) as ednh,sum(sjnh) as sjnh from zn_nh,zn_lc,zn_sb where zn_nh.sbid=zn_sb.id and zn_sb.sslc=zn_lc.id and  zn_lc.id=#{sb[k]['id']} and rq>='#{params['qrq']}' and rq<='#{params['zrq']}';")
+              gl=((nh[0]['ednh'].to_f-nh[0]['sjnh'].to_f)*0.785).to_i
+              txt=txt+ "{'name':'#{sb[k]['lcmc']}','data1':'#{nh[0]['ednh']}','data2':'#{nh[0]['sjnh']}','data3':'#{gl}'},"
+            end
+          txt=txt+ "]"
+      end
+      #  name=[]
+      #  gl="3,10".split(',')
+      #  gl[2]=((gl[1].to_f-gl[0].to_f)*0.785).to_i
+      #  name[0]="实耗功"
+      #  name[1]="额定功"
+      #  name[2]="减少碳排"
+      #  txt="["
+      #  for k in 0..2
+      #      txt=txt+ "{'name':'#{name[k]}','data1':'#{gl[k]}','data2':'#{gl[k]}','data3':'#{gl[k]}'},"
+      #  end    
+      #  txt=txt+ "]"
         render :text => txt
     end
 
@@ -5847,7 +5894,7 @@ class DesktopController < ApplicationController
     
     def delete_zxjy
         
-        User.find_by_sql("delete from jy_zxjy;")
+        User.find_b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   y_sql("delete from jy_zxjy;")
         
         render :text => "success"        
     end
@@ -5875,5 +5922,7 @@ class DesktopController < ApplicationController
       end
       render :text => txt;
     end
+    
+    
 
 end

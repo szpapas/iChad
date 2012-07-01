@@ -843,6 +843,7 @@ class MapController < ApplicationController
     if !File.exists?("./dady/img_tmp/#{dh}/")
       system"mkdir -p ./dady/img_tmp/#{dh}/"
     end
+    user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
     local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
     if !File.exists?(local_filename)
       user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{gid};")
@@ -866,7 +867,7 @@ class MapController < ApplicationController
       users = User.find_by_sql("select dh, image_id from  jy_zxjylist where zxjyid=#{users[0].id}")
       ss = []
       for k in 0..users.size-1
-       pp = {"image_path"=>get_timage_from_db(users[k].image_id), "image_id"=>image_id}
+       pp = {"image_path"=>get_timage_from_db(users[k].image_id), "image_id"=>users[k].image_id}
        ss << pp 
       end
       txt = ss.to_json
@@ -875,35 +876,16 @@ class MapController < ApplicationController
     elsif users[0].zt == "查找中"
       txt = "查找中"
     end
-<<<<<<< HEAD
-    
-    
-    #add on 6/26
-    def get_archive_where
-      tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
-      request_id = rand(36**32).to_s(36);
-      User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
-      render :text => request_id
-    end
-
-    def check_result
-      request_id = params['request_id']
-      users = User.find_by_sql("select id, zt from jy_zxjy where request_id='#{request_id}';")
-      txt=""
-      if users[0].zt == "完成" 
-        users = User.find_by_sql("select dh, image_id from  jy_zxjylist where zxjyid=#{users[0].id}")
-        txt = users.to_json
-        puts txt
-      elsif users[0].zt == "未找到"
-        txt = "未找到档案,请重新查询."
-      elsif users[0].zt == "查找中"
-        txt = "查找中"
-      end
-      render :text => txt;
-    end
-=======
     render :text => txt;
   end
   
->>>>>>> 221ca6700a31c208e568e68dae271dc715424c07
+  
+  
+  def set_nh
+    users = User.find_by_sql("select* from zn_nh ;")
+    for k in 0..users.size-1
+      sjnh=users[k]['ednh'].to_i*(1-(rand(40).to_s.to_f/100).to_f)
+      update=User.find_by_sql("update zn_nh set sjnh='#{sjnh}' where id=#{users[k]['id']} ;")
+    end
+  end
 end
