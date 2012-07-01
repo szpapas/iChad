@@ -729,8 +729,8 @@ class DesktopController < ApplicationController
         ff.write(user[0]["data"])
         ff.close
         puts "./tmp/#{tmpfile} #{local_filename}"
-        #system("decrypt ./tmp/#{tmpfile} #{local_filename}")
-        system("scp ./tmp/#{tmpfile} #{local_filename}")
+        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        #system("scp ./tmp/#{tmpfile} #{local_filename}")
         system("rm ./tmp/#{tmpfile}")
       end
       #small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
