@@ -463,6 +463,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 			      timage_store.load();
 
 			      Ext.getCmp('timage_combo').lastQuery = null;
+				Ext.getCmp('preview_img').getEl().dom.src="";
 			});
 		  
 	  
@@ -6723,24 +6724,31 @@ Ext.define('MyDesktop.ArchiveMan', {
 										if (dh!=''){
 											combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc
 											if (combo!=''){
-												var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";
-												new Ajax.Request("/desktop/delete_timage", {
-								                    method: "POST",
-								                    parameters: {yxmc:combo,dh:dh},
-								                    onComplete:  function(request) {
-								                      var path = request.responseText;
-								                      if (path == 'success') { 
-								                        timage_store.proxy.extraParams = {dh:dh, type:'0'};
-													    timage_store.load();
-														Ext.getCmp('timage_combo').lastQuery = null;
-								                      }
-								                    }
+												Ext.Msg.confirm("提示信息","是否要删除："+combo+" 图像？",function callback(id){
+													if(id=="yes"){
+														var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";
+														new Ajax.Request("/desktop/delete_timage", {
+										                    method: "POST",
+										                    parameters: {yxmc:combo,dh:dh},
+										                    onComplete:  function(request) {
+										                      var path = request.responseText;
+										                      if (path == 'success') { 
+										                        timage_store.proxy.extraParams = {dh:dh, type:'0'};
+															    timage_store.load();
+																Ext.getCmp('timage_combo').lastQuery = null;
+																Ext.getCmp('preview_img').getEl().dom.src = '';
+										                      }
+										                    }
+														});
+													}
 												});
 											}
+										}
+										
 											
 					                 
 					              }
-								}
+								
 							}
 				            ],
 				            items:[{

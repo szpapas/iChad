@@ -730,8 +730,8 @@ class DesktopController < ApplicationController
         ff.write(user[0]["data"])
         ff.close
         puts "./tmp/#{tmpfile} #{local_filename}"
-        #system("decrypt ./tmp/#{tmpfile} #{local_filename}")
-        system("scp ./tmp/#{tmpfile} #{local_filename}")
+        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        #system("scp ./tmp/#{tmpfile} #{local_filename}")
         system("rm ./tmp/#{tmpfile}")
       end
       #small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
@@ -2143,7 +2143,7 @@ class DesktopController < ApplicationController
    user=User.find_by_sql("select * from users where id <> #{params['id']} and (email='#{params['email']}' or username='#{params['username']}');")
    size = user.size
    if size == 0
-     User.find_by_sql("update users set ssqz='#{params['ssqz']}',email='#{params['email']}', username='#{params['username']}', sfxsxyisj='#{params['sfxsxyisj']}' where id = #{params['id']};")
+     User.find_by_sql("update users set ssqz='#{params['ssqz']}', username='#{params['username']}', sfxsxyisj='#{params['sfxsxyisj']}' where id = #{params['id']};")
      txt='success'
    else
      txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
@@ -2154,12 +2154,12 @@ class DesktopController < ApplicationController
   #新增用户信息
   def insert_user
     #logger.debug  User。id
-    user=User.find_by_sql("select * from users where  email='#{params['email']}' or username='#{params['username']}';")
+    user=User.find_by_sql("select * from users where   username='#{params['username']}';")
     size = user.size
     if size == 0
    
       user = User.new
-   
+      params['email']=Time.now.strftime("%Y%m%d%H%M%S") + "@infodragon.com"
       user.email=params['email']
       user.username=params['username']
       user.sfxsxyisj=params['sfxsxyisj']
@@ -2171,10 +2171,43 @@ class DesktopController < ApplicationController
    
       txt='success'
     else
-      txt= '用户名称或Email已经存在，请重新输入用户名称或Email。'
+      txt= '用户名称已经存在，请重新输入用户名称。'
     end
     render :text => txt
   end
+  
+  #重置用户信息
+  def set_user_password
+    #logger.debug  User。id
+    user=User.find_by_sql("select * from users where id=#{params['userid']};")
+    size = user.size
+    if size == 1
+   
+      
+      user[0].password_confirmation="123456"
+   
+      user[0].password = "123456"
+      user[0].save
+   
+      txt='success'
+    else
+      txt= '此用户不存在，请重新选择用户。'
+    end
+    render :text => txt
+  end
+  
+  
+  def change_password
+    if params['password_confirmation'] == params['password']
+      User.current.password = params['password']
+      User.current.password_confirmation=params['password']
+      User.current.save
+      render :text => 'Success'
+    else
+      render :text => 'Falied'
+    end
+  end
+  
   
   #删除用户信息
   def delete_user
@@ -3083,7 +3116,7 @@ class DesktopController < ApplicationController
       User.find_by_sql("delete from archive  where id = #{params['id']};")
     end
 	  
-
+    User.find_by_sql("delete from document  where ownerid = #{params['id']};")
 	  render :text => 'success'
 	end
 
@@ -3988,10 +4021,19 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
                 if tdzl_wz[4]=='是'  
-                  bt=tdzl_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
+                  bt=tdzl_wz[0].to_i-600     
+                  convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" "  
+                  #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
+                #else
+                  #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
+                end
+                tm=split_string(user[i]['tdzl'],12)
+                strtm=tm.split("\n")
+                intheight=tdzl_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*tdzl_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzl_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if qlrmc_wz.size.to_i>0
@@ -4001,10 +4043,19 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
                 if qlrmc_wz[4]=='是'  
-                  bt=qlrmc_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{qlrmc_wz[3]} -draw \"text #{bt},#{qlrmc_wz[1]} '权利人名称：'\" -pointsize #{qlrmc_wz[3]} -draw \"text #{qlrmc_wz[0]},#{qlrmc_wz[1]} '#{user[i]['qlrmc']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{qlrmc_wz[3]} -draw \"text #{qlrmc_wz[0]},#{qlrmc_wz[1]} '#{user[i]['qlrmc']}'\""
+                  bt=qlrmc_wz[0].to_i-600 
+                  convertstr=convertstr +" -pointsize #{qlrmc_wz[3]} -draw \"text #{bt},#{qlrmc_wz[1]} '权利人名称：'\"  "    
+                  #convertstr=convertstr +" -pointsize #{qlrmc_wz[3]} -draw \"text #{bt},#{qlrmc_wz[1]} '权利人名称：'\" -pointsize #{qlrmc_wz[3]} -draw \"text #{qlrmc_wz[0]},#{qlrmc_wz[1]} '#{user[i]['qlrmc']}'\""
+                #else
+                  #convertstr=convertstr +" -pointsize #{qlrmc_wz[3]} -draw \"text #{qlrmc_wz[0]},#{qlrmc_wz[1]} '#{user[i]['qlrmc']}'\""
+                end
+                tm=split_string(user[i]['qlrmc'],12)
+                strtm=tm.split("\n")
+                intheight=qlrmc_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*qlrmc_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{qlrmc_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if tdzh_wz.size.to_i>0
@@ -4411,14 +4462,19 @@ class DesktopController < ApplicationController
   #新增卷内目录
   def insert_document
     if (params['rq']=="")
-      params['rq']=Time.now.strftime("%Y-%m-%d")
+      #params['rq']=Time.now.strftime("%Y-%m-%d")
+      params['rq']='null'
     end
     if !(params['sxh']=="")
       if (params['sxh']==params['sxh'].to_i.to_s)
         user=User.find_by_sql("select * from document where  dh='#{params['dh']}' and sxh=#{params['sxh']} ;")
         size = user.size
         if size == 0
-          User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
+          if params['rq']=='null'
+            User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}',#{params['rq']},'#{params['dh']}',#{params['ownerid']}) ")
+          else
+            User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
+          end
           txt = 'success'
         else
           txt='false:此顺序号已存在，请重新输入。'

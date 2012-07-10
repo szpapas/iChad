@@ -1,7 +1,9 @@
 #!/usr/bin/ruby
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
+
 require 'pg'
 require 'active_support'
 
@@ -48,27 +50,9 @@ end
 
 #2005短期00文档一体化aj.txt
 def get_mlh(ifname)
-  if /(\d+)(永久)(.*)(文档一体化.*)/.match(ifname)
-    nd = /(\d+)(永久.*)/.match(ifname)[1].to_i
-    jg = /(\d+)(永久.*)/.match(ifname)[3].to_i
-    mlh = 8000+(nd-2000)*50 + jg*5
-  elsif /(\d+)(长期)(.*)(文档一体化.*)/.match(ifname)
-    nd = /(\d+)(长期.*)/.match(ifname)[1].to_i
-    jg = /(\d+)(长期.*)/.match(ifname)[3].to_i
-    mlh = 8000+(nd-2000)*50 + jg*5+1  
-  elsif /(\d+)(短期)(.*)(文档一体化.*)/.match(ifname)
-    nd = /(\d+)(短期.*)/.match(ifname)[1].to_i
-    jg = /(\d+)(短期.*)/.match(ifname)[3].to_i
-    mlh = 8000+(nd-2000)*50 + jg*5+2  
-  elsif /(\d+)(定期-10年)(.*)(文档一体化.*)/.match(ifname)
-    nd = /(\d+)(定期-10年)/.match(ifname)[1].to_i
-    jg = /(\d+)(定期-10年)/.match(ifname)[3].to_i
-    mlh = 8000+(nd-2000)*50 + jg*5+3
-  elsif /(\d+)(定期-30年)(.*)(文档一体化.*)/.match(ifname)  
-    nd = /(\d+)(定期-30年)/.match(ifname)[1].to_i
-    jg = /(\d+)(定期-30年)/.match(ifname)[3].to_i
-    mlh = 8000+(nd-2000)*50 + jg*5+4
-  end
+  qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+  ss = /(\d+)(长期|永久|短期|定期-10年|定期-30年)(.*)(文档一体化.*)/.match(ifname)
+  mlh = 8000+(ss[1].to_i-2000)*50 + ss[3].to_i*5+ qq.index(ss[2])
 end
 
 def get_mlm(ifname)
@@ -119,12 +103,7 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     rq      = user['日期']
     bz      = user['备注']
     
-    if dalb == 24
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-    else
-      jgwth = user['机构问题号']  
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth}"
-    end
+    dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
       
     if rq.length==0
       rq = 'null' 
@@ -193,7 +172,8 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     js = 1 if js == 0
     
     if dalb==24
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{jgwth.to_i}"
+      ajh = user['件号']
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}-#{jgwth.to_i}"
     else  
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
     end
@@ -320,7 +300,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       zbbm  = user['主办部门'] 
       nd    = user['年度']
       bgqx  = user['保管期限']
-      jgwth = user['机构问题号']
+      jgwth = user['机构问题号'].to_i
       
       if rq.length==0
         zwrq = 'null' 

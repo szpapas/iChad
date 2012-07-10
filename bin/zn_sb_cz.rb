@@ -100,12 +100,12 @@ end
             size=list.count
             if size>0
               kt=$conn.exec("select * from zn_sb where id=#{list[0]['sbid']};") 
-              if kt[0]['sblx']=='3'  #空调返回值有问题，都是ff
+              if kt[0]['sblx']=='0000'  #空调返回值有问题，都是ff
                 puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
                 zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};") 
               else
-                puts "jianting " +"update  zn_sb_cz_list set zt=2 id=#{list[0]['id']};"
-                zt=  $conn.exec("update  zn_sb_cz_list set zt=2 where id=#{list[0]['id']};")
+                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
+                zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};")
               end
             end
           else

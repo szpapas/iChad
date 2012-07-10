@@ -133,7 +133,7 @@ Ext.define('MyDesktop.SystemMan', {
 					title: '修改用户信息',
 					//closeAction: 'hide',
 					width: 370,
-					height: 240,
+					height: 210,
 					
 					//minHeight: 200,
 					layout: 'fit',
@@ -154,34 +154,26 @@ Ext.define('MyDesktop.SystemMan', {
 								y: 10,
 								width: 100
 							},
-							{
-								xtype: 'label',
-								text: 'Email:',
-								x: 10,
-								y: 40,
-								width: 100
-							}
-							,
 							
 							{
 								xtype: 'label',
 								text: '是否显示下级档案:',
 								x: 10,
-								y: 70,
+								y: 40,
 								width: 100
 							},
 							{
 								xtype: 'label',
 								text: '所属全宗:',
 								x: 10,
-								y: 100,
+								y: 70,
 								width: 100
 							},
 							{
 								xtype: 'label',
 								text: '密码:',
 								x: 10,
-								y: 130,
+								y: 100,
 								id: 'user_ma',
 								width: 100
 							},
@@ -199,19 +191,11 @@ Ext.define('MyDesktop.SystemMan', {
 								name: 'username',
 								id:'user_username'
 							},
-							{
-								xtype: 'textfield',
-								x: 130,
-								y: 40,
-								width: 200,
-								name: 'email',
-								id:'user_email'
-							},
 							
 							{
 								xtype: 'combobox',
 								x: 130,
-								y: 70,
+								y: 40,
 								width: 200,
 								store: sf_store,
 								emptyText:'请选择',
@@ -226,7 +210,7 @@ Ext.define('MyDesktop.SystemMan', {
 							{
 								xtype: 'combobox',
 								x: 130,
-								y: 100,
+								y: 70,
 								width: 200,
 								store: qz_store,
 								emptyText:'请选择',
@@ -242,7 +226,7 @@ Ext.define('MyDesktop.SystemMan', {
 							{
 								xtype: 'textfield',
 								x: 130,
-								y: 130,
+								y: 100,
 								width: 200,
 								name: 'encrypted_password',
 								id:'user_encrypted_password'
@@ -255,7 +239,7 @@ Ext.define('MyDesktop.SystemMan', {
 								text:'修改',
 								handler: function() {
 									var pars=this.up('panel').getForm().getValues();
-									if(pars['email']!=''){
+									if(pars['username']!=''){
 										
 											if(add_new==false){
 												new Ajax.Request("/desktop/update_user", { 
@@ -508,10 +492,10 @@ Ext.define('MyDesktop.SystemMan', {
 				columns: [
 					{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
 					{ text : '用户名',	width : 100, sortable : true, dataIndex: 'username'},
-					{ text : 'Email',	width : 150, sortable : true, dataIndex: 'email'},
-					{ text : '是否显示下级档案',	width : 150, sortable : true, dataIndex: 'sfxsxyisj'},
-					{ text : '所属全宗',	width : 150, sortable : true, dataIndex: 'dwdm'},					
-					{ text : '密码',	width : 0, sortable : true, dataIndex: 'encrypted_password'}
+					//{ text : 'Email',	width : 150, sortable : true, dataIndex: 'email'},					
+					{ text : '所属全宗',	width : 150, sortable : true, dataIndex: 'dwdm'},
+					{ text : '是否显示下级档案',	width : 150, sortable : true, dataIndex: 'sfxsxyisj'}					
+					//{ text : '密码',	width : 0, sortable : true, dataIndex: 'encrypted_password'}
 					],
 					selType:'checkboxmodel',
 					//multiSelect:true,
@@ -699,6 +683,33 @@ Ext.define('MyDesktop.SystemMan', {
 										}
 									});									
 								}
+							}else{
+								alert("请您先选择一个用户。");
+							}
+						}
+					},
+					{
+						xtype: 'button',
+						iconCls: 'refresh',
+						text:'重置用户密码',
+						handler: function() {
+							var grid = Ext.getCmp('user_setup_grid');
+							var records = grid.getSelectionModel().getSelection();
+							if (records.length==1){
+								
+									insert_qx="({userid:" + records[0].data.id + "})";
+									new Ajax.Request("/desktop/set_user_password", { 
+										method: "POST",
+										parameters: eval(insert_qx),
+										onComplete:	 function(request) {
+											if (request.responseText=='success'){
+												alert("成功。");												
+											}else{
+												alert("失败，请重新选择。");
+											}
+										}
+									});									
+								
 							}else{
 								alert("请您先选择一个用户。");
 							}
@@ -1967,6 +1978,14 @@ Ext.define('MyDesktop.SystemMan', {
 						getNodes(root,false);
 						node.data.checked=true;
 						node.updateInfo({checked:true});
+						if (Ext.getCmp('qz_setup_win')!=undefined){Ext.getCmp('qz_setup_win').close();}
+						if (Ext.getCmp('qz_lb_setup_win')!=undefined){Ext.getCmp('qz_lb_setup_win').close();}
+						if (Ext.getCmp('qz_lb_ml_setup_win')!=undefined){Ext.getCmp('qz_lb_ml_setup_win').close();}
+						if (Ext.getCmp('js_setup_win')!=undefined){Ext.getCmp('js_setup_win').close();}
+						if (Ext.getCmp('js_qx_setup_win')!=undefined){Ext.getCmp('js_qx_setup_win').close();}
+						if (Ext.getCmp('user_sb_setup_win')!=undefined){Ext.getCmp('user_sb_setup_win').close();}
+						if (Ext.getCmp('user_setup_win')!=undefined){Ext.getCmp('user_setup_win').close();}						
+						
 						switch (node.data.id) { 
 							case "11": 
 								qz_setup();
