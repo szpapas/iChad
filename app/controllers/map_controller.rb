@@ -856,7 +856,10 @@ class MapController < ApplicationController
       #system("scp ./tmp/#{tmpfile} #{local_filename}")
       system("rm ./tmp/#{tmpfile}")
     end
+<<<<<<< HEAD
     #txt = "/assets/#{local_filename}".gsub('/./','/')
+=======
+>>>>>>> cd48d327e3c18fe760f12481cc461ab6803c5cb6
     txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/tiamge/')
   end
   
@@ -880,6 +883,7 @@ class MapController < ApplicationController
     render :text => txt;
   end
   
+<<<<<<< HEAD
   
   
   def set_nh
@@ -923,4 +927,22 @@ class MapController < ApplicationController
       render :text => "{success:true}"
     end
     
+=======
+  #add on July 1
+  def get_nh_day_list
+    user = User.find_by_sql("select dh, rmmc, sbid, sbmc, ednh, sjnh, rq from zn_nh inner join zn_sb on zn_nh.sbid = zn_sb.id order by sbmc, rq;")
+    render :text => user.to_json
+  end  
+  
+  def get_nh_dev_list
+    user = User.find_by_sql("select dh, sbid, sbmc, sum(ednh) as ednh, sum(sjnh) as sjnh from zn_nh inner join zn_sb on zn_nh.sbid = zn_sb.id group by dh, sbid, sbmc order by sbmc;")
+    render :text => user.to_json
+  end
+  
+  def get_nh_rm_list
+    user = User.find_by_sql("select dh, rmmc, sum(ednh) as ednh,  sum(sjnh) as sjnh from zn_nh inner join zn_sb on zn_nh.sbid = zn_sb.id group by dh, rmmc order by rmmc;")
+    render :text => user.to_json
+  end
+  
+>>>>>>> cd48d327e3c18fe760f12481cc461ab6803c5cb6
 end
