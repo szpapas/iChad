@@ -122,8 +122,8 @@ Ext.define('MyDesktop.WenshuMan', {
 			if (node.childNodes.size() == 0) return;
 			node.eachChild(function(n){
 				//Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById("1_1_1").data.checked
-			   				n.data.checked=tf;
-			   				n.updateInfo({checked:tf})
+		   				n.data.checked=tf;
+		   				n.updateInfo({checked:tf});
 							getNodes(n,tf);
 			   			});
 			

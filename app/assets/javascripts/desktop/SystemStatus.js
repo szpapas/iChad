@@ -530,7 +530,7 @@ Ext.define('MyDesktop.SystemStatus', {
                                 var users = eval("("+request.responseText+")");
                                 if (users.size() > 0) {
                                   //msg('重要提示', '该目录已经存在，继续操作将删除该目录所有数据！');
-                                  user =users[0]
+                                  user =users[0];
                                   Ext.getCmp('dwdm_id').setValue(user.dwdm);
                                   Ext.getCmp('qzjc_id').setValue(user.dwjc);
                                   Ext.getCmp('qzsx_id').setValue(user.qzsx);
@@ -847,7 +847,6 @@ Ext.define('MyDesktop.SystemStatus', {
         buttons: [{
             text: '下一个',
             handler: function() {
-
             }
           },{
             text: '保存',
@@ -1067,7 +1066,7 @@ Ext.define('MyDesktop.SystemStatus', {
     
     var ajhRender = function(val) {
       return '<a href="'+val+'" target="_BLANK">打开目录</a>';
-      <A HREF="newwindow.html" TARGET="_blank">a new window</A>
+      //<A HREF="newwindow.html" TARGET="_blank">a new window</A>
       //return '<a href="C:/Program%20Files/ACDSee/ACDSee.exe">打开目录</a>'
       //return  '<a href=\"#\" onclick=\"Run(\'file:///C:/Program%20Files/ACDSee/ACDSee.exe\')\">打开目录</a>'  
     };

@@ -665,7 +665,7 @@ var DispAj_zh = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -743,7 +743,7 @@ var DispAj_zh = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -1110,7 +1110,7 @@ var DispAj_cw = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
@@ -1187,7 +1187,7 @@ var DispAj_cw = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -1564,7 +1564,7 @@ var DispAj_tddj = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
@@ -1641,7 +1641,7 @@ var DispAj_tddj = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -2068,7 +2068,7 @@ var DispAj_wsda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
 								method: "POST",
@@ -2647,7 +2647,7 @@ var DispAj_sx = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -2725,7 +2725,7 @@ var DispAj_sx = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -3105,7 +3105,7 @@ var DispAj_tjml = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -3183,7 +3183,7 @@ var DispAj_tjml = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -3485,7 +3485,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -3563,7 +3563,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 										alert("档号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -4041,7 +4041,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -4119,7 +4119,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 										alert("档号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -4527,7 +4527,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -4602,7 +4602,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -4972,7 +4972,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -5050,7 +5050,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -5435,7 +5435,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -5513,7 +5513,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 										alert("目录号不能为空。");
 										field.value=oldValue;
 									}else{
-										qzh=title.split("_")
+										qzh=title.split("_");
 										if(add_new==false){
 							               //alert(newValue+'---'+'oldValue');
 										}
@@ -5877,7 +5877,7 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -6219,7 +6219,7 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -6504,7 +6504,7 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -6787,7 +6787,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -7114,7 +7114,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 					id:'button_aj_add',
 					text:'修改',
 					handler: function() {
-						var pars=Ext.getCmp('daglaj_form').getForm().getValues()
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
 						
 						if(add_new==false){
 							new Ajax.Request("/desktop/update_flow", { 
@@ -7443,7 +7443,7 @@ var DispJr = function(recordad,add_new){
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {
-										fhz=request.responseText.split(":")
+										fhz=request.responseText.split(":");
 										if (fhz[0]=='success'){
 											alert("卷内修改成功。");
 											Ext.getCmp('document_grid').store.load();
@@ -7464,7 +7464,7 @@ var DispJr = function(recordad,add_new){
 									method: "POST",
 									parameters: pars,
 									onComplete:	 function(request) {
-										fhz=request.responseText.split(":")
+										fhz=request.responseText.split(":");
 										if (fhz[0]=='success'){
 											alert("卷内新增成功。");
 											Ext.getCmp('document_grid').store.load();
@@ -7533,7 +7533,7 @@ var sb_cz_msg = function(sbid){
 			method: "POST",
 			parameters: {sbid:sbid},
 			onComplete:	 function(request) {
-				text=request.responseText.split(':')
+				text=request.responseText.split(':');
 				if (text[0]=='success'){
 					alert("设备操作成功。");
 																
@@ -7607,11 +7607,9 @@ var sb_cz_msg = function(sbid){
 					width: 8,
 					height:8,
 					id:'zzcz_disp'
-					}]
+				}]
 
 			}]
-								
-			
 		})
 	}
 
