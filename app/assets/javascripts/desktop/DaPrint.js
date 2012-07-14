@@ -609,8 +609,8 @@ Ext.define('MyDesktop.DaPrint', {
 									              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 									              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
 									              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-									              LODOP.PREVIEW();
-											      //LODOP.PRINT();
+									              //LODOP.PREVIEW();
+											      LODOP.PRINT();
 												}
 													alert("打印成功。"+fhz[1] );
 													
