@@ -482,9 +482,6 @@
 .xjhd {
     background-image: url(/assets/borman/xjhd.png ) !important;
 }
-.exit {
-    background-image: url(/assets/borman/exit.png ) !important;
-}
 .refresh {
     background-image: url(/assets/table_refresh.png ) !important;
 }
@@ -582,5 +579,13 @@
 
 .write32 {
     background-image: url(/assets/dangan/write32.png ) !important;
+}
+
+.exit {
+	background-image: url(/assets/exit.png ) !important;
+} 
+ 
+.key {
+  background-image: url(/assets/key16.png ) !important;
 }
 

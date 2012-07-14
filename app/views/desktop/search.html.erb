@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>激扬软件查询</title>
+   <%= stylesheet_link_tag 'jive-global' %>
+</head>
+<body>
+  <div id="jive-body-full">
+	  <div class='logo'>
+    </div>
+    <div id="jive-body-main">
+        <!-- BEGIN main body column -->
+        <div id="jive-body-maincol-container">
+            <div id="jive-body-maincol">
+                <!-- BEGIN login form -->
+                <div class="jive-standard-formblock-container jive-login-formblock">
+                    <div class="jive-standard-formblock">
+                      <div id="jive-login-username">
+                      <input type="text" name="user[login]" size="30" maxlength="150" value="" id="user_login">
+                      </div>
+                      <div class="jive-form-buttons">
+                          <p><%= submit_tag '查询' %></p>
+                      </div>
+                    </div>
+                </div>
+                <!-- END login form -->
+
+            </div>
+      			<p align="center">请使用<a href="http://firefox.com.cn/download/">Firefox</a>或<a href="http://www.google.cn/chrome">Chrome</a>进行浏览！</p>
+        </div>
+        <!-- END main body column -->
+    </div>
+    <!-- END main body -->
+  </div>
+
+  <!-- BEGIN footer -->
+  <div id="jive-footer" class="clearfix">
+    <div class="jive-footer-nav">
+      Copyright © 2011, Brightechs, Inc.            
+        <div class="jiveVersion" style="display: none;">
+          Webgis Software Version: 33            
+        </div>
+      -  <a href="mailto:szpapas@qq.com">技术支持Email</a>
+     </div>
+
+  </div>
+  <!-- END footer -->
+
+</body>
+</html>

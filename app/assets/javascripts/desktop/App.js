@@ -106,7 +106,7 @@ Ext.define('MyDesktop.App', {
                 width: 100,
                 items: [
                     {
-                        text:'设置',
+                        text:'基本设置',
                         iconCls:'settings',
                         handler: me.onSettings,
                         scope: me
@@ -191,8 +191,8 @@ Ext.define('MyDesktop.App', {
                       }             
                     },'-',
                     {
-                        text:'退出',
-                        iconCls:'logout',
+                        text:'退出系统',
+                        iconCls:'exit',
                         handler: me.onLogout,
                         scope: me
                     }

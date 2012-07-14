@@ -10,7 +10,10 @@ class DesktopController < ApplicationController
   #$sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
   #puts $sp
   def index
-    
+  end
+  
+  def search
+  
   end
   
   def get_user    
@@ -18,7 +21,6 @@ class DesktopController < ApplicationController
   end
   
   def check_key
-    
   end
   
   def get_mulu
@@ -5979,6 +5981,30 @@ class DesktopController < ApplicationController
       render :text => txt;
     end
     
+    #add by liujun on July 14
+    def get_q_status_tree
+      text = []
+      node = params["node"]
+      if node == "root"
+        data = User.find_by_sql("select zt, count(*) from q_qzxx group by zt order by zt;")
+        data.each do |dd|
+          dd['zt'] = "未统计" if dd['zt'].nil? || dd['zt'] == ""
+          text << {:text => "#{dd['zt']} (#{dd['count']})", :id => dd["zt"], :cls => "folder"}
+        end
+      else
+        pars = node.split('|') || []
+        if pars[0] == '未统计' 
+          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='' or zt is null order by mlh;")
+        else
+          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='#{pars[0]}' order by mlh;")
+        end
+        
+        data.each do |dd|
+            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
+        end
+      end
+      render :text => text.to_json
+    end
     
 
 end

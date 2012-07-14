@@ -139,7 +139,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'8',filter:"全部", dalb:""};
+    qzgl_store.proxy.extraParams={qzh:'9',filter:"全部", dalb:""};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -789,7 +789,7 @@ Ext.define('MyDesktop.SystemStatus', {
            id : 'qzh_field',
            name : 'qzh',
            width: 40,
-           value: '8',
+           value: '9',
            listeners:{
              'blur': function(field){
                qzgl_store.proxy.extraParams.qzh=field.getValue();
@@ -907,7 +907,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzzt_store.proxy.extraParams={qzh:'4'};
+    qzzt_store.proxy.extraParams={qzh:'9'};
     qzzt_store.load();
 
     var ztRender = function(val) {
@@ -1065,11 +1065,63 @@ Ext.define('MyDesktop.SystemStatus', {
     };
     
     var ajhRender = function(val) {
-      return '<a href="'+val+'" target="_BLANK">打开目录</a>';
+      // /mnt/wx/o/320/320/320\$C\$0485
+      var path2 = val.replace("/mnt/wx/n","N:").replace("/mnt/wx/o","O:").replace(/\//g,"\\")
+      var path1 = val.replace("/mnt/wx/n","file:///N:").replace("/mnt/wx/o","file:///O:")
+      return '<a href="'+path1+'/" target="_BLANK">' + path2 + '\\</a>';
       //<A HREF="newwindow.html" TARGET="_blank">a new window</A>
       //return '<a href="C:/Program%20Files/ACDSee/ACDSee.exe">打开目录</a>'
       //return  '<a href=\"#\" onclick=\"Run(\'file:///C:/Program%20Files/ACDSee/ACDSee.exe\')\">打开目录</a>'  
     };
+    
+    var tree_store = Ext.create('Ext.data.TreeStore', {
+        autoLoad: true,
+        proxy: {
+            type: 'ajax',
+            url: 'desktop/get_q_status_tree',
+            extraParams: {
+              node:"root",userid:currentUser.id
+            },
+            actionMethods: 'POST'
+        }
+    });
+    
+    var treePanel = Ext.create('Ext.tree.Panel', {
+      store: tree_store,
+      id:'system_status_tree',
+      rootVisible: false,
+      useArrows: true,
+      singleExpand: true,
+      autoScroll: true,
+      tbar:['->',
+      {
+        xtype:'button',
+        text:'刷新目录',
+        tooltip:'刷新目录',
+        iconCls:'refresh',
+        handler: function() {
+          Ext.getCmp('system_status_tree').store.load();
+        }
+      }
+      ],
+      width: 200
+    });
+    
+    
+    treePanel.on("select",function(node){ 
+      data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
+      ss=data.id.split('|');
+      if (ss.length==1){
+        qzgl_store.proxy.extraParams.filter=ss[0];
+        qzgl_store.load();
+      } else {    //Detail 
+        Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
+        mulu_qz_store.proxy.extraParams.dh=ss[1]; 
+        mulu_qz_store.proxy.extraParams.filter='全部'; 
+        mulu_qz_store.load();
+      }
+       
+    });
 
     var mulu_qz_grid = new Ext.grid.GridPanel({
       id: 'mulu_qz_grid_id',
@@ -1092,7 +1144,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '旧卷', align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
         { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
         { text : '状态', align:"center", width : 40, sortable : true, dataIndex: 'zt', renderer:ztRenderer},
-        { text : '打开', align:"center", width : 100, sortable : true, dataIndex: 'yx_path', renderer:ajhRender},
+        { text : '打开', align:"left", width : 200, sortable : true, dataIndex: 'yx_path', renderer:ajhRender},
       ],
       //width :  800,
       //height : 350,
@@ -1278,6 +1330,12 @@ Ext.define('MyDesktop.SystemStatus', {
     mulu_qz_grid.on("select", function(node){
     });
     
+    mulu_qz_grid.on('itemclick', function(grid, item, r){
+      var data = item.data;
+      var yx_path = data.yx_path.replace("/mnt/wx/n","N:").replace("/mnt/wx/o","O:").replace(/\//g,'\\');
+      window.prompt ("复制到剪贴版: Ctrl+C, 回车", yx_path);
+    });
+     
     mulu_qz_grid.on('itemdblclick', function(grid, item, r){
       data = item.data;
       
@@ -1371,8 +1429,8 @@ Ext.define('MyDesktop.SystemStatus', {
         id: 'systemstatus',
         title:'档案统计',
         iconCls:'datj16',
-        width:800,
-        height:500,
+        width:1000,
+        height:600,
         x : 100,
         y : 50,
         animCollapse:false,
@@ -1381,11 +1439,23 @@ Ext.define('MyDesktop.SystemStatus', {
         hideMode: 'offsets',
         items: [{
           layout:"border",
-          items:[{
+          items:[{ 
+              title:'档案类别',
+              region:'west',
+              iconCls:'dept_tree',
+              xtype:'panel',
+              margins:'5 2 5 5',
+              width: 200,
+              collapsible:true,//可以被折叠
+              id:'west-tree',
+              layout:'fit',
+              split:true,
+              items:[treePanel]
+            },{
               region:"center",
               layout:"fit",
               items:[qzglPanel]
-            }]
+          }]
         }]
         
       });
