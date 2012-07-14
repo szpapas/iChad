@@ -572,10 +572,15 @@ var DispAj_zh = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					//var grid = Ext.getCmp('archive_grid');
+					//var records = grid.getSelectionModel().getSelection();
+					//var record = records[0];
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					}
 
 				}
 			},
@@ -613,7 +618,7 @@ var DispAj_zh = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -637,7 +642,8 @@ var DispAj_zh = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						//DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -673,9 +679,7 @@ var DispAj_zh = function(record,add_new,title){
 								parameters: pars,
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
-										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										alert("案卷修改成功。");																						
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -687,11 +691,14 @@ var DispAj_zh = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;											
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -707,6 +714,7 @@ var DispAj_zh = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();						
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -1017,10 +1025,12 @@ var DispAj_cw = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('cw_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('cw_id').value,Ext.getCmp('cw_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					}
 
 				}
 			},
@@ -1058,7 +1068,7 @@ var DispAj_cw = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -1082,7 +1092,7 @@ var DispAj_cw = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -1118,8 +1128,8 @@ var DispAj_cw = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid_cw').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid_cw').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -1131,11 +1141,14 @@ var DispAj_cw = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid_cw').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('cw_id').setValue(responseT[2]);
+										Ext.getCmp('cw_dh').setValue(responseT[1]);
+										add_new=false;												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -1151,6 +1164,7 @@ var DispAj_cw = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid_cw').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -1387,15 +1401,23 @@ var DispAj_cw = function(record,add_new,title){
 						id: 'cw_dalb',
 	                    x: 10,
 	                    y: 190
-	                }	,
-		                {
-		                    xtype: 'textfield',
-		                    hidden : true,
-							name: 'id',
-							id: 'cw_id',
-		                    x: 10,
-		                    y: 190
-		                }
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'cw_id',
+	                    x: 10,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'cw_dh',
+	                    x: 10,
+	                    y: 190
+	                }
 	            ]
 			}]
 		});
@@ -1471,10 +1493,12 @@ var DispAj_tddj = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('tddj_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('tddj_id').value,Ext.getCmp('tddj_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					}
 
 				}
 			},
@@ -1512,7 +1536,7 @@ var DispAj_tddj = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -1536,7 +1560,7 @@ var DispAj_tddj = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -1572,8 +1596,8 @@ var DispAj_tddj = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid_tddj').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid_tddj').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -1585,11 +1609,14 @@ var DispAj_tddj = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid_tddj').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('tddj_id').setValue(responseT[2]);
+										Ext.getCmp('tddj_dh').setValue(responseT[1]);
+										add_new=false;												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -1605,6 +1632,7 @@ var DispAj_tddj = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid_tddj').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -1889,15 +1917,23 @@ var DispAj_tddj = function(record,add_new,title){
 						id: 'tddj_dalb',
 	                    x: 10,
 	                    y: 190
-	                }	,
-		                {
-		                    xtype: 'textfield',
-		                    hidden : true,
-							name: 'id',
-							id: 'tddj_id',
-		                    x: 10,
-		                    y: 190
-		                }
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'tddj_id',
+	                    x: 10,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'tddj_dh',
+	                    x: 10,
+	                    y: 190
+	                }
 	            ]
 			}]
 		});
@@ -2089,7 +2125,8 @@ var DispAj_wsda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid_wsda').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -2554,10 +2591,12 @@ var DispAj_sx = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					}
 
 				}
 			},
@@ -2595,7 +2634,7 @@ var DispAj_sx = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -2619,7 +2658,7 @@ var DispAj_sx = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -2656,8 +2695,8 @@ var DispAj_sx = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -2669,11 +2708,14 @@ var DispAj_sx = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;											
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -2689,6 +2731,7 @@ var DispAj_sx = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -2933,6 +2976,14 @@ var DispAj_sx = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -3012,11 +3063,12 @@ var DispAj_tjml = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
-
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					};
 				}
 			},
 			{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
@@ -3053,7 +3105,7 @@ var DispAj_tjml = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -3077,7 +3129,7 @@ var DispAj_tjml = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -3114,8 +3166,8 @@ var DispAj_tjml = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -3127,11 +3179,14 @@ var DispAj_tjml = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -3147,6 +3202,7 @@ var DispAj_tjml = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -3311,6 +3367,14 @@ var DispAj_tjml = function(record,add_new,title){
 	                    hidden : true,
 						name: 'id',
 						id: 'zh_id',
+	                    x: 10,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
 	                }
@@ -3494,8 +3558,8 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -3507,11 +3571,14 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -3527,6 +3594,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -3869,6 +3937,14 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -3948,10 +4024,12 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					};
 
 				}
 			},
@@ -3989,7 +4067,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -4013,7 +4091,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -4050,8 +4128,8 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -4063,11 +4141,14 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;												
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -4083,6 +4164,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -4355,6 +4437,14 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -4434,10 +4524,12 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					};
 
 				}
 			},
@@ -4475,7 +4567,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -4499,7 +4591,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -4536,8 +4628,8 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -4549,11 +4641,14 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;											
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -4569,6 +4664,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -4800,6 +4896,14 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -4879,10 +4983,12 @@ var DispAj_qtda_swda = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					var grid = Ext.getCmp('archive_grid');
-					var records = grid.getSelectionModel().getSelection();
-					var record = records[0];
-					DispJr(record,true);
+					if (Ext.getCmp('zh_id').value!=undefined){
+						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					};
 
 				}
 			},
@@ -4920,7 +5026,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					var data = [];
 					Ext.Array.each(records,function(model){
 						data.push(Ext.JSON.encode(model.get('id')));
-						DispJr(model,false);
+						DispJr(model,false,'','',true);
 					});
 				}
 			}
@@ -4944,7 +5050,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					fn:function(v,r,i,n,e,b){
 						var tt=r.get("zrq");
 						//showContactForm();
-						DispJr(r,false);
+						DispJr(r,false,'','',true);
 						//alert(tt);
 					}
 				}
@@ -4981,8 +5087,8 @@ var DispAj_qtda_swda = function(record,add_new,title){
 								onComplete:	 function(request) {
 									if (request.responseText=='success'){
 										alert("案卷修改成功。");
-										Ext.getCmp('archive_grid').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										//Ext.getCmp('archive_grid').store.load();
+										//Ext.getCmp('archive_detail_win').close();												
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -4994,11 +5100,14 @@ var DispAj_qtda_swda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
-										Ext.getCmp('archive_grid').store.load();
-										//Ext.getCmp('archive_tree').store.load();
-										Ext.getCmp('archive_detail_win').close();												
+										dh=responseT[1];
+										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('zh_id').setValue(responseT[2]);
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
+										add_new=false;											
 									}else{
 										alert("案卷新增失败，请重新保存。"+request.responseText);
 									}
@@ -5014,6 +5123,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
+						Ext.getCmp('archive_grid').store.load();
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -5263,6 +5373,14 @@ var DispAj_qtda_swda = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -5457,7 +5575,8 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -5899,7 +6018,8 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -6241,7 +6361,8 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -6526,7 +6647,8 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -6809,7 +6931,8 @@ var DispAj_by_dsj = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										////Ext.getCmp('archive_tree')//Ext.getCmp('archive_tree').store.load();
@@ -7136,7 +7259,8 @@ var DispAj_by_qzsm = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_tree').store.load();
@@ -7269,7 +7393,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 
 
 //显示卷内目录窗口
-var DispJr = function(recordad,add_new){
+var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 	var win = Ext.getCmp('document_detail_win');
 	if (win==null) {
 		win = new Ext.Window({
@@ -7446,8 +7570,16 @@ var DispJr = function(recordad,add_new){
 										fhz=request.responseText.split(":");
 										if (fhz[0]=='success'){
 											alert("卷内修改成功。");
-											Ext.getCmp('document_grid').store.load();
-											Ext.getCmp('document_detail_win').close();												
+											if (aj_add_new==true){
+												if (add_new==true){
+													Ext.getCmp('com_document_grid').store.proxy.extraParams.query=jr_aj_ownerid;
+												};
+												Ext.getCmp('com_document_grid').store.load();	
+											}else
+											{
+												Ext.getCmp('document_grid').store.load();
+											};
+											Ext.getCmp('document_detail_win').close();											
 										}else{
 											if (fhz[0]=='false')
 											{
@@ -7467,8 +7599,16 @@ var DispJr = function(recordad,add_new){
 										fhz=request.responseText.split(":");
 										if (fhz[0]=='success'){
 											alert("卷内新增成功。");
-											Ext.getCmp('document_grid').store.load();
-											Ext.getCmp('document_detail_win').close();												
+											if (aj_add_new==true){
+												if (add_new==true){
+													Ext.getCmp('com_document_grid').store.proxy.extraParams.query=jr_aj_ownerid;
+												};
+												Ext.getCmp('com_document_grid').store.load();	
+											}else
+											{
+												Ext.getCmp('document_grid').store.load();
+											};
+											Ext.getCmp('document_detail_win').close();										
 										}else{
 											if (fhz[0]=='false')
 											{
@@ -7490,6 +7630,15 @@ var DispJr = function(recordad,add_new){
 						text:'退出',
 						handler: function() {
 							//this.up('window').close();
+							if (aj_add_new==true){
+								if (add_new==true){
+									Ext.getCmp('com_document_grid').store.proxy.extraParams.query=jr_aj_ownerid;
+								};
+								Ext.getCmp('com_document_grid').store.load();	
+							}else
+							{
+								Ext.getCmp('document_grid').store.load();
+							};					
 							Ext.getCmp('document_detail_win').close();
 						}
 					}]
@@ -7504,8 +7653,20 @@ var DispJr = function(recordad,add_new){
 	}else{
 		
 		Ext.getCmp('button_jr_add').text="新增";
-		Ext.getCmp('jr_dh').setValue(recordad.data.dh);
-		Ext.getCmp('jr_ownerid').setValue(recordad.data.id);
+		
+		if (jr_dh!=undefined){
+			Ext.getCmp('jr_dh').setValue(jr_dh);
+		}else{
+			Ext.getCmp('jr_dh').setValue(recordad.data.dh);
+		};
+		if (jr_aj_ownerid!=undefined){
+			Ext.getCmp('jr_ownerid').setValue(jr_aj_ownerid);
+		}else{
+			Ext.getCmp('jr_ownerid').setValue(recordad.data.id);
+		};
+	
+		
+		
 		Ext.getCmp('jr_sxh').setValue("");
 		Ext.getCmp('jr_tm').setValue("");
 		Ext.getCmp('jr_wh').setValue("");
