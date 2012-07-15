@@ -30,17 +30,94 @@ Ext.define('MyDesktop.SystemStatus', {
     var win = desktop.getWindow('systemstatus');
     
     //图像显示窗口
+    var scale = 1.0;
+    var scaleMultiplier = 0.8;
+    var translatePos =  { x: 0,y: 0};
+    var imageObj = new Image();
+    
+    // translate context to center of canvas
+    // context.translate(canvas.width / 2, canvas.height / 2);
+    // rotate context 45 degrees clockwise
+    // context.rotate(Math.PI / 4);
+    
+    var draw_plain = function(scale, translatePos, imageObj){
+      
+      var canvas = document.getElementById("myCanvas");
+      var context = canvas.getContext("2d");
+      
+      // clear canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.save();
+
+      //context.translate(translatePos.x, translatePos.y);
+      context.scale(scale, scale);
+
+      imageObj.onload = function(){
+        //var centerX = translatePos.x + canvas.width / 2;
+        //var centerY = translatePos.y + canvas.height / 2;
+        //imgW = imageObj.width;
+        //imgH = imageObj.height;
+        //context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+        
+        imgW = imageObj.width;
+        imgH = imageObj.height;
+        context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+      };
+      
+      imgW = imageObj.width;
+      imgH = imageObj.height;
+      context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+
+      context.restore();
+    }
+    
+    var angle = Math.PI/2;
+    
+    var draw = function(scale, translatePos, imageObj){
+      
+      var canvas = document.getElementById("myCanvas");
+      var context = canvas.getContext("2d");
+      
+      // clear canvas
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.save();
+      
+      var imgW = imageObj.width;
+      var imgH = imageObj.height;
+
+      context.translate(translatePos.x + imgW/2, translatePos.y+imgH/2);
+      context.rotate(angle);
+      context.scale(scale, scale);
+
+      imageObj.onload = function(){
+        var centerX = translatePos.x + canvas.width / 2;
+        var centerY = translatePos.y + canvas.height / 2;
+        imgW = imageObj.width;
+        imgH = imageObj.height;
+        context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+      };
+      
+      var centerX = translatePos.x + canvas.width / 2;
+      var centerY = translatePos.y + canvas.height / 2;
+      imgW = imageObj.width;
+      imgH = imageObj.height;
+      context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+
+      context.restore();
+    }
+    
+    
     var show_image = function() {
     
       var canvas_string =
         '<div id="wrapper">'
-        +' <div id="buttonWrapper">'
-        +' <input type="button" id="prev" value="<">'
-        +' <input type="button" id="plus" value="+">'
-        +' <input type="button" isd="minus" value="—">'
-        +' <input type="button" id="next" value=">">'
-        +' </div>'
-        +' <canvas id="myCanvas" width="530" height="800">'
+     //   +' <div id="buttonWrapper">'
+     //   +' <input type="button" id="prev" value="<">'
+     //   +' <input type="button" id="plus" value="+">'
+     //   +' <input type="button" id="minus" value="—">'
+     //   +' <input type="button" id="next" value=">">'
+     //   +' </div>'
+        +' <canvas id="myCanvas" width="600" height="800">'
         +' </canvas>'
         +'</div>';
     
@@ -64,14 +141,24 @@ Ext.define('MyDesktop.SystemStatus', {
             title:"图像",
             tbar:[{
                 text : '放大',
-                iconCls:'',
+                iconCls:'zoomin',
                 handler : function() {
-                
+                  scale /= scaleMultiplier;
+                  draw(scale, translatePos, imageObj);
                 }
               },{
                 text : '缩小',
-                iconCls:'',
+                iconCls:'zoomout',
                 handler : function() {
+                  scale *= scaleMultiplier;
+                  draw(scale, translatePos, imageObj);                  
+                }
+              },{
+                text : '旋转',
+                iconCls:'zoomout',
+                handler : function() {
+                  scale *= scaleMultiplier;
+                  draw(scale, translatePos, imageObj);   
                 }
             }],
             items:[{
@@ -92,6 +179,61 @@ Ext.define('MyDesktop.SystemStatus', {
       yxxs_win.show();
       
     }
+    
+    var add_image = function(photoURL) {
+      var canvas = document.getElementById("myCanvas");
+      var context = canvas.getContext("2d");
+      var startDragOffset = {};
+      var mouseDown = false;
+      
+      scale = 1.0;
+      translatePos =  { x: 0,y: 0};
+      imageObj.src = photoURL;
+
+      // add button event listeners
+      /*
+      $("plus").addEventListener("click", function(){
+        scale /= scaleMultiplier;
+        draw(scale, translatePos, imageObj);
+      }, false);
+
+      $("minus").addEventListener("click", function(){
+        scale *= scaleMultiplier;
+        draw(scale, translatePos, imageObj);
+      }, false);
+      */
+      
+      
+      // add event listeners to handle screen drag
+      canvas.addEventListener("mousedown", function(evt){
+        mouseDown = true;
+        startDragOffset.x = evt.clientX - translatePos.x;
+        startDragOffset.y = evt.clientY - translatePos.y;
+      });
+
+      canvas.addEventListener("mouseup", function(evt){
+        mouseDown = false;
+      });
+
+      canvas.addEventListener("mouseover", function(evt){
+        mouseDown = false;
+      });
+
+      canvas.addEventListener("mouseout", function(evt){
+        mouseDown = false;
+      });
+
+      canvas.addEventListener("mousemove", function(evt){
+        if (mouseDown) {
+          translatePos.x = evt.clientX - startDragOffset.x;
+          translatePos.y = evt.clientY - startDragOffset.y;
+          draw(scale, translatePos, imageObj);
+        }
+      });
+      
+      draw(scale, translatePos,imageObj);
+    };
+
     
     Ext.regModel('qzgl_model', {
       fields: [
@@ -653,10 +795,7 @@ Ext.define('MyDesktop.SystemStatus', {
                   }
                  ]
               });
-              
-              
               qzsd_win.show();               
-               
              }
 
            },'-',{
@@ -671,7 +810,6 @@ Ext.define('MyDesktop.SystemStatus', {
                  } else {
                    id_str = id_str + ',' +items[i].data.id ;
                  }
-
                };
                pars = {id:id_str};
                new Ajax.Request("/desktop/import_selected_image", { 
@@ -709,21 +847,52 @@ Ext.define('MyDesktop.SystemStatus', {
              iconCls:'',
              handler : function () {
                show_image();
-               
+               add_image("/assets/200002_Suzanne_Stokes_14.jpg");
              }
            },'-', {
-             text : '目录详细',
-             iconCls:'x-tree-icon-leaf',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               if (items.length > 0) {
-                 Ext.getCmp('qzgl_tabpanel_id').setActiveTab(1);
-                 mulu_qz_store.proxy.extraParams.dh=items[0].data.dh_prefix; 
-                 mulu_qz_store.proxy.extraParams.filter='全部'; 
-                 mulu_qz_store.load();
-               }
+             text : '设置状态',
+             iconCls:'',
+             handler : function () {
+                items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                id_str = '';
+                for (var i=0; i < items.length; i ++) {
+                  if (i==0) {
+                    id_str = id_str+items[i].data.id ;
+                  } else {
+                    id_str = id_str + ',' +items[i].data.id ;
+                  }
+                };
+                
+                var zt = Ext.getCmp('qzsz_combo').rawValue;
+                
+                if (items.length > 0) {
+                   pars = {id:id_str, zt:zt};
+                   new Ajax.Request("/desktop/set_qzxx_selected", { 
+                     method: "POST",
+                     parameters: pars,
+                     onComplete:  function(request) {
+                       qzgl_store.load();
+                     }
+                   });
+                 }
              }
-           }, '-', {
+           },{
+              xtype: 'combo',
+              x: 130,
+              y: 190,
+              width: 80,
+              text:'著录',
+              name: 'qzsz',
+              id: 'qzsz_combo',
+              store: ajzt_store,
+              emptyText:'请选择',
+              mode: 'local',
+              minChars : 2,
+              value:'著录',
+              valueField:'text',
+              displayField:'text',
+              triggerAction:'all',
+          }, '-', {
              text : '更新',
              iconCls : 'x-tbar-loading',
              handler : function() {
@@ -798,7 +967,7 @@ Ext.define('MyDesktop.SystemStatus', {
            }           
          }]
     }); 
-
+    
     qzgl_grid.on('itemdblclick', function(grid, item, r){
       data = item.data;
       var qzxxPanel = new Ext.form.FormPanel({
@@ -1065,7 +1234,6 @@ Ext.define('MyDesktop.SystemStatus', {
     };
     
     var ajhRender = function(val) {
-      // /mnt/wx/o/320/320/320\$C\$0485
       var path2 = val.replace("/mnt/wx/n","N:").replace("/mnt/wx/o","O:").replace(/\//g,"\\")
       var path1 = val.replace("/mnt/wx/n","file:///N:").replace("/mnt/wx/o","file:///O:")
       return '<a href="'+path1+'/" target="_BLANK">' + path2 + '\\</a>';
@@ -1112,6 +1280,7 @@ Ext.define('MyDesktop.SystemStatus', {
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
       ss=data.id.split('|');
       if (ss.length==1){
+        Ext.getCmp('qzgl_tabpanel_id').setActiveTab(0);
         qzgl_store.proxy.extraParams.filter=ss[0];
         qzgl_store.load();
       } else {    //Detail 

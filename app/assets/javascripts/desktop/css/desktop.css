@@ -511,13 +511,13 @@
 
 
 #myCanvas {
-    border: 1px solid #9C9898;
+    border: 1px dashed #9C9898;
 }
 
 #wrapper {
     position: relative;
     border: 1px solid #9C9898;
-    width: 578px;
+    width: 600;
     height: 800px;
 }
 
@@ -525,7 +525,7 @@
     position: absolute;
     width: 30px;
     top: 2px;
-    left: 500px;
+    left: 600px;
 }
 
 
@@ -589,3 +589,10 @@
   background-image: url(/assets/key16.png ) !important;
 }
 
+.zoomin {
+  background-image: url(/assets/zoom_in24.png ) !important;
+}
+
+.zoomout {
+  background-image: url(/assets/zoom_out24.png ) !important;
+}

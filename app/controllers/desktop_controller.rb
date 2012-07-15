@@ -3141,6 +3141,7 @@ class DesktopController < ApplicationController
     where_str = "where qzh=#{params['qzh']} "
 
     fl = params['filter']
+    fl = '' if params['filter']=='未统计'
     where_str = where_str + " and zt= '#{fl}' " if !(fl.nil?) && fl !='全部'
     
     dalb = params['dalb']
@@ -6017,5 +6018,13 @@ class DesktopController < ApplicationController
       render :text => text.to_json
     end
     
+    
+    def set_qzxx_selected
+      zt = params['zt']
+      if zt == '著录' || zt == '归档' 
+        user = User.find_by_sql("update q_qzxx set zt='#{zt}' where id in (#{params['id']});")
+      end  
+      render :text => 'Success'
+    end
 
 end

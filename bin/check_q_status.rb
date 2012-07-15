@@ -21,14 +21,14 @@ $conn.exec("set standard_conforming_strings = on")
 #空卷，完成的情况
 #先从q_status里面取出 dh_prefix
 user = $conn.exec("select distinct dhp from q_status;")
-for k in 0..user.count
+for k in 0..user.count-1
   qs = user[k]
   puts ("ruby ./dady/bin/update_qzxx_tj.rb #{qs['dhp']}")
   #system("ruby ./dady/bin/update_qzxx_tj.rb #{qs['dhp']}")
 end  
 
 #更新q_status aj_zt 信息
-puts ("update q_status set aj_zt=timage_tj.zt where q_status.dh=timage_tj.dh;")
+puts ("update q_status set aj_zt=timage_tj.zt from timage_tj where q_status.dh=timage_tj.dh;")
 #system ("update q_status set aj_zt=timage_tj.zt where q_status.dh=timage_tj.dh;")
 
 #user = $conn.exec("select q_status.dh, q_status.aj_path, q_status.zt, timage_tj.zt from q_status inner join timage_tj on q_status2.dh = timage_tj.dh  where q_status2.zt= '完成' and timage_tj.zt = '空卷';")

@@ -1758,17 +1758,17 @@ context.putImageData(imageData, 0, 0);
                       imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
 
                       // add button event listeners
-                      document.getElementById("plus").addEventListener("click", function(){
+                      $("plus").addEventListener("click", function(){
                         scale /= scaleMultiplier;
                         draw(scale, translatePos, imageObj);
                       }, false);
 
-                      document.getElementById("minus").addEventListener("click", function(){
+                     $("minus").addEventListener("click", function(){
                         scale *= scaleMultiplier;
                         draw(scale, translatePos, imageObj);
                       }, false);
 
-                      document.getElementById("next").addEventListener("click", function(){
+                      $("next").addEventListener("click", function(){
                         if (image_id < 20) {
                           image_id = image_id + 1;
                           imageObj.src = "/assets/dady/200002_Suzanne_Stokes_"+image_id+".jpg";
@@ -1778,7 +1778,7 @@ context.putImageData(imageData, 0, 0);
                         }
                       }, false);
 
-                      document.getElementById("prev").addEventListener("click", function(){
+                      $("prev").addEventListener("click", function(){
                         if (image_id > 13) {
                           image_id = image_id - 1;
                           scale = 1.0;

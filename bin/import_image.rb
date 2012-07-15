@@ -203,9 +203,19 @@ Find.find(path) do |path|
       mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
       
       #/mnt/lh/jm1/13/13$F$0172/  13$F$0171$MLBK.jpg
+      #/mnt/wx/n/393/393$C$1924/393$C$1934$0006.jpg
       sp = pp[pp.size-2].split("$")
       if (ss[2] != sp[2]) 
         $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+        ajh = sp[2]
+        dh = "#{dh_prefix}-#{ajh.to_i}"
+        if dh != $dh
+          $dh = dh
+          $stderr.puts "processing #{dh}... "
+        end
+        #$stderr.puts("Import Image: #{path} ... ")
+        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        save2timage(sxh, path, $dh, yxqz)
       else
         dh = "#{dh_prefix}-#{ajh.to_i}"
         if dh != $dh
