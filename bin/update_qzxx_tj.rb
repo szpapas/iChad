@@ -66,6 +66,9 @@ def update_timage(dh_prefix)
   $conn.exec("update timage_tj set zt='空卷' where  smyx = 0 and dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='多页' where  smyx > 0  and smyx > ajys and dh_prefix='#{dh_prefix}';")
+  $conn.exec("update timage_tj set zt='归档' where  smyx > 0  and smyx = ajys and dh_prefix='#{dh_prefix}';")
+  
+  $conn.exec("update q_status set aj_zt=timage_tj.zt from timage_tj where q_status.dh=timage_tj.dh and timage_tj.dh_prefix='#{dh_prefix}';")
   
   $conn.exec("update timage_tj set jnts = (select count(*) from document  where document.dh=timage_tj.dh) where timage_tj.dh_prefix='#{dh_prefix}';")
   
@@ -96,7 +99,9 @@ def update_qzxx(dh_cond)
     $conn.exec("update q_qzxx set zt='空卷' where  smyx = 0 and dh_prefix='#{dh_prefix}';")
     $conn.exec("update q_qzxx set zt='缺页' where  smyx > 0  and smyx < ajys and dh_prefix='#{dh_prefix}';")
     $conn.exec("update q_qzxx set zt='多页' where  smyx > 0  and smyx > ajys and dh_prefix='#{dh_prefix}';")
-     
+    $conn.exec("update q_qzxx set zt='归档' where  smyx > 0  and smyx = ajys and dh_prefix='#{dh_prefix}';")
+    
+
   end
 end
 

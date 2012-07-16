@@ -596,3 +596,20 @@
 .zoomout {
   background-image: url(/assets/zoom_out24.png ) !important;
 }
+
+
+.up16 {
+  background-image: url(/assets/up_16.png ) !important;
+}
+
+.down16 {
+  background-image: url(/assets/down_16.png ) !important;  
+}
+
+.picture16 {
+   background-image: url(/assets/picture16.png ) !important;  
+}
+
+.wenshu16 {
+   background-image: url(/assets/wenshuman.png ) !important;
+}

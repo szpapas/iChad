@@ -30,73 +30,60 @@ Ext.define('MyDesktop.SystemStatus', {
     var win = desktop.getWindow('systemstatus');
     
     //图像显示窗口
-    var scale = 1.0;
+    var scale = 0.64;
     var scaleMultiplier = 0.8;
     var translatePos =  { x: 0,y: 0};
     var imageObj = new Image();
-    
-    // translate context to center of canvas
-    // context.translate(canvas.width / 2, canvas.height / 2);
-    // rotate context 45 degrees clockwise
-    // context.rotate(Math.PI / 4);
-    
-    var draw_plain = function(scale, translatePos, imageObj){
-      
-      var canvas = document.getElementById("myCanvas");
-      var context = canvas.getContext("2d");
-      
-      // clear canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.save();
 
-      //context.translate(translatePos.x, translatePos.y);
-      context.scale(scale, scale);
-
-      imageObj.onload = function(){
-        //var centerX = translatePos.x + canvas.width / 2;
-        //var centerY = translatePos.y + canvas.height / 2;
-        //imgW = imageObj.width;
-        //imgH = imageObj.height;
-        //context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
-        
-        imgW = imageObj.width;
-        imgH = imageObj.height;
-        context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
-      };
-      
-      imgW = imageObj.width;
-      imgH = imageObj.height;
-      context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
-
-      context.restore();
-    }
-    
-    var angle = Math.PI/2;
-    
     var draw = function(scale, translatePos, imageObj){
-      
+
+     var canvas = document.getElementById("myCanvas");
+     var context = canvas.getContext("2d");
+
+     // clear canvas
+     context.clearRect(0, 0, canvas.width, canvas.height);
+     context.save();
+
+     //context.translate(translatePos.x, translatePos.y);
+     //context.scale(scale, scale);
+
+     imageObj.onload = function(){
+       imgW = imageObj.width;
+       imgH = imageObj.height;
+       context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+     };
+
+     imgW = imageObj.width;
+     imgH = imageObj.height;
+     context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+
+     context.restore();
+    }
+
+    var draw_new = function(scale, translatePos, imageObj){
+
       var canvas = document.getElementById("myCanvas");
       var context = canvas.getContext("2d");
-      
+
       // clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.save();
-      
+
       var imgW = imageObj.width;
       var imgH = imageObj.height;
 
-      context.translate(translatePos.x + imgW/2, translatePos.y+imgH/2);
-      context.rotate(angle);
+      //context.translate(translatePos.x + imgW/2, translatePos.y+imgH/2);
+      //context.rotate(angle);
       context.scale(scale, scale);
 
       imageObj.onload = function(){
-        var centerX = translatePos.x + canvas.width / 2;
-        var centerY = translatePos.y + canvas.height / 2;
-        imgW = imageObj.width;
-        imgH = imageObj.height;
-        context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+       var centerX = translatePos.x + canvas.width / 2;
+       var centerY = translatePos.y + canvas.height / 2;
+       imgW = imageObj.width;
+       imgH = imageObj.height;
+       context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
       };
-      
+
       var centerX = translatePos.x + canvas.width / 2;
       var centerY = translatePos.y + canvas.height / 2;
       imgW = imageObj.width;
@@ -105,25 +92,69 @@ Ext.define('MyDesktop.SystemStatus', {
 
       context.restore();
     }
-    
-    
+
     var show_image = function() {
-    
+
       var canvas_string =
         '<div id="wrapper">'
-     //   +' <div id="buttonWrapper">'
-     //   +' <input type="button" id="prev" value="<">'
-     //   +' <input type="button" id="plus" value="+">'
-     //   +' <input type="button" id="minus" value="—">'
-     //   +' <input type="button" id="next" value=">">'
-     //   +' </div>'
         +' <canvas id="myCanvas" width="600" height="800">'
         +' </canvas>'
         +'</div>';
-    
+        
+        var yxtree_store = Ext.create('Ext.data.TreeStore', {
+            autoLoad: true,
+            proxy: {
+                type: 'ajax',
+                url: 'desktop/get_yx_tree',
+                extraParams: {
+                  node:"root", dh:""
+                },
+                actionMethods: 'POST'
+            }
+        });
+
+        var yxtreePanel = Ext.create('Ext.tree.Panel', {
+          store: yxtree_store,
+          id:'yx_show_tree',
+          rootVisible: false,
+          useArrows: true,
+          singleExpand: true,
+          autoScroll: true,
+          //tbar:['->',
+          //{
+          //  xtype:'button',
+          //  text:'刷新',
+          //  tooltip:'刷新目录',
+          //  iconCls:'refresh',
+          //  handler: function() {
+          //    Ext.getCmp('yx_show_tree').store.load();
+          //  }
+          //}
+          //],
+          width: 200
+        });
+
+
+        yxtreePanel.on("select",function(node){ 
+          data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
+          ss=data.id.split('|');
+          var pars={gid:ss[0]};
+          new Ajax.Request("/desktop/get_timage_from_db", {
+            method: "POST",
+            parameters: pars,
+            onComplete:  function(request) {
+              var path = request.responseText;
+              if (path != '') { 
+                imageObj.src = path;
+                draw(scale, translatePos,imageObj);
+              }
+            }
+          });
+        });
+
       var yxxs_win = new Ext.Window({
         id : 'yxxs_win',
-        iconCls : 'image',
+        iconCls : 'picture16',
         title: '影像浏览',
         floating: true,
         shadow: true,
@@ -137,102 +168,110 @@ Ext.define('MyDesktop.SystemStatus', {
         items: [{
         layout:"border",
         items:[{
-            region:"center",
-            title:"图像",
-            tbar:[{
-                text : '放大',
-                iconCls:'zoomin',
-                handler : function() {
-                  scale /= scaleMultiplier;
-                  draw(scale, translatePos, imageObj);
-                }
-              },{
-                text : '缩小',
-                iconCls:'zoomout',
-                handler : function() {
-                  scale *= scaleMultiplier;
-                  draw(scale, translatePos, imageObj);                  
-                }
-              },{
-                text : '旋转',
-                iconCls:'zoomout',
-                handler : function() {
-                  scale *= scaleMultiplier;
-                  draw(scale, translatePos, imageObj);   
-                }
-            }],
-            items:[{
-                 xtype: 'panel', //或者xtype: 'component',
-                 html:canvas_string
-             }]
-          },{
-            region:"west",
-            title:"影像列表",
-            width:150,
+          region:"center",
+          title:"图像",
+          tbar:[{
+             text : '放大',
+             iconCls:'zoomin',
+             handler : function() {
+               scale /= scaleMultiplier;
+               draw(scale, translatePos, imageObj);
+             }
+           },{
+             text : '缩小',
+             iconCls:'zoomout',
+             handler : function() {
+               scale *= scaleMultiplier;
+               draw(scale, translatePos, imageObj);                  
+             }
+           },{
+             text : '上一页',
+             iconCls:'up16',
+             handler : function() {
+                //var yxtree_store = Ext.getCmp('yx_show_tree').store;
+                var yxtree_panel = Ext.getCmp('yx_show_tree');
+                var node = yxtree_panel.selModel.selected.items[0];
+                var prev_node = node.previousSibling;
+                yxtree_panel.selModel.select(prev_node);
+                
+                //var record = tree.getRootNode().findChild('id_name','record_id',true);
+                //tree.getSelectionModel().select(record);
+                
+             }
+           },{
+             text : '下一页',
+             iconCls:'down16',
+             handler : function() {
+               var yxtree_panel = Ext.getCmp('yx_show_tree');
+               var node = yxtree_panel.selModel.selected.items[0];
+               var next_node = node.nextSibling;
+               yxtree_panel.selModel.select(next_node);
+             }
+          }],
+          items:[{
+              xtype: 'panel', //或者xtype: 'component',
+              html:canvas_string
+              }]
+          },{ 
+            title:'影像列表',
+            region:'west',
+            iconCls:'wenshu16',
+            xtype:'panel',
+            //margins:'5 2 5 5',
+            width: 200,
+            collapsible:true,//可以被折叠
+            id:'yxtree-panel',
+            layout:'fit',
             split:true,
-            collapsible:true,
-            titleCollapse:true
+            items:[yxtreePanel]
           }]
         }]
       });
-      
+
       yxxs_win.show();
-      
+
     }
-    
-    var add_image = function(photoURL) {
-      var canvas = document.getElementById("myCanvas");
-      var context = canvas.getContext("2d");
-      var startDragOffset = {};
-      var mouseDown = false;
-      
-      scale = 1.0;
-      translatePos =  { x: 0,y: 0};
-      imageObj.src = photoURL;
 
-      // add button event listeners
-      /*
-      $("plus").addEventListener("click", function(){
-        scale /= scaleMultiplier;
-        draw(scale, translatePos, imageObj);
-      }, false);
+    var set_image = function(photoURL) {
+     var canvas = document.getElementById("myCanvas");
+     var context = canvas.getContext("2d");
+     var startDragOffset = {};
+     var mouseDown = false;
 
-      $("minus").addEventListener("click", function(){
-        scale *= scaleMultiplier;
-        draw(scale, translatePos, imageObj);
-      }, false);
-      */
-      
-      
-      // add event listeners to handle screen drag
-      canvas.addEventListener("mousedown", function(evt){
-        mouseDown = true;
-        startDragOffset.x = evt.clientX - translatePos.x;
-        startDragOffset.y = evt.clientY - translatePos.y;
-      });
+     //scale = 1.0;
+     translatePos =  { x: 0,y: 0};
+     imageObj.src = photoURL;
 
-      canvas.addEventListener("mouseup", function(evt){
-        mouseDown = false;
-      });
+     // add event listeners to handle screen drag
+     canvas.addEventListener("mousedown", function(evt){
+       mouseDown = true;
+       startDragOffset.x = evt.clientX - translatePos.x;
+       startDragOffset.y = evt.clientY - translatePos.y;
+     });
 
-      canvas.addEventListener("mouseover", function(evt){
-        mouseDown = false;
-      });
+     canvas.addEventListener("mouseup", function(evt){
+       mouseDown = false;
+     });
 
-      canvas.addEventListener("mouseout", function(evt){
-        mouseDown = false;
-      });
+     canvas.addEventListener("mouseover", function(evt){
+       mouseDown = false;
+     });
 
-      canvas.addEventListener("mousemove", function(evt){
-        if (mouseDown) {
-          translatePos.x = evt.clientX - startDragOffset.x;
-          translatePos.y = evt.clientY - startDragOffset.y;
-          draw(scale, translatePos, imageObj);
-        }
-      });
-      
-      draw(scale, translatePos,imageObj);
+     canvas.addEventListener("mouseout", function(evt){
+       mouseDown = false;
+     });
+
+     canvas.addEventListener("mousemove", function(evt){
+       if (mouseDown) {
+         translatePos.x = evt.clientX - startDragOffset.x;
+         translatePos.y = evt.clientY - startDragOffset.y;
+         draw(scale, translatePos, imageObj);
+       }
+     });
+
+     draw(scale, translatePos,imageObj);
     };
+
 
     
     Ext.regModel('qzgl_model', {
@@ -276,7 +315,7 @@ Ext.define('MyDesktop.SystemStatus', {
         reader: {
           type: 'json',
           root: 'rows',
-          totalProperty: 'results'
+          totalProperty: 'readerlts'
         }
       }
     });
@@ -843,13 +882,6 @@ Ext.define('MyDesktop.SystemStatus', {
                });
              }
            },'-', {
-             text : '查看影像',
-             iconCls:'',
-             handler : function () {
-               show_image();
-               add_image("/assets/200002_Suzanne_Stokes_14.jpg");
-             }
-           },'-', {
              text : '设置状态',
              iconCls:'',
              handler : function () {
@@ -1234,12 +1266,9 @@ Ext.define('MyDesktop.SystemStatus', {
     };
     
     var ajhRender = function(val) {
-      var path2 = val.replace("/mnt/wx/n","N:").replace("/mnt/wx/o","O:").replace(/\//g,"\\")
-      var path1 = val.replace("/mnt/wx/n","file:///N:").replace("/mnt/wx/o","file:///O:")
-      return '<a href="'+path1+'/" target="_BLANK">' + path2 + '\\</a>';
-      //<A HREF="newwindow.html" TARGET="_blank">a new window</A>
-      //return '<a href="C:/Program%20Files/ACDSee/ACDSee.exe">打开目录</a>'
-      //return  '<a href=\"#\" onclick=\"Run(\'file:///C:/Program%20Files/ACDSee/ACDSee.exe\')\">打开目录</a>'  
+      var path2 = val.replace("/mnt/wx/n","N:").replace("/mnt/wx/o","O:").replace(/\//g,"\\");
+      var path1 = val.replace("/mnt/wx/n","file:///N:").replace("/mnt/wx/o","file:///O:");
+      return '<a href="'+path1+'/" target="_BLANK" >' + path2 + '\\</a>';
     };
     
     var tree_store = Ext.create('Ext.data.TreeStore', {
@@ -1375,7 +1404,25 @@ Ext.define('MyDesktop.SystemStatus', {
                 }
               }
             );
-          }   
+          } 
+        },'-',{
+          text:'查看图像',
+          iconCls:'',
+          handler : function() {
+            var items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
+            if (items.length > 0) {
+              var item = items[0];
+              var dh = items[0].data.dh;
+              show_image();
+              
+              var yxtree_store = Ext.getCmp('yx_show_tree').store;
+              yxtree_store.clearOnLoad = false;
+              yxtree_store.getRootNode().removeAll() ;
+              yxtree_store.proxy.extraParams = {node:"root", dh:item.data.dh};
+              yxtree_store.load();
+              set_image("/assets/wuxi_pic.png");
+            }
+          }    
         },{
            text:'修改案卷',
            iconCls:'write16',
@@ -1496,7 +1543,8 @@ Ext.define('MyDesktop.SystemStatus', {
     mulu_qz_grid.getStore().on('load',function(s,records){
     });
 
-    mulu_qz_grid.on("select", function(node){
+    //select( Ext.selection.RowModel this, Ext.data.Model record, Number index, Object eOpts )
+    mulu_qz_grid.on("select", function(grid, item, i, e){
     });
     
     mulu_qz_grid.on('itemclick', function(grid, item, r){
@@ -1611,9 +1659,9 @@ Ext.define('MyDesktop.SystemStatus', {
           items:[{ 
               title:'档案类别',
               region:'west',
-              iconCls:'dept_tree',
+              iconCls:'wenshu16',
               xtype:'panel',
-              margins:'5 2 5 5',
+              //margins:'5 2 5 5',
               width: 200,
               collapsible:true,//可以被折叠
               id:'west-tree',

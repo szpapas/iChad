@@ -6026,5 +6026,45 @@ class DesktopController < ApplicationController
       end  
       render :text => 'Success'
     end
+    
+    def get_yx_tree
+      dh = params['dh']
+      text = []
+      node = params["node"]
+      if node == "root"
+        system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
+        
+        data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' order by tag, yxbh;")
+        
+        data.each do |dd|
+          
+          nodeText = ''
+          case dd['tag'].to_i
+          when 0
+            if dd['yxbh'].include?"ML"
+              nodeText = '封面'
+            else 
+              nodeText = '旧封'
+            end     
+          when 1
+            if dd['yxbh'].include?"ML"
+              nodeText = '卷内' + dd['yxbh'][2..3]
+            else 
+              nodeText = '旧卷' + dd['yxbh'][2..3]
+            end           
+          when 2    
+              nodeText = '影像' + dd['yxbh'][0..3]
+          when 3
+            if dd['yxbh'].include?"ML"
+              nodeText = '备考'
+            else 
+              nodeText = '旧备'
+            end              
+          end
+          text << {:text => nodeText, :id => "#{dd['id']}|#{dd['yxmc']}|#{dd['tag']}", :leaf => true, :cls => "file"}
+        end
+      end
+      render :text => text.to_json
+    end
 
 end
