@@ -3436,6 +3436,15 @@ class DesktopController < ApplicationController
     system("ruby ./dady/bin/update_timage_tj2.rb #{dh}")
     render :text => 'Success'
   end
+  
+  def balance_selectedmulu_mulu
+    user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+     User.find_by_sql("update archive set ys=timage_tj.smyx from timage_tj where archive.dh=timage_tj.dh and timage_tj.dh='#{dd.dh}';")
+    end  
+    render :text => 'Success'
+  end
 
   #获取用户是否有此权限
   def get_sort

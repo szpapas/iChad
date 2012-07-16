@@ -1306,6 +1306,7 @@ Ext.define('MyDesktop.SystemStatus', {
     
     
     treePanel.on("select",function(node){ 
+      
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
       ss=data.id.split('|');
       if (ss.length==1){
@@ -1386,6 +1387,29 @@ Ext.define('MyDesktop.SystemStatus', {
               }
             });
           }
+        },'-',{
+          text:'修改',
+          iconCls:'',
+          handler : function() {
+            items = Ext.getCmp('mulu_qz_grid_id').getSelectionModel().selected.items;
+            id_str = '';
+            for (var i=0; i < items.length; i ++) {
+              if (i==0) {
+                id_str = id_str+items[i].data.id ;
+              } else {
+                id_str = id_str + ',' +items[i].data.id ;
+              }
+            };
+            pars = {id:id_str};
+            new Ajax.Request("/desktop/balance_selectedmulu_mulu", { 
+              method: "POST",
+              parameters: pars,
+              onComplete:  function(request) {
+                qzzt_store.load();
+                msg('提示', '修改成功！');
+              }
+            });
+          }          
         },'-',{
           text:'平衡',
           iconCls:'',
