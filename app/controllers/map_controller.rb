@@ -934,6 +934,26 @@ class MapController < ApplicationController
     def get_gy
       render :text => "关于:"
     end
+    
+    #add on July 13
+    def upload_ws
+      
+      params.each do |k,v|
+        logger.debug("K: #{k} ,V: #{v}")
+       #if k.include?("recording")
+       #  logger.debug("#{v.original_filename}")
+       #  logger.debug("#{v.tempfile.path}")
+       #  logger.debug("#{v.content_type}")
+       #  ff = File.new("./dady/#{v.original_filename}","w+")
+       #  ff.write(v.tempfile.read)
+       #  ff.close
+       #  break
+       #end
+      end
+      render :text => "{success:true}"
+      
+      
+    end
   
 
 end

@@ -284,6 +284,53 @@ Ext.define('MyDesktop.ArchiveMan', {
         }
       });
 
+      
+      //add by liujun showAdvancedSearch()
+      var showAdvancedSearch = function() {
+        
+        var panel = new Ext.Panel({  
+          title : '高级查询',  
+          width : '280px',  
+          html : '<div id="div1" style="height:160px;padding:5px">原文本</div>'  
+        });
+         
+        //Ext.DomHelper.append(Ext.get("div1"),"<br>新追加了文本",true);
+        var advanced_search_win = new Ext.Window({
+          id : 'advanced-search-win',
+          iconCls : 'picture16',
+          title: '查询条件',
+          floating: true,
+          shadow: true,
+          draggable: true,
+          closable: true,
+          modal: true,
+          width: 400,
+          height: 300,
+          layout: 'fit',
+          plain: true,
+          tbar:[{
+            text : '增加',
+            iconCls:'add',
+            handler : function() {
+              Ext.DomHelper.append(Ext.get("adv-search"),
+                '<div style="height:30px;padding:10px;"><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="Opel">Opel</option><option value="audi">Audi</option></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
+            }
+          },'->',{
+            text : '提交',
+            iconCls:'search',
+            handler : function(){
+              
+            }
+          }],
+          items:[{
+             xtype: 'panel', //或者xtype: 'component',
+             html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="opel">Opel</option><option value="audi">Audi</option></select></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
+          }]
+        });
+        advanced_search_win.show();
+      };
+
+
       archive_store.load();
       var archiveGrid = new Ext.grid.GridPanel({
         id : 'archive_grid',
@@ -342,6 +389,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_zh(record,false,title);
               }
             }, 
+            {
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -565,6 +631,27 @@ Ext.define('MyDesktop.ArchiveMan', {
 				  }
 	            }
 		 }
+
+        //  },'->',
+        //  {
+        //    xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+        //    handler: function() {
+        //      showAdvancedSearch();
+        //    }
+        //  },
+        //    '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
+        //  {
+        //    xtype:'textfield',id:'query_jr_text'
+        //  },          
+        //  {
+        //    xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
+        //    handler: function() {
+        //      store3.proxy.url="/desktop/get_document_where";
+        //      store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
+        //      store3.load();
+        //    }
+        //  }
+
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},

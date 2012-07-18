@@ -198,6 +198,8 @@ var ajzt_data = [
 	['1','空卷'],
 	['2','缺页'],
 	['3','多页'],
+	['3','著录'],
+	['3','归档'],
 	['4','全部']
 ];
 
@@ -459,7 +461,7 @@ var jr_model_store = new Ext.data.SimpleStore({
    			}
    		}				
    });
-com_jr_zrz_store.load();
+//com_jr_zrz_store.load();
 
 
 
@@ -483,7 +485,7 @@ var com_jr_tm_store = Ext.create('Ext.data.Store', {
       }
     }       
 });
-com_jr_tm_store.load();
+//com_jr_tm_store.load();
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
@@ -8204,6 +8206,253 @@ var DispJr_model = function(jr_aj_ownerid,jr_dh,aj_add_new){
       win.show();
 };
 
+//图像显示窗口
+var scale = 0.64;
+var scaleMultiplier = 0.8;
+var translatePos =  { x: 0,y: 0};
+var imageObj = new Image();
+
+var draw = function(scale, translatePos, imageObj){
+
+ var canvas = document.getElementById("myCanvas");
+ var context = canvas.getContext("2d");
+
+ // clear canvas
+ context.clearRect(0, 0, canvas.width, canvas.height);
+ context.save();
+
+ //context.translate(translatePos.x, translatePos.y);
+ //context.scale(scale, scale);
+
+ imageObj.onload = function(){
+   imgW = imageObj.width;
+   imgH = imageObj.height;
+   context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+ };
+
+ imgW = imageObj.width;
+ imgH = imageObj.height;
+ context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+
+ context.restore();
+}
+
+var draw_new = function(scale, translatePos, imageObj){
+
+  var canvas = document.getElementById("myCanvas");
+  var context = canvas.getContext("2d");
+
+  // clear canvas
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.save();
+
+  var imgW = imageObj.width;
+  var imgH = imageObj.height;
+
+  //context.translate(translatePos.x + imgW/2, translatePos.y+imgH/2);
+  //context.rotate(angle);
+  context.scale(scale, scale);
+
+  imageObj.onload = function(){
+   var centerX = translatePos.x + canvas.width / 2;
+   var centerY = translatePos.y + canvas.height / 2;
+   imgW = imageObj.width;
+   imgH = imageObj.height;
+   context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+  };
+
+  var centerX = translatePos.x + canvas.width / 2;
+  var centerY = translatePos.y + canvas.height / 2;
+  imgW = imageObj.width;
+  imgH = imageObj.height;
+  context.drawImage(imageObj, centerX - imgW * scale/2.0, centerY - imgH * scale/2.0, imgW * scale, imgH * scale );
+
+  context.restore();
+}
+
+
+var show_image = function(dh) {
+
+  var canvas_string =
+    '<div id="wrapper">'
+    +' <canvas id="myCanvas" width="600" height="800">'
+    +' </canvas>'
+    +'</div>';
+    
+    var yxtree_store = Ext.create('Ext.data.TreeStore', {
+        autoLoad: true,
+        proxy: {
+            type: 'ajax',
+            url: 'desktop/get_yx_tree',
+            extraParams: {
+              node:"root", dh:""
+            },
+            actionMethods: 'POST'
+        }
+    });
+
+    var yxtreePanel = Ext.create('Ext.tree.Panel', {
+      store: yxtree_store,
+      id:'yx_show_tree',
+      rootVisible: false,
+      useArrows: true,
+      singleExpand: true,
+      autoScroll: true,
+      //tbar:['->',
+      //{
+      //  xtype:'button',
+      //  text:'刷新',
+      //  tooltip:'刷新目录',
+      //  iconCls:'refresh',
+      //  handler: function() {
+      //    Ext.getCmp('yx_show_tree').store.load();
+      //  }
+      //}
+      //],
+      width: 200
+    });
+
+
+    yxtreePanel.on("select",function(node){ 
+      data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
+      ss=data.id.split('|');
+      var pars={gid:ss[0]};
+      new Ajax.Request("/desktop/get_timage_from_db", {
+        method: "POST",
+        parameters: pars,
+        onComplete:  function(request) {
+          var path = request.responseText;
+          if (path != '') { 
+            imageObj.src = path;
+            draw(scale, translatePos,imageObj);
+          }
+        }
+      });
+    });
+
+  var yxxs_win = new Ext.Window({
+    id : 'yxxs_win',
+    iconCls : 'picture16',
+    title: '影像浏览',
+    floating: true,
+    shadow: true,
+    draggable: true,
+    closable: true,
+    //modal: true,
+    width: 800,
+    height: 600,
+    layout: 'fit',
+    plain: true,
+    items: [{
+    layout:"border",
+    items:[{
+      region:"center",
+      title:"图像",
+      tbar:[{
+         text : '放大',
+         iconCls:'zoomin',
+         handler : function() {
+           scale /= scaleMultiplier;
+           draw(scale, translatePos, imageObj);
+         }
+       },{
+         text : '缩小',
+         iconCls:'zoomout',
+         handler : function() {
+           scale *= scaleMultiplier;
+           draw(scale, translatePos, imageObj);                  
+         }
+       },{
+         text : '上一页',
+         iconCls:'up16',
+         handler : function() {
+            //var yxtree_store = Ext.getCmp('yx_show_tree').store;
+            var yxtree_panel = Ext.getCmp('yx_show_tree');
+            var node = yxtree_panel.selModel.selected.items[0];
+            var prev_node = node.previousSibling;
+            yxtree_panel.selModel.select(prev_node);
+            
+            //var record = tree.getRootNode().findChild('id_name','record_id',true);
+            //tree.getSelectionModel().select(record);
+            
+         }
+       },{
+         text : '下一页',
+         iconCls:'down16',
+         handler : function() {
+           var yxtree_panel = Ext.getCmp('yx_show_tree');
+           var node = yxtree_panel.selModel.selected.items[0];
+           var next_node = node.nextSibling;
+           yxtree_panel.selModel.select(next_node);
+         }
+      }],
+      items:[{
+          xtype: 'panel', //或者xtype: 'component',
+          html:canvas_string
+          }]
+      },{ 
+        title:'影像列表',
+        region:'west',
+        iconCls:'wenshu16',
+        xtype:'panel',
+        //margins:'5 2 5 5',
+        width: 200,
+        collapsible:true,//可以被折叠
+        id:'yxtree-panel',
+        layout:'fit',
+        split:true,
+        items:[yxtreePanel]
+      }]
+    }]
+  });
+	var yxtree_store = Ext.getCmp('yx_show_tree').store;
+    yxtree_store.clearOnLoad = false;
+    yxtree_store.getRootNode().removeAll() ;
+    yxtree_store.proxy.extraParams = {node:"root", dh:dh};
+    yxtree_store.load();
+  yxxs_win.show();
+
+}
+
+var set_image = function(photoURL) {
+ var canvas = document.getElementById("myCanvas");
+ var context = canvas.getContext("2d");
+ var startDragOffset = {};
+ var mouseDown = false;
+
+ //scale = 1.0;
+ translatePos =  { x: 0,y: 0};
+ imageObj.src = photoURL;
+
+ // add event listeners to handle screen drag
+ canvas.addEventListener("mousedown", function(evt){
+   mouseDown = true;
+   startDragOffset.x = evt.clientX - translatePos.x;
+   startDragOffset.y = evt.clientY - translatePos.y;
+ });
+
+ canvas.addEventListener("mouseup", function(evt){
+   mouseDown = false;
+ });
+
+ canvas.addEventListener("mouseover", function(evt){
+   mouseDown = false;
+ });
+
+ canvas.addEventListener("mouseout", function(evt){
+   mouseDown = false;
+ });
+
+ canvas.addEventListener("mousemove", function(evt){
+   if (mouseDown) {
+     translatePos.x = evt.clientX - startDragOffset.x;
+     translatePos.y = evt.clientY - startDragOffset.y;
+     draw(scale, translatePos, imageObj);
+   }
+ });
+
+ draw(scale, translatePos,imageObj);
+};
 
 //设备正在操作窗口
 var sb_cz_msg = function(sbid){

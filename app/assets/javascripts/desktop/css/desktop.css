@@ -482,9 +482,6 @@
 .xjhd {
     background-image: url(/assets/borman/xjhd.png ) !important;
 }
-.exit {
-    background-image: url(/assets/borman/exit.png ) !important;
-}
 .refresh {
     background-image: url(/assets/table_refresh.png ) !important;
 }
@@ -514,13 +511,13 @@
 
 
 #myCanvas {
-    border: 1px solid #9C9898;
+    border: 1px dashed #9C9898;
 }
 
 #wrapper {
     position: relative;
     border: 1px solid #9C9898;
-    width: 578px;
+    width: 600;
     height: 800px;
 }
 
@@ -528,7 +525,7 @@
     position: absolute;
     width: 30px;
     top: 2px;
-    left: 500px;
+    left: 600px;
 }
 
 
@@ -584,3 +581,35 @@
     background-image: url(/assets/dangan/write32.png ) !important;
 }
 
+.exit {
+	background-image: url(/assets/exit.png ) !important;
+} 
+ 
+.key {
+  background-image: url(/assets/key16.png ) !important;
+}
+
+.zoomin {
+  background-image: url(/assets/zoom_in24.png ) !important;
+}
+
+.zoomout {
+  background-image: url(/assets/zoom_out24.png ) !important;
+}
+
+
+.up16 {
+  background-image: url(/assets/up_16.png ) !important;
+}
+
+.down16 {
+  background-image: url(/assets/down_16.png ) !important;  
+}
+
+.picture16 {
+   background-image: url(/assets/picture16.png ) !important;  
+}
+
+.wenshu16 {
+   background-image: url(/assets/wenshuman.png ) !important;
+}

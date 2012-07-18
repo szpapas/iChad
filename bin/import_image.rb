@@ -49,6 +49,16 @@ def getimgsize(fname)
   ss
 end
 
+def get_tag(yxbh)
+  tag = 2
+  if !/(ML00|JN00)\..*/.match(yxbh).nil?
+    tag = 0
+  elsif !/(ML\d+|JN\d+)\..*/.match(yxbh).nil?
+    tag = 1
+  elsif !/(MLBK|JNBK)\..*/.match(yxbh).nil?
+    tag = 3 
+  end
+end  
 
 def save2timage(yxbh, path, dh, yx_prefix)
   fo = File.open(path).read
@@ -87,6 +97,11 @@ def save2timage(yxbh, path, dh, yx_prefix)
       pixels = width * height
       if pixels > 6000000
         meta_tz = 2
+
+        wh = getimgsize(path).split(",")
+        width, height = wh[0].to_i, wh[1].to_i
+        pixels = width * height
+        
       elsif pixels > 4000000
         meta_tz = 1
       else
@@ -107,7 +122,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
       else
         mm = meta.split("\;")
         if mm.size > 5 && meta.size < 100
-          meta=mm[0..5].join("\;")[2..-1] 
+          meta=mm[0..5].join("\;")[2..-1].gsub("\'",'')
           meta_tz =mm[2].to_i
         else
           $stderr.puts "Tags error: #{path}"
@@ -145,7 +160,10 @@ def save2timage(yxbh, path, dh, yx_prefix)
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height});")
+  
+  tag = get_tag(yxbh)
+  
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag});")
   
   system("rm #{infile} #{outfile}")
   
@@ -203,9 +221,19 @@ Find.find(path) do |path|
       mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
       
       #/mnt/lh/jm1/13/13$F$0172/  13$F$0171$MLBK.jpg
+      #/mnt/wx/n/393/393$C$1924/393$C$1934$0006.jpg
       sp = pp[pp.size-2].split("$")
       if (ss[2] != sp[2]) 
         $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+        ajh = sp[2]
+        dh = "#{dh_prefix}-#{ajh.to_i}"
+        if dh != $dh
+          $dh = dh
+          $stderr.puts "processing #{dh}... "
+        end
+        #$stderr.puts("Import Image: #{path} ... ")
+        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        save2timage(sxh, path, $dh, yxqz)
       else
         dh = "#{dh_prefix}-#{ajh.to_i}"
         if dh != $dh

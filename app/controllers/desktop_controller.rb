@@ -10,7 +10,10 @@ class DesktopController < ApplicationController
   #$sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
   #puts $sp
   def index
-    
+  end
+  
+  def search
+  
   end
   
   def get_user    
@@ -18,7 +21,6 @@ class DesktopController < ApplicationController
   end
   
   def check_key
-    
   end
   
   def get_mulu
@@ -3142,6 +3144,7 @@ class DesktopController < ApplicationController
     where_str = "where qzh=#{params['qzh']} "
 
     fl = params['filter']
+    fl = '' if params['filter']=='未统计'
     where_str = where_str + " and zt= '#{fl}' " if !(fl.nil?) && fl !='全部'
     
     dalb = params['dalb']
@@ -3434,6 +3437,15 @@ class DesktopController < ApplicationController
     dh = params['dh']  #'6_0_1'
     User.find_by_sql("update archive set ys=timage_tj.smyx from timage_tj where archive.dh=timage_tj.dh and timage_tj.dh_prefix='#{dh}';")
     system("ruby ./dady/bin/update_timage_tj2.rb #{dh}")
+    render :text => 'Success'
+  end
+  
+  def balance_selectedmulu_mulu
+    user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+     User.find_by_sql("update archive set ys=timage_tj.smyx from timage_tj where archive.dh=timage_tj.dh and timage_tj.dh='#{dd.dh}';")
+    end  
     render :text => 'Success'
   end
 
@@ -6022,6 +6034,7 @@ class DesktopController < ApplicationController
     end
     
 
+
     #获得卷内输档模板树
     def get_jr_model_tree
       
@@ -6047,9 +6060,81 @@ class DesktopController < ApplicationController
      end
      text=text+"]"
      render :text => text
-    
+    end
+
+    #add by liujun on July 14
+    def get_q_status_tree
+      text = []
+      node = params["node"]
+      if node == "root"
+        data = User.find_by_sql("select zt, count(*) from q_qzxx group by zt order by zt;")
+        data.each do |dd|
+          dd['zt'] = "未统计" if dd['zt'].nil? || dd['zt'] == ""
+          text << {:text => "#{dd['zt']} (#{dd['count']})", :id => dd["zt"], :cls => "folder"}
+        end
+      else
+        pars = node.split('|') || []
+        if pars[0] == '未统计' 
+          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='' or zt is null order by mlh;")
+        else
+          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='#{pars[0]}' order by mlh;")
+        end
+        
+        data.each do |dd|
+            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
+        end
+      end
+      render :text => text.to_json
     end
     
+    
+    def set_qzxx_selected
+      zt = params['zt']
+      if zt == '著录' || zt == '归档' 
+        user = User.find_by_sql("update q_qzxx set zt='#{zt}' where id in (#{params['id']});")
+      end  
+      render :text => 'Success'
+    end
+    
+    def get_yx_tree
+      dh = params['dh']
+      text = []
+      node = params["node"]
+      if node == "root"
+        system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
+        
+        data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' order by tag, yxbh;")
+        
+        data.each do |dd|
+          
+         # nodeText = ''
+         # case dd['tag'].to_i
+         # when 0
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '封面'
+         #   else 
+         #     nodeText = '旧封'
+         #   end     
+         # when 1
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '卷内' + dd['yxbh'][2..3]
+         #   else 
+         #     nodeText = '旧卷' + dd['yxbh'][2..3]
+         #   end           
+         # when 2    
+              nodeText = '影像' + dd['yxbh'][0..3]
+         # when 3
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '备考'
+         #   else 
+         #     nodeText = '旧备'
+         #   end              
+         # end
+          text << {:text => nodeText, :id => "#{dd['id']}|#{dd['yxmc']}|#{dd['tag']}", :leaf => true, :cls => "file"}
+        end
+      end
+      render :text => text.to_json
+    end
 
 
     #获得卷内输档模板列表
