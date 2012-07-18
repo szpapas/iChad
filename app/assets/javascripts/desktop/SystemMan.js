@@ -42,6 +42,9 @@ Ext.define('MyDesktop.SystemMan', {
   },
   createWindow : function(){
     var insert_qx="";
+	var jr_modelid='';
+	var jr_modelname='';
+	var jr_tm_modelid='';
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('systemman');
     Ext.regModel('qz_model', {
@@ -116,7 +119,7 @@ Ext.define('MyDesktop.SystemMan', {
         get_parentNode(node.parentNode);
       }
     };
-    var user_disp = function(record,add_new){
+    var user_disp = function(record,add_new){s
       var win = Ext.getCmp('user_disp_win');
       
       if (win==null) {
@@ -1948,7 +1951,627 @@ Ext.define('MyDesktop.SystemMan', {
       }     
       win.show();
     };
-    
+
+    var jr_model_setup = function(){
+      var win = Ext.getCmp('jr_model_setup_win');
+
+      Ext.regModel('jr_model_setup_model', {
+        fields: [
+          {name: 'id',    type: 'integer'},
+          {name: 'name',    type: 'string'},
+          {name: 'sbsm',    type: 'string'},
+          {name: 'lymc',    type: 'string'},
+          {name: 'ssly',    type: 'integer'},
+          {name: 'lcmc',    type: 'string'},
+          {name: 'sslc',    type: 'integer'},
+          {name: 'fjmc',    type: 'string'},
+          {name: 'modelid',    type: 'integer'},
+          {name: 'kzl',   type: 'string'},
+          {name: 'gzl',   type: 'string'},
+          {name: 'sbh',   type: 'string'},
+          {name: 'kgzt',    type: 'string'},
+          {name: 'sblx',    type: 'string'}
+
+        ]
+      });
+
+      var jr_model_setup_store = Ext.create('Ext.data.Store', {
+        id:'jr_model_setup_store',
+        model : 'jr_model_setup_model',
+        autoLoad: true,
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_jr_modellist_grid',
+          extraParams: {query:""},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+      var jr_model_setup_grid = new Ext.grid.GridPanel({
+        id : 'jr_model_setup_grid',
+        store: jr_model_setup_store,       
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+			{ text : 'modelid',  width : 0, sortable : true, dataIndex: 'modelid'},
+          { text : '名称',  width : 400, sortable : true, dataIndex: 'name'}          
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            itemdblclick:{
+              fn:function(v,r,i,n,e,b){
+                var tt=r.get("zrq");
+
+                //DispAj(r,false);
+              }
+            }
+          },
+
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+
+      var jr_model_tree_store = Ext.create('Ext.data.TreeStore', {
+          autoLoad: true,
+          proxy: {
+              type: 'ajax',
+              url: 'desktop/get_jr_model_tree',
+              extraParams: {style:"0"},
+              actionMethods: 'POST'
+          }
+      }); 
+      var jr_model_tree_panel = Ext.create('Ext.tree.Panel', {
+        id : 'jr_model_tree_panel',
+        store: jr_model_tree_store,
+        rootVisible:false,
+        useArrows: true,
+		listeners:{
+	        checkchange:function(node,checked,option){
+	          if(checked){
+	            root=Ext.getCmp('jr_model_tree_panel').store.getRootNode();     
+	            getNodes(root,false);
+	            node.data.checked=true;
+	            node.updateInfo({checked:true});
+				jr_modelid='';
+				jr_tm_modelid='';
+				if (node.data.leaf==true){
+					jr_modelid=node.data.id;
+					
+					jr_modelname=node.data.text;
+					if (node.data.parentId=='题名-0'){
+						jr_tm_modelid=node.data.id;
+					};
+					Ext.getCmp('jr_model_setup_grid').store.proxy.extraParams.query=  node.data.id;
+
+			        Ext.getCmp('jr_model_setup_grid').store.url='/desktop/get_jr_modellist_grid';
+
+		        	Ext.getCmp('jr_model_setup_grid').store.load();
+				};
+				
+			  }
+			}
+		},
+        //singleExpand: true,
+        width: 200
+
+      });
+      jr_model_tree_panel.on("select",function(node){ 
+        data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
+		if (data.leaf==true){
+			if (data.checked==true){
+				jr_modelid=data.id;
+				jr_tm_modelid='';
+				jr_modelname=data.text;
+				if (data.parentId=='题名-0'){
+					jr_modelid=data.id;
+				}
+        		Ext.getCmp('jr_model_setup_grid').store.proxy.extraParams.query=  data.id;
+	        
+		        Ext.getCmp('jr_model_setup_grid').store.url='/desktop/get_jr_modellist_grid';
+
+	        	Ext.getCmp('jr_model_setup_grid').store.load();
+			}
+		}
+      });
+      loopable=false;
+      i =0;
+      
+      function loopCheck(sf,lp) {
+        if (lp) {
+          loopable=true;
+          //move to new position
+          alert(i);
+          if (i>5){
+            loopable=false;
+          };
+          //Set Delay
+          i = i +1;
+          sf = 0;
+          td = 5*1000 ; //60s 
+          var f = function() { loopCheck(sf,loopable); };
+          var t = setTimeout(f,td);
+        }
+      };
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'jr_model_setup_win',
+          title: '卷内输档模板设置',
+          x : 300,
+          y : 50,
+          width: 670,
+          height: 500,
+          minHeight: 500,
+          layout: 'border',
+          //modal: true,
+          plain: true,          
+          items: [
+            { title:'模板名称树',
+              region:'west',
+              iconCls:'users',
+              xtype:'panel',
+              margins:'0 0 0 0',
+              width: 200,
+              collapsible:true,//可以被折叠              
+              layout:'fit',
+              split:true,
+              items:jr_model_tree_panel
+
+            },
+            { title:'题名模板列表',
+              region:'center',
+              iconCls:'dept_tree',
+              xtype:'panel',
+              margins:'0 0 0 0',
+              layout:'fit',
+              split:true,
+              items:jr_model_setup_grid
+            }
+          ],
+
+          tbar:[{
+            xtype: 'button',
+            iconCls: 'add',
+            text:'新增模板名称',
+            handler: function() {
+				jr_model_disp("record","",true);
+              }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'option',
+            text:'修改模板名称',
+            handler: function() {              
+              if (jr_modelid!=''){
+              	jr_model_disp(jr_modelid,jr_modelname,false);        
+              }else{
+                alert("请选择一个模板名称进行修改。");
+              }
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'delete',
+            text:'删除模板名称',
+            handler: function() {
+              
+              	if (jr_modelid!=''){
+	              	var pars={id:jr_modelid};
+	                  new Ajax.Request("/desktop/delete_jr_model", { 
+	                    method: "POST",
+	                    parameters: pars,
+	                    onComplete:  function(request) {
+	                      text=request.responseText.split(':');
+	                      if (text[0]=='success'){
+	                        alert("删除成功。");    
+	                        jr_modelid='';
+							jr_tm_modelid='';
+	                        Ext.getCmp('jr_model_tree_panel').store.url='/desktop/get_jr_model_tree';
+							Ext.getCmp('jr_model_tree_panel').store.clearOnLoad = false;
+							Ext.getCmp('jr_model_tree_panel').store.getRootNode().removeAll() ;
+                            Ext.getCmp('jr_model_tree_panel').store.load();
+	                      }else{
+	                        if (text[0]=='false'){
+	                          alert(text[1]);
+	                        }else{
+	                          alert("删除失败。");
+	                        }
+	                      }
+	                    }   
+					});
+	              }else{
+	                alert("请选择一个模板名称进行删除。");
+	              }
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'add',
+            text:'新增题名模板列表',
+            handler: function() {
+              //this.up('window').hide();
+              
+			if (jr_tm_modelid!=''){
+              	jr_model_list_disp(jr_tm_modelid,jr_modelname,true);        
+              }else{
+                alert("请先选择一个题名的模板名称，再进行新增。");
+              }
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'option',
+            text:'修改题名模板列表',
+            handler: function() {
+              //this.up('window').hide();
+              var grid = Ext.getCmp('jr_model_setup_grid');
+              var records = grid.getSelectionModel().getSelection();
+              if (records.length==1){                
+                jr_model_list_disp(records[0],jr_modelname,false);
+              }else{
+                alert("请选择一个题名的卷内模板列表进行修改。");
+              }
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'delete',
+            text:'删除题名模板列表',
+            handler: function() {
+              //this.up('window').hide();
+              var grid = Ext.getCmp('jr_model_setup_grid');
+              var records = grid.getSelectionModel().getSelection();
+              if (records.length==1){
+                var record = records[0];
+                
+                  var pars={id:record.data.id};
+                  new Ajax.Request("/desktop/delete_jr_modellist", { 
+                    method: "POST",
+                    parameters: pars,
+                    onComplete:  function(request) {
+                      text=request.responseText.split(':');
+                      if (text[0]=='success'){
+                        alert("删除成功。");                                             
+                        Ext.getCmp('jr_model_setup_grid').store.url='/desktop/get_jr_modellist_grid';
+                        Ext.getCmp('jr_model_setup_grid').store.load();
+                      }else{
+                        if (text[0]=='false'){
+                          alert(text[1]);
+                        }else{
+                          alert("删除失败。");
+                        }
+                      }
+
+                    }
+                  })
+                
+
+              }else{
+                alert("请选择一个卷内模板列表名称进行删除。");
+              }
+
+            }
+          },
+          
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('jr_model_setup_win').close();
+            }
+          }]
+
+        });
+      }
+
+
+      win.show();
+    };
+
+    var jr_model_disp = function(id,name,add_new){
+      var win = Ext.getCmp('jr_model_disp_win');
+
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'jr_model_disp_win',
+          title: '修改卷内模板名称',
+          //closeAction: 'hide',
+          width: 370,
+          height: 140,
+          //minHeight: 200,
+          layout: 'fit',
+          modal: true,
+          plain: true,
+          //items:user_setup_grid,          
+          items: [{
+            width: 370,
+            height: 140,
+            xtype:'form',
+            layout: 'absolute',
+            id : 'jr_model_disp_form',
+            items: [
+              {
+                xtype: 'label',
+                text: '卷内模板名称：',
+                x: 10,
+                y: 10,
+                width: 100
+              },
+              {
+                xtype: 'label',
+                text: '卷内模板类别：',
+                x: 10,
+                y: 40,
+				id:'jr_lx_label',
+                width: 100
+              },
+              {
+                xtype: 'textfield',
+                hidden : true,
+                name : 'id' ,
+                id:'jr_id'                    
+              },
+              
+              {
+                xtype: 'textfield',
+                x: 130,
+                y: 10,
+                width: 200,
+                name: 'name',
+                id:'jr_name'
+              },
+              {
+                xtype: 'combobox',
+                x: 130,
+                y: 40,
+                width: 200,
+                store: jr_model_store,
+                emptyText:'请选择',
+                mode: 'remote',
+                minChars : 2,
+                valueField:'text',
+                displayField:'text',
+                triggerAction:'all',
+                name: 'lx',
+                id:'jr_lx'
+              }
+            ],
+            buttons:[{
+                xtype: 'button',
+                iconCls: 'option',
+                id:'button_user_add',
+                text:'修改',
+                handler: function() {
+                  var pars=this.up('panel').getForm().getValues();
+                  if(pars['name']!=''){
+                    
+                      if(add_new==false){
+                        new Ajax.Request("/desktop/update_jr_model", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            text=request.responseText.split(':');
+		                    if (text[0]=='success'){
+                              
+                              	Ext.getCmp('jr_model_disp_win').close();
+	                            Ext.getCmp('jr_model_tree_panel').store.url='/desktop/get_jr_model_tree';
+								Ext.getCmp('jr_model_tree_panel').store.clearOnLoad = false;
+								Ext.getCmp('jr_model_tree_panel').store.getRootNode().removeAll() ;
+	                            Ext.getCmp('jr_model_tree_panel').store.load();
+                            }else{
+                              	if (text[0]=='false'){
+		                          alert(text[1]);
+		                        }else{
+		                          alert("修改失败。");
+		                        }
+                            }
+                          	
+                          }
+                        });
+                      }else{
+						if(pars['lx']!=undefined){
+                        	new Ajax.Request("/desktop/insert_jr_model", { 
+	                          method: "POST",
+	                          parameters: pars,
+	                          onComplete:  function(request) {
+	                            text=request.responseText.split(':');
+			                    if (text[0]=='success'){
+                              
+	                              Ext.getCmp('jr_model_disp_win').close();
+	                              Ext.getCmp('jr_model_tree_panel').store.url='/desktop/get_jr_model_tree';
+								Ext.getCmp('jr_model_tree_panel').store.clearOnLoad = false;
+								Ext.getCmp('jr_model_tree_panel').store.getRootNode().removeAll() ;
+	                              Ext.getCmp('jr_model_tree_panel').store.load();
+	                            }else{
+	                              	if (text[0]=='false'){
+			                          alert(text[1]);
+			                        }else{
+			                          alert("新增失败。");
+			                        }
+	                            }
+	                          }
+	                        });
+						}else{
+							alert("卷内模板类别不能为空。");
+						}
+                      }
+                    
+                  }else{
+                    alert("卷内模板名称不能为空。");
+                  }
+                }
+              },
+              {
+                xtype: 'button',
+                iconCls: 'exit',
+                text:'退出',
+                handler: function() {
+                  //this.up('window').hide();
+                  Ext.getCmp('jr_model_disp_win').close();
+                }
+              }]
+          }]
+          
+        });
+      }
+      if(add_new==false){
+      //设置数据
+        //Ext.getCmp('jr_model_disp_form').getForm().setValues(record.data);
+        Ext.getCmp('jr_name').setValue(name);
+		Ext.getCmp('jr_id').setValue(id);
+		Ext.getCmp('jr_lx').hidden=true;
+		Ext.getCmp('jr_lx_label').hidden=true;
+      }else{
+        Ext.getCmp('jr_model_disp_win').title="新增信息";
+        Ext.getCmp('button_user_add').text="新增";
+        Ext.getCmp('button_user_add').iconCls="add";
+      }
+
+      win.show();
+    };
+    var jr_model_list_disp = function(id,name,add_new){
+      var win = Ext.getCmp('jr_model_list_disp_win');
+
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'jr_model_list_disp_win',
+          title: '修改卷内模板列表',
+          //closeAction: 'hide',
+          width: 370,
+          height: 140,
+          //minHeight: 200,
+          layout: 'fit',
+          modal: true,
+          plain: true,
+          //items:user_setup_grid,          
+          items: [{
+            width: 370,
+            height: 140,
+            xtype:'form',
+            layout: 'absolute',
+            id : 'jr_model_list_disp_form',
+            items: [
+              {
+                xtype: 'label',
+                text: '卷内模板列表名称：',
+                x: 10,
+                y: 10,
+                width: 100
+              },
+              
+              {
+                xtype: 'textfield',
+                hidden : true,
+                name : 'id' ,
+                id:'jr_id'                    
+              },
+              {
+                xtype: 'textfield',
+                hidden : true,
+                name : 'modelid' ,
+                id:'jr_modelid'                    
+              },
+              {
+                xtype: 'textfield',
+                x: 130,
+                y: 10,
+                width: 200,
+                name: 'name',
+                id:'jr_name'
+              }
+            ],
+            buttons:[{
+                xtype: 'button',
+                iconCls: 'option',
+                id:'button_user_add',
+                text:'修改',
+                handler: function() {
+                  var pars=this.up('panel').getForm().getValues();
+                  if(pars['name']!=''){
+                    
+                      if(add_new==false){
+                        new Ajax.Request("/desktop/update_jr_model_list", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            text=request.responseText.split(':');
+		                    if (text[0]=='success'){
+                              	alert("修改成功。");
+                              	Ext.getCmp('jr_model_list_disp_win').close();
+	                            Ext.getCmp('jr_model_setup_grid').store.url='/desktop/get_jr_modellist_grid';
+	                            Ext.getCmp('jr_model_setup_grid').store.load();
+                            }else{
+                              	if (text[0]=='false'){
+		                          alert(text[1]);
+		                        }else{
+		                          alert("修改失败。");
+		                        }
+                            }
+                          	
+                          }
+                        });
+                      }else{
+						
+                        	new Ajax.Request("/desktop/insert_jr_model_list", { 
+	                          method: "POST",
+	                          parameters: pars,
+	                          onComplete:  function(request) {
+	                            text=request.responseText.split(':');
+			                    if (text[0]=='success'){
+                              		alert("新增成功。");
+	                              Ext.getCmp('jr_model_list_disp_win').close();
+	                              Ext.getCmp('jr_model_setup_grid').store.url='/desktop/get_jr_modellist_grid';
+	                              Ext.getCmp('jr_model_setup_grid').store.load();
+	                            }else{
+	                              	if (text[0]=='false'){
+			                          alert(text[1]);
+			                        }else{
+			                          alert("新增失败。");
+			                        }
+	                            }
+	                          }
+	                        });
+						
+                      }
+                    
+                  }else{
+                    alert("卷内模板名称不能为空。");
+                  }
+                }
+              },
+              {
+                xtype: 'button',
+                iconCls: 'exit',
+                text:'退出',
+                handler: function() {
+                  //this.up('window').hide();
+                  Ext.getCmp('jr_model_list_disp_win').close();
+                }
+              }]
+          }]
+          
+        });
+      }
+      if(add_new==false){
+      //设置数据
+        Ext.getCmp('jr_model_list_disp_form').getForm().setValues(id.data);        		
+      }else{
+		Ext.getCmp('jr_modelid').setValue(id);
+        Ext.getCmp('jr_model_list_disp_win').title="新增卷内模板列表";
+        Ext.getCmp('button_user_add').text="新增";
+        Ext.getCmp('button_user_add').iconCls="add";
+      }
+      win.show();
+    };
+
     var sys_cd_tree_store = Ext.create('Ext.data.TreeStore', {
       autoLoad: true,
       proxy: {
@@ -1977,7 +2600,7 @@ Ext.define('MyDesktop.SystemMan', {
             if (Ext.getCmp('js_qx_setup_win')!=undefined){Ext.getCmp('js_qx_setup_win').close();}
             if (Ext.getCmp('user_sb_setup_win')!=undefined){Ext.getCmp('user_sb_setup_win').close();}
             if (Ext.getCmp('user_setup_win')!=undefined){Ext.getCmp('user_setup_win').close();}           
-            
+            if (Ext.getCmp('jr_model_setup_win')!=undefined){Ext.getCmp('jr_model_setup_win').close();}
             switch (node.data.id) { 
               case "11": 
                 qz_setup();
@@ -1996,6 +2619,9 @@ Ext.define('MyDesktop.SystemMan', {
                 break;
               case "16": 
                 user_setup();
+                break;
+			　　case "17": 
+	            jr_model_setup();
                 break;
               
             }

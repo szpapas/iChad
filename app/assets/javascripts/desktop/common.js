@@ -407,6 +407,83 @@ var sb_nxdj_store = new Ext.data.SimpleStore({
 	data : sb_nxdj_data
 });
 
+var jr_model_data = [
+ ['1','题名'],
+ ['2','责任者'],
+ ['3','文号']
+];
+
+var jr_model_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : jr_model_data
+});
+
+
+　　Ext.regModel('com_jr_wh_model', {
+   	fields: [
+   		{name: 'id',		type: 'integer'},
+   		{name: 'name',		type: 'string'}
+   	]
+   });
+   var com_jr_wh_store = Ext.create('Ext.data.Store', {
+   		id:'com_jr_wh_store',
+   		model : 'com_jr_wh_model',
+   		proxy: {
+   			type: 'ajax',
+   			url : '/desktop/get_jr_model_wh_grid',
+   			//extraParams: {query:'文号'},
+   			reader: {
+   				type: 'json',
+   				root: 'rows',
+   				totalProperty: 'results'
+   			}
+   		}				
+   });
+　　Ext.regModel('com_jr_zrz_model', {
+   	fields: [
+   		{name: 'id',		type: 'integer'},
+   		{name: 'name',		type: 'string'}
+   	]
+   });
+   var com_jr_zrz_store = Ext.create('Ext.data.Store', {
+   		id:'com_jr_zrz_store',
+   		model : 'com_jr_zrz_model',
+   		proxy: {
+   			type: 'ajax',
+   			url : '/desktop/get_jr_model_zrz_grid',
+   			//extraParams: {query:'责任者'},
+   			reader: {
+   				type: 'json',
+   				root: 'rows',
+   				totalProperty: 'results'
+   			}
+   		}				
+   });
+com_jr_zrz_store.load();
+
+
+
+Ext.regModel('com_jr_tm_model', {
+  fields: [
+    {name: 'id',    type: 'integer'},
+    {name: 'name',    type: 'string'}
+  ]
+});
+var com_jr_tm_store = Ext.create('Ext.data.Store', {
+    id:'com_jr_tm_store',
+    model : 'com_jr_tm_model',
+    proxy: {
+      type: 'ajax',
+      url : '/desktop/get_jr_model_tm_grid',
+	  //extraParams: {query:'题名'},
+      reader: {
+        type: 'json',
+        root: 'rows',
+        totalProperty: 'results'
+      }
+    }       
+});
+com_jr_tm_store.load();
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
@@ -572,9 +649,6 @@ var DispAj_zh = function(record,add_new,title){
 		tbar:[
 			{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
 				handler: function() {
-					//var grid = Ext.getCmp('archive_grid');
-					//var records = grid.getSelectionModel().getSelection();
-					//var record = records[0];
 					if (Ext.getCmp('zh_id').value!=undefined){
 						DispJr(record,true,Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
 					}else
@@ -599,7 +673,6 @@ var DispAj_zh = function(record,add_new,title){
 										parameters: pars,
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
-
 										}
 									});
 								}else{
@@ -621,8 +694,22 @@ var DispAj_zh = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
+			},{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+					if (Ext.getCmp('zh_id').value!=undefined){
+						size=Ext.getCmp('com_document_grid').store.count();
+						if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						}else{					
+							DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+						}
+					}else
+					{
+						alert("请先保存案卷再进行卷内的新增。");
+					}		              
+			 	}
 			}
-
 		],
 		columns: [
 			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
@@ -695,7 +782,7 @@ var DispAj_zh = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;											
@@ -1071,7 +1158,22 @@ var DispAj_cw = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('cw_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('cw_id').value,Ext.getCmp('cw_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -1145,7 +1247,7 @@ var DispAj_cw = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('cw_id').setValue(responseT[2]);
 										Ext.getCmp('cw_dh').setValue(responseT[1]);
 										add_new=false;												
@@ -1539,7 +1641,22 @@ var DispAj_tddj = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('tddj_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('tddj_id').value,Ext.getCmp('tddj_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -1613,7 +1730,7 @@ var DispAj_tddj = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('tddj_id').setValue(responseT[2]);
 										Ext.getCmp('tddj_dh').setValue(responseT[1]);
 										add_new=false;												
@@ -2637,7 +2754,22 @@ var DispAj_sx = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -2712,7 +2844,7 @@ var DispAj_sx = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;											
@@ -3108,7 +3240,22 @@ var DispAj_tjml = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -3183,7 +3330,7 @@ var DispAj_tjml = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;												
@@ -3500,7 +3647,22 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -3575,7 +3737,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;												
@@ -4070,7 +4232,22 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -4145,7 +4322,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;												
@@ -4570,7 +4747,22 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -4645,7 +4837,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;											
@@ -5029,7 +5221,22 @@ var DispAj_qtda_swda = function(record,add_new,title){
 						DispJr(model,false,'','',true);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -5104,7 +5311,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 									if (responseT[0]=='success'){
 										alert("案卷新增成功。");
 										dh=responseT[1];
-										Ext.getCmp('button_aj_add').setText="修改";
+										Ext.getCmp('button_aj_add').setText('修改');
 										Ext.getCmp('zh_id').setValue(responseT[2]);
 										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										add_new=false;											
@@ -5504,7 +5711,22 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -5947,7 +6169,22 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -6290,7 +6527,22 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -6576,7 +6828,22 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -6860,7 +7127,22 @@ var DispAj_by_dsj = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -7188,7 +7470,22 @@ var DispAj_by_qzsm = function(record,add_new,title){
 						DispJr(model,false);
 					});
 				}
-			}
+			}	,{
+					xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+			          handler: function() {
+						if (Ext.getCmp('zh_id').value!=undefined){
+							size=Ext.getCmp('com_document_grid').store.count();
+							if (size>0){	              					  
+				              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+							}else{					
+								DispJr_model(Ext.getCmp('zh_id').value,Ext.getCmp('zh_dh').value,true);
+							}
+						}else
+						{
+							alert("请先保存案卷再进行卷内的新增。");
+						}		              
+				 	}
+				}
 
 		],
 		columns: [
@@ -7656,8 +7953,10 @@ var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 		
 		if (jr_dh!=undefined){
 			Ext.getCmp('jr_dh').setValue(jr_dh);
+			pars= {dh:jr_dh};
 		}else{
 			Ext.getCmp('jr_dh').setValue(recordad.data.dh);
+			pars= {dh:recordad.data.dh};
 		};
 		if (jr_aj_ownerid!=undefined){
 			Ext.getCmp('jr_ownerid').setValue(jr_aj_ownerid);
@@ -7665,7 +7964,13 @@ var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 			Ext.getCmp('jr_ownerid').setValue(recordad.data.id);
 		};
 	
-		
+		new Ajax.Request("/desktop/get_max_sxh", { 
+		    	method: "POST",
+		    	parameters: pars,
+		    	onComplete:	 function(request) {
+		    		Ext.getCmp('jr_sxh').setValue(request.responseText);
+		     	}
+		     });
 		
 		Ext.getCmp('jr_sxh').setValue("");
 		Ext.getCmp('jr_tm').setValue("");
@@ -7676,6 +7981,227 @@ var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 		Ext.getCmp('jr_bz').setValue("");
 	}
 	win.show();
+};
+
+//显示卷内模板新增窗口
+var DispJr_model = function(jr_aj_ownerid,jr_dh,aj_add_new){
+	var win = Ext.getCmp('document_model_win');
+	function formatDate(value){
+        return value ? Ext.Date.dateFormat(value, 'M d, Y') : '';
+    };
+	var com_zrz=[];
+	var com_wh=[];
+	
+
+	Ext.regModel('jr_model_model', {
+        fields: [
+          {name: 'wh',    type: 'string'},
+          {name: 'zrz',    type: 'string'},
+          {name: 'name',    type: 'string'},
+          {name: 'rq',   type: 'date', dateFormat: 'Y-m-d'},
+          {name: 'yh',    type: 'string'}
+        ]
+      });
+
+      var jr_model_store = Ext.create('Ext.data.Store', {
+        id:'jr_model_store',
+        model : 'jr_model_model',
+        autoLoad: true,
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_jr_modellist_grid',
+          extraParams: {query:'1'},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+		var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+	        clicksToEdit: 1
+	    });
+      var jr_model_grid = new Ext.grid.GridPanel({
+        id : 'jr_model_grid',
+        store: jr_model_store,        
+        columns: [
+		{
+            xtype: 'checkcolumn',
+            header: '选择',
+            dataIndex: 'indoor',
+            width: 40
+        },
+          { text : '文号',  width : 75, sortable : true, dataIndex: 'wh',
+		  	editor: {
+              xtype: 'combobox',
+              	store: com_jr_wh_store,
+                emptyText:'请选择',
+                mode: 'remote',
+                minChars : 2,
+                valueField:'name',
+                displayField:'name',
+                triggerAction:'all',
+                listConfig: { loadMask: false }
+          	}
+		  },
+          { text : '责任者',  width : 150, sortable : true, dataIndex: 'zrz',
+		  	editor: {
+              xtype: 'combobox',
+              store: com_jr_zrz_store,
+              emptyText:'请选择',
+              mode: 'remote',
+              minChars : 2,
+              valueField:'name',
+              displayField:'name',
+              triggerAction:'all',
+              listConfig: { loadMask: false }
+          	}
+		  },
+          { text : '题名',  width : 150, sortable : true, dataIndex: 'name',	
+			editor: {
+              allowBlank: false
+          	},
+			flex: 1
+		  },
+          { text : '日期',  width : 70, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d'),
+			
+			editor: {
+              xtype: 'datefield',
+              format: 'y-m-d',
+              minValue: '2012-01-01',
+              disabledDays: [0, 6],
+              disabledDaysText: 'Plants are not available on the weekends'
+          	}
+		  },
+		  { text : '页号',  width : 150, sortable : true, dataIndex: 'yh',	
+			editor: {
+              allowBlank: false
+          	},
+			flex: 1
+		  }
+          ],
+          //selType:'checkboxmodel',
+          //multiSelect:true,
+          selModel: {
+            selType: 'cellmodel'
+          },
+        viewConfig: {
+          stripeRows:true
+        },
+		plugins: [cellEditing]
+      });	
+	if (win==null) {
+        win = new Ext.Window({
+          id : 'jr_model_win',
+          title: '卷内模板方式输入',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:jr_model_grid,          
+          tbar:[{
+            xtype: 'button',
+            iconCls: 'save',
+            text:'保存',
+            handler: function() {
+				save_sql='';
+				size=jr_model_grid.store.data.items.size();
+				if (size>0){					
+					for (i = 0; i < size; i++) {
+						if (jr_model_grid.store.data.items[i].data.indoor==true)
+						{
+							if(jr_model_grid.store.data.items[i].data.rq!=null){
+								year=(jr_model_grid.store.data.items[i].data.rq.getYear()+1900);
+								month=jr_model_grid.store.data.items[i].data.rq.getMonth()+1;
+								rq=year+'-'+month+'-'+jr_model_grid.store.data.items[i].data.rq.getDate();
+							}else{
+								rq=null;
+							};
+							if (save_sql==''){
+								save_sql=jr_model_grid.store.data.items[i].data.wh+'@'+jr_model_grid.store.data.items[i].data.zrz+'@'+jr_model_grid.store.data.items[i].data.name+'@'+rq+'@'+jr_model_grid.store.data.items[i].data.yh								
+							}else{
+								save_sql=save_sql+'$'+jr_model_grid.store.data.items[i].data.wh+'@'+jr_model_grid.store.data.items[i].data.zrz+'@'+jr_model_grid.store.data.items[i].data.name+'@'+rq+'@'+jr_model_grid.store.data.items[i].data.yh
+							}
+						}
+					}
+					
+				}
+				if(save_sql!=''){
+					new Ajax.Request("/desktop/insert_document_model", { 
+						method: "POST",
+						parameters: {dh:jr_dh,ownerid:jr_aj_ownerid,save_sql:save_sql},
+						onComplete:	 function(request) {
+							fhz=request.responseText.split(":");
+							if (fhz[0]=='success'){
+								alert("卷内新增成功。");
+								if (aj_add_new==true){	
+									Ext.getCmp('com_document_grid').store.proxy.extraParams.query=jr_aj_ownerid;								
+									Ext.getCmp('com_document_grid').store.load();	
+								}else
+								{
+									Ext.getCmp('document_grid').store.load();
+								};
+								Ext.getCmp('jr_model_win').close();											
+							}else{
+								if (fhz[0]=='false')
+								{
+									alert(fhz[1]);
+								}else
+								{
+									alert("卷内新增失败，请重新保存。"+request.responseText);
+								}
+							}
+						}
+					});
+				}else{
+					alert("请选择一个或多个模板列表侢进行保存。");
+				}
+				
+            }
+          },
+          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">卷内模板名称选择</span>:&nbsp;&nbsp;',{
+           xtype: 'combo',           
+           x: 130,
+           y: 190,
+           width: 200,
+           name: 'jr_model_select',
+           id: 'jr_model_select',
+           store: com_jr_tm_store,
+           emptyText:'请选择',
+           mode: 'local',
+           minChars : 2,
+           valueField:'id',
+           displayField:'name',
+           triggerAction:'all',
+           listeners:{
+             select:function(combo, records, index) {
+               jr_model_store.proxy.extraParams.query=combo.lastValue;
+               jr_model_store.load();
+             }
+           }
+		  },
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('jr_model_win').close();
+            }
+          }]
+
+        });
+      }
+
+
+      win.show();
 };
 
 

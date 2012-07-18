@@ -670,6 +670,7 @@ class DesktopController < ApplicationController
     if (params['dh'].nil?)
       txt = "{results:0,rows:[]}"
     else
+      system"rm -rf ./dady/img_tmp/#{params['dh']}/"
       if params['type'].to_i == 0
 
         system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
@@ -718,8 +719,9 @@ class DesktopController < ApplicationController
     else
       user = User.find_by_sql("select id, dh, yxmc from timage where id=#{params['gid']};")
       dh = user[0]['dh']
+      
       if !File.exists?("./dady/img_tmp/#{dh}/")
-        system"mkdir -p ./dady/img_tmp/#{dh}/"
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
       end
       #user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
       convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
@@ -2463,6 +2465,7 @@ class DesktopController < ApplicationController
        else
          txt="0"
        end
+       txt=ss
        render :text => txt
   end
   
@@ -4498,6 +4501,34 @@ class DesktopController < ApplicationController
     end
     render :text => txt
   end
+  
+  #新增卷内目录_模板方式
+  def insert_document_model
+    if !(params['dh']=="")
+      if !(params['ownerid']=="")
+        insert_sql=params['save_sql'].split('$')
+        size = insert_sql.length
+        if size > 0
+          for k in 0..size-1
+            save_sql=insert_sql[k].split('@')
+            if save_sql[3]=='null'
+              User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,rq,dh,ownerid) values('#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}',#{save_sql[3]},'#{params['dh']}',#{params['ownerid']}) ")
+            else
+              User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,rq,dh,ownerid) values('#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}','#{save_sql[3]}','#{params['dh']}',#{params['ownerid']}) ")
+            end
+          end
+          txt = 'success'
+        else
+          txt='false:请选择一个或多个模板列表侢进行保存。'
+        end
+      else
+        txt='false:请先选择一个案卷再进行卷内目录的输入。'
+      end
+    else
+      txt='false:档号不能为空，请重新输入。'
+    end
+    render :text => txt
+  end
 
   	#删除卷内目录
   def delete_document
@@ -5990,6 +6021,177 @@ class DesktopController < ApplicationController
       render :text => txt;
     end
     
+
+    #获得卷内输档模板树
+    def get_jr_model_tree
+      
+     node, style = params["node"], params['style']
+     text="["
+     jslb=["题名","责任者","文号"]
+     
+     if node == "root"
+       for k in 0..2       
+         text=text+"{'text':'#{jslb[k]}','id' :'#{jslb[k]}-#{k}','leaf':false,'checked':false,'cls':'folder','children':["
+         data = User.find_by_sql("select * from  jr_model where lx='#{jslb[k]}' order by id;")
+         size=data.size
+         if size>0
+
+           data.each do |dd|
+             text=text+"{'text':'#{dd['name']}','id' :'#{dd['id']}','leaf':true,'checked':false,'iconCls':'user'},"
+           end
+
+         end
+         text=text + "]}," 
+       end
+       
+     end
+     text=text+"]"
+     render :text => text
+    
+    end
     
 
+
+    #获得卷内输档模板列表
+    def  get_jr_modellist_grid
+      if (params['query'].nil?)        
+         txt = "{results:0,rows:[]}"          
+      else
+        if (params['query']=="")
+          txt = "{results:0,rows:[]}"
+        else          
+          user = User.find_by_sql("select * from jr_model_list where modelid=#{params['query']} order by id;")
+          
+          size = user.size
+
+          if size > 0 
+           txt = "{results:#{size},rows:["
+           for k in 0..user.size-1
+             txt = txt + user[k].to_json + ','
+           end
+           txt = txt[0..-2] + "]}"
+          else
+           txt = "{results:0,rows:[]}"  
+          end
+        end
+      end      
+      render :text => txt
+    end
+
+    #获得卷内输档模板列表
+    def  get_jr_model_tm_grid              
+          user = User.find_by_sql("select * from jr_model where lx='题名' order by id;")          
+          size = user.size
+          if size > 0 
+           txt = "{results:#{size},rows:["
+           for k in 0..user.size-1
+             txt = txt + user[k].to_json + ','
+           end
+           txt = txt[0..-2] + "]}"
+          else
+           txt = "{results:0,rows:[]}"  
+          end      
+      render :text => txt
+    end
+
+    def  get_jr_model_wh_grid
+      user = User.find_by_sql("select * from jr_model where lx='文号' order by id;")          
+      size = user.size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end   
+      render :text => txt
+    end
+
+    def  get_jr_model_zrz_grid
+      user = User.find_by_sql("select * from jr_model where lx='责任者' order by id;")          
+      size = user.size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end     
+      render :text => txt
+    end
+
+
+    def insert_jr_model   
+       user=User.find_by_sql("select * from jr_model where  name='#{params['name']}';")
+       size = user.size
+       if size == 0
+         User.find_by_sql("insert into jr_model ( name, lx) values ('#{params['name']}', '#{params['lx']}');")
+         txt='success'
+       else
+         txt= 'false:模板名称已经存在，请重新输入。'
+       end
+       render :text => txt    
+      
+    end
+    
+    def update_jr_model
+      user=User.find_by_sql("select * from jr_model where id <> #{params['id']} and name='#{params['name']}';")
+      size = user.size
+      if size == 0
+        User.find_by_sql("update jr_model set name='#{params['name']}' where id='#{params['id']}';")
+        txt='success'
+      else
+        txt= 'false:模板名称已经存在，请重新输入。'
+      end
+      render :text => txt      
+    end
+  
+    def delete_jr_model
+      User.find_by_sql("delete from jr_model  where id='#{params['id']}';")
+      render :text => "success"
+    end
+
+    def insert_jr_model_list
+      user=User.find_by_sql("select * from jr_model_list where  name='#{params['name']}' and modelid='#{params['modelid']}';")
+       size = user.size
+       if size == 0
+         User.find_by_sql("insert into jr_model_list ( name, modelid) values ('#{params['name']}', '#{params['modelid']}');")
+         txt='success'
+       else
+         txt= 'false:模板列表名称已经存在，请重新输入。'
+       end
+       render :text => txt
+    end
+
+
+    def update_jr_model_list
+      user=User.find_by_sql("select * from jr_model_list where id <> #{params['id']} and name='#{params['name']}' and modelid='#{params['modelid']}';")
+      size = user.size
+      if size == 0
+        User.find_by_sql("update jr_model_list set name='#{params['name']}' where id='#{params['id']}';")
+        txt='success'
+      else
+        txt= 'false:模板列表名称已经存在，请重新输入。'
+      end
+      render :text => txt      
+    end
+    
+    
+    def delete_jr_modellist
+      User.find_by_sql("delete from jr_model_list  where id='#{params['id']}';")
+      render :text => "success"
+    end
+    
+    
+    #根据dh 获得最大顺序号
+    def get_max_sxh      
+        ajh= User.find_by_sql("select max(sxh) from document where dh =  '#{params['dh']}';")
+        size=ajh.size;
+        txt=ajh[0]["max"].to_i+1;         
+        render :text => txt
+    end
 end

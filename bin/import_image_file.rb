@@ -79,14 +79,18 @@ def save2timage(filename,dh,dh_prefix)
         width, height = wh[0].to_i, wh[1].to_i
         pixels = width * height
       end  
-      mm = meta.split("\;")
-      if mm.size > 5 && meta.size < 100
-        meta=mm[0..5].join("\;")[2..-1] 
-        meta_tz =mm[2].to_i
+      if !meta.nil?
+        mm = meta.split("\;")
+        if mm.size > 5 && meta.size < 100
+          meta=mm[0..5].join("\;")[2..-1] 
+          meta_tz =mm[2].to_i
+        else
+          $stderr.puts "Tags error: #{filename}"
+          meta, meta_tz = "", 0
+        end   
       else
-        $stderr.puts "Tags error: #{filename}"
-        meta, meta_tz = "", 0
-      end     
+         meta, meta_tz = "", 0
+      end 
     end
     
   elsif (filename.include?'TIF') || (filename.include?'tif')  || (filename.upcase.include?'TIFF')

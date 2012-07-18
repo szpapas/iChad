@@ -2580,10 +2580,10 @@ Ext.define('MyDesktop.BorrowMan', {
 									var bt=Ext.getCmp('gjcx_button');
 									//gjcx.collapsed=false;
 									if (gjcx.isHidden()){
-										bt.text="收起高级查询";
+										bt.setText('收起高级查询');
 										gjcx.expand(true);}
 									else {
-										bt.text="展开高级查询";
+										bt.setText('展开高级查询');
 										gjcx.collapse(true);
 									};
 								}

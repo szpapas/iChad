@@ -181,18 +181,38 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-                '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-                {
-                  xtype:'textfield',id:'query_jr_text'
-                },          
-                {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-                    handler: function() {
-                      store3.proxy.url="/desktop/get_document_where";
-                      store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                      store3.load();
-                    }
-                }
+          } ,
+ 		   // '->',
+           // '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',id:'query_jr_text'
+           // },          
+           // {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
+           //     handler: function() {
+           //       store3.proxy.url="/desktop/get_document_where";
+           //       store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
+           //       store3.load();
+           //     }
+           // }
+		 {
+			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+	          handler: function() {
+	              var grid = Ext.getCmp('archive_grid');					
+	              var records = grid.getSelectionModel().getSelection();
+				  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+				  if (size==1){			
+				  	size=Ext.getCmp('document_grid').store.count();
+					  if (size>0){	              					  
+		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+					  }else{
+						var record = records[0];
+						DispJr_model(record.data.id,record.data.dh,false);
+					  }
+				  }else{
+					alert("请先选择一个案卷目录。");
+				  }
+	            }
+		 }
           
         ],
         columns: [
@@ -268,6 +288,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       var archiveGrid = new Ext.grid.GridPanel({
         id : 'archive_grid',
         store: archive_store,
+		//multiSelect:false,
         bbar:[
           new Ext.PagingToolbar({
             store: archive_store,
@@ -372,7 +393,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
         ],
         selType:'checkboxmodel',
-        multiSelect:true,
+        //multiSelect:true,
         listeners:{
           itemdblclick:{
             fn:function(v,r,i,n,e,b){
@@ -485,7 +506,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         tbar:[{
             xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
             handler: function() {
-              var grid = Ext.getCmp('archive_grid');
+              var grid = Ext.getCmp('archive_grid_cw');
               var records = grid.getSelectionModel().getSelection();
               var record = records[0];
               DispJr(record,true);
@@ -524,19 +545,26 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          },'->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          },
+		  {
+			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+	          handler: function() {
+	              var grid = Ext.getCmp('archive_grid_cw');					
+	              var records = grid.getSelectionModel().getSelection();
+				  size=Ext.getCmp('archive_grid_cw').getSelectionModel().getSelection().size();
+				  if (size==1){			
+				  	size=Ext.getCmp('document_grid').store.count();
+					  if (size>0){	              					  
+		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+					  }else{
+						var record = records[0];
+						DispJr_model(record.data.id,record.data.dh,false);
+					  }
+				  }else{
+					alert("请先选择一个案卷目录。");
+				  }
+	            }
+		 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -727,7 +755,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -879,18 +907,26 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-              handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } , 
+		{
+			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+	          handler: function() {
+	              var grid = Ext.getCmp('archive_grid_tddj');					
+	              var records = grid.getSelectionModel().getSelection();
+				  size=Ext.getCmp('archive_grid_tddj').getSelectionModel().getSelection().size();
+				  if (size==1){			
+				  	size=Ext.getCmp('document_grid').store.count();
+					  if (size>0){	              					  
+		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+					  }else{
+						var record = records[0];
+						DispJr_model(record.data.id,record.data.dh,false);
+					  }
+				  }else{
+					alert("请先选择一个案卷目录。");
+				  }
+	            }
+		 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -1082,7 +1118,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -1434,7 +1470,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -1589,18 +1625,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-              handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -1786,7 +1829,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -1940,20 +1983,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-                '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',
-            id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
           
         ],
         columns: [
@@ -2134,7 +2182,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -2272,18 +2320,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-              handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -2481,7 +2536,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -2615,18 +2670,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-              handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -2818,7 +2880,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -2954,19 +3016,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } ,	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
           
         ],
         columns: [
@@ -3154,7 +3222,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -3294,19 +3362,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -3497,7 +3571,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -3635,19 +3709,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
           
         ],
         columns: [
@@ -3827,7 +3907,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -3968,19 +4048,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-              xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-              handler: function() {
-                store3.proxy.url="/desktop/get_document_where";
-                store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-                store3.load();
-              }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -4161,7 +4247,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -4303,19 +4389,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -4491,7 +4583,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -4626,19 +4718,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-            '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -4811,7 +4909,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
           selType:'checkboxmodel',
-          multiSelect:true,
+          //multiSelect:true,
           listeners:{
             itemdblclick:{
               fn:function(v,r,i,n,e,b){
@@ -4948,19 +5046,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , '->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          } , 	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5146,7 +5250,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
         selType:'checkboxmodel',
-        multiSelect:true,
+        //multiSelect:true,
         listeners:{
           itemdblclick:{
             fn:function(v,r,i,n,e,b){
@@ -5282,19 +5386,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          },'->',
-          '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',id:'query_jr_text'
-          },          
-          {
-            xtype:'button',text:'查询',tooltip:'查询卷内目录',iconCls:'accordion',
-            handler: function() {
-              store3.proxy.url="/desktop/get_document_where";
-              store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
-              store3.load();
-            }
-          }
+          },	{
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+		          handler: function() {
+		              var grid = Ext.getCmp('archive_grid');					
+		              var records = grid.getSelectionModel().getSelection();
+					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+					  if (size==1){			
+					  	size=Ext.getCmp('document_grid').store.count();
+						  if (size>0){	              					  
+			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+						  }else{
+							var record = records[0];
+							DispJr_model(record.data.id,record.data.dh,false);
+						  }
+					  }else{
+						alert("请先选择一个案卷目录。");
+					  }
+		            }
+			 }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5470,7 +5580,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           ],
         selType:'checkboxmodel',
-        multiSelect:true,
+        //multiSelect:true,
         listeners:{
           itemdblclick:{
             fn:function(v,r,i,n,e,b){
@@ -5788,7 +5898,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                       onComplete:  function(request) {
                         var path = request.responseText;
                         if (path != '') { 
-                          Ext.getCmp('preview_img').getEl().dom.src = path;
+						 var number = Math.random(); 
+                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                         }
                       }
                     });
@@ -5810,7 +5921,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
-                        Ext.getCmp('preview_img').getEl().dom.src = path;
+                        var number = Math.random(); 
+                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
                     }
                   });
@@ -5831,7 +5943,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
-                        Ext.getCmp('preview_img').getEl().dom.src = path;
+                        var number = Math.random(); 
+                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
                     }
                   });             

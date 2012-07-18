@@ -81,7 +81,7 @@ end
      fhz1=""
      while true do
        ss = sprintf("%02X", sp.getc)
-       #puts ss
+       puts ss
        if ss.to_i(16)==10
          js=0
          fhz=ss
