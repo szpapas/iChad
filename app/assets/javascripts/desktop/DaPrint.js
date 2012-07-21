@@ -43,6 +43,48 @@ Ext.define('MyDesktop.DaPrint', {
   createWindow : function(){
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('daprint');
+	Ext.regModel('qz_model_print', {
+	   	fields: [
+	   		{name: 'id',		type: 'integer'},
+	   		{name: 'dwdm',		type: 'string'}
+	   	]
+	   });
+	   var qz_store_print = Ext.create('Ext.data.Store', {
+	   		id:'qz_store_print',
+	   		model : 'qz_model_print',
+	   		proxy: {
+	   			type: 'ajax',
+	   			url : '/desktop/get_qz_byuserid_grid',
+	   			extraParams: {userid:user_id},
+	   			reader: {
+	   				type: 'json',
+	   				root: 'rows',
+	   				totalProperty: 'results'
+	   			}
+	   		}				
+	   });
+	  qz_store_print.load();
+	Ext.regModel('dalb_model_print', {
+		fields: [
+			{name: 'id',		type: 'integer'},
+			{name: 'lbmc',		type: 'string'}
+		]
+	});
+	var dalb_store_print = Ext.create('Ext.data.Store', {
+			id:'dalb_store_print',
+			model : 'dalb_model_print',
+			proxy: {
+				type: 'ajax',
+				url : '/desktop/get_dalb_print_grid',
+				extraParams: {userid:user_id},
+				reader: {
+					type: 'json',
+					root: 'rows',
+					totalProperty: 'results'
+				}
+			}				
+	});
+	dalb_store_print.load();
 		var ym_disp = function(record,add_new){
 			var win = Ext.getCmp('ym_disp_win');
 			
@@ -479,9 +521,9 @@ Ext.define('MyDesktop.DaPrint', {
 			                  xtype: 'combobox',
 			                  width: 215,
 			                  fieldLabel: '全宗名称',
-								store: qz_store,
+								store: qz_store_print,
 								emptyText:'请选择',
-								mode: 'remote',
+								mode: 'local',
 								minChars : 2,
 								valueField:'id',
 								displayField:'dwdm',
@@ -495,7 +537,7 @@ Ext.define('MyDesktop.DaPrint', {
 			                    xtype: 'combobox',
 			                    width: 215,
 			                    fieldLabel: '档案类别',
-								store: dalb_store,
+								store: dalb_store_print,
 								emptyText:'请选择',
 								mode: 'remote',
 								minChars : 2,

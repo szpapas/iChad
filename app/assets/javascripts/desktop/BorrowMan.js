@@ -2568,6 +2568,7 @@ Ext.define('MyDesktop.BorrowMan', {
 									var grid = Ext.getCmp('archive_grid');
 									grid.store.proxy.url="/desktop/get_archive_where";
 									archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+									archive_store.proxy.extraParams.userid=currentUser.id 								
 									archive_store.load();
 									Ext.getCmp('cdlr').setValue('全文：'+Ext.getCmp('query_text').value);
 								}

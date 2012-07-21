@@ -144,7 +144,7 @@ Ext.define('MyDesktop.Notepad', {
             }
           }       
       });
-      lc_store.load();
+      //lc_store.load();
       Ext.regModel('fj_model', {
         fields: [
           {name: 'id',    type: 'integer'},
@@ -2424,7 +2424,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: lc_store,
                   emptyText:'请选择',
-                  mode: 'remote',
+                  mode: 'local',
                   minChars : 2,
                   valueField:'id',
                   displayField:'lcmc',
@@ -2830,16 +2830,12 @@ Ext.define('MyDesktop.Notepad', {
                   listConfig: { loadMask: false },
                   listeners:{  
                     select:function(combo, record,index){
-
                   //userAdd = record.data.name;
                     var parent=Ext.getCmp('sb_ssfj');
-
                     parent.clearValue();
-
                     parent.store.load({params:{param:this.value}});
                     //Ext.getCmp('fj_sslc').lastQuery = null;
                     }
-
                   },
                   name: 'sslc',
                   id:'sb_sslc'

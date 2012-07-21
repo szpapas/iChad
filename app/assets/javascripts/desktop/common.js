@@ -347,6 +347,9 @@ var print_lb_store = new Ext.data.SimpleStore({
    			}
    		}				
    });
+
+
+
    //qz_store.load();
 Ext.regModel('dalb_model', {
 	fields: [
@@ -368,6 +371,7 @@ var dalb_store = Ext.create('Ext.data.Store', {
 			}
 		}				
 });
+
 
 var zt_data = [	
 	['1','宋体'],
@@ -486,6 +490,30 @@ var com_jr_tm_store = Ext.create('Ext.data.Store', {
     }       
 });
 //com_jr_tm_store.load();
+
+Ext.regModel('timage_model', {
+    fields: [
+      {name: 'id',     type: 'integer'},
+      {name: 'dh',     type: 'string'},
+      {name: 'yxmc',     type: 'string'},
+      {name: 'yxdx',     type: 'string'},
+      {name: 'yxbh',     type: 'string'}
+    ]
+  });
+
+  var timage_store =  Ext.create('Ext.data.Store', {
+    model : 'timage_model',
+    proxy: {
+      type: 'ajax',
+      url : '/desktop/get_timage',
+      extraParams: {dh:"",type:"0"},
+      reader: {
+        type: 'json',
+        root: 'rows',
+        totalProperty: 'results'
+      }
+    }
+  });
 var sprintf = (function() {
 	function get_type(variable) {
 		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
@@ -7691,6 +7719,83 @@ var DispAj_by_qzsm = function(record,add_new,title){
 };
 
 
+var myuploadform= new Ext.FormPanel({
+  id : 'my_upload_form',
+  fileUpload: true,
+  width: 300,
+  height : 100,
+  autoHeight: true,
+  bodyStyle: 'padding: 5px 5px 5px 5px;',
+  labelWidth: 0,
+  defaults: {
+    anchor: '95%',
+    allowBlank: false,
+    msgTarget: 'side'
+  },
+  layout : 'absolute',
+  items:[{
+    xtype: 'label',
+    text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+    x: 10,
+    y: 10,
+    width: 100
+  },
+  {
+    xtype: 'fileuploadfield',
+    id: 'filedata',
+    x: 10,
+    y: 30,
+    emptyText: '选择一个文件...',
+    buttonText: '浏览'
+  }],
+  buttons: [
+  {
+    text: '上传',
+    handler: function(){
+      if (dh==''){
+        msg('提示', '请先选择要增加影像文件的案卷.');
+      } 
+      else
+      {
+        myForm = Ext.getCmp('my_upload_form').getForm();
+        
+        if(myForm.isValid())
+        {
+            form_action=1;
+            myForm.submit({
+              url: '/desktop/upload_file',
+              waitMsg: '文件上传中...',
+              success: function(form, action){
+                var isSuc = action.result.success; 
+                filename=myForm._fields.items[0].lastValue.split('\\');
+                file=filename[filename.length-1];
+                if (isSuc) {
+                  new Ajax.Request("/desktop/save_image_db", { 
+                    method: "POST",
+                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+                    onComplete:  function(request) {
+                      if (request.responseText=='true'){
+                        timage_store.load();
+                        Ext.getCmp('timage_combo').lastQuery = null;
+                        msg('成功', '文件上传成功.');                       
+                      }else{
+                        alert("文件上传失败，请重新上传。" + request.responseText);
+                      }
+                    }
+                  }); //save_image_db
+                } else { 
+                  msg('失败', '文件上传失败.');
+                }
+              }, 
+              failure: function(){
+                msg('失败', '文件上传失败.');
+              }
+            });
+        }
+      } //else
+    } //handler
+  }] //buttons
+});
 //显示卷内目录窗口
 var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 	var win = Ext.getCmp('document_detail_win');
@@ -8453,6 +8558,52 @@ var set_image = function(photoURL) {
 
  draw(scale, translatePos,imageObj);
 };
+
+
+//add by liujun showAdvancedSearch()
+  var showAdvancedSearch = function() {
+    
+    var panel = new Ext.Panel({  
+      title : '高级查询',  
+      width : '280px',  
+      html : '<div id="div1" style="height:160px;padding:5px">原文本</div>'  
+    });
+     
+    //Ext.DomHelper.append(Ext.get("div1"),"<br>新追加了文本",true);
+    var advanced_search_win = new Ext.Window({
+      id : 'advanced-search-win',
+      iconCls : 'picture16',
+      title: '查询条件',
+      floating: true,
+      shadow: true,
+      draggable: true,
+      closable: true,
+      modal: true,
+      width: 400,
+      height: 300,
+      layout: 'fit',
+      plain: true,
+      tbar:[{
+        text : '增加',
+        iconCls:'add',
+        handler : function() {
+          Ext.DomHelper.append(Ext.get("adv-search"),
+            '<div style="height:30px;padding:10px;"><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="Opel">Opel</option><option value="audi">Audi</option></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
+        }
+      },'->',{
+        text : '提交',
+        iconCls:'search',
+        handler : function(){
+          
+        }
+      }],
+      items:[{
+         xtype: 'panel', //或者xtype: 'component',
+         html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="opel">Opel</option><option value="audi">Audi</option></select></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
+      }]
+    });
+    advanced_search_win.show();
+  };
 
 //设备正在操作窗口
 var sb_cz_msg = function(sbid){

@@ -715,20 +715,19 @@ class DesktopController < ApplicationController
   end
   
   def get_timage_from_db
-    type = params['type'].to_i
     if (params['gid'].nil?)
       txt = ""
     else
-      user = User.find_by_sql("select id, dh, yxmc from timage where id=#{params['gid']};")
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag from timage where id=#{params['gid']};")
       dh = user[0]['dh']
-      
+
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"        
       end
-      #user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
-      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
       
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
       if !File.exists?(local_filename)
         user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{params['gid']};")
         
@@ -737,14 +736,15 @@ class DesktopController < ApplicationController
         ff.write(user[0]["data"])
         ff.close
         puts "./tmp/#{tmpfile} #{local_filename}"
-        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
-        #system("scp ./tmp/#{tmpfile} #{local_filename}")
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end  
         system("rm ./tmp/#{tmpfile}")
       end
-      #small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      #puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      system("convert   '#{local_filename}' '#{convert_filename}'")
-      #txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
       txt = "/assets/#{convert_filename}"
     end
     render :text => txt
@@ -850,20 +850,40 @@ class DesktopController < ApplicationController
   
   #查询卷内目录
   def get_archive_where
+    txt=""
     if (params['query'].nil?)
       txt = "{results:0,rows:[]}"
     else
-      user = User.find_by_sql("select count(*) from archive where tm like '%#{params['query']}%';")[0]
-      size = user.count.to_i;
-      if size > 0
-        txt = "{results:#{size},rows:["
-        user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' limit #{params['limit']};")
-        for k in 0..user.size-1
-          txt = txt + user[k].to_json + ','
+      if (params['userid'].nil?)
+        user = User.find_by_sql("select count(*) from archive where tm like '%#{params['query']}%' and dh like '#{params['dh']}-%';")[0]
+        size = user.count.to_i;
+        if size > 0
+          txt = "{results:#{size},rows:["
+          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%'  and dh like '#{params['dh']}-%' order by mlh,ajh limit #{params['limit']};")
+          for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+        else
+          txt = "{results:0,rows:[]}"
         end
-        txt = txt[0..-2] + "]}"
       else
-        txt = "{results:0,rows:[]}"
+        sqlwhere=get_user_sort(params['userid'])
+        if sqlwhere==""
+          txt = "{results:0,rows:[]}"
+        else
+          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' and #{sqlwhere}    order by mlh,ajh limit #{params['limit']};")
+        end
+        size=user.size
+        if size>0
+          txt = "{results:#{size},rows:["
+          for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+        else
+          txt = "{results:0,rows:[]}"
+        end
       end
     end
     render :text => txt
@@ -1910,6 +1930,25 @@ class DesktopController < ApplicationController
     end  
     render :text => txt
   end
+  
+  
+  def  get_dalb_print_grid
+    dalbid=get_dalb_userid(params['userid'])
+    user = User.find_by_sql("select * from d_dalb where id<100 and id in (#{dalbid}) order by id;")
+
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
   #获得用户树
   def get_user_tree
     node, style = params["node"], params['style']
@@ -2252,8 +2291,26 @@ class DesktopController < ApplicationController
 
   #获得全宗列表
   def get_qz_grid
-    user = User.find_by_sql("SELECT  a.dwdm,a.dwjc,a.id,a.owner_id,a.dj,b.dwdm as ssqz FROM  d_dwdm a  left join d_dwdm b on a.owner_id = b.id order by id;")
+    user = User.find_by_sql("SELECT  a.dwdm,a.dwjc,a.id,a.owner_id,a.dj,b.dwdm as ssss FROM  d_dwdm a  left join d_dwdm b on a.owner_id = b.id order by id;")
     #user = User.find_by_sql("SELECT  * from d_dwdm order by id;")
+    size = user.size;
+    if size > 0 
+     txt = "{results:#{size},rows:["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]}"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    logger.debug txt
+    render :text => txt
+    
+  end
+  
+  def get_qz_byuserid_grid
+    qzid=get_qz_userid(params['userid'])
+    user = User.find_by_sql("sELECT * FROM d_dwdm where d_dwdm.id in (#{qzid}) order by id;")
     size = user.size;
     if size > 0 
      txt = "{results:#{size},rows:["
@@ -2277,7 +2334,7 @@ class DesktopController < ApplicationController
     user=User.find_by_sql("select * from d_dwdm where id <> #{params['id']} and dwdm='#{params['dwdm']}';")
     size = user.size
     if size == 0
-      User.find_by_sql("update d_dwdm set owner_id='#{params['ssqz']}',dj='#{params['dj']}',dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}' where id = #{params['id']};")
+      User.find_by_sql("update d_dwdm set owner_id='#{params['ssss']}',dj='#{params['dj']}',dwdm='#{params['dwdm']}', dwjc='#{params['dwjc']}' where id = #{params['id']};")
       txt='success'
     else
       txt= '全宗名称已经存在，请重新输入全宗名称。'
@@ -2341,6 +2398,162 @@ class DesktopController < ApplicationController
     headers['Content-Disposition'] = 'attachment; filename="report.xls"'
     headers['Cache-Control'] = ''
     @users = User.find(:all)
+  end
+  
+  #获取用户拥有的全宗号和档案类别
+  def get_user_sort(userid)
+    jsdj=""
+    jsid=""
+    ssqz=""
+    user= User.find_by_sql("SELECT distinct d_js.jsdj FROM d_js, u_js WHERE u_js.jsid = d_js.id and userid=  '#{userid}' ;")
+    user.each do |us|
+      logger.debug us['jsdj']
+      if jsdj==""
+        jsdj="'" + us['jsdj'] + "'"
+      else
+        jsdj=jsdj + ",'" +us['jsdj']+ "'"
+      end
+    end
+    user= User.find_by_sql("SELECT *  FROM  u_js WHERE  userid=  '#{userid}' ;")
+    user.each do |us|            
+      if jsid==""
+        jsid=us['jsid']
+      else
+        jsid=jsid + "," +us['jsid']
+      end
+    end
+    if jsdj!="" 
+      data = User.find_by_sql("select * from users where id= #{params["userid"]};")
+      if data[0]["sfxsxyisj"]=="是"
+        if jsdj.include?"地市级"
+          jsdj="'地市级','县级','乡镇级'"
+        else
+          if jsdj.include?"县级"
+            jsdj="'县级','乡镇级'"
+          else
+            jsdj="'乡镇级'"
+          end
+        end
+        dwdm= User.find_by_sql("select * from d_dwdm where (id= #{data[0]["ssqz"]} or owner_id=#{data[0]["ssqz"]}) and dj in (#{jsdj});")
+        dwdm.each do |qz|
+          if ssqz==""
+            ssqz="'" + qz['id'].to_s + "'"
+          else
+            ssqz=ssqz + ",'" + qz['id'].to_s+ "'"
+          end
+          xjqz=User.find_by_sql("select * from d_dwdm where  owner_id=#{qz['id']};")
+          xjqz.each do |xqz|
+            if ssqz==""
+              ssqz="'" + xqz['id'].to_s + "'"
+            else
+              ssqz=ssqz + ",'" + xqz['id'].to_s + "'"
+            end
+          end
+        end        
+      else
+        ssqz="'" + data[0]["ssqz"].to_s + "'"
+      end
+    end
+    data = User.find_by_sql("select distinct qxdm ,qxmc ,qxid,sx from qx_mlqx,d_dalb where user_id in (#{jsid}) and qxlb=0 and d_dalb.id=qxid  order by sx;")
+    dalb=""
+    data.each do |dd|
+      if dalb==""
+        dalb="'"+dd['qxid'].to_s+"'"
+      else
+        dalb=dalb+",'"+dd['qxid'].to_s+"'"
+      end
+    end
+    txt=""
+    if dalb!=""
+      txt=" dalb in (#{dalb}) "
+    end
+    if ssqz!=""
+      if txt==""
+        txt=" qzh in (#{ssqz})"
+      else
+        txt=txt + " and qzh in (#{ssqz})"
+      end
+    end
+    return txt
+  end
+  
+  
+  def get_dalb_userid(userid)
+    jsid=""
+    user= User.find_by_sql("SELECT *  FROM  u_js WHERE  userid=  '#{userid}' ;")
+    user.each do |us|            
+      if jsid==""
+        jsid=us['jsid']
+      else
+        jsid=jsid + "," +us['jsid']
+      end
+    end
+    data = User.find_by_sql("select distinct qxdm ,qxmc ,qxid,sx from qx_mlqx,d_dalb where user_id in (#{jsid}) and qxlb=0 and d_dalb.id=qxid  order by sx;")
+    dalb=""
+    data.each do |dd|
+      if dalb==""
+        dalb="'"+dd['qxid'].to_s+"'"
+      else
+        dalb=dalb+",'"+dd['qxid'].to_s+"'"
+      end
+    end
+    return dalb
+  end
+  
+  def get_qz_userid(userid)
+    jsdj=""
+    jsid=""
+    ssqz=""
+    user= User.find_by_sql("SELECT distinct d_js.jsdj FROM d_js, u_js WHERE u_js.jsid = d_js.id and userid=  '#{userid}' ;")
+    user.each do |us|
+      logger.debug us['jsdj']
+      if jsdj==""
+        jsdj="'" + us['jsdj'] + "'"
+      else
+        jsdj=jsdj + ",'" +us['jsdj']+ "'"
+      end
+    end
+    user= User.find_by_sql("SELECT *  FROM  u_js WHERE  userid=  '#{userid}' ;")
+    user.each do |us|            
+      if jsid==""
+        jsid=us['jsid']
+      else
+        jsid=jsid + "," +us['jsid']
+      end
+    end
+    if jsdj!="" 
+      data = User.find_by_sql("select * from users where id= #{params["userid"]};")
+      if data[0]["sfxsxyisj"]=="是"
+        if jsdj.include?"地市级"
+          jsdj="'地市级','县级','乡镇级'"
+        else
+          if jsdj.include?"县级"
+            jsdj="'县级','乡镇级'"
+          else
+            jsdj="'乡镇级'"
+          end
+        end
+        dwdm= User.find_by_sql("select * from d_dwdm where (id= #{data[0]["ssqz"]} or owner_id=#{data[0]["ssqz"]}) and dj in (#{jsdj});")
+        dwdm.each do |qz|
+          if ssqz==""
+            ssqz="'" + qz['id'].to_s + "'"
+          else
+            ssqz=ssqz + ",'" + qz['id'].to_s+ "'"
+          end
+          xjqz=User.find_by_sql("select * from d_dwdm where  owner_id=#{qz['id']};")
+          xjqz.each do |xqz|
+            if ssqz==""
+              ssqz="'" + xqz['id'].to_s + "'"
+            else
+              ssqz=ssqz + ",'" + xqz['id'].to_s + "'"
+            end
+          end
+        end        
+      else
+        ssqz=data[0]["ssqz"]
+      end
+    end
+    return ssqz
   end
   
   #通过用户id来获得此用户可查看的目录tree
@@ -4755,10 +4968,8 @@ class DesktopController < ApplicationController
   
   
   #获得智能菜单树
-  def get_zn_tree
-    
+  def get_zn_tree    
       text="["
-      
       text=text+"{'text':'楼宇设置','id' :'1','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'楼层设置','id' :'2','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'房间设置','id' :'3','checked':false,'leaf':true,'cls':'folder'},"
@@ -4771,8 +4982,7 @@ class DesktopController < ApplicationController
       text=text+"{'text':'设备能耗统计分析','id' :'11','checked':false,'leaf':true,'cls':'folder'},"
       text=text+"{'text':'设备操作日志','id' :'7','checked':false,'leaf':true,'cls':'folder'}"
       text=text + "]"
-      render :text => text
-    
+      render :text => text   
   end
   
   #获得楼宇设置列表
@@ -4902,19 +5112,23 @@ class DesktopController < ApplicationController
   
   #获得房间设置列表
   def  get_zn_fj_grid
-    user = User.find_by_sql("select zn_fj.*,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly where  zn_fj.ssly=zn_ly.id and zn_fj.sslc=zn_lc.id order by id;")
-
-    size = user.size
-    puts size
-    if size > 0 
-     txt = "{results:#{size},rows:["
-     for k in 0..user.size-1
-       txt = txt + user[k].to_json + ','
-     end
-     txt = txt[0..-2] + "]}"
+    if !(params['param'].nil?)
+      user = User.find_by_sql("select zn_fj.*,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly where zn_fj.sslc=#{params['param']} and zn_fj.ssly=zn_ly.id and zn_fj.sslc=zn_lc.id order by id;")
     else
-     txt = "{results:0,rows:[]}"  
-    end  
+      user = User.find_by_sql("select zn_fj.*,zn_ly.lymc,zn_lc.lcmc from  zn_fj,zn_lc,zn_ly where  zn_fj.ssly=zn_ly.id and zn_fj.sslc=zn_lc.id order by id;")
+    end
+      size = user.size
+      puts size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end
+      
     render :text => txt
   end
   
@@ -6279,4 +6493,63 @@ class DesktopController < ApplicationController
         txt=ajh[0]["max"].to_i+1;         
         render :text => txt
     end
+    
+    
+    #获得文书处理菜单树
+    def get_ws_tree
+      node=params['node']
+      userid=params['userid']
+      if node == "root"
+        if userid!="" 
+          qzid=get_qz_userid(params['userid'])
+          data = User.find_by_sql("sELECT * FROM d_dwdm where d_dwdm.id in (#{qzid}) order by id;")
+          text="["
+          data.each do |dd|
+            text=text + "{'text':'#{dd['id']}#{dd['dwdm']}','id' :'#{dd["id"]}','leaf':false,'cls':'folder'},"
+          end
+          text=text +"]"          
+        end
+      else
+        pars = node.split('_') || []
+        if pars.length == 1      
+          text="["
+          text=text+"{'text':'文书处理录入','id' :'#{pars[0]}_24','leaf':false,'cls':'folder'},"
+          text=text+"{'text':'收文登记','id' :'#{pars[0]}_2','leaf':true,'cls':'folder'},"
+          text=text+"{'text':'发文登记','id' :'#{pars[0]}_3','leaf':true,'cls':'folder'},"
+          text=text+"{'text':'内部资料登记','id' :'#{pars[0]}_4','leaf':true,'cls':'folder'},"
+          text=text+"{'text':'文书处理档案管理','id' :'#{pars[0]}_6','leaf':true,'cls':'folder'},"
+          text=text+"{'text':'机构问题设置','id' :'#{pars[0]}_5','leaf':true,'cls':'folder'}"
+          text=text + "]"
+        else
+          text='[]'
+        end
+      end
+      render :text => text   
+    end
+    
+    #获取收发文、内部资料列表
+    def get_doc_grid
+      pars = params['query'].split('_')
+      case pars[1]
+      when "2"
+        user = User.find_by_sql("select * from doc_sw where qzh='#{pars[0]}' order by id;") 
+      when "3"
+        user = User.find_by_sql("select * from doc_fw where qzh='#{pars[0]}' order by id;")
+      when "4"
+        user = User.find_by_sql("select * from doc_lb where qzh='#{pars[0]}' order by id;")
+      end
+      size = user.size
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end   
+      render :text => txt
+    end
+    
+    
 end

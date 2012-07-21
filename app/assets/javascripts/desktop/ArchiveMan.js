@@ -45,29 +45,7 @@ Ext.define('MyDesktop.ArchiveMan', {
     var desktop = this.app.getDesktop();
     
     var win = desktop.getWindow('archiveman');
-    Ext.regModel('timage_model', {
-        fields: [
-          {name: 'id',     type: 'integer'},
-          {name: 'dh',     type: 'string'},
-          {name: 'yxmc',     type: 'string'},
-          {name: 'yxdx',     type: 'string'},
-          {name: 'yxbh',     type: 'string'}
-        ]
-      });
-
-      var timage_store =  Ext.create('Ext.data.Store', {
-        model : 'timage_model',
-        proxy: {
-          type: 'ajax',
-          url : '/desktop/get_timage',
-          extraParams: {dh:"",type:"0"},
-          reader: {
-            type: 'json',
-            root: 'rows',
-            totalProperty: 'results'
-          }
-        }
-      });
+    
     var tabPanel = new Ext.TabPanel({
       activeTab : 0,//默认激活第一个tab页
       animScroll : true,//使用动画滚动效果
@@ -434,6 +412,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var grid = Ext.getCmp('archive_grid');
                   grid.store.proxy.url="/desktop/get_archive_where";
                   archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+				  archive_store.proxy.extraParams.dh=title;
                   archive_store.load();
                 }
               }
@@ -783,6 +762,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                         DispAj_cw(record,false,title);
                       }
                     }   , 
+					{
+		              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+		              handler: function() {
+		                showAdvancedSearch();
+		              }
+		            }, 
+					{
+			          text:'查看图像',
+			          iconCls:'',
+			          handler : function() {
+			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+			            if (items.length > 0) {
+			              var item = items[0];
+			              var dh = items[0].data.dh;
+			              show_image(dh);	              
+			              set_image("/assets/wuxi_pic.png");
+			            }
+			          }    
+			        },
                         '->',
                         {
                           xtype: 'combo',
@@ -1148,7 +1146,26 @@ Ext.define('MyDesktop.ArchiveMan', {
               var record = records[0];
               DispAj_tddj(record,false,title);
             }
-          }, '->',
+          },	{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
+ 			'->',
           {
             xtype: 'combo',
             name: 'aj_select',
@@ -1503,6 +1520,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_wsda(record,false,title);
               }
             }   , 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
                 '->',
                 {
                   xtype: 'combo',
@@ -1635,6 +1671,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       tabPanel.setActiveTab(tabPage);
       userManagePageIsOpen = true;
     };
+
     var AjListFn_sx = function(title,text) {
       dh='';
       Ext.regModel('document_model', {
@@ -1859,7 +1896,27 @@ Ext.define('MyDesktop.ArchiveMan', {
             var record = records[0];
             DispAj_sx(record,false,title);
           }
-        } , '->',
+        } , 
+		{
+          xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+          handler: function() {
+            showAdvancedSearch();
+          }
+        }, 
+		{
+          text:'查看图像',
+          iconCls:'',
+          handler : function() {
+            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+            if (items.length > 0) {
+              var item = items[0];
+              var dh = items[0].data.dh;
+              show_image(dh);	              
+              set_image("/assets/wuxi_pic.png");
+            }
+          }    
+        },
+		'->',
         {
           xtype: 'combo',
           name: 'aj_select',
@@ -2222,6 +2279,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                   DispAj_tjml(record,false,title);
                 }
               }, 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
                   '->',
                   {
                     xtype: 'combo',
@@ -2571,6 +2647,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_dzda(record,false,title);
               }
             }, 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -2912,6 +3007,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_sbda(record,false,title);
               }
             }, 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -3255,6 +3369,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_jjda(record,false,title);
               }
             } , 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -3604,6 +3737,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_swda(record,false,title);
               }
             }, 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -3946,6 +4098,25 @@ Ext.define('MyDesktop.ArchiveMan', {
               DispAj_qtda_zlxx(record,false,title);
             }
           }   , 
+			{
+            xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+            handler: function() {
+              showAdvancedSearch();
+            }
+          }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
           '->',
           {
             xtype: 'combo',
@@ -4288,7 +4459,27 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
                 DispAj_by_tszlhj(record,false,title);
               }
-            }, '->',
+            }, 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
+			'->',
             {
               xtype: 'combo',
               name: 'aj_select',
@@ -4628,6 +4819,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_jcszhb(record,false,title);
               }
             }   , 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
                 '->',
                 {
                   xtype: 'combo',
@@ -4954,7 +5164,27 @@ Ext.define('MyDesktop.ArchiveMan', {
               var record = records[0];
               DispAj_by_zzjgyg(record,false,title);
             }
-          }, '->',
+          },
+			{
+            xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+            handler: function() {
+              showAdvancedSearch();
+            }
+          }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
+ 		'->',
           {
             xtype: 'combo',
             name: 'aj_select',
@@ -5290,6 +5520,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_dsj(record,false,title);
               }
             }   , 
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
             '->',
             {
               xtype: 'combo',
@@ -5625,7 +5874,27 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
                 DispAj_by_qzsm(record,false,title);
               }
-            },'->',
+            },
+			{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch();
+              }
+            }, 
+			{
+	          text:'查看图像',
+	          iconCls:'',
+	          handler : function() {
+	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+	            if (items.length > 0) {
+	              var item = items[0];
+	              var dh = items[0].data.dh;
+	              show_image(dh);	              
+	              set_image("/assets/wuxi_pic.png");
+	            }
+	          }    
+	        },
+			'->',
             {
               xtype: 'combo',
               name: 'aj_select',
@@ -5760,83 +6029,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       width: 200
     });
 
-    var myuploadform= new Ext.FormPanel({
-      id : 'my_upload_form',
-      fileUpload: true,
-      width: 300,
-      height : 100,
-      autoHeight: true,
-      bodyStyle: 'padding: 5px 5px 5px 5px;',
-      labelWidth: 0,
-      defaults: {
-        anchor: '95%',
-        allowBlank: false,
-        msgTarget: 'side'
-      },
-      layout : 'absolute',
-      items:[{
-        xtype: 'label',
-        text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
-        x: 10,
-        y: 10,
-        width: 100
-      },
-      {
-        xtype: 'fileuploadfield',
-        id: 'filedata',
-        x: 10,
-        y: 30,
-        emptyText: '选择一个文件...',
-        buttonText: '浏览'
-      }],
-      buttons: [
-      {
-        text: '上传',
-        handler: function(){
-          if (dh==''){
-            msg('提示', '请先选择要增加影像文件的案卷.');
-          } 
-          else
-          {
-            myForm = Ext.getCmp('my_upload_form').getForm();
-            
-            if(myForm.isValid())
-            {
-                form_action=1;
-                myForm.submit({
-                  url: '/desktop/upload_file',
-                  waitMsg: '文件上传中...',
-                  success: function(form, action){
-                    var isSuc = action.result.success; 
-                    filename=myForm._fields.items[0].lastValue.split('\\');
-                    file=filename[filename.length-1];
-                    if (isSuc) {
-                      new Ajax.Request("/desktop/save_image_db", { 
-                        method: "POST",
-                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-                        onComplete:  function(request) {
-                          if (request.responseText=='true'){
-                            timage_store.load();
-                            Ext.getCmp('timage_combo').lastQuery = null;
-                            msg('成功', '文件上传成功.');                       
-                          }else{
-                            alert("文件上传失败，请重新上传。" + request.responseText);
-                          }
-                        }
-                      }); //save_image_db
-                    } else { 
-                      msg('失败', '文件上传失败.');
-                    }
-                  }, 
-                  failure: function(){
-                    msg('失败', '文件上传失败.');
-                  }
-                });
-            }
-          } //else
-        } //handler
-      }] //buttons
-    });
+    
 
     treePanel.on("select",function(node){ 
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
@@ -5912,8 +6105,7 @@ Ext.define('MyDesktop.ArchiveMan', {
     if(!win){
       win = desktop.createWindow({
         id: 'archiveman',
-        title:'档案管理',
-        
+        title:'档案管理',        
         width:1000,
         height:600,
         x:0,
