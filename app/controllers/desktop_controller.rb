@@ -6552,4 +6552,42 @@ class DesktopController < ApplicationController
     end
     
     
+    #add on July 20 by liujun
+    #ys, nd, bgqx, mj, bz, flh, tm, mlh, dh, 
+    
+    def add_new_wsda
+      qx = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+      bgqx, jgwth, nd, qzh, dalb  = params['bgqx'] , params['jgwth'], params['DocumentYear'], '9', '24'
+      mlh =   8000 + (nd.to_i-2000)*50 + jgwth.to_i*5 + qx.index(bgqx)
+      user = User.find_by_sql("select max(ajh) from archive where qzh='#{qzh}' and dalb='#{dalb}' and mlh='#{mlh}';")
+      ajh  = user[0]['max'].to_i+1
+      dh ="#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}-#{jgwth.to_i}"
+      ys = params['ys']
+      tm = params['Title']  
+      mj = params['Secret']
+      bz = params['Remark']
+      flh = ""
+
+      dw=User.find_by_sql("select * from d_dwdm where id='#{params['qzh']}' ;")
+      dwdm = dw[0]['dwdm']
+	    
+	    
+	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
+      archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
+      size=archiveid.size
+      if size==0
+        txt='保存失败，未找到保存后盘案卷。'
+      else
+        zwrq = params['CreateTime']
+        wh = params['WordNo']
+        zrr = params['DocumentPerson']
+        
+        User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
+        txt='success'   
+      end
+      
+      render :text => txt
+               
+    end
+    
 end
