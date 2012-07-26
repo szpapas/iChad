@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
 
 require 'pg'
@@ -48,6 +48,7 @@ def set_sfw(tt, qzh, sfw_tbl)
       jgwt = user['机构问题号']
       zdnd = user['归档年度']
       zwrq = user['制文日期']
+      sfygd = user['是否已归档']
       
       ys = '1'   if ys.to_i==0
       fwbh = '0' if fwbh.to_i==0
@@ -60,10 +61,10 @@ def set_sfw(tt, qzh, sfw_tbl)
       fwrq = (fwrq.nil? || fwrq=="") ? 'NULL' : "TIMESTAMP '#{fwrq}'" 
 
       
-      insert_str = " INSERT INTO doc_fw(ajh,bgqx,bz,cbdw,csdw,dyfs,fwbh,fwrq,jgwt,mj,mlh,qfr,qzh,sfyglsk,tm,wh,xfdw,ys,zdnd,zrz,zsdw,ztc1,ztc2,ztc3,zwrq)  VALUES ('#{ajh}','#{bgqx}','#{bz}','#{cbdw}','#{csdw}',#{dyfs},#{fwbh},#{fwrq},'#{jgwt}','#{mj}','#{mlh}','#{qfr}','#{qzh}','#{sfyglsk}','#{tm}','#{wh}','#{xfdw}',#{ys},'#{zdnd}','#{zrz}','#{zsdw}','#{ztc1}','#{ztc2}','#{ztc3}',#{zwrq});"
-      #puts insert_str
+      insert_str = " INSERT INTO doc_fw(ajh,bgqx,bz,cbdw,csdw,dyfs,fwbh,fwrq,jgwt,mj,mlh,qfr,qzh,sfyglsk,tm,wh,xfdw,ys,zdnd,zrz,zsdw,ztc1,ztc2,ztc3,zwrq,sfygd)  VALUES ('#{ajh}','#{bgqx}','#{bz}','#{cbdw}','#{csdw}',#{dyfs},#{fwbh},#{fwrq},'#{jgwt}','#{mj}','#{mlh}','#{qfr}','#{qzh}','#{sfyglsk}','#{tm}','#{wh}','#{xfdw}',#{ys},'#{zdnd}','#{zrz}','#{zsdw}','#{ztc1}','#{ztc2}','#{ztc3}',#{zwrq},'#{sfygd}');"
+      puts insert_str
       
-      $conn.exec(insert_str)
+      #$conn.exec(insert_str)
     end
     
   else
@@ -93,7 +94,8 @@ def set_sfw(tt, qzh, sfw_tbl)
       jgwt = user['机构问题号']
       zdnd = user['归档年度']	
       zwrq  = user['制文日期']
-      zrz = user['责任者']	
+      zrz = user['责任者']
+      sfygd = user['是否已归档']	
 
       ys   = '1' if ys.to_i==0
       swbh = '0' if swbh.to_i==0
@@ -114,10 +116,10 @@ def set_sfw(tt, qzh, sfw_tbl)
       
 
        
-      insert_str = " INSERT INTO doc_sw(bgqx,blqk,bz,fs,jgwt,lwjg,mj,qtfs,qzh,sfyglsk,swbh,swrq,szqm,tm,wh,xhfs,yfrq,ys,zcfs,zdnd,zrz,zwdw,zwrq)  VALUES ('#{bgqx}','#{blqk}','#{bz}',#{fs},'#{jgwt}','#{lwjg}','#{mj}',#{qtfs},'#{qzh}','#{sfyglsk}',#{swbh},#{swrq},'#{szqm}','#{tm}','#{wh}',#{xhfs},#{yfrq},#{ys},#{zcfs},'#{zdnd}','#{zrz}','#{zwdw}',#{zwrq});"
-      #puts insert_str
+      insert_str = " INSERT INTO doc_sw(bgqx,blqk,bz,fs,jgwt,lwjg,mj,qtfs,qzh,sfyglsk,swbh,swrq,szqm,tm,wh,xhfs,yfrq,ys,zcfs,zdnd,zrz,zwdw,zwrq,sfygd)  VALUES ('#{bgqx}','#{blqk}','#{bz}',#{fs},'#{jgwt}','#{lwjg}','#{mj}',#{qtfs},'#{qzh}','#{sfyglsk}',#{swbh},#{swrq},'#{szqm}','#{tm}','#{wh}',#{xhfs},#{yfrq},#{ys},#{zcfs},'#{zdnd}','#{zrz}','#{zwdw}',#{zwrq}, '#{sfygd}');"
+      puts insert_str
       
-      $conn.exec(insert_str)
+      #$conn.exec(insert_str)
     end
   end    
 end

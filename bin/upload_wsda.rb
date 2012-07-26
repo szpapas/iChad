@@ -208,7 +208,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       zbbm  = user['主办部门'] 
       nd    = user['年度']
       bgqx  = user['保管期限']
-      jgwth = user['机构问题号'].to_i
+      jgwth = user['机构问题号']
       
       if rq.length==0
         zwrq = 'null' 

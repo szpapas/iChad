@@ -729,7 +729,7 @@ class DesktopController < ApplicationController
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
 
       if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{params['gid']};")
+        user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{params['gid']};")
         
         tmpfile = rand(36**10).to_s(36)
         ff = File.open("./tmp/#{tmpfile}",'w')
@@ -740,7 +740,7 @@ class DesktopController < ApplicationController
           system("decrypt ./tmp/#{tmpfile} #{local_filename}")
         else
           system("scp ./tmp/#{tmpfile} #{local_filename}")
-        end  
+        end 
         system("rm ./tmp/#{tmpfile}")
       end
       
@@ -6555,13 +6555,33 @@ class DesktopController < ApplicationController
     #add on July 20 by liujun
     #ys, nd, bgqx, mj, bz, flh, tm, mlh, dh, 
     
+    def set_wsda_mlh (qzh)
+      $wsda_mlh={}
+      wsml = $conn.exec("select * from a_wsda_key where qzh='#{qzh}' order by id ;")
+      for k in 0..wsml.count - 1 
+        ws = wsml[k]
+        ws_key = "#{ws['qzh']}-#{ws['nd']}-#{ws['bgqx']}-#{ws['jgwth']}"
+        $wsda_mlh[ws_key] = ws['id']
+      end
+    end
+
+    def get_mlh(qzh, nd, bgqx, jgwth)
+      ws_key = "#{qzh}-#{nd}-#{bgqx}-#{jgwth}"
+      if $wsda_mlh[ws_key].nil?
+        $conn.exec("insert into a_wsda_key(qzh, nd, bgqx, jgwth) values('#{qzh}','#{nd}','#{bgqx}','#{jgwth}');")
+        set_wsda_mlh(qzh)
+      end 
+      $wsda_mlh[ws_key]   
+    end
+    
     def add_new_wsda
-      qx = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+      
+      #qx = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
       bgqx, jgwth, nd, qzh, dalb  = params['bgqx'] , params['jgwth'], params['DocumentYear'], '9', '24'
-      mlh =   8000 + (nd.to_i-2000)*50 + jgwth.to_i*5 + qx.index(bgqx)
+      mlh = get_mlh(qzh, nd, bgqx, jgwth)
       user = User.find_by_sql("select max(ajh) from archive where qzh='#{qzh}' and dalb='#{dalb}' and mlh='#{mlh}';")
       ajh  = user[0]['max'].to_i+1
-      dh ="#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}-#{jgwth.to_i}"
+      dh ="#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
       ys = params['ys']
       tm = params['Title']  
       mj = params['Secret']
@@ -6570,7 +6590,6 @@ class DesktopController < ApplicationController
 
       dw=User.find_by_sql("select * from d_dwdm where id='#{params['qzh']}' ;")
       dwdm = dw[0]['dwdm']
-	    
 	    
 	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
       archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
@@ -6581,13 +6600,37 @@ class DesktopController < ApplicationController
         zwrq = params['CreateTime']
         wh = params['WordNo']
         zrr = params['DocumentPerson']
-        
         User.find_by_sql("insert into a_wsda(ownerid,hh,jh, zwrq, wh, zrr,gb, wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,ztsl,qwbs,ztc,zbbm,nd,jgwth,gbjh,xbbm,bgqx) values('#{archiveid[0]['id']}','#{params['hh']}','#{jh}','#{params['zwrq']}','#{params['wh']}','#{params['zrr']}','#{params['gb']}','#{params['wz']}','#{params['ztgg']}','#{params['ztlx']}','#{params['ztdw']}','#{params['dagdh']}','#{params['dzwdh']}','#{params['swh']}','#{params['ztsl']}','#{params['qwbs']}','#{params['ztc']}','#{params['zbbm']}','#{params['nd']}','#{params['jgwth']}','#{params['gbjh']}','#{params['xbbm']}','#{params['bgqx']}') ")                                      
         txt='success'   
       end
       
-      render :text => txt
-               
+      #插入附件
+      if !params["DocumentContentFileType"].nil?
+        str=params['DocumentContent'].unpack("m")[0]
+        fjmc=params['DocumentContentFileName']
+        fjlx=params["DocumentContentFileType"]
+        fjdx=str.size
+        edata=PGconn.escape_bytea(str)
+        User.find_by_sql("delete from attach where dh=#{dh} and fjmc=#{fjmc};")
+        User.find_by_sql("insert into attach(fjmc, fjlx, fjdx, dh, data, tag) values ('#{fjmc}','#{fjlx}',#{fjdx},'#{dh}', E'#{edata}', 0);")
+      end
+      
+      for k in 0..19
+        if !params["AttachmentFileContent#{k}"].nil?
+          str=params["AttachmentFileContent#{k}"].unpack("m")[0]
+          fjmc=params["AttachmentFileName#{k}"]
+          fjlx=params["AttachmentFileType#{k}"]
+          fjdx=str.size
+          edata=PGconn.escape_bytea(str)
+          User.find_by_sql("delete from attach where dh=#{dh} and fjmc=#{fjmc};")
+          User.find_by_sql("insert into attach(fjmc, fjlx, fjdx, dh, data, tag) values ('#{fjmc}','#{fjlx}',#{fjdx},'#{dh}', E'#{edata}', 1);")
+        end
+      end
+      
+      User.find_by_sql("udpate attach set ownerid = archive.id where attach.dh = archive.dh and attach.dh = #{dh};")
+      
+      user = User.find_by_sql("select id, dh, ajh from archive where dh = #{dh};")
+      render :text => user.to_xml
     end
     
 end
