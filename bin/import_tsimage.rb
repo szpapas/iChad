@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
@@ -12,15 +12,16 @@ require 'find'
 #
 #    @ARGV[0] --- 
 #   
-#    ruby import_iamge.rb 1 1 0 /share/1/1_1/ 
+#    ruby import_iamge.rb 11-10-3 /share/1/1_1/ 15 
 #*********************************************************************************************
 
-$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn = PGconn.open(:dbname=>'JY1017.TS', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
 
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
 ss = dh_prefix.split('-')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
+
 puts "===ajh  of  #{ajh}  ==="
 t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
@@ -170,9 +171,25 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
 end
 
-def get_mlh(qx, nd, jg)
-  qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
-  mlh = 8000+(nd-2000)*50 + jg*5 + qq.index(qx)
+$qzml_mlh = {}
+
+def set_qzml (qzh)
+  $qzml_mlh={}
+  tsml = $conn.exec("select * from qzml_key where qzh='#{qzh}' order by id ;")
+  for k in 0..tsml.count - 1 
+    dd = tsml[k]
+    key = "#{dd['qzh']}-#{dd['dalb']}-#{dd['mlm']}"
+    $qzml_mlh[key] = dd['id']
+  end
+end
+
+def get_qzml(qzh, dalb, mlm)
+  key = "#{qzh}-#{dalb}-#{mlm}"
+  if $qzml_mlh[key].nil?
+    $conn.exec("insert into qzml_key(qzh, dalb, mlm) values('#{qzh}','#{dalb}','#{mlm}');")
+    set_qzml(qzh)
+  end 
+  $qzml_mlh[key]   
 end
 
 $dh, $archive_id = '', 0
@@ -184,45 +201,46 @@ Find.find(path) do |path|
       next
     end
   else
+    #/Volumes/新加卷/C-82/C-82$C$0017/C-82$C$0017$MLBK.jpg
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       #./ws2010/长期$2010$0003$001/0002.jpg
       
-      if !/(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path).nil?
-        ss = /(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path)
-        #1.	./ws2010
-        #2.	长期
-        #3.	2010
-        #4.	0003
-        #5.	001
-        #6.	0002.jpg
-
-        qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
-        mlh = 8000+(ss[3].to_i-2000)*50 + ss[5].to_i*5 + qq.index(ss[2])
-        dh  = "#{qzh}-#{dalb}-#{mlh}-#{ss[4].to_i}-#{ss[5].to_i}"
-
-        if dh != $dh
-          $dh = dh
-          $stderr.puts "processing #{dh}... "
-        end
-        yxqz = "#{ss[3]}\$#{ss[4]}\$#{ss[5]}" 
-        sxh = ss[6]
-        
-        save2timage(sxh, path, $dh, yxqz)
-        next
-      end
+   #   if !/(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path).nil?
+   #     ss = /(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path)
+   #     #1.	./ws2010
+   #     #2.	长期
+   #     #3.	2010
+   #     #4.	0003
+   #     #5.	001
+   #     #6.	0002.jpg
+   #
+   #     qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
+   #     mlh = 8000+(ss[3].to_i-2000)*50 + ss[5].to_i*5 + qq.index(ss[2])
+   #     dh  = "#{qzh}-#{dalb}-#{mlh}-#{ss[4].to_i}-#{ss[5].to_i}"
+   #
+   #     if dh != $dh
+   #       $dh = dh
+   #       $stderr.puts "processing #{dh}... "
+   #     end
+   #     yxqz = "#{ss[3]}\$#{ss[4]}\$#{ss[5]}" 
+   #     sxh = ss[6]
+   #     
+   #     save2timage(sxh, path, $dh, yxqz)
+   #     next
+   #   end
       
-      if /(\d+)\$\w+\$(\d+)\$(....)\.\w+/.match(path).nil?
+      if /\/(\w+-\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
         $stderr.puts(" *** Import Image: #{path} Format error.")
         next
       end
-      
+
       pp = path.split("\/")
-      #file_title = pp[pp.size-1]
       ss = pp[pp.size-1].split("$")
-      mlh,flh,ajh,sxh = ss[0],ss[1],ss[2],ss[3].gsub("ML","JN")
+
+      flh,ajh,sxh = ss[1],ss[2],ss[3].gsub("ML","JN")
+      mlh = get_qzml(qzh, dalb, ss[0]) 
       
-      #/mnt/lh/jm1/13/13$F$0172/  13$F$0171$MLBK.jpg
-      #/mnt/wx/n/393/393$C$1924/393$C$1934$0006.jpg
+      #C-82$C$0017$MLBK.jpg
       sp = pp[pp.size-2].split("$")
       if (ss[2] != sp[2]) 
         $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
@@ -232,7 +250,6 @@ Find.find(path) do |path|
           $dh = dh
           $stderr.puts "processing #{dh}... "
         end
-        #$stderr.puts("Import Image: #{path} ... ")
         yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage(sxh, path, $dh, yxqz)
       else
@@ -241,7 +258,6 @@ Find.find(path) do |path|
           $dh = dh
           $stderr.puts "processing #{dh}... "
         end
-        #$stderr.puts("Import Image: #{path} ... ")
         yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage(sxh, path, $dh, yxqz)
       end  
