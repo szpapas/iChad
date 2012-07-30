@@ -6529,11 +6529,9 @@ class DesktopController < ApplicationController
           text=text+"{'text':'发文登记','id' :'#{pars[0]}_3','leaf':true,'cls':'folder'},"
           text=text+"{'text':'内部资料登记','id' :'#{pars[0]}_4','leaf':true,'cls':'folder'},"
           text=text+"{'text':'文书处理档案管理','id' :'#{pars[0]}_6','leaf':true,'cls':'folder'},"
-<<<<<<< HEAD
+
           #text=text+"{'text':'机构问题设置','id' :'#{pars[0]}_5','leaf':true,'cls':'folder'}"
-=======
-          text=text+"{'text':'机构问题设置','id' :'#{pars[0]}_5','leaf':true,'cls':'folder'}"
->>>>>>> d7acd22669273bb7a2cbc5235eb8dcb67f3e4c1a
+
           text=text + "]"
         else
           text='[]'
@@ -6547,7 +6545,7 @@ class DesktopController < ApplicationController
       pars = params['query'].split('_')
       case pars[1]
       when "2"
-<<<<<<< HEAD
+
         count = User.find_by_sql("select count(*) from doc_sw where qzh='#{pars[0]}' ;") 
         user = User.find_by_sql("select * from doc_sw where qzh='#{pars[0]}' order by id limit #{params['limit']} offset #{params['start']};") 
       when "3"
@@ -6559,18 +6557,8 @@ class DesktopController < ApplicationController
       end
       size = user.size
       if size > 0 
-       txt = "{results:#{count[0]['count']},rows:["
-=======
-        user = User.find_by_sql("select * from doc_sw where qzh='#{pars[0]}' order by id;") 
-      when "3"
-        user = User.find_by_sql("select * from doc_fw where qzh='#{pars[0]}' order by id;")
-      when "4"
-        user = User.find_by_sql("select * from doc_lb where qzh='#{pars[0]}' order by id;")
-      end
-      size = user.size
-      if size > 0 
        txt = "{results:#{size},rows:["
->>>>>>> d7acd22669273bb7a2cbc5235eb8dcb67f3e4c1a
+
        for k in 0..user.size-1
          txt = txt + user[k].to_json + ','
        end
@@ -6580,7 +6568,7 @@ class DesktopController < ApplicationController
       end   
       render :text => txt
     end
-<<<<<<< HEAD
+
 
     def update_doc_swdj
       if (params['fs']=="")
@@ -7049,7 +7037,7 @@ class DesktopController < ApplicationController
       end  
       render :text => txt
     end
-=======
+
     
     
     #add on July 20 by liujun
@@ -7132,6 +7120,5 @@ class DesktopController < ApplicationController
       user = User.find_by_sql("select id, dh, ajh from archive where dh = #{dh};")
       render :text => user.to_xml
     end
-    
->>>>>>> d7acd22669273bb7a2cbc5235eb8dcb67f3e4c1a
+
 end
