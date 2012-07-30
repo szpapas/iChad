@@ -119,7 +119,7 @@ Ext.define('MyDesktop.SystemMan', {
         get_parentNode(node.parentNode);
       }
     };
-    var user_disp = function(record,add_new){s
+    var user_disp = function(record,add_new){
       var win = Ext.getCmp('user_disp_win');
       
       if (win==null) {
@@ -968,7 +968,7 @@ Ext.define('MyDesktop.SystemMan', {
                 valueField:'id',
                 displayField:'dwdm',
                 triggerAction:'all',
-                name: 'ssqz',
+                name: 'ssss',
                 id:'qz_owner_id'
               }
             ],
@@ -1057,7 +1057,7 @@ Ext.define('MyDesktop.SystemMan', {
           {name: 'dwjc',    type: 'string'},
           {name: 'owner_id',    type: 'integer'},
           {name: 'dj',    type: 'string'},
-          {name: 'ssqz',    type: 'string'}
+          {name: 'ssss',    type: 'string'}
         ]
       });
 
@@ -1086,7 +1086,7 @@ Ext.define('MyDesktop.SystemMan', {
           { text : '全宗名称',  width : 150, sortable : true, dataIndex: 'dwdm'},
           { text : '全宗简称',  width : 70, sortable : true, dataIndex: 'dwjc'},
           { text : '全宗级别',  width : 70, sortable : true, dataIndex: 'dj'},
-          { text : '所属全宗',  width : 150, sortable : true, dataIndex: 'ssqz'}
+          { text : '所属全宗',  width : 150, sortable : true, dataIndex: 'ssss'}
           ],
           selType:'checkboxmodel',
           //multiSelect:true,

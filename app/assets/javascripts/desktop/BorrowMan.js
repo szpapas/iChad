@@ -1048,7 +1048,24 @@ Ext.define('MyDesktop.BorrowMan', {
 							fn:function(v,r,i,n,e,b){
 								var tt=r.get("zrq");
 								//showContactForm();
-								DispAj(r,false);
+								switch (r.data.dalb) { 
+				                  case "0": 
+				                    DispAj_zh(r,'3',r.data.dh);
+				                    break; 
+				                  case "2": 
+				                    DispAj_cw(r,false,r.data.dh);
+				                    break; 
+				                  case "3": 
+				                    DispAj_tddj(r,false,r.data.dh);
+				                    break; 
+				                  case "24": 
+				                    DispAj_wsda(r,false,r.data.dh);
+				                    break;
+				                  default:
+				                    DispAj_zh(r,false,r.data.dh);
+				                    break;
+				                }
+								
 							}
 						}
 					},
@@ -2568,6 +2585,7 @@ Ext.define('MyDesktop.BorrowMan', {
 									var grid = Ext.getCmp('archive_grid');
 									grid.store.proxy.url="/desktop/get_archive_where";
 									archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+									archive_store.proxy.extraParams.userid=currentUser.id 								
 									archive_store.load();
 									Ext.getCmp('cdlr').setValue('全文：'+Ext.getCmp('query_text').value);
 								}
