@@ -20,11 +20,11 @@ $conn.exec("set standard_conforming_strings = off")
 #Print Helper funtion
 def bk_name(dalb)
   if dalb.to_i == 0 
-    ['张玉梅','陶玉明']
+    ['','']
   elsif dalb.to_i == 10
-    ['张玉梅','陶玉明']
+    ['','']
   else
-    ['张玉梅','陶玉明']
+    ['','']
   end       
 end
 
@@ -64,6 +64,8 @@ def flstr(dalb)
     text = "监  察  类"
   when 15
     text = "声  像  类"
+  when 16
+    text = "利 用 规 划 类"    
   when 17
     text = "土地利用规划类"
   when 19
@@ -78,15 +80,28 @@ end
  
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 def save2timage(yxbh, path, dh, yx_prefix)
-  #user=$conn.exec("select mlh,flh,ajh,dh from archive where id=#{id};")
-  fo = File.open(path).read
+  outfile = rand(36**6).to_s(36)
+  system("encrypt #{path} #{outfile}")
+  fo = File.open(outfile).read
   yxdx=fo.size
   edata=PGconn.escape_bytea(fo) 
 
   yxmc="#{yx_prefix}\$#{yxbh}"
   
+  tag = 2
+  
+  if yxbh.include?('ML00')
+    tag = 0
+  elsif yxbh.include('ML')
+    tag = 1
+  elsif yxbh.include('MLBK')
+    tag = 3
+  else
+    
+  end       
+  
   $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' );")
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, jm_tag, tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}', 1, #{tag});")
     
 end
 
