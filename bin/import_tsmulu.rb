@@ -6,7 +6,7 @@ $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems
 require 'pg'
 require 'active_support'
 
-$conn = PGconn.open(:dbname=>'JY1017.TS', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = on")
 
 #2综合档案aj.txt
@@ -421,9 +421,15 @@ if ifname.include?('文档一体化')
   mlh = get_ws_mlh(qzh, nd, bgqx, jgwth)
 else
   #mlh = /(\d+)(.*)/.match(ifname)[1]   ss[1], ss[2] = C-1 土地登记
-  mm = /(\w+-\d+)(.*)aj/.match((ifname))
-  dalb = get_dalb(mm[2])
-  mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  if !/(\w+-\d+)(.*)aj/.match(ifname).nil?
+    mm = /(\w+-\d+)(.*)aj/.match(ifname)
+    dalb = get_dalb(mm[2])
+    mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  elsif !/(\d+)(.*)aj/.match(ifname).nil?
+      mm = /(\d+)(.*)aj/.match(ifname)
+      dalb = get_dalb(mm[2])
+      mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  end
 end
 
 path = "./dady/tmp1/#{pp}"
