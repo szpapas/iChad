@@ -15,7 +15,7 @@ require 'find'
 #    ruby import_iamge.rb 11-10-3 /share/1/1_1/ 15 
 #*********************************************************************************************
 
-$conn = PGconn.open(:dbname=>'JY1017.TS', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
 
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]

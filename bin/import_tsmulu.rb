@@ -477,10 +477,9 @@ if ifname.include?('aj')
   puts "generating timage_tj files ..."
   for k in 0..archives.count-1
     ar = archives[k]
-    $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']});")
+    $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{mlm}');")
   end
   #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');
-
 end 
 
 

@@ -301,6 +301,7 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'json',     type: 'string'},
         {name: 'dh_prefix',type: 'string'},
         {name: 'wcz',      type: 'integer'}, 
+        {name: 'mlm',      type: 'string'},
         {name: 'yxwz',     type: 'string'}
       ]
     });
@@ -347,10 +348,10 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '全宗号',  align:"left",  width : 50, sortable : true, dataIndex: 'qzh'},
            { text : '档案类别', align:"left",  width : 50, sortable : true, dataIndex: 'dalb'},
            { text : '目录号',  align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+           { text : '目录名',  align:"left",  width : 50, sortable : true, dataIndex: 'mlm'},
            { text : '始卷',   align:"right", width : 40, sortable : true, dataIndex: 'qajh'},
            { text : '终卷',   align:"right", width : 40, sortable : true, dataIndex: 'zajh'},
            { text : '总页数',   align:"right", width : 80, sortable : true, dataIndex: 'ajys'},
-
            { text : '封面',   align:"right", width : 50, sortable : true, dataIndex: 'ml00'},
            { text : '著录',   align:"right", width : 50, sortable : true, dataIndex: 'mljn'},
            { text : '正文',   align:"right", width : 50, sortable : true, dataIndex: 'smyx', tdCls: 'x-change-cell'},
