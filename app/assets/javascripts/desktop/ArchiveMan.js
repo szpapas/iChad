@@ -45,7 +45,83 @@ Ext.define('MyDesktop.ArchiveMan', {
     var desktop = this.app.getDesktop();
     
     var win = desktop.getWindow('archiveman');
-    
+    var myuploadform= new Ext.FormPanel({
+	  id : 'my_upload_form',
+	  fileUpload: true,
+	  width: 300,
+	  height : 100,
+	  autoHeight: true,
+	  bodyStyle: 'padding: 5px 5px 5px 5px;',
+	  labelWidth: 0,
+	  defaults: {
+	    anchor: '95%',
+	    allowBlank: false,
+	    msgTarget: 'side'
+	  },
+	  layout : 'absolute',
+	  items:[{
+	    xtype: 'label',
+	    text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+	    x: 10,
+	    y: 10,
+	    width: 100
+	  },
+	  {
+	    xtype: 'fileuploadfield',
+	    id: 'filedata',
+	    x: 10,
+	    y: 30,
+	    emptyText: '选择一个文件...',
+	    buttonText: '浏览'
+	  }],
+	  buttons: [
+	  {
+	    text: '上传',
+	    handler: function(){
+	      if (dh==''){
+	        msg('提示', '请先选择要增加影像文件的案卷.');
+	      } 
+	      else
+	      {
+	        myForm = Ext.getCmp('my_upload_form').getForm();
+
+	        if(myForm.isValid())
+	        {
+	            form_action=1;
+	            myForm.submit({
+	              url: '/desktop/upload_file',
+	              waitMsg: '文件上传中...',
+	              success: function(form, action){
+	                var isSuc = action.result.success; 
+	                filename=myForm._fields.items[0].lastValue.split('\\');
+	                file=filename[filename.length-1];
+	                if (isSuc) {
+	                  new Ajax.Request("/desktop/save_image_db", { 
+	                    method: "POST",
+	                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+	                    onComplete:  function(request) {
+	                      if (request.responseText=='true'){
+	                        timage_store.load();
+	                        Ext.getCmp('timage_combo').lastQuery = null;
+	                        msg('成功', '文件上传成功.');                       
+	                      }else{
+	                        alert("文件上传失败，请重新上传。" + request.responseText);
+	                      }
+	                    }
+	                  }); //save_image_db
+	                } else { 
+	                  msg('失败', '文件上传失败.');
+	                }
+	              }, 
+	              failure: function(){
+	                msg('失败', '文件上传失败.');
+	              }
+	            });
+	        }
+	      } //else
+	    } //handler
+	  }] //buttons
+	});
     var tabPanel = new Ext.TabPanel({
       activeTab : 0,//默认激活第一个tab页
       animScroll : true,//使用动画滚动效果

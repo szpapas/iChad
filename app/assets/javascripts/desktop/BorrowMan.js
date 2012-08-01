@@ -1053,17 +1053,62 @@ Ext.define('MyDesktop.BorrowMan', {
 				                    DispAj_zh(r,'3',r.data.dh);
 				                    break; 
 				                  case "2": 
-				                    DispAj_cw(r,false,r.data.dh);
+				                    DispAj_cw(r,'3',r.data.dh);
 				                    break; 
 				                  case "3": 
-				                    DispAj_tddj(r,false,r.data.dh);
+				                    DispAj_tddj(r,'3',r.data.dh);
 				                    break; 
 				                  case "24": 
-				                    DispAj_wsda(r,false,r.data.dh);
-				                    break;
-				                  default:
-				                    DispAj_zh(r,false,r.data.dh);
-				                    break;
+				                    DispAj_wsda(r,'3',r.data.dh);
+				                    break;				                 								　　
+						          case "15": 
+									DispAj_sx(r,'3',r.data.dh);						              
+						            break;						          
+						          case "5": 
+									DispAj_tddj(r,'3',r.data.dh);	
+						            break;
+						          case "6":
+									DispAj_tddj(r,'3',r.data.dh);	 						              
+						            break;
+						          case "7": 
+									DispAj_tddj(r,'3',r.data.dh);							              
+						              break;						            
+						          case "25":
+									DispAj_qtda_dzda(r,'3',r.data.dh);							              
+						            break;
+						          case "26":
+									DispAj_qtda_jjda(r,'3',r.data.dh);
+						            break;
+						          case "27":
+									DispAj_qtda_sbda(r,'3',r.data.dh);
+						            break;        
+						         　case "28":
+									DispAj_qtda_swda(r,'3',r.data.dh);
+						            break;
+						         　case "29":
+									DispAj_qtda_zlxx(r,'3',r.data.dh);
+						            break;
+						          case "30":
+									DispAj_by_tszlhj(r,'3',r.data.dh);
+						            break;
+						          case "31":
+									DispAj_by_tszlhj(r,'3',r.data.dh);
+						            break;
+						          case "32":
+									DispAj_by_zzjgyg(r,'3',r.data.dh);
+						            break;
+						          case "33":
+									DispAj_by_dsj(r,'3',r.data.dh);
+						            break;
+						          case "34":
+									DispAj_by_qzsm(r,'3',r.data.dh);
+						            break;
+						          case "18":
+									DispAj_tjml(r,'3',r.data.dh);
+						            break;
+						          default:
+						            DispAj_zh(r,'3',r.data.dh);
+						            break;
 				                }
 								
 							}
@@ -1242,7 +1287,68 @@ Ext.define('MyDesktop.BorrowMan', {
 							fn:function(v,r,i,n,e,b){
 								var tt=r.get("zrq");
 								//showContactForm();
-								DispAj(r,false);
+								switch (r.data.dalb) { 
+				                  case "0": 
+				                    DispAj_zh(r,'3',r.data.dh);
+				                    break; 
+				                  case "2": 
+				                    DispAj_cw(r,'3',r.data.dh);
+				                    break; 
+				                  case "3": 
+				                    DispAj_tddj(r,'3',r.data.dh);
+				                    break; 
+				                  case "24": 
+				                    DispAj_wsda(r,'3',r.data.dh);
+				                    break;				                 								　　
+						          case "15": 
+									DispAj_sx(r,'3',r.data.dh);						              
+						            break;						          
+						          case "5": 
+									DispAj_tddj(r,'3',r.data.dh);	
+						            break;
+						          case "6":
+									DispAj_tddj(r,'3',r.data.dh);	 						              
+						            break;
+						          case "7": 
+									DispAj_tddj(r,'3',r.data.dh);							              
+						              break;						            
+						          case "25":
+									DispAj_qtda_dzda(r,'3',r.data.dh);							              
+						            break;
+						          case "26":
+									DispAj_qtda_jjda(r,'3',r.data.dh);
+						            break;
+						          case "27":
+									DispAj_qtda_sbda(r,'3',r.data.dh);
+						            break;        
+						         　case "28":
+									DispAj_qtda_swda(r,'3',r.data.dh);
+						            break;
+						         　case "29":
+									DispAj_qtda_zlxx(r,'3',r.data.dh);
+						            break;
+						          case "30":
+									DispAj_by_tszlhj(r,'3',r.data.dh);
+						            break;
+						          case "31":
+									DispAj_by_tszlhj(r,'3',r.data.dh);
+						            break;
+						          case "32":
+									DispAj_by_zzjgyg(r,'3',r.data.dh);
+						            break;
+						          case "33":
+									DispAj_by_dsj(r,'3',r.data.dh);
+						            break;
+						          case "34":
+									DispAj_by_qzsm(r,'3',r.data.dh);
+						            break;
+						          case "18":
+									DispAj_tjml(r,'3',r.data.dh);
+						            break;
+						          default:
+						            DispAj_zh(r,'3',r.data.dh);
+						            break;
+				                }
 							}
 						}
 					},
