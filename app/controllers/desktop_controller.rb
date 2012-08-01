@@ -7,13 +7,11 @@ class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images, :add_new_wsda]
   before_filter :set_current_user
-  #$sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
-  #puts $sp
+
   def index
   end
   
   def search
-  
   end
   
   def get_user    
@@ -6360,9 +6358,9 @@ class DesktopController < ApplicationController
       else
         pars = node.split('|') || []
         if pars[0] == '未统计' 
-          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='' or zt is null order by mlh;")
+          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='' or zt is null order by mlh;")
         else
-          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='#{pars[0]}' order by mlh;")
+          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='#{pars[0]}' order by mlh;")
         end
         
         data.each do |dd|
