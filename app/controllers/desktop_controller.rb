@@ -6364,7 +6364,7 @@ class DesktopController < ApplicationController
         end
         
         data.each do |dd|
-            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
+            text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
         end
       end
       render :text => text.to_json
