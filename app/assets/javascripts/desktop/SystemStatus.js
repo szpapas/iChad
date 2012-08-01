@@ -301,6 +301,7 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'json',     type: 'string'},
         {name: 'dh_prefix',type: 'string'},
         {name: 'wcz',      type: 'integer'}, 
+        {name: 'mlm',      type: 'string'},
         {name: 'yxwz',     type: 'string'}
       ]
     });
@@ -320,7 +321,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
 
-    qzgl_store.proxy.extraParams={qzh:'9',filter:"全部", dalb:""};
+    qzgl_store.proxy.extraParams={qzh:'10',filter:"全部", dalb:""};
     qzgl_store.load();
 
     var ztRender = function(val) {
@@ -347,10 +348,10 @@ Ext.define('MyDesktop.SystemStatus', {
            { text : '全宗号',  align:"left",  width : 50, sortable : true, dataIndex: 'qzh'},
            { text : '档案类别', align:"left",  width : 50, sortable : true, dataIndex: 'dalb'},
            { text : '目录号',  align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+           { text : '目录名',  align:"left",  width : 50, sortable : true, dataIndex: 'mlm'},
            { text : '始卷',   align:"right", width : 40, sortable : true, dataIndex: 'qajh'},
            { text : '终卷',   align:"right", width : 40, sortable : true, dataIndex: 'zajh'},
            { text : '总页数',   align:"right", width : 80, sortable : true, dataIndex: 'ajys'},
-
            { text : '封面',   align:"right", width : 50, sortable : true, dataIndex: 'ml00'},
            { text : '著录',   align:"right", width : 50, sortable : true, dataIndex: 'mljn'},
            { text : '正文',   align:"right", width : 50, sortable : true, dataIndex: 'smyx', tdCls: 'x-change-cell'},
@@ -385,7 +386,19 @@ Ext.define('MyDesktop.SystemStatus', {
                }
            }
          },
-         tbar : [{
+         tbar : ['<span style=" font-size:12px;font-weight:600;color:#3366FF;">全宗号</span>:&nbsp;&nbsp;',{
+            xtype:"textfield",
+            id : 'qzh_field',
+            name : 'qzh',
+            width: 40,
+            value: '10',
+            listeners:{
+              'blur': function(field){
+                qzgl_store.proxy.extraParams.qzh=field.getValue();
+                qzgl_store.load();
+              }
+            }           
+          },{
               text:'打印统计',
               //tooltip:'打印处理设置 ',
               iconCls:'print',
@@ -687,7 +700,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 closable: true,
                 modal: false,
                 width: 640,
-                height: 600,
+                height: 500,
                 layout: 'absolute',
                 plain: true,
                 items:[
@@ -728,7 +741,8 @@ Ext.define('MyDesktop.SystemStatus', {
                   {
                     xtype: 'form', id:'sdwj_upload_form',  x: 310,y: 10, width:300,  height : 24,  //输档文件
                     items :[{ xtype : 'fileuploadfield', anchor: '99%', name:'sdwj', emptyText: '选择一个文件...', buttonText: '浏览'},
-                    { xtype: 'textfield', name:'dj', id:'sdwj_dj_id', hidden:true}  
+                    { xtype: 'textfield', name:'dj', id:'sdwj_dj_id', hidden:true} ,
+                    { xtype: 'textfield', name:'qzh', id:'sdwj_qzh_id', hidden:true}
                     ]
                   },
                   { xtype: 'textfield', x: 310,y: 40, width:300, name:'yxwz', id:'yxwz_id', emptyText: '//192.168.114.50/jm1'},  //影像位置
@@ -765,6 +779,7 @@ Ext.define('MyDesktop.SystemStatus', {
                     handler : function() {
                       myForm = Ext.getCmp('sdwj_upload_form').getForm();
                       Ext.getCmp("sdwj_dj_id").setValue(Ext.getCmp('qzsx_id').getValue());
+                      Ext.getCmp("sdwj_qzh_id").setValue(Ext.getCmp('qzh_id').getValue());
                       if(myForm.isValid()){
                         form_action=1;
                         myForm.submit({
@@ -827,7 +842,7 @@ Ext.define('MyDesktop.SystemStatus', {
                         layout: 'fit',
                         minHeight: 200,
                         activeTab: 0,
-                        height: 420,
+                        height: 320,
                         width: 610,
                         items: [sdwj_grid,yxwz_grid]
                     }]
@@ -985,18 +1000,6 @@ Ext.define('MyDesktop.SystemStatus', {
                qzgl_store.load();
              }
            }
-         },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">全宗号</span>:&nbsp;&nbsp;',{
-           xtype:"textfield",
-           id : 'qzh_field',
-           name : 'qzh',
-           width: 40,
-           value: '9',
-           listeners:{
-             'blur': function(field){
-               qzgl_store.proxy.extraParams.qzh=field.getValue();
-               qzgl_store.load();
-             }
-           }           
          }]
     }); 
     
@@ -1290,7 +1293,7 @@ Ext.define('MyDesktop.SystemStatus', {
       useArrows: true,
       singleExpand: true,
       autoScroll: true,
-      tbar:['->',
+      tbar:[
       {
         xtype:'button',
         text:'刷新目录',
@@ -1688,7 +1691,6 @@ Ext.define('MyDesktop.SystemStatus', {
               //margins:'5 2 5 5',
               width: 200,
               collapsible:true,//可以被折叠
-              id:'west-tree',
               layout:'fit',
               split:true,
               items:[treePanel]
