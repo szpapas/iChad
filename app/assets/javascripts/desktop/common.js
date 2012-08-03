@@ -1100,8 +1100,7 @@ var DispAj_zh = function(record,add_new,title){
 		if(add_new==true){
 			Ext.getCmp('button_aj_add').text="新增保存";
 			ss=title.split('_');
-			Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
+			Ext.getCmp('zh_dalb').setValue(ss[1]);		
 			Ext.getCmp('zh_qzh').setValue(ss[0]);
 			if(ss.length==3){
 				new Ajax.Request("/desktop/get_mlh", { 
@@ -1125,11 +1124,11 @@ var DispAj_zh = function(record,add_new,title){
 			    	method: "POST",
 			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		requestdata=request.responseText;
-						Ext.getCmp('daglaj_form').getForm().setValues(eval(requestdata));
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			
+			Ext.getCmp('button_aj_add').hidden=true;
 			com_document_store.proxy.extraParams.query=record.data.id;
 			com_document_store.load();
 		}
@@ -1281,7 +1280,7 @@ var DispAj_cw = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -1328,12 +1327,26 @@ var DispAj_cw = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('cw_dh').value!=undefined){
+		              var dh = Ext.getCmp('cw_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid_cw').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid_cw').store.load();
+						};						
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -1371,10 +1384,7 @@ var DispAj_cw = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -1598,26 +1608,40 @@ var DispAj_cw = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
-		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('cw_dalb').setValue(ss[1]);		
-		Ext.getCmp('cw_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('cw_dalb').setValue(ss[1]);		
+			Ext.getCmp('cw_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('cw_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('cw_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('cw_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('cw_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
 	}
 	//设置数据
@@ -1764,7 +1788,7 @@ var DispAj_tddj = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -1811,12 +1835,26 @@ var DispAj_tddj = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('tddj_dh').value!=undefined){
+		              var dh = Ext.getCmp('tddj_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid_tddj').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid_tddj').store.load();
+						};						
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -1854,10 +1892,7 @@ var DispAj_tddj = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -2129,8 +2164,8 @@ var DispAj_tddj = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
-		
-		Ext.getCmp('button_aj_add').text="新增保存";
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
 			ss=title.split('_');
 			Ext.getCmp('tddj_dalb').setValue(ss[1]);			
 			Ext.getCmp('tddj_qzh').setValue(ss[0]);
@@ -2150,6 +2185,20 @@ var DispAj_tddj = function(record,add_new,title){
 				     	}
 				     });
 			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
+			    	method: "POST",
+			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	onComplete:	 function(request) {
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+			     	}
+			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
+		}
 		
 		
 	}
@@ -2295,7 +2344,7 @@ var DispAj_wsda = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -2343,6 +2392,18 @@ var DispAj_wsda = function(record,add_new,title){
 						}
 					}
 				},
+				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('wsda_dh').value!=undefined){
+		              var dh = Ext.getCmp('wsda_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
 				{
 					xtype: 'button',
 					cls: 'exit',
@@ -2744,6 +2805,13 @@ var DispAj_wsda = function(record,add_new,title){
 						id: 'wsda_dalb',
 	                    x: 10,
 	                    y: 190
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'wsda_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -2756,13 +2824,24 @@ var DispAj_wsda = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
-		
-		Ext.getCmp('button_aj_add').text="新增保存";
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
 			ss=title.split('_');
 			Ext.getCmp('wsda_dalb').setValue(ss[1]);
 			
 			Ext.getCmp('wsda_qzh').setValue(ss[0]);
-			
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
+			    	method: "POST",
+			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	onComplete:	 function(request) {
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+			     	}
+			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+		}
 	
 		
 		
@@ -2798,7 +2877,7 @@ var DispAj_swdj = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -3154,7 +3233,7 @@ var DispAj_fwdj = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -3510,7 +3589,7 @@ var DispAj_lbzl = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -4267,7 +4346,7 @@ var DispAj_sx = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -4315,12 +4394,26 @@ var DispAj_sx = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -4358,10 +4451,7 @@ var DispAj_sx = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -4585,29 +4675,41 @@ var DispAj_sx = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
-		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);		
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -4753,7 +4855,7 @@ var DispAj_tjml = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -4801,12 +4903,26 @@ var DispAj_tjml = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -4844,10 +4960,7 @@ var DispAj_tjml = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -4993,29 +5106,42 @@ var DispAj_tjml = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -5160,7 +5286,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -5208,12 +5334,26 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -5251,10 +5391,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -5576,29 +5713,42 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -5745,7 +5895,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -5793,12 +5943,26 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -5836,10 +6000,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -6091,29 +6252,42 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -6260,7 +6434,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -6308,12 +6482,26 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -6348,10 +6536,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -6565,29 +6750,42 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -6734,7 +6932,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -6782,12 +6980,26 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						Ext.getCmp('archive_grid').store.load();
+						if (add_new!='3'){
+							Ext.getCmp('archive_grid').store.load();
+						};
 						Ext.getCmp('archive_detail_win').close();
 					}
 				}],
@@ -6825,10 +7037,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -7057,29 +7266,42 @@ var DispAj_qtda_swda = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -7224,7 +7446,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -7270,6 +7492,18 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 					}
 				},
 				{
+		          text:'查看图像',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('zh_dh').value!=undefined){
+		              var dh = Ext.getCmp('zh_dh').value;
+		              show_image(dh);	              
+		              set_image("/assets/wuxi_pic.png");
+		            }
+		          }    
+		        },
+				{
 					xtype: 'button',
 					cls: 'exit',
 					text:'退出',
@@ -7312,10 +7546,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 										field.value=oldValue;
 									}else{
 										qzh=title.split("_");
-										if(add_new==false){
-							               //alert(newValue+'---'+'oldValue');
-										}
-										else{
+										if(add_new==true){
 											new Ajax.Request("/desktop/get_max_ajh", { 
 											    	method: "POST",
 											    	parameters: {dalb:qzh[0] + "_" +qzh[1]+"_"+ newValue,qx:false},
@@ -7503,6 +7734,14 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -7515,29 +7754,42 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('zh_dalb').setValue(ss[1]);
 		
-		Ext.getCmp('button_aj_add').text="新增保存";
-		ss=title.split('_');
-		Ext.getCmp('zh_dalb').setValue(ss[1]);
-		
-		Ext.getCmp('zh_qzh').setValue(ss[0]);
-		if(ss.length==3){
-			new Ajax.Request("/desktop/get_mlh", { 
+			Ext.getCmp('zh_qzh').setValue(ss[0]);
+			if(ss.length==3){
+				new Ajax.Request("/desktop/get_mlh", { 
+				    	method: "POST",
+				    	parameters: {dalb:ss[2]},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+				     	}
+				     });
+				new Ajax.Request("/desktop/get_max_ajh", { 
+				    	method: "POST",
+				    	parameters: {dalb:title,qx:true},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('zh_ajh').setValue(request.responseText);
+				     	}
+				     });
+			}
+		}else{
+			requestdata='';
+			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dalb:ss[2]},
+			    	parameters: {dh:record.data.dh,id:record.data.id},
 			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_mlh').setValue(request.responseText);
+			    		requestdata=eval('(' + request.responseText + ')');						
+						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
 			     	}
 			     });
-			new Ajax.Request("/desktop/get_max_ajh", { 
-			    	method: "POST",
-			    	parameters: {dalb:title,qx:true},
-			    	onComplete:	 function(request) {
-			    		Ext.getCmp('zh_ajh').setValue(request.responseText);
-			     	}
-			     });
+			Ext.getCmp('button_aj_add').hidden=true;
+			com_document_store.proxy.extraParams.query=record.data.id;
+			com_document_store.load();
 		}
-		
 		
 	}
 	//设置数据
@@ -7682,7 +7934,7 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -7877,6 +8129,14 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'zh_dh',
+	                    x: 10,
+	                    y: 190
 	                }
 	            ]
 			}]
@@ -8040,7 +8300,7 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -8341,7 +8601,7 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -8640,7 +8900,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -8983,7 +9243,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 			height: 450,
 			minHeight: 450,
 			layout: 'border',
-			modal: true,
+			//modal: true,
 			plain: true,
 			buttons:[{
 					xtype: 'button',
@@ -9146,83 +9406,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 };
 
 
-var myuploadform= new Ext.FormPanel({
-  id : 'my_upload_form',
-  fileUpload: true,
-  width: 300,
-  height : 100,
-  autoHeight: true,
-  bodyStyle: 'padding: 5px 5px 5px 5px;',
-  labelWidth: 0,
-  defaults: {
-    anchor: '95%',
-    allowBlank: false,
-    msgTarget: 'side'
-  },
-  layout : 'absolute',
-  items:[{
-    xtype: 'label',
-    text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
-    x: 10,
-    y: 10,
-    width: 100
-  },
-  {
-    xtype: 'fileuploadfield',
-    id: 'filedata',
-    x: 10,
-    y: 30,
-    emptyText: '选择一个文件...',
-    buttonText: '浏览'
-  }],
-  buttons: [
-  {
-    text: '上传',
-    handler: function(){
-      if (dh==''){
-        msg('提示', '请先选择要增加影像文件的案卷.');
-      } 
-      else
-      {
-        myForm = Ext.getCmp('my_upload_form').getForm();
-        
-        if(myForm.isValid())
-        {
-            form_action=1;
-            myForm.submit({
-              url: '/desktop/upload_file',
-              waitMsg: '文件上传中...',
-              success: function(form, action){
-                var isSuc = action.result.success; 
-                filename=myForm._fields.items[0].lastValue.split('\\');
-                file=filename[filename.length-1];
-                if (isSuc) {
-                  new Ajax.Request("/desktop/save_image_db", { 
-                    method: "POST",
-                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-                    onComplete:  function(request) {
-                      if (request.responseText=='true'){
-                        timage_store.load();
-                        Ext.getCmp('timage_combo').lastQuery = null;
-                        msg('成功', '文件上传成功.');                       
-                      }else{
-                        alert("文件上传失败，请重新上传。" + request.responseText);
-                      }
-                    }
-                  }); //save_image_db
-                } else { 
-                  msg('失败', '文件上传失败.');
-                }
-              }, 
-              failure: function(){
-                msg('失败', '文件上传失败.');
-              }
-            });
-        }
-      } //else
-    } //handler
-  }] //buttons
-});
+
 //显示卷内目录窗口
 var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 	var win = Ext.getCmp('document_detail_win');
@@ -9805,8 +9989,8 @@ var draw_new = function(scale, translatePos, imageObj){
 
 
 var show_image = function(dh) {
-
-  var canvas_string =
+	var path='';
+  	var canvas_string =
     '<div id="wrapper">'
     +' <canvas id="myCanvas" width="600" height="800">'
     +' </canvas>'
@@ -9854,7 +10038,7 @@ var show_image = function(dh) {
         method: "POST",
         parameters: pars,
         onComplete:  function(request) {
-          var path = request.responseText;
+          path = request.responseText;
           if (path != '') { 
             imageObj.src = path;
             draw(scale, translatePos,imageObj);
@@ -9918,7 +10102,25 @@ var show_image = function(dh) {
            var next_node = node.nextSibling;
            yxtree_panel.selModel.select(next_node);
          }
-      }],
+      },
+		{
+          text: '打印图像',
+		　　iconCls:'print',
+          handler : function() {
+			if (path != '') {
+            	LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+	            //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+	            image_path = window.location.href + path;
+	            LODOP.PRINT_INIT(image_path);
+	            LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+	            LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+	            LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+	            //LODOP.PREVIEW();
+	            LODOP.PRINT();
+				path='';
+			}
+          }
+        }],
       items:[{
           xtype: 'panel', //或者xtype: 'component',
 		  layout:'fit',

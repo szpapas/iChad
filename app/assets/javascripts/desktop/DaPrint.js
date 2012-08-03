@@ -666,7 +666,9 @@ Ext.define('MyDesktop.DaPrint', {
 											    for (k=0;k<printfile.length;k++){
 											      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
 									              //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-									              image_path = "http://192.168.10.193:3000/assets/dady/tmp1/" + printfile[k];
+									              //image_path = "http://192.168.10.193:3000/assets/dady/tmp1/" + printfile[k];
+													//alert(window.location.href);
+												  image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
 											      LODOP.PRINT_INIT(image_path);
 									              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 									              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式

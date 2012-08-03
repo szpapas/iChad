@@ -562,7 +562,8 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive,a_wsda where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.jh='#{jh}' and archive.id=a_wsda.ownerid and archive.id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['nd']+"-" + params['bgqx']+"-" + params['jgwth']+"-" + params['jh']
+        mlh=get_doc_mlh(params['qzh'],params['nd'],params['bgqx'],params['jgwth'])
+        dh=params['qzh']+ "-" + params['dalb'] + "-" + mlh.to_s + "-" + params['jh']
         User.find_by_sql("update archive set ys='#{params['ys']}', nd='#{params['nd']}', bgqx='#{params['bgqx']}', mj='#{params['mj']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', mlh='#{params['mlh']}', dh='#{dh}' where id = #{params['id']};")
         archiveid=User.find_by_sql("select id from a_wsda where  ownerid=#{params['id']};")
         size=archiveid.size
@@ -592,7 +593,7 @@ class DesktopController < ApplicationController
       user=User.find_by_sql("select * from archive where  qzh='#{params['qzh']}' and dalb='#{params['dalb']}' and mlh='#{params['mlh']}' and ajh='#{ajh}' and id <> #{params['id']};")
       size = user.size
       if size == 0
-        dh=params['qzh']+ "-" + params['dalb'] +"-" + params['mlh']+"-" + params['ajh']
+        dh=params['qzh']+ "-" + params['dalb'] + "-" + params['mlh']+ "-" + params['ajh']
         User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}', xh='#{params['xh']}', cfwz='#{params['cfwz']}', bz='#{params['bz']}', flh='#{params['flh']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', zny='#{params['zny']}', qny='#{params['qny']}', js=#{params['js']}, ajh='#{ajh}' where id = #{params['id']};")
         
         if ydh!=dh
@@ -2640,8 +2641,11 @@ class DesktopController < ApplicationController
           if pars[1].to_i<99 
             txt=[]  
             text=""
-            if pars[1].to_i==24
-              
+            if pars[1].to_i==24              
+              data = User.find_by_sql("select distinct a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth from a_wsda,archive where a_wsda.ownerid=archive.id and archive.qzh='#{pars[0]}' order by a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth;")
+              data.each do |dd|
+                txt << {:text => "#{dd['nd']}_#{dd['bgqx']}_#{dd['jgwth']}", :id => node+"_#{dd['nd']}_#{dd['bgqx']}_#{dd['jgwth']}", :leaf => true, :cls => "file"}
+              end
             else         
               data = User.find_by_sql("select distinct mlh from archive    where qzh='#{pars[0]}' and dalb='#{pars[1]}' order by mlh;")
               data.each do |dd|
@@ -2658,6 +2662,9 @@ class DesktopController < ApplicationController
               
             end
             text=text+"]"
+          end
+        else
+          if pars[1].to_i==24
           end
         end
       end
@@ -2712,10 +2719,32 @@ class DesktopController < ApplicationController
     else
       ss = params['query'].split('_')
       if ss.length>2
-                  
+        if ss[1]=='24'
+          #年度_保管期限_机构问题号
+				  case ss.length
+			      when 3
+			        strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}'"
+		        when 4
+		          strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.bgqx='#{ss[3]}'"
+	          when 5
+	            strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.bgqx='#{ss[3]}' and a_wsda.jgwth='#{ss[4]}'"
+            else
+              strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"					    
+          end
+          user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
+          size = user.size;
+          if size>0
+            txt = "{results:#{size},rows:["
+            for k in 0..user.size-1
+                txt = txt + user[k].to_json + ','
+            end
+            txt = txt[0..-2] + "]}"
+          else
+            txt = "{results:0,rows:[]}"
+          end
+        else                
             user = User.find_by_sql("select count(*) from archive where qzh = '#{ss[0]}' and dalb = '#{ss[1]}' and mlh = '#{ss[2]}';")
-            size = user[0].count;
-  
+            size = user[0].count;  
             if size.to_i > 0
                 txt = "{results:#{size},rows:["
                 case (ss[1]) 
@@ -2782,7 +2811,7 @@ class DesktopController < ApplicationController
             else
                 txt = "{results:0,rows:[]}"
             end
-          
+        end
         
         
       else
@@ -3246,7 +3275,9 @@ class DesktopController < ApplicationController
             size = user.size
             if size == 0
               dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
-              dh=params['qzh']+ "-" + params['dalb'] +"-" + params['nd']+"-" + params['bgqx']+"-" + params['jgwth']+"-" + params['jh']
+              mlh=get_doc_mlh(params['qzh'],params['nd'],params['bgqx'],params['jgwth'])
+              dh=params['qzh']+ "-" + params['dalb'] + "-" + mlh.to_s + "-" + params['jh']
+              
         	    User.find_by_sql("insert into archive(ys,mlh,flh,tm,nd,bgqx,bz,qzh,dh,dalb,mj,dwdm) values('#{params['ys']}','#{params['mlh']}','#{params['flh']}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}','#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{dw[0]['dwdm']}') ")
               archiveid=User.find_by_sql("select id from archive where dh='#{dh}';")
               size=archiveid.size
@@ -6573,15 +6604,23 @@ class DesktopController < ApplicationController
           text=text+"{'text':'发文登记','id' :'#{pars[0]}_3','leaf':true,'cls':'folder'},"
           text=text+"{'text':'内部资料登记','id' :'#{pars[0]}_4','leaf':true,'cls':'folder'},"
           text=text+"{'text':'文书处理档案管理','id' :'#{pars[0]}_6','leaf':true,'cls':'folder'},"
-
           #text=text+"{'text':'机构问题设置','id' :'#{pars[0]}_5','leaf':true,'cls':'folder'}"
-
           text=text + "]"
         else
-          text='[]'
+          txt=[]  
+          text=""
+          data = User.find_by_sql("select distinct a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth from a_wsda,archive where a_wsda.ownerid=archive.id and archive.qzh='#{pars[0]}' order by a_wsda.nd,a_wsda.bgqx,a_wsda.jgwth;")
+          data.each do |dd|
+            txt << {:text => "#{dd['nd']}_#{dd['bgqx']}_#{dd['jgwth']}", :id => node+"_#{dd['nd']}_#{dd['bgqx']}_#{dd['jgwth']}", :leaf => true, :cls => "file"}
+          end
+          text=''
         end
       end
-      render :text => text   
+      if text=="" 
+        render :text => txt.to_json
+      else
+        render :text => text
+      end 
     end
     
     #获取收发文、内部资料列表
@@ -7052,11 +7091,11 @@ class DesktopController < ApplicationController
       user = User.find_by_sql(" #{sql} where archive.id=#{params['id']};")    
       size = user.size
       if size > 0 
-       txt = "{results:#{size},rows:["
+       txt = "["
        for k in 0..user.size-1
          txt = txt + user[k].to_json + ','
        end
-       txt = txt[0..-2] + "]}"
+       txt = txt[0..-2] + "]"
       else
        txt = "{results:0,rows:[]}"  
       end  
