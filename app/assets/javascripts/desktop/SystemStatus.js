@@ -593,6 +593,7 @@ Ext.define('MyDesktop.SystemStatus', {
                   {name: 'id',       type: 'integer'},
                   {name: 'dh',       type: 'string'},
                   {name: 'mlh',      type: 'integer'},
+                  {name: 'mlm',      type: 'string'},
                   {name: 'yxwz',      type: 'string'}
                 ]
               });
@@ -622,7 +623,7 @@ Ext.define('MyDesktop.SystemStatus', {
                    columns: [
                      { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
                      { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dh'},
-                     { text : '目录号',   align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+                     { text : '目录号',   align:"left",  width : 50, sortable : true, dataIndex: 'mlm'},
                      { text : '影像位置',   align:"left", width : 250, sortable : true, dataIndex: 'yxwz'}
                    ],
                    selType:'checkboxmodel',
@@ -746,7 +747,8 @@ Ext.define('MyDesktop.SystemStatus', {
                     ]
                   },
                   { xtype: 'textfield', x: 310,y: 40, width:300, name:'yxwz', id:'yxwz_id', emptyText: '//192.168.114.50/jm1'},  //影像位置
-                  { xtype: 'textfield', x: 310,y: 70, width:300, name:'gxwz', id:'gxwz_id', emptyText: '//mnt/lh/jm1'},  //挂接位置
+                  { xtype: 'textfield', x: 310,y: 70, width:140, name:'gxwz', id:'gxwz_id', emptyText: '/mnt/lh/jm1'},  //挂接位置
+                  { xtype: 'textfield', x: 470,y: 70, width:140, name:'gxmm', id:'gxmm_id', emptyText: 'hxgt1234'},  //挂接位置
                   {
                      xtype: 'button',
                      text: '设置全宗',
@@ -811,7 +813,8 @@ Ext.define('MyDesktop.SystemStatus', {
                        var yxwz  = Ext.getCmp('yxwz_id').getValue();
                        var gxwz  = Ext.getCmp('gxwz_id').getValue();
                        var qzh   = Ext.getCmp('qzh_id').getValue();
-                       var pars = {yxwz:yxwz, gxwz:gxwz, qzh:qzh};
+                       var passwd= Ext.getCmp('gxmm_id').getValue();
+                       var pars = {yxwz:yxwz, gxwz:gxwz, qzh:qzh, password:passwd};
                        new Ajax.Request("/desktop/set_gxml",{
                          method: "POST",
                          parameters: pars,
