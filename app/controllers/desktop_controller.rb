@@ -7,13 +7,11 @@ class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images, :add_new_wsda]
   before_filter :set_current_user
-  #$sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
-  #puts $sp
+
   def index
   end
   
   def search
-  
   end
   
   def get_user    
@@ -3376,19 +3374,7 @@ class DesktopController < ApplicationController
   
 
   
-  def import_selected_image
-    user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
-    for k in 0..user.size-1
-      dd = user[k]
-      ss = dd.dh_prefix.split('-')
-      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
-      yxwz=dd.yxwz
-      if !yxwz.nil? 
-        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{yxwz}', '', '', '未开始');")
-      end  
-    end  
-    render :text => 'Success'
-  end
+
   
   def export_selected_image
     user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
@@ -4880,8 +4866,7 @@ class DesktopController < ApplicationController
   end
   
   def set_gxml
-    yxwz, gxwz, qzh = params['yxwz'], params['gxwz'], params['qzh']
-    password = 'wxhxgt*2011'
+    yxwz, gxwz, qzh, password = params['yxwz'], params['gxwz'], params['qzh'], params['passwd']
     
     if !File.exists?(gxwz)
       system"mkdir -p #{gxwz}"
@@ -4895,12 +4880,13 @@ class DesktopController < ApplicationController
     File.open('gxwz').each_line do |line|
       ss = line.chomp!
       path = "#{gxwz}/#{ss}"
-      if File.exists?(path) and File.directory?(path) and ss.to_i > 0 and ss.length < 4
+      puts "#{path}" 
+      if File.exists?(path) and File.directory?(path) #and ss.to_i > 0 and ss.length < 4
         puts "#{path}" 
-        User.find_by_sql("update q_qzxx set yxwz='#{gxwz}/#{ss}' where mlh='#{ss}' and qzh='#{qzh}';")
+        User.find_by_sql("update q_qzxx set yxwz='#{gxwz}/#{ss}' where mlm='#{ss}' and qzh='#{qzh}';")
       end  
     end     
-    render :text => 'success'
+    render :text => 'Success'
   end
   
   def delete_sdwj
@@ -4938,7 +4924,7 @@ class DesktopController < ApplicationController
   end
   
   def get_yxwz_store
-    user = User.find_by_sql("select id, yxwz, dh_prefix as dh, mlh from q_qzxx order by mlh;")
+    user = User.find_by_sql("select id, yxwz, dh_prefix as dh, mlh, mlm from q_qzxx order by mlm;")
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["
@@ -4964,10 +4950,10 @@ class DesktopController < ApplicationController
     for k in 0..user.size-1
       dd = user[k]
       ss = dd.dh_prefix.split('-')
-      qzh, dalb, mlh, dh_prefix = ss[0], ss[1], ss[2], dd.dh_prefix
+      qzh, dalb, mlh, dh_prefix, mlm = ss[0], ss[1], ss[2], dd.dh_prefix, dd['mlm']
       yxwz=dd.yxwz
       if !yxwz.nil? 
-        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{yxwz}', '', '', '未开始');")
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlm}', 'ruby ./dady/bin/import_tsimage.rb #{dh_prefix} #{yxwz}', '', '', '未开始');")
       end  
     end  
     render :text => 'Success'
@@ -6266,9 +6252,9 @@ class DesktopController < ApplicationController
     
     
     def delete_zxjy
-        
+
         User.find_by_sql("delete from jy_zxjy;")
-        
+
         render :text => "success"        
     end
     
@@ -6338,13 +6324,13 @@ class DesktopController < ApplicationController
       else
         pars = node.split('|') || []
         if pars[0] == '未统计' 
-          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='' or zt is null order by mlh;")
+          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='' or zt is null order by mlm;")
         else
-          data = User.find_by_sql("select dh_prefix, dalb, mlh from q_qzxx where zt='#{pars[0]}' order by mlh;")
+          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='#{pars[0]}' order by mlm;")
         end
         
         data.each do |dd|
-            text << {:text => "目录 #{dd['mlh']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
+            text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
         end
       end
       render :text => text.to_json

@@ -882,8 +882,6 @@ class MapController < ApplicationController
     render :text => txt;
   end
   
-
-  
   
   def set_nh
     users = User.find_by_sql("select* from zn_nh ;")

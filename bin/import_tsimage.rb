@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
@@ -165,13 +165,12 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
   tag = get_tag(yxbh)
   
-  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag});")
+  $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);")
   
   system("rm #{infile} #{outfile}")
   
 end
 
-$qzml_mlh = {}
 
 def set_qzml (qzh)
   $qzml_mlh={}
@@ -191,6 +190,10 @@ def get_qzml(qzh, dalb, mlm)
   end 
   $qzml_mlh[key]   
 end
+
+$qzml_mlh = {}
+set_qzml (qzh)
+
 
 $dh, $archive_id = '', 0
 Find.find(path) do |path|
@@ -229,7 +232,7 @@ Find.find(path) do |path|
    #     next
    #   end
       
-      if /\/(\w+-\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
+      if /(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
         $stderr.puts(" *** Import Image: #{path} Format error.")
         next
       end
@@ -237,8 +240,8 @@ Find.find(path) do |path|
       pp = path.split("\/")
       ss = pp[pp.size-1].split("$")
 
-      flh,ajh,sxh = ss[1],ss[2],ss[3].gsub("ML","JN")
-      mlh = get_qzml(qzh, dalb, ss[0]) 
+      mlm, flh,ajh,sxh = ss[0], ss[1],ss[2],ss[3].gsub("ML","JN")
+      mlh = get_qzml(qzh, dalb, mlm) 
       
       #C-82$C$0017$MLBK.jpg
       sp = pp[pp.size-2].split("$")
@@ -250,7 +253,7 @@ Find.find(path) do |path|
           $dh = dh
           $stderr.puts "processing #{dh}... "
         end
-        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage(sxh, path, $dh, yxqz)
       else
         dh = "#{dh_prefix}-#{ajh.to_i}"
@@ -258,7 +261,7 @@ Find.find(path) do |path|
           $dh = dh
           $stderr.puts "processing #{dh}... "
         end
-        yxqz = "#{mlh}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage(sxh, path, $dh, yxqz)
       end  
     end

@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
 
 require 'pg'
@@ -125,10 +125,7 @@ end
 def set_documents(tt, dwdm, qzh, dalb, mlh)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
-    #dalb = user['档案类别'].to_i
-
     tm      = user['题名'] 
-    mlh     = user['目录号']
     ajh     = user['案卷号'].rjust(4,"0")
     sxh     = user['顺序号']
     yh      = user['页号']
@@ -173,7 +170,7 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
   end
 end
 
-def set_archive(tt, dwdm, qzh, dalb, mlh)
+def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
     ajh     = user['案卷号']
@@ -182,6 +179,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     nd      = user['年度']
     zny     = user['止年月']
     qny     = user['起年月']
+    #mlm     = user['目录号']
     js      = user['件数'].to_i
     ys      = user['页数'].to_i
     bgqx    = user['保管期限']
@@ -207,7 +205,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
     
     if dalb==24
       ajh = user['件号']
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}-#{jgwth.to_i}"
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
     else  
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
     end
@@ -264,7 +262,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
 
     end
 
-    insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', TIMESTAMP '#{qrq}', TIMESTAMP '#{zrq}', '#{dalb}','0');"
+    insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', TIMESTAMP '#{qrq}', TIMESTAMP '#{zrq}', '#{dalb}','0');"
     #puts insert_str
     $conn.exec(insert_str)
     
@@ -418,6 +416,9 @@ set_wsda_mlh(qzh)
 if ifname.include?('文档一体化')
   dalb = 24
   mlm = get_mlm(ifname)
+
+  ss = /(\d+)(长期|永久|短期|定期-10年|定期-30年)(.*)(文档一体化.*)/.match(ifname)
+  nd, bgqx, jgwth = ss[1], ss[2], ss[3]
   mlh = get_ws_mlh(qzh, nd, bgqx, jgwth)
 else
   #mlh = /(\d+)(.*)/.match(ifname)[1]   ss[1], ss[2] = C-1 土地登记
@@ -426,10 +427,13 @@ else
     dalb = get_dalb(mm[2])
     mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
   elsif !/(\d+)(.*)aj/.match(ifname).nil?
-      mm = /(\d+)(.*)aj/.match(ifname)
-      dalb = get_dalb(mm[2])
-      mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
-  end
+    mm = /(\d+)(.*)aj/.match(ifname)
+    dalb = get_dalb(mm[2])
+    mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  else
+    puts "error: **** Unknow File  #{ifname} to process *****"
+    exit
+  end  
 end
 
 path = "./dady/tmp1/#{pp}"
@@ -448,7 +452,7 @@ if ifname.include?('aj')
   #puts "#{ifname}\t#{outfile}\t#{path}"
   decode_file("#{ifname}", "#{outfile}", path)
   data = File.open("#{path}/#{outfile}").read.gsub("\000","")
-  set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
+  set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
   system ("rm -rf #{path}/#{outfile}")
   
   if dalb != 24
@@ -461,6 +465,7 @@ if ifname.include?('aj')
     set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
     system ("rm -rf #{path}/#{outfile}")
   end
+
   update_owner
 
   #生成q_qzxx
@@ -482,4 +487,4 @@ if ifname.include?('aj')
   #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');
 end 
 
-
+$conn.close
