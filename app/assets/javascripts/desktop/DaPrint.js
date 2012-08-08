@@ -662,7 +662,7 @@ Ext.define('MyDesktop.DaPrint', {
 											fhz=request.responseText.split(":");
 											if (fhz[0]=='success'){
 												
-											      printfile=fhz[1].split(",");
+											    printfile=fhz[1].split(",");
 											    for (k=0;k<printfile.length;k++){
 											      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
 									              //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");

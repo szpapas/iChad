@@ -395,7 +395,7 @@ Ext.define('MyDesktop.BorrowMan', {
 												}
 											});
 										}else{
-											alert("登记失败，请重新登记。");
+											alert(request.responseText);
 										}
 									}
 								});
@@ -459,11 +459,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{	
 						xtype:'button',text:'打印',tooltip:'打印',id:'print',iconCls:'print',
 						handler: function() {
-
-
 						}
-					},
-					
+					}					
 				],
 				items: [{
 					width: 370,
@@ -729,7 +726,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					                    xtype: 'textfield',
 					                    id: 'ajtm',
 										name:'ajtm',
-					                    width: 185,
+					                    width: 145,
 					                    fieldLabel: '',
 					                    x: 495,
 					                    y: 5
@@ -1185,7 +1182,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : 'jyqx',	 width : 0, sortable : true, dataIndex: 'jyqx'},
 					{ text : 'czrid',	 width : 0, sortable : true, dataIndex: 'czrid'},
 					{ text : 'lyxg',	 width : 0, sortable : true, dataIndex: 'lyxg'},
-					{ text : 'zj',	 width : 0, sortable : true, dataIndex: 'zj'},
+					{ text : 'zj',	 width : 0, sortable : true, dataIndex: 'zj'}
 					],
 					
 				//width : 800,
@@ -2335,8 +2332,7 @@ Ext.define('MyDesktop.BorrowMan', {
 									Ext.getCmp('clqq_win').close();
 
 								}
-							},
-
+							}
 						],
 						items: [{
 							width: 850,
@@ -2688,12 +2684,14 @@ Ext.define('MyDesktop.BorrowMan', {
 								xtype:'button',text:'检索',tooltip:'全文检索',id:'query',iconCls:'search',
 								handler: function() {
 									console.log(Ext.getCmp('query_text').value);
-									var grid = Ext.getCmp('archive_grid');
-									grid.store.proxy.url="/desktop/get_archive_where";
-									archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-									archive_store.proxy.extraParams.userid=currentUser.id 								
-									archive_store.load();
-									Ext.getCmp('cdlr').setValue('全文：'+Ext.getCmp('query_text').value);
+									if (Ext.getCmp('query_text').rawValue!=""){
+										var grid = Ext.getCmp('archive_grid');
+										grid.store.proxy.url="/desktop/get_archive_where";
+										archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+										archive_store.proxy.extraParams.userid=currentUser.id 								
+										archive_store.load();
+										Ext.getCmp('cdlr').setValue('全文：'+Ext.getCmp('query_text').value);
+									}
 								}
 							},
 							'->',
@@ -2954,7 +2952,10 @@ Ext.define('MyDesktop.BorrowMan', {
 						                {
 						                    xtype: 'button',
 											iconCls:'tj',
-						                    text: '档案利用统计'
+						                    text: '档案利用统计',
+											handler: function() {
+												jytj();
+											}
 						                }
 						            ]
 						        }
