@@ -34,6 +34,7 @@ Ext.define('MyDesktop.App', {
         'MyDesktop.AddressMan',
         'MyDesktop.SystemMan',
 		'MyDesktop.DaPrint',
+		'MyDesktop.Datj',
         'MyDesktop.Settings'
     ],
 
@@ -60,6 +61,7 @@ Ext.define('MyDesktop.App', {
             new MyDesktop.SystemStatus(),
             new MyDesktop.SystemMan(),
 			new MyDesktop.DaPrint(),
+			new MyDesktop.Datj(),
 			new MyDesktop.Notepad(),
         ];
     },
@@ -82,7 +84,7 @@ Ext.define('MyDesktop.App', {
                     { name: '文书处理', iconCls: 'wenshuman-shortcut', module: 'wenshuman' },
                     { name: '借阅管理', iconCls: 'borrowman-shortcut', module: 'borrowman' },                    
                     { name: '档案打印', iconCls: 'printdata-shortcut', module: 'daprint' },
-                    { name: '档案统计', iconCls: 'cpu-shortcut', module: 'systemstatus'},
+                    { name: '档案统计', iconCls: 'cpu-shortcut', module: 'datj'},
                     { name: '系统设置', iconCls: 'systemman-shortcut', module: 'systemman' },
 					{ name: '智慧物联', iconCls: 'zhwl-shortcut', module: 'notepad' },
                   // { name: '应用程序', iconCls: 'smallapps-shortcut', module: 'smallapps' }
@@ -169,19 +171,26 @@ Ext.define('MyDesktop.App', {
                              handler: function() {
                                var myForm = Ext.getCmp('password_panel_id').getForm();
                                pars = myForm.getFieldValues();
-
-                               new Ajax.Request("/desktop/change_password", { 
-                                 method: "POST",
-                                 parameters: pars,
-                                 onComplete:  function(request) {
-                                   if (request.responseText == 'Success') {
-                                     msg('成功', '密码修改成功.');
-                                     passwdWin.close();
-                                   } else {
-                                     msg('失败', '密码修改失败.');
-                                   }
-                                 }
-                               });
+							　　　if(pars['password_confirmation']!='' && pars['password_confirmation'].length>5){
+								  if(pars['password_confirmation']==pars['password']){
+                               			new Ajax.Request("/desktop/change_password", { 
+			                                 method: "POST",
+			                                 parameters: pars,
+			                                 onComplete:  function(request) {
+			                                   if (request.responseText == 'Success') {
+			                                     msg('成功', '密码修改成功.');
+			                                     passwdWin.close();
+			                                   } else {
+			                                     msg('失败', '密码修改失败.');
+			                                   }
+			                                 }
+			                               });
+									}else{
+										alert("两次输入的密码不相同，请重新输入。");
+									}									
+								}else{
+									alert("密码不能为空或长度必须大于等于6位。");
+								}
                              }
                            }]
 

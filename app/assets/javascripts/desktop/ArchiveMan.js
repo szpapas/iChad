@@ -42,6 +42,7 @@ Ext.define('MyDesktop.ArchiveMan', {
   
   createWindow : function(){
     var dh='';
+	var imagefx=1; //1代表纵向，２代表横向
     var desktop = this.app.getDesktop();
     
     var win = desktop.getWindow('archiveman');
@@ -3734,7 +3735,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           {name: 'bh',    type: 'string'},
           {name: 'lb',    type: 'string'},
           {name: 'hjz',   type: 'string'},
-          {name: 'sjsj',    type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'sjsj',    type: 'date',  type: 'date',  dateFormat: 'Y-m-d H:i:s'},
           {name: 'sjdw',    type: 'string'},
           {name: 'dalb',    type: 'string'}
         ]
@@ -3877,7 +3878,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '获奖者', width : 75, sortable : true, dataIndex: 'hjz'},
           
           { text : '授奖单位',  width : 75, sortable : true, dataIndex: 'sjdw'},
-          { text : '获奖时间',  width : 75, sortable : true, dataIndex: 'sjsj'},
+          { text : '获奖时间',  width : 75, sortable : true, dataIndex: 'sjsj',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
           { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
           
           
@@ -6253,8 +6254,10 @@ Ext.define('MyDesktop.ArchiveMan', {
                       onComplete:  function(request) {
                         var path = request.responseText;
                         if (path != '') { 
-						 var number = Math.random(); 
-                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+							ifx=path.split('?');
+							imagefx=ifx[1];
+						 	var number = Math.random(); 
+                          	Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                         }
                       }
                     });
@@ -6276,6 +6279,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
+						ifx=path.split('?');
+						imagefx=ifx[1];
                         var number = Math.random(); 
                           Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
@@ -6298,6 +6303,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
+						ifx=path.split('?');
+						imagefx=ifx[1];
                         var number = Math.random(); 
                           Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
@@ -6310,8 +6317,10 @@ Ext.define('MyDesktop.ArchiveMan', {
                 handler : function() {
                   LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
                   //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-                  image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+                  //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+				  image_path = Ext.getCmp('preview_img').getEl().dom.src;
                   LODOP.PRINT_INIT(image_path);
+				  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
                   LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
                   LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
                   LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
@@ -6346,7 +6355,33 @@ Ext.define('MyDesktop.ArchiveMan', {
                     }
                   }
                 }   // handler
-            }],     //bbar
+            },
+			{
+                  text: '删除整卷图像',
+                  handler : function() {
+                  if (dh!=''){
+                      Ext.Msg.confirm("提示信息","是否要整卷删除图像？",function callback(id){
+                        if(id=="yes"){
+                          var pars="{dh:'"+dh + "'}";
+                          new Ajax.Request("/desktop/delete_all_timage", {
+                              method: "POST",
+                              parameters: {dh:dh},
+                              onComplete:  function(request) {
+                                var path = request.responseText;
+                                if (path == 'success') { 
+                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
+                                  timage_store.load();
+                                  Ext.getCmp('timage_combo').lastQuery = null;
+                                  Ext.getCmp('preview_img').getEl().dom.src = '';
+                                }
+                              }
+                          });
+                        }
+                      });                    
+                  }
+                }   // handler
+            }
+			],     //bbar
             items:[{
               xtype: 'box',    //或者xtype: 'component',
               id: 'preview_img',

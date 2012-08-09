@@ -2693,7 +2693,7 @@ Ext.define('MyDesktop.Notepad', {
             title: '修改设备信息',
             //closeAction: 'hide',
             width: 370,
-            height: 330,
+            height: 360,
             //minHeight: 200,
             layout: 'fit',
             modal: true,
@@ -2701,7 +2701,7 @@ Ext.define('MyDesktop.Notepad', {
             //items:user_setup_grid,          
             items: [{
               width: 370,
-              height: 330,
+              height: 360,
               xtype:'form',
               layout: 'absolute',
               id : 'sb_disp_form',
@@ -2748,18 +2748,25 @@ Ext.define('MyDesktop.Notepad', {
                   y: 160,
                   width: 100
                 },
-                {
+				{
                   xtype: 'label',
-                  text: '设备号：',
+                  text: '第几路：',
                   x: 10,
                   y: 190,
                   width: 100
                 },
                 {
                   xtype: 'label',
-                  text: '额定功率：',
+                  text: '设备号：',
                   x: 10,
                   y: 220,
+                  width: 100
+                },
+                {
+                  xtype: 'label',
+                  text: '额定功率：',
+                  x: 10,
+                  y: 250,
                   width: 100
                 },
                 {
@@ -2833,7 +2840,7 @@ Ext.define('MyDesktop.Notepad', {
                   //userAdd = record.data.name;
                     var parent=Ext.getCmp('sb_ssfj');
                     parent.clearValue();
-                    parent.store.load({params:{param:this.value}});
+                    parent.store.load({params:{param:this.value}});					
                     //Ext.getCmp('fj_sslc').lastQuery = null;
                     }
                   },
@@ -2872,10 +2879,18 @@ Ext.define('MyDesktop.Notepad', {
                   name: 'sblx',
                   id:'sb_sblx'
                 },
+				{
+                  xtype: 'numberfield',
+                  x: 130,
+                  y: 190,
+                  width: 200,
+                  name: 'kgls',
+                  id:'sb_kgls'
+                },
                 {
                   xtype: 'textfield',
                   x: 130,
-                  y: 190,
+                  y: 220,
                   width: 200,
                   name: 'sbh',
                   id:'sb_sbh'
@@ -2883,7 +2898,7 @@ Ext.define('MyDesktop.Notepad', {
                 {
                   xtype: 'textfield',
                   x: 130,
-                  y: 220,
+                  y: 250,
                   width: 200,
                   name: 'edgl',
                   id:'sb_edgl'
@@ -3000,7 +3015,8 @@ Ext.define('MyDesktop.Notepad', {
             {name: 'sbh',   type: 'string'},
             {name: 'gzl',   type: 'string'},
             {name: 'edgl',    type: 'string'},
-            {name: 'sblx',    type: 'integer'}
+            {name: 'sblx',    type: 'integer'},
+            {name: 'kgls',    type: 'integer'}
 
           ]
         });

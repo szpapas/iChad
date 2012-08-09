@@ -83,6 +83,35 @@ var bgqx_store = new Ext.data.SimpleStore({
 	data : bgqx_data
 });
 
+var jhcw_bgqx_data = [
+	['1','永久'],	
+	['2','25年'],
+	['3','15年'],
+	['4','5年']
+
+];
+
+
+var jhcw_bgqx_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : jhcw_bgqx_data
+});
+
+var doc_bgqx_data = [
+	['1','永久'],	
+	['2','长期'],
+	['3','短期'],
+	['4','定期-30年'],
+	['5','定期-10年']
+
+];
+
+
+var doc_bgqx_store = new Ext.data.SimpleStore({
+	fields: ['value', 'text'],
+	data : doc_bgqx_data
+});
+
 var mj_data = [
 	['1','绝密'],
 	['2','机密'],
@@ -806,8 +835,10 @@ var DispAj_zh = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");																						
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);																					
 									}else{
 										alert("案卷修改失败，请重新修改。"+request.responseText);
 									}
@@ -1294,8 +1325,10 @@ var DispAj_cw = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('cw_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid_cw').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -1507,7 +1540,7 @@ var DispAj_cw = function(record,add_new,title){
 	                    fieldLabel: '保管期限',
 	                    labelWidth: 60,
 						name: 'bgqx',
-						store: bgqx_store,
+						store: jhcw_bgqx_store,
 						emptyText:'请选择',
 						mode: 'remote',
 						minChars : 2,
@@ -1802,8 +1835,10 @@ var DispAj_tddj = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('tddj_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid_tddj').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -2055,7 +2090,7 @@ var DispAj_tddj = function(record,add_new,title){
 						valueField:'text',
 						displayField:'text',
 						triggerAction:'all',
-						id:'cw_bgqx',
+						id:'tddj_bgqx',
 	                    x: 10,
 	                    y: 160
 	                },
@@ -2072,7 +2107,7 @@ var DispAj_tddj = function(record,add_new,title){
 						valueField:'text',
 						displayField:'text',
 						triggerAction:'all',
-						id:'cw_mj',
+						id:'tddj_mj',
 	                    x: 175,
 	                    y: 160
 	                },
@@ -2184,6 +2219,14 @@ var DispAj_tddj = function(record,add_new,title){
 				    		Ext.getCmp('tddj_ajh').setValue(request.responseText);
 				     	}
 				     });
+			};
+			if (record!=undefined){
+				Ext.getCmp('tddj_nd').setValue(record.data.nd);			
+				Ext.getCmp('tddj_flh').setValue(record.data.flh);
+				Ext.getCmp('tddj_qny').setValue(record.data.qny);			
+				Ext.getCmp('tddj_zny').setValue(record.data.zny);
+				Ext.getCmp('tddj_bgqx').setValue(record.data.bgqx);			
+				Ext.getCmp('tddj_qsxz').setValue(record.data.qsxz);
 			}
 		}else{
 			requestdata='';
@@ -2444,7 +2487,7 @@ var DispAj_wsda = function(record,add_new,title){
 						name: 'bgqx',
 						id: 'wsda_bgqx',
 						name: 'bgqx',
-						store: bgqx_store,
+						store: doc_bgqx_store,
 						emptyText:'请选择',
 						mode: 'remote',
 						minChars : 2,
@@ -2973,7 +3016,7 @@ var DispAj_swdj = function(record,add_new,title){
 						labelWidth: 60,
 						name: 'bgqx',	                    
 						id: 'wsda_bgqx',
-						store: bgqx_store,
+						store: doc_bgqx_store,
 						emptyText:'请选择',
 						mode: 'remote',
 						minChars : 2,
@@ -3331,7 +3374,7 @@ var DispAj_fwdj = function(record,add_new,title){
 	                    y: 10,
 						name: 'bgqx',
 						id: 'wsda_bgqx',
-						store: bgqx_store,
+						store: doc_bgqx_store,
 						emptyText:'请选择',
 						mode: 'remote',
 						minChars : 2,
@@ -3686,7 +3729,7 @@ var DispAj_lbzl = function(record,add_new,title){
 	                    labelWidth: 60,
 						id: 'wsda_bgqx',
 						name:'bgqx',
-						store: bgqx_store,
+						store: doc_bgqx_store,
 						emptyText:'请选择',
 						mode: 'remote',
 						minChars : 2,
@@ -4361,8 +4404,10 @@ var DispAj_sx = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -4870,8 +4915,10 @@ var DispAj_tjml = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -5301,8 +5348,10 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -5910,8 +5959,10 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -6449,8 +6500,10 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -6947,8 +7000,10 @@ var DispAj_qtda_swda = function(record,add_new,title){
 								method: "POST",
 								parameters: pars,
 								onComplete:	 function(request) {
-									if (request.responseText=='success'){
-										alert("案卷修改成功。");
+									responseT=request.responseText.split(':');
+									if (responseT[0]=='success'){
+										alert("案卷修改成功。");	
+										Ext.getCmp('zh_dh').setValue(responseT[1]);
 										//Ext.getCmp('archive_grid').store.load();
 										//Ext.getCmp('archive_detail_win').close();												
 									}else{
@@ -9405,6 +9460,302 @@ var DispAj_by_qzsm = function(record,add_new,title){
 	win.show();
 };
 
+//借阅统计窗口
+var jytj = function(){
+	var win = Ext.getCmp('jytj_win');
+	var tjlb='';
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'xh',		type: 'integer'},
+				{name: 'jydw',		type: 'string'},
+				{name: 'tm',		type: 'string'},
+				{name: 'lymd',		type: 'string'},
+				{name: 'jh',		type: 'string'},
+				{name: 'jyr',		type: 'string'},
+				{name: 'rq',		type: 'string'},
+				{name: 'ghrq',		type: 'string'},
+				{name: 'zjlr',		type: 'string'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_jytj',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		id : 'jytj_grid',
+		store: com_document_store,		
+		columns: [
+			{ text : '序号',	width : 20, sortable : true, dataIndex: 'xh'},
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq'},
+			{ text : '借阅单位',	width : 175, sortable : true, dataIndex: 'jydw'},
+			{ text : '案卷标题',	 width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '利用目的',	width : 105, sortable : true, dataIndex: 'lymd'},
+			{ text : '卷号',	 width : 75, sortable : true, dataIndex: 'jh'},
+			{ text : '借阅人',	width : 175, sortable : true, dataIndex: 'jyr'},
+			{ text : '归还日期',	width : 75, sortable : true, dataIndex: 'ghrq'},
+			{ text : '证件内容',	width : 75, sortable : true, dataIndex: 'zjlr'}
+			],
+		viewConfig: {
+			stripeRows:true
+		}
+	});
+	Ext.regModel('tj_model', {
+		fields: [
+				{name: 'qrq',		type: 'string'},
+				{name: 'zrq',		type: 'string'},
+				{name: 'jyrc',		type: 'string'},
+				{name: 'jyjc',		type: 'string'},
+				{name: 'bsxz',		type: 'string'},
+				{name: 'gzkc',		type: 'string'},
+				{name: 'xsyj',		type: 'string'},
+				{name: 'jjjs',		type: 'string'},
+				{name: 'xcjy',		type: 'string'},
+				{name: 'qt',		type: 'string'},
+				{name: 'fyys',		type: 'string'},
+				{name: 'zcys',		type: 'string'}
+		]
+	});
+
+	var tj_store = Ext.create('Ext.data.Store', {
+		model : 'tj_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_jytj',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var tjGrid = new Ext.grid.GridPanel({
+		id : 'tj_grid',
+		store: tj_store,
+		//layout:'fit',
+		//height:150,	
+		//width:300,	
+		columns: [
+			{ text : '起日期',	width : 75, sortable : true, dataIndex: 'qrq'},
+			{ text : '止日期',	width : 75, sortable : true, dataIndex: 'zrq'},
+			{ text : '借阅人次',	width : 75, sortable : true, dataIndex: 'jyrc'},
+			{ text : '借阅卷次',	 width : 75, sortable : true, dataIndex: 'jyjc'},
+			{ text : '编史修志',	width : 75, sortable : true, dataIndex: 'bsxz'},
+			{ text : '工作考查',	 width : 75, sortable : true, dataIndex: 'gzkc'},
+			{ text : '学术研究',	width : 75, sortable : true, dataIndex: 'xsyj'},
+			{ text : '经济建设',	width : 75, sortable : true, dataIndex: 'jjjs'},
+			{ text : '宣传教育',	width : 75, sortable : true, dataIndex: 'xcjy'},
+			{ text : '其它',	width : 75, sortable : true, dataIndex: 'qt'},
+			{ text : '复印页数',	width : 75, sortable : true, dataIndex: 'fyys'},
+			{ text : '摘抄页数',	width : 75, sortable : true, dataIndex: 'zcys'}
+			],
+		viewConfig: {
+			stripeRows:true
+		}
+	});
+	function get_jytj_grid(zt) {		
+			if (Ext.getCmp('tj_qrq').rawValue=='' || Ext.getCmp('tj_zrq').rawValue==''){
+				alert("起日期或止日期不能为空，请选择。");
+			}else{
+				tjlb=zt;
+				Ext.getCmp('jytj_grid').setVisible(true); 
+				Ext.getCmp('tj_grid').setVisible(false);
+				com_document_store.proxy.extraParams.query=zt;
+				com_document_store.proxy.extraParams.qrq=Ext.getCmp('tj_qrq').rawValue;
+				com_document_store.proxy.extraParams.zrq=Ext.getCmp('tj_zrq').rawValue;
+				com_document_store.proxy.extraParams.jyr=Ext.getCmp('tj_jyr').value;
+				com_document_store.proxy.extraParams.jydw=Ext.getCmp('tj_jydw').value;
+	            com_document_store.load();
+			};			
+    };
+	function print_jytj(zt) {		
+			if (Ext.getCmp('tj_qrq').rawValue=='' || Ext.getCmp('tj_zrq').rawValue==''){
+				alert("起日期或止日期不能为空，请选择。");
+			}else{				
+				new Ajax.Request("/desktop/dajy_print", { 
+					method: "POST",
+					parameters: eval("({query:'" + zt + "',qrq:'" + Ext.getCmp('tj_qrq').rawValue + "',zrq:'" + Ext.getCmp('tj_zrq').rawValue + "',jyr:'" + Ext.getCmp('tj_jyr').rawValue + "',jydw:'" + Ext.getCmp('tj_jydw').rawValue + "'})"),
+					onComplete:	 function(request) {
+						fhz=request.responseText.split(":");
+						if (fhz[0]=='success'){
+							printfile=fhz[1].split(",");
+						    for (k=0;k<printfile.length;k++){
+						      	LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM')); 
+							  	image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
+						      	LODOP.PRINT_INIT(image_path);
+							  	if (zt=='4'){
+							  		LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
+							  	}else{
+									LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
+							  	}
+				              	LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+				              	LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+				              	LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+				              	//LODOP.PREVIEW();
+						      	LODOP.PRINT();
+							}
+							alert("打印成功。"+fhz[1] );												
+						}else{
+							alert(request.responseText);
+						}						
+					}
+				});
+			};			
+    };
+
+	if (win==null) {
+		win = new Ext.Window({
+			id : 'jytj_win',
+			title: '档案利用统计',
+			//closeAction: 'hide',
+			width: 579,
+			height: 350,
+			minHeight: 350,
+			layout: 'border',
+			modal: true,
+			plain: true,
+			bbar:[
+				{
+					xtype: 'button',
+					iconCls: 'hd',
+					text:'欠档清单',
+					handler: function() {
+						get_jytj_grid('1');						
+					}
+				},
+				{
+					xtype: 'button',
+					iconCls: 'hd',
+					text:'已还档清单',
+					handler: function() {
+						get_jytj_grid('2');	
+					}
+				},
+				{
+					xtype: 'button',
+					iconCls: 'xjhd',
+					text:'借阅登记浏览',
+					handler: function() {
+						get_jytj_grid('3');	
+					}
+				},
+			   // {
+			   // 	xtype: 'button',
+			   // 	iconCls: 'xjhd',
+			   // 	text:'档案利用效果',
+			   // 	handler: function() {
+			   // 		Ext.getCmp('jytj_win').close();
+			   // 	}
+			   // },
+				{
+					xtype: 'button',
+					iconCls: 'tj',
+					text:'统计汇总',
+					handler: function() {
+						Ext.getCmp('jytj_grid').setVisible(false); 
+						Ext.getCmp('tj_grid').setVisible(true);
+						tjlb='4';	
+						Ext.getCmp('tj_grid').setHeight(160);
+						Ext.getCmp('tj_grid').setWidth(579);						
+						tj_store.proxy.extraParams.query=tjlb;
+						tj_store.proxy.extraParams.qrq=Ext.getCmp('tj_qrq').rawValue;
+						tj_store.proxy.extraParams.zrq=Ext.getCmp('tj_zrq').rawValue;
+						tj_store.proxy.extraParams.jyr=Ext.getCmp('tj_jyr').value;
+						tj_store.proxy.extraParams.jydw=Ext.getCmp('tj_jydw').value;
+			            tj_store.load();
+					}
+				},
+				{
+					xtype: 'button',
+					iconCls: 'print',
+					text:'打印',
+					handler: function() {
+						if (tjlb!=""){							
+							print_jytj(tjlb);	
+						}
+					}
+				},				
+				{
+					xtype: 'button',
+					iconCls: 'exit',
+					text:'退出',
+					handler: function() {
+						Ext.getCmp('jytj_win').close();
+					}
+				}],
+			items: [{
+				region: 'center',
+				iconCls:'icon-grid',
+				layout: 'fit',
+				height: 150,
+				title: '统计结果',
+				items: [documentGrid,tjGrid]
+			},{
+				width: 579,
+				height: 95,
+				region: 'north',
+				split: true,
+				collapsible: true,
+				title: '档案利用统计条件',
+				xtype:'form',
+				layout: 'absolute',
+				items: [
+	                {
+					    xtype: 'datefield',
+                        width: 　200,
+                        fieldLabel: '起日期',
+					 	id:'tj_qrq',
+                        labelWidth: 60,
+					 	format: 'Y-m-d',
+					 	x: 10,
+                        y: 10
+                    },
+                    {
+                        xtype: 'datefield',
+                        width: 　200,
+                        fieldLabel: '止日期',
+					 	format: 'Y-m-d',
+					 	id:'tj_zrq',
+                        labelWidth: 60,
+                        x: 10,
+                        y: 40
+                    },
+                    {
+                        xtype: 'textfield',
+                        width: 310,
+                        fieldLabel: '借阅人',
+					 	id:'tj_jyr',
+                        labelWidth: 60,
+                        x: 230,
+                        y: 10
+                    },
+                    {
+                        xtype: 'textfield',
+                        width: 310,
+                        fieldLabel: '借阅单位',
+					 	id:'tj_jydw',
+                        labelWidth: 60,
+                        x: 230,
+                        y: 40
+                    }
+	            ]
+			}]
+		});
+	}	
+	win.show();
+};
 
 
 //显示卷内目录窗口
@@ -9928,7 +10279,7 @@ var scale = 0.64;
 var scaleMultiplier = 0.8;
 var translatePos =  { x: 0,y: 0};
 var imageObj = new Image();
-
+var imagefx=1; //1代表纵向，２代表横向
 var draw = function(scale, translatePos, imageObj){
 
  var canvas = document.getElementById("myCanvas");
@@ -10040,6 +10391,8 @@ var show_image = function(dh) {
         onComplete:  function(request) {
           path = request.responseText;
           if (path != '') { 
+			ifx=path.split('?');
+			imagefx=ifx[1];
             imageObj.src = path;
             draw(scale, translatePos,imageObj);
           }
@@ -10110,14 +10463,14 @@ var show_image = function(dh) {
 			if (path != '') {
             	LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
 	            //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-	            image_path = window.location.href + path;
+	            image_path = window.location.href + path;				
 	            LODOP.PRINT_INIT(image_path);
+				LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
 	            LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 	            LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-	            LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+	            LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");				
 	            //LODOP.PREVIEW();
 	            LODOP.PRINT();
-				path='';
 			}
           }
         }],

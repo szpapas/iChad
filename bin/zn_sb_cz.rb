@@ -49,9 +49,12 @@ def write_sb(li,sp,tbt)
   #sy="0a,0d,06," +czzl[0] + ","+ sbh + "," +czzl[1]
   
 
-
-
-  sy=tbt.to_s(16)+ "," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
+  
+  if li['sblx'].to_i==3
+    sy=tbt.to_s(16)+ "," +czzl[0] + ","+ sbh + ",00," +czzl[1] + ",55,55,55,55,55,55,55,55,55,55,55"
+  else
+    sy=tbt.to_s(16)+ "," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
+  end
   #sy="09," +czzl[0] + ","+ sbh + "," +czzl[1] + ",00,55,55,55,55,55,55,55,55,55,55,55"
   kzzl = sy.split(',') 
   yy=0
@@ -124,11 +127,14 @@ end
    }
 tbt=50
 every_n_seconds(1) do     
-  list=$conn.exec("select * from zn_sb_cz_list order by id;")
+  list=$conn.exec("select zn_sb_cz_list.*,zn_sb.sblx from zn_sb_cz_list,zn_sb where zn_sb_cz_list.sbid=zn_sb.id order by id;")
   for k in 0..list.count-1
     li = list[k]
     
     tbt=tbt+1
+    if tbt>253
+      tbt=11
+    end
     write_sb(li,sp,tbt)
     
     for j in 0..10000
