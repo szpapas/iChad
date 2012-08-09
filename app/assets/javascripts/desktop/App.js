@@ -39,10 +39,7 @@ Ext.define('MyDesktop.App', {
     ],
 
     init: function() {
-        // custom logic before getXYZ methods get called...
-
         this.callParent();
-        
         new Ajax.Request("/desktop/get_user", {
           method: "POST",
           onComplete: function(request) {
@@ -79,16 +76,13 @@ Ext.define('MyDesktop.App', {
             shortcuts: Ext.create('Ext.data.Store', {
                 model: 'Ext.ux.desktop.ShortcutModel',
                 data: [
-                    //{ name: '百家争鸣', iconCls: 'addressman-shortcut', module: 'addressman' },
                     { name: '国土档案', iconCls: 'archiveman-shortcut', module: 'archiveman' },
                     { name: '文书处理', iconCls: 'wenshuman-shortcut', module: 'wenshuman' },
                     { name: '借阅管理', iconCls: 'borrowman-shortcut', module: 'borrowman' },                    
                     { name: '档案打印', iconCls: 'printdata-shortcut', module: 'daprint' },
                     { name: '档案统计', iconCls: 'cpu-shortcut', module: 'datj'},
                     { name: '系统设置', iconCls: 'systemman-shortcut', module: 'systemman' },
-					{ name: '智慧物联', iconCls: 'zhwl-shortcut', module: 'notepad' },
-                  // { name: '应用程序', iconCls: 'smallapps-shortcut', module: 'smallapps' }
-                  // { name: '亲朋好友', iconCls: 'accordion-shortcut', module: 'acc-win' },
+                    { name: '智慧物联', iconCls: 'zhwl-shortcut', module: 'notepad' }
                 ]
             }),
             wallpaper: 'assets/Blue-Sencha.jpg',

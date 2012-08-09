@@ -120,17 +120,6 @@ Ext.define('MyDesktop.SystemStatus', {
           useArrows: true,
           singleExpand: true,
           autoScroll: true,
-          //tbar:['->',
-          //{
-          //  xtype:'button',
-          //  text:'刷新',
-          //  tooltip:'刷新目录',
-          //  iconCls:'refresh',
-          //  handler: function() {
-          //    Ext.getCmp('yx_show_tree').store.load();
-          //  }
-          //}
-          //],
           width: 200
         });
 
@@ -824,6 +813,7 @@ Ext.define('MyDesktop.SystemStatus', {
                             }
                          }
                        });
+                       
                      }
                   },
                   {

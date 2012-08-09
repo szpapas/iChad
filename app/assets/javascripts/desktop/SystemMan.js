@@ -986,7 +986,7 @@ Ext.define('MyDesktop.SystemMan', {
                           method: "POST",
                           parameters: pars,
                           onComplete:  function(request) {
-                            if (request.responseText=='success'){
+                            if (request.responseText=='success') {
                               
                               Ext.getCmp('qz_disp_win').close();
                               

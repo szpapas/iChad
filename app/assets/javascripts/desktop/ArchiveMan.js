@@ -1223,7 +1223,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               var record = records[0];
               DispAj_tddj(record,false,title);
             }
-          },    {
+          },{
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
