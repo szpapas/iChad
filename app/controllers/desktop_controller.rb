@@ -723,7 +723,7 @@ class DesktopController < ApplicationController
       txt = ""
     else
       user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
-      dh = user[0]['dh']
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
 
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"        
@@ -749,7 +749,8 @@ class DesktopController < ApplicationController
       end
       
       system("convert '#{local_filename}' '#{convert_filename}'")
-      if user[0]['width'].to_i>user[0]['height'].to_i
+      
+      if width.to_i > height.to_i
         txt = "/assets/#{convert_filename}?1"
       else
         txt = "/assets/#{convert_filename}?2"
@@ -4831,6 +4832,10 @@ class DesktopController < ApplicationController
             puts "===== #{params['qzh']}\t#{dalb}\t#{mlm}"
             mlh = get_qzml(params['qzh'], dalb, mlm)
             User.find_by_sql("insert into q_sdwj (wjma, dh, mlh) values ('#{line.chomp!}','#{dj}', #{mlh});")  
+            
+            
+            
+            
           elsif !/(\d+)(.*)/.match(line).nil?
             mlh = /(\d+)(.*)/.match(line)[1]
             if line.include?'aj'

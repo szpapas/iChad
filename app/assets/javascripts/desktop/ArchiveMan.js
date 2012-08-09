@@ -42,87 +42,87 @@ Ext.define('MyDesktop.ArchiveMan', {
   
   createWindow : function(){
     var dh='';
-	var imagefx=1; //1代表纵向，２代表横向
+    var imagefx=1; //1代表纵向，２代表横向
     var desktop = this.app.getDesktop();
     
     var win = desktop.getWindow('archiveman');
     var myuploadform= new Ext.FormPanel({
-	  id : 'my_upload_form',
-	  fileUpload: true,
-	  width: 300,
-	  height : 100,
-	  autoHeight: true,
-	  bodyStyle: 'padding: 5px 5px 5px 5px;',
-	  labelWidth: 0,
-	  defaults: {
-	    anchor: '95%',
-	    allowBlank: false,
-	    msgTarget: 'side'
-	  },
-	  layout : 'absolute',
-	  items:[{
-	    xtype: 'label',
-	    text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
-	    x: 10,
-	    y: 10,
-	    width: 100
-	  },
-	  {
-	    xtype: 'fileuploadfield',
-	    id: 'filedata',
-	    x: 10,
-	    y: 30,
-	    emptyText: '选择一个文件...',
-	    buttonText: '浏览'
-	  }],
-	  buttons: [
-	  {
-	    text: '上传',
-	    handler: function(){
-	      if (dh==''){
-	        msg('提示', '请先选择要增加影像文件的案卷.');
-	      } 
-	      else
-	      {
-	        myForm = Ext.getCmp('my_upload_form').getForm();
+      id : 'my_upload_form',
+      fileUpload: true,
+      width: 300,
+      height : 100,
+      autoHeight: true,
+      bodyStyle: 'padding: 5px 5px 5px 5px;',
+      labelWidth: 0,
+      defaults: {
+        anchor: '95%',
+        allowBlank: false,
+        msgTarget: 'side'
+      },
+      layout : 'absolute',
+      items:[{
+        xtype: 'label',
+        text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+        x: 10,
+        y: 10,
+        width: 100
+      },
+      {
+        xtype: 'fileuploadfield',
+        id: 'filedata',
+        x: 10,
+        y: 30,
+        emptyText: '选择一个文件...',
+        buttonText: '浏览'
+      }],
+      buttons: [
+      {
+        text: '上传',
+        handler: function(){
+          if (dh==''){
+            msg('提示', '请先选择要增加影像文件的案卷.');
+          } 
+          else
+          {
+            myForm = Ext.getCmp('my_upload_form').getForm();
 
-	        if(myForm.isValid())
-	        {
-	            form_action=1;
-	            myForm.submit({
-	              url: '/desktop/upload_file',
-	              waitMsg: '文件上传中...',
-	              success: function(form, action){
-	                var isSuc = action.result.success; 
-	                filename=myForm._fields.items[0].lastValue.split('\\');
-	                file=filename[filename.length-1];
-	                if (isSuc) {
-	                  new Ajax.Request("/desktop/save_image_db", { 
-	                    method: "POST",
-	                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-	                    onComplete:  function(request) {
-	                      if (request.responseText=='true'){
-	                        timage_store.load();
-	                        Ext.getCmp('timage_combo').lastQuery = null;
-	                        msg('成功', '文件上传成功.');                       
-	                      }else{
-	                        alert("文件上传失败，请重新上传。" + request.responseText);
-	                      }
-	                    }
-	                  }); //save_image_db
-	                } else { 
-	                  msg('失败', '文件上传失败.');
-	                }
-	              }, 
-	              failure: function(){
-	                msg('失败', '文件上传失败.');
-	              }
-	            });
-	        }
-	      } //else
-	    } //handler
-	  }] //buttons
-	});
+            if(myForm.isValid())
+            {
+                form_action=1;
+                myForm.submit({
+                  url: '/desktop/upload_file',
+                  waitMsg: '文件上传中...',
+                  success: function(form, action){
+                    var isSuc = action.result.success; 
+                    filename=myForm._fields.items[0].lastValue.split('\\');
+                    file=filename[filename.length-1];
+                    if (isSuc) {
+                      new Ajax.Request("/desktop/save_image_db", { 
+                        method: "POST",
+                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+                        onComplete:  function(request) {
+                          if (request.responseText=='true'){
+                            timage_store.load();
+                            Ext.getCmp('timage_combo').lastQuery = null;
+                            msg('成功', '文件上传成功.');                       
+                          }else{
+                            alert("文件上传失败，请重新上传。" + request.responseText);
+                          }
+                        }
+                      }); //save_image_db
+                    } else { 
+                      msg('失败', '文件上传失败.');
+                    }
+                  }, 
+                  failure: function(){
+                    msg('失败', '文件上传失败.');
+                  }
+                });
+            }
+          } //else
+        } //handler
+      }] //buttons
+    });
     var tabPanel = new Ext.TabPanel({
       activeTab : 0,//默认激活第一个tab页
       animScroll : true,//使用动画滚动效果
@@ -237,7 +237,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               });
             }
           } ,
- 		   // '->',
+           // '->',
            // '<span style=" font-size:12px;font-weight:600;color:#3366FF;">题名查询</span>:&nbsp;&nbsp;',
            // {
            //   xtype:'textfield',id:'query_jr_text'
@@ -249,25 +249,25 @@ Ext.define('MyDesktop.ArchiveMan', {
            //       store3.load();
            //     }
            // }
-		 {
-			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-	          handler: function() {
-	              var grid = Ext.getCmp('archive_grid');					
-	              var records = grid.getSelectionModel().getSelection();
-				  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-				  if (size==1){			
-				  	size=Ext.getCmp('document_grid').store.count();
-					  if (size>0){	              					  
-		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-					  }else{
-						var record = records[0];
-						DispJr_model(record.data.id,record.data.dh,false);
-					  }
-				  }else{
-					alert("请先选择一个案卷目录。");
-				  }
-	            }
-		 }
+         {
+            xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+              handler: function() {
+                  var grid = Ext.getCmp('archive_grid');                    
+                  var records = grid.getSelectionModel().getSelection();
+                  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                  if (size==1){         
+                    size=Ext.getCmp('document_grid').store.count();
+                      if (size>0){                                    
+                        alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                      }else{
+                        var record = records[0];
+                        DispJr_model(record.data.id,record.data.dh,false);
+                      }
+                  }else{
+                    alert("请先选择一个案卷目录。");
+                  }
+                }
+         }
           
         ],
         columns: [
@@ -390,7 +390,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       var archiveGrid = new Ext.grid.GridPanel({
         id : 'archive_grid',
         store: archive_store,
-		//multiSelect:false,
+        //multiSelect:false,
         bbar:[
           new Ext.PagingToolbar({
             store: archive_store,
@@ -450,19 +450,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -489,7 +489,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var grid = Ext.getCmp('archive_grid');
                   grid.store.proxy.url="/desktop/get_archive_where";
                   archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-				  archive_store.proxy.extraParams.dh=title;
+                  archive_store.proxy.extraParams.dh=title;
                   archive_store.load();
                 }
               }
@@ -668,25 +668,25 @@ Ext.define('MyDesktop.ArchiveMan', {
               });
             }
           },
-		  {
-			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-	          handler: function() {
-	              var grid = Ext.getCmp('archive_grid_cw');					
-	              var records = grid.getSelectionModel().getSelection();
-				  size=Ext.getCmp('archive_grid_cw').getSelectionModel().getSelection().size();
-				  if (size==1){			
-				  	size=Ext.getCmp('document_grid').store.count();
-					  if (size>0){	              					  
-		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-					  }else{
-						var record = records[0];
-						DispJr_model(record.data.id,record.data.dh,false);
-					  }
-				  }else{
-					alert("请先选择一个案卷目录。");
-				  }
-	            }
-		 }
+          {
+            xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+              handler: function() {
+                  var grid = Ext.getCmp('archive_grid_cw');                 
+                  var records = grid.getSelectionModel().getSelection();
+                  size=Ext.getCmp('archive_grid_cw').getSelectionModel().getSelection().size();
+                  if (size==1){         
+                    size=Ext.getCmp('document_grid').store.count();
+                      if (size>0){                                    
+                        alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                      }else{
+                        var record = records[0];
+                        DispJr_model(record.data.id,record.data.dh,false);
+                      }
+                  }else{
+                    alert("请先选择一个案卷目录。");
+                  }
+                }
+         }
 
         //  },'->',
         //  {
@@ -839,25 +839,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                         DispAj_cw(record,false,title);
                       }
                     }   , 
-					{
-		              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
-		              handler: function() {
-		                showAdvancedSearch();
-		              }
-		            }, 
-					{
-			          text:'查看图像',
-			          iconCls:'',
-			          handler : function() {
-			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
-			            if (items.length > 0) {
-			              var item = items[0];
-			              var dh = items[0].data.dh;
-			              show_image(dh);	              
-			              set_image("/assets/wuxi_pic.png");
-			            }
-			          }    
-			        },
+                    {
+                      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+                      handler: function() {
+                        showAdvancedSearch();
+                      }
+                    }, 
+                    {
+                      text:'查看图像',
+                      iconCls:'',
+                      handler : function() {
+                        var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+                        if (items.length > 0) {
+                          var item = items[0];
+                          var dh = items[0].data.dh;
+                          show_image(dh);                 
+                          set_image("/assets/wuxi_pic.png");
+                        }
+                      }    
+                    },
                         '->',
                         {
                           xtype: 'combo',
@@ -1070,25 +1070,25 @@ Ext.define('MyDesktop.ArchiveMan', {
               });
             }
           } , 
-		{
-			xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-	          handler: function() {
-	              var grid = Ext.getCmp('archive_grid_tddj');					
-	              var records = grid.getSelectionModel().getSelection();
-				  size=Ext.getCmp('archive_grid_tddj').getSelectionModel().getSelection().size();
-				  if (size==1){			
-				  	size=Ext.getCmp('document_grid').store.count();
-					  if (size>0){	              					  
-		              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-					  }else{
-						var record = records[0];
-						DispJr_model(record.data.id,record.data.dh,false);
-					  }
-				  }else{
-					alert("请先选择一个案卷目录。");
-				  }
-	            }
-		 }
+        {
+            xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+              handler: function() {
+                  var grid = Ext.getCmp('archive_grid_tddj');                   
+                  var records = grid.getSelectionModel().getSelection();
+                  size=Ext.getCmp('archive_grid_tddj').getSelectionModel().getSelection().size();
+                  if (size==1){         
+                    size=Ext.getCmp('document_grid').store.count();
+                      if (size>0){                                    
+                        alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                      }else{
+                        var record = records[0];
+                        DispJr_model(record.data.id,record.data.dh,false);
+                      }
+                  }else{
+                    alert("请先选择一个案卷目录。");
+                  }
+                }
+         }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -1223,26 +1223,26 @@ Ext.define('MyDesktop.ArchiveMan', {
               var record = records[0];
               DispAj_tddj(record,false,title);
             }
-          },	{
+          },    {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
- 			'->',
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
+            '->',
           {
             xtype: 'combo',
             name: 'aj_select',
@@ -1597,25 +1597,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_wsda(record,false,title);
               }
             }   , 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
                 '->',
                 {
                   xtype: 'combo',
@@ -1826,25 +1826,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -1974,13 +1974,13 @@ Ext.define('MyDesktop.ArchiveMan', {
             DispAj_sx(record,false,title);
           }
         } , 
-		{
+        {
           xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
           handler: function() {
             showAdvancedSearch();
           }
         }, 
-		{
+        {
           text:'查看图像',
           iconCls:'',
           handler : function() {
@@ -1988,12 +1988,12 @@ Ext.define('MyDesktop.ArchiveMan', {
             if (items.length > 0) {
               var item = items[0];
               var dh = items[0].data.dh;
-              show_image(dh);	              
+              show_image(dh);                 
               set_image("/assets/wuxi_pic.png");
             }
           }    
         },
-		'->',
+        '->',
         {
           xtype: 'combo',
           name: 'aj_select',
@@ -2204,25 +2204,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
           
         ],
         columns: [
@@ -2356,25 +2356,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                   DispAj_tjml(record,false,title);
                 }
               }, 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
                   '->',
                   {
                     xtype: 'combo',
@@ -2560,25 +2560,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -2724,25 +2724,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_dzda(record,false,title);
               }
             }, 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -2929,25 +2929,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -3084,25 +3084,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_sbda(record,false,title);
               }
             }, 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -3294,25 +3294,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } ,	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
           
         ],
         columns: [
@@ -3446,25 +3446,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_jjda(record,false,title);
               }
             } , 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -3659,25 +3659,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -3814,25 +3814,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_qtda_swda(record,false,title);
               }
             }, 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -4025,25 +4025,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
           
         ],
         columns: [
@@ -4175,25 +4175,25 @@ Ext.define('MyDesktop.ArchiveMan', {
               DispAj_qtda_zlxx(record,false,title);
             }
           }   , 
-			{
+            {
             xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
             handler: function() {
               showAdvancedSearch();
             }
           }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
           '->',
           {
             xtype: 'combo',
@@ -4383,25 +4383,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -4537,26 +4537,26 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_tszlhj(record,false,title);
               }
             }, 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
-			'->',
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
+            '->',
             {
               xtype: 'combo',
               name: 'aj_select',
@@ -4744,25 +4744,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -4896,25 +4896,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_jcszhb(record,false,title);
               }
             }   , 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
                 '->',
                 {
                   xtype: 'combo',
@@ -5092,25 +5092,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5242,26 +5242,26 @@ Ext.define('MyDesktop.ArchiveMan', {
               DispAj_by_zzjgyg(record,false,title);
             }
           },
-			{
+            {
             xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
             handler: function() {
               showAdvancedSearch();
             }
           }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
- 		'->',
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
+        '->',
           {
             xtype: 'combo',
             name: 'aj_select',
@@ -5440,25 +5440,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          } , 	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          } ,   {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5597,25 +5597,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_dsj(record,false,title);
               }
             }   , 
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
             '->',
             {
               xtype: 'combo',
@@ -5799,25 +5799,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispJr(model,false);
               });
             }
-          },	{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
-		          handler: function() {
-		              var grid = Ext.getCmp('archive_grid');					
-		              var records = grid.getSelectionModel().getSelection();
-					  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
-					  if (size==1){			
-					  	size=Ext.getCmp('document_grid').store.count();
-						  if (size>0){	              					  
-			              	alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
-						  }else{
-							var record = records[0];
-							DispJr_model(record.data.id,record.data.dh,false);
-						  }
-					  }else{
-						alert("请先选择一个案卷目录。");
-					  }
-		            }
-			 }
+          },    {
+                xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+                  handler: function() {
+                      var grid = Ext.getCmp('archive_grid');                    
+                      var records = grid.getSelectionModel().getSelection();
+                      size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                      if (size==1){         
+                        size=Ext.getCmp('document_grid').store.count();
+                          if (size>0){                                    
+                            alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                          }else{
+                            var record = records[0];
+                            DispJr_model(record.data.id,record.data.dh,false);
+                          }
+                      }else{
+                        alert("请先选择一个案卷目录。");
+                      }
+                    }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5952,26 +5952,26 @@ Ext.define('MyDesktop.ArchiveMan', {
                 DispAj_by_qzsm(record,false,title);
               }
             },
-			{
+            {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
                 showAdvancedSearch();
               }
             }, 
-			{
-	          text:'查看图像',
-	          iconCls:'',
-	          handler : function() {
-	            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
-	            if (items.length > 0) {
-	              var item = items[0];
-	              var dh = items[0].data.dh;
-	              show_image(dh);	              
-	              set_image("/assets/wuxi_pic.png");
-	            }
-	          }    
-	        },
-			'->',
+            {
+              text:'查看图像',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/wuxi_pic.png");
+                }
+              }    
+            },
+            '->',
             {
               xtype: 'combo',
               name: 'aj_select',
@@ -6254,10 +6254,10 @@ Ext.define('MyDesktop.ArchiveMan', {
                       onComplete:  function(request) {
                         var path = request.responseText;
                         if (path != '') { 
-							ifx=path.split('?');
-							imagefx=ifx[1];
-						 	var number = Math.random(); 
-                          	Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                            ifx=path.split('?');
+                            imagefx=ifx[1];
+                            var number = Math.random(); 
+                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                         }
                       }
                     });
@@ -6279,8 +6279,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
-						ifx=path.split('?');
-						imagefx=ifx[1];
+                        ifx=path.split('?');
+                        imagefx=ifx[1];
                         var number = Math.random(); 
                           Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
@@ -6303,8 +6303,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                     onComplete:  function(request) {
                       var path = request.responseText;
                       if (path != '') { 
-						ifx=path.split('?');
-						imagefx=ifx[1];
+                        ifx=path.split('?');
+                        imagefx=ifx[1];
                         var number = Math.random(); 
                           Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
                       }
@@ -6318,9 +6318,9 @@ Ext.define('MyDesktop.ArchiveMan', {
                   LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
                   //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
                   //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
-				  image_path = Ext.getCmp('preview_img').getEl().dom.src;
+                  image_path = Ext.getCmp('preview_img').getEl().dom.src;
                   LODOP.PRINT_INIT(image_path);
-				  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
+                  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
                   LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
                   LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
                   LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
@@ -6356,7 +6356,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   }
                 }   // handler
             },
-			{
+            {
                   text: '删除整卷图像',
                   handler : function() {
                   if (dh!=''){
@@ -6381,7 +6381,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   }
                 }   // handler
             }
-			],     //bbar
+            ],     //bbar
             items:[{
               xtype: 'box',    //或者xtype: 'component',
               id: 'preview_img',

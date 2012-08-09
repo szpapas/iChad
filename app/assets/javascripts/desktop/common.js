@@ -10279,7 +10279,7 @@ var scale = 0.64;
 var scaleMultiplier = 0.8;
 var translatePos =  { x: 0,y: 0};
 var imageObj = new Image();
-var imagefx=1; //1代表纵向，２代表横向
+var imagefx=1; //1代表纵向，2代表横向
 var draw = function(scale, translatePos, imageObj){
 
  var canvas = document.getElementById("myCanvas");

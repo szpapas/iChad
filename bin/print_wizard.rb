@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
 
@@ -92,9 +92,9 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
   if yxbh.include?('ML00')
     tag = 0
-  elsif yxbh.include('ML')
+  elsif yxbh.include?('ML')
     tag = 1
-  elsif yxbh.include('MLBK')
+  elsif yxbh.include?('MLBK')
     tag = 3
   else
     
@@ -102,6 +102,8 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
   $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, jm_tag, tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}', 1, #{tag});")
+  
+  system ("rm #{outfile}")
     
 end
 
@@ -133,17 +135,15 @@ def generate_single_archive(archive_id, print_option=0b1101)
       fl_str = flstr(data['dalb'].to_i)
       image_t = "image_d"
       
-      puts "select * from a_tddj where dh='#{data['dh']}';"
+      #puts "select * from a_tddj where dh='#{data['dh']}';"
       tddj = $conn.exec("select * from a_tddj where dh='#{data['dh']}';")
 
       #titles=split_string(tddj[0]['tdzl']).gsub("  ","\n") 
-
       ss = tddj[0]['tdzl'].split(/  \s*/)
       for k in 0..ss.size-1 do 
         ss[k] = split_string(ss[k]).gsub("\"", "\\\"")
       end
       titles=ss.join("\n") 
-      
     
       $tt = titles.split("\n")
       tt_str = ""
@@ -204,7 +204,9 @@ def generate_single_archive(archive_id, print_option=0b1101)
     image_t = "image_3"
     year, month = data['qny'][0..3].succ, data['qny'][4..5]
     convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1770 '#{ss[0]}'\" -draw \"text 1200, 1850 '#{ss[1]}'\"  -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg " 
+    
     #puts ("2 ====generate BK ===")
+    #puts convert_str
     system convert_str
     save2timage("MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg", dh, yxqz)
     system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg")
@@ -343,11 +345,4 @@ for k in 0..user.count-1 do
 end
 
 $conn.close
-
-
-
-
-
-
-
 
