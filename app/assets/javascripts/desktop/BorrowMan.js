@@ -459,12 +459,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{	
 						xtype:'button',text:'打印',tooltip:'打印',id:'print',iconCls:'print',
 						handler: function() {
-
-
 						}
-					},
-					
-				],
+					}],
 				items: [{
 					width: 370,
 					height: 180,
@@ -1185,8 +1181,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : 'jyqx',	 width : 0, sortable : true, dataIndex: 'jyqx'},
 					{ text : 'czrid',	 width : 0, sortable : true, dataIndex: 'czrid'},
 					{ text : 'lyxg',	 width : 0, sortable : true, dataIndex: 'lyxg'},
-					{ text : 'zj',	 width : 0, sortable : true, dataIndex: 'zj'},
-					],
+					{ text : 'zj',	 width : 0, sortable : true, dataIndex: 'zj'}
+				],
 					
 				//width : 800,
 				//height : 300,
@@ -2333,10 +2329,8 @@ Ext.define('MyDesktop.BorrowMan', {
 								xtype:'button',text:'退出',tooltip:'退出',id:'clqq_tc',iconCls:'exit',
 								handler: function() {
 									Ext.getCmp('clqq_win').close();
-
 								}
-							},
-
+							}
 						],
 						items: [{
 							width: 850,

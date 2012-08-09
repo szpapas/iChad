@@ -225,7 +225,7 @@ Ext.define('MyDesktop.SystemMan', {
                 width: 200,
                 name: 'encrypted_password',
                 id:'user_encrypted_password'
-              } ,
+              }
             ],
             buttons:[{
                 xtype: 'button',
