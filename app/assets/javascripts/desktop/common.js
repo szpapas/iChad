@@ -4166,7 +4166,6 @@ var doc_dagl = function(title){
             handler: function() {
 				save_sql='';
 				Ext.Msg.show({
-
 		         msg: '正在处理数据, 请稍等...',
 		         progressText: 'Loading...',
 		         width:300,
@@ -4175,7 +4174,7 @@ var doc_dagl = function(title){
 				size=doc_dagl_grid.store.data.items.size();
 				if (size>0){					
 					for (i = 0; i < size; i++) {
-						data=doc_dagl_grid.store.data.items[i].data											
+						data=doc_dagl_grid.store.data.items[i].data;
 						if(doc_dagl_grid.store.data.items[i].data.rq!=null){
 							year=(doc_dagl_grid.store.data.items[i].data.rq.getYear()+1900);
 							month=doc_dagl_grid.store.data.items[i].data.rq.getMonth()+1;
