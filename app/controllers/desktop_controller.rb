@@ -2793,7 +2793,7 @@ class DesktopController < ApplicationController
                   when "26"
 										user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "28"
-										user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxs from archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "29"
 										user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
                   when "30"
@@ -7713,5 +7713,262 @@ class DesktopController < ApplicationController
       end
       render :text => txt 
     end
+   
+    def get_cxtj_sd(gjcxtj)
+      cx=gjcxtj.split('$')
+      txt=''
+      if cx[0]=='ajtm'
+        cx[0]='tm'
+      end
+      if cx[0]=='doctm'
+        cx[0]='tm'
+      end
+      if cx[0]=='docwh'
+        cx[0]='wh'
+      end
+      if cx[0]=='doczrz'
+        cx[0]='zrz'
+      end
+      if cx[0]=='docnd'
+        cx[0]='nd'
+      end
+      if cx[1]=='like'
+        txt=" #{cx[0]} #{cx[1]} '%#{cx[2]}%' "
+      else
+        txt=" #{cx[0]} #{cx[1]} '#{cx[2]}' "
+      end
+      return txt
+    end
+    
+    def archive_query_sd
+      cx_tj=''
+
+      if !(params['mlh'].nil?)   
+        cx_tj=get_cxtj_sd(params['mlh'])
+      end
+      
+      if !(params['ajh'].nil?)
+        tj=params['ajh'].split('$')
+        if tj[2].length<4
+          params['ajh']=tj[0].to_s + "$" + tj[1].to_s + "$" + sprintf("%04d", tj[2])
+        end
+        if (cx_tj!='')
+          cx_tj=cx_tj + " and " + get_cxtj_sd(params['ajh'])
+        else
+          cx_tj= get_cxtj_sd(params['ajh'])
+        end
+      end
+      puts cx_tj
+      if !(params['ajtm'].nil?)
+        if (cx_tj!='')
+          cx_tj=cx_tj + " and " + get_cxtj_sd(params['ajtm'])
+        else
+          cx_tj= get_cxtj_sd(params['ajtm'])
+        end
+      end
+      if !(params['nd'].nil?)
+        if (cx_tj!='')
+          cx_tj=cx_tj + " and " + get_cxtj_sd(params['nd'])
+        else
+          cx_tj= get_cxtj_sd(params['nd'])
+        end
+      end
+      if !(params['bgqx'].nil?)
+        if (cx_tj!='')
+          cx_tj=cx_tj + " and " + get_cxtj_sd(params['bgqx'])
+        else
+          cx_tj= get_cxtj_sd(params['bgqx'])
+        end
+      end
+
+      jn_cx_tj=''
+      if !(params['wh'].nil?)
+        jn_cx_tj=get_cxtj_sd(params['wh'])
+      end
+      if !(params['zrz'].nil?)
+        if (jn_cx_tj!='')
+          jn_cx_tj=jn_cx_tj + " and " + get_cxtj_sd(params['zrz'])
+        else
+          jn_cx_tj=get_cxtj_sd(params['zrz'])
+        end
+      end
+      if !(params['tm'].nil?)
+        if (jn_cx_tj!='')
+          jn_cx_tj=jn_cx_tj + " and " + get_cxtj_sd(params['tm'])
+        else
+          jn_cx_tj=get_cxtj_sd(params['tm'])
+        end
+      end
+
+      dj_cx_tj=''
+      if !(params['djh'].nil?)
+        dj_cx_tj=get_cxtj_sd(params['djh'])
+      end
+
+      if !(params['tdzl'].nil?)
+        if (dj_cx_tj!='')
+          dj_cx_tj=dj_cx_tj + " and " + get_cxtj_sd(params['tdzl'])
+        else
+          dj_cx_tj=get_cxtj_sd(params['tdzl'])
+        end
+      end
+
+      if !(params['qlr'].nil?)
+        if (dj_cx_tj!='')
+          dj_cx_tj=dj_cx_tj + " and " + get_cxtj_sd(params['qlr'])
+        else
+          dj_cx_tj=get_cxtj_sd(params['qlr'])
+        end
+      end
+      
+      if !(params['tdzh'].nil?)
+        if (dj_cx_tj!='')
+          dj_cx_tj=dj_cx_tj + " and " + get_cxtj_sd(params['tdzh'])
+        else
+          dj_cx_tj=get_cxtj_sd(params['tdzh'])
+        end
+      end
+      
+      doc_cx_tj=''
+      if !(params['doctm'].nil?)
+        if (doc_cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['doctm'])
+        else
+          doc_cx_tj=get_cxtj_sd(params['doctm'])
+        end
+      end
+      if !(params['docwh'].nil?)
+        if (doc_cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['docwh'])
+        else
+          doc_cx_tj=get_cxtj_sd(params['docwh'])
+        end
+      end
+      if !(params['doczrz'].nil?)
+        if (doc_cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['doczrz'])
+        else
+          doc_cx_tj=get_cxtj_sd(params['doczrz'])
+        end
+      end
+      if !(params['jgwth'].nil?)
+        if (doc_cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['jgwth'])
+        else
+          doc_cx_tj=get_cxtj_sd(params['jgwth'])
+        end
+      end
+
+      if !(params['jh'].nil?)
+        tj=params['jh'].split('$')
+        if tj[2].length<4
+          params['jh']=tj[0].to_s + "$" + tj[1].to_s + "$" + sprintf("%04d", tj[2])
+        end
+        if (cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['jh'])
+        else
+          doc_cx_tj= get_cxtj_sd(params['jh'])
+        end
+      end
+      if !(params['docnd'].nil?)
+        if (doc_cx_tj!='')
+          doc_cx_tj=doc_cx_tj + " and " + get_cxtj_sd(params['docnd'])
+        else
+          doc_cx_tj=get_cxtj_sd(params['docnd'])
+        end
+      end
+
+      jy_select=''
+      ss=params['dh'].split('_');
+      case (ss[1]) 
+				when "0"
+					jy_select="select * from archive "			 
+				when "2"
+					jy_select="select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid "				
+				when "3","5","6","7"
+					jy_select="select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid "
+				when "15"
+					jy_select="select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid "
+        when "18"
+					jy_select="select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid "
+        when "25"
+					jy_select="select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid "
+        when "27"
+					jy_select="select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid "
+        when "26"
+					jy_select="select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid "
+        when "28"
+					jy_select="select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxs from archive left join a_swda on archive.id=a_swda.ownerid "
+        when "29"
+					jy_select="select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid "
+        when "30"
+					jy_select="select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid "
+        when "31"
+					jy_select="select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid "
+        when "32"
+					jy_select="select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid "
+        when "33"
+					jy_select="select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid "
+        when "34"
+					jy_select="select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid "        
+				when "24"
+				  #年度_机构问题号_保管期限
+				  case ss.length
+			      when 3
+			        strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}'"
+		        when 4
+		          strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.bgqx='#{ss[3]}'"
+	          when 5
+	            strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.bgqx='#{ss[3]}' and a_wsda.jgwth='#{ss[4]}'"
+            else
+              strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"					    
+          end
+          jy_select="select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   "
+				when "19"
+				  jy_select="select * from archive "
+				else
+					jy_select="select * from archive "					
+			end
+      if ss[1]!='24'
+        dh=params['dh'].gsub('_','-')
+        jy_select=jy_select + " where archive.dh like '#{dh}-%'"
+      end
+      if jn_cx_tj!=''
+        jy_select=jy_select + " and archive.id in (select ownerid from document where #{jn_cx_tj})"
+      end
+      if dj_cx_tj!=''
+        jy_select=jy_select + " and archive.id in (select ownerid from a_tddj where #{dj_cx_tj})"
+      end
+      if doc_cx_tj!=''
+        jy_select=jy_select + " and #{doc_cx_tj}"
+      end
+      if cx_tj!=''
+        jy_select=jy_select + " and  #{cx_tj} "
+      end
+      puts cx_tj
+      if ss[1]!='24'
+        jy_select=jy_select + " order by mlh,ajh  "
+      else
+        jy_select=jy_select + " order by nd,bgqx,jgwth,jh "
+      end
+      if (jy_select!='')
+        count=User.find_by_sql(" #{jy_select} ;")
+        user = User.find_by_sql(" #{jy_select} limit #{params['limit']} offset #{params['start']} ;")
+        size = user.size;
+        if size > 0
+          txt = "{results:#{count.size},rows:["
+          for k in 0..user.size-1
+              txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+        else
+          txt = "{results:0,rows:[]}"
+        end
+      else
+        txt = "{results:0,rows:[]}"
+      end
+      render:text=>txt
+    end
+    
 
 end

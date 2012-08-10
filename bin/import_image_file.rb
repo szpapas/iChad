@@ -131,14 +131,19 @@ if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filena
   save2timage(filename,dh,dh_prefix)
 else
   if (filename.upcase.include?'RAR') || (filename.upcase.include?'ZIP')
-    system("rm -rf ./dady/sc ")
-    system("mkdir -p ./dady/sc ")
+    file=filename.split('/')
+    filen=file[file.length-1].split('.')
+    puts filen
+    system("rm -rf ./dady/sc/#{filen[0]}")
+    puts "rm -rf ./dady/sc/#{filen[0]}"
+    #system("mkdir -p ./dady/sc")
     if (filename.upcase.include?'RAR')
       system("unrar x #{filename} ./dady/sc/  ")
     else
       system("unzip -o -d ./dady/sc/  #{filename} ")
     end
-    path1="./dady/sc/"
+    path1="./dady/sc/#{filen[0]}"
+    puts path1
     Find.find(path1) do |path|
       if FileTest.directory?(path)
         if File.basename(path)[0] == ?.

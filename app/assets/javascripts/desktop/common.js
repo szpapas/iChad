@@ -68,13 +68,7 @@ var sxzl_store = new Ext.data.SimpleStore({
 var bgqx_data = [
 	['1','永久'],
 	['2','长期'],
-	['3','短期'],
-	['4','25年'],
-	['5','15年'],
-	['6','5年'],
-	['7','定期-30年'],
-	['8','定期-10年']
-
+	['3','短期']
 ];
 
 
@@ -313,7 +307,8 @@ var swda_lb_data = [
 	['3','镜框'],
 	['4','奖旗'],
 	['5','锦旗'],
-	['6','其他']
+	['6','奖牌'],
+	['7','其他']
 ];
 var swda_lb_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
@@ -10545,14 +10540,20 @@ var set_image = function(photoURL) {
 
 
 //add by liujun showAdvancedSearch()
-  var showAdvancedSearch = function() {
+  var showAdvancedSearch = function(fields,grid,dh) {
     
     var panel = new Ext.Panel({  
       title : '高级查询',  
       width : '280px',  
       html : '<div id="div1" style="height:160px;padding:5px">原文本</div>'  
     });
-     
+
+	var select='';
+    var field=fields.split(',');
+	for (i = 0; i < field.length; i++) {
+		fiel=field[i].split(';')
+		select=select + '<option value="' + fiel[1] + '">' + fiel[0] + "</option>"
+	};
     //Ext.DomHelper.append(Ext.get("div1"),"<br>新追加了文本",true);
     var advanced_search_win = new Ext.Window({
       id : 'advanced-search-win',
@@ -10572,18 +10573,49 @@ var set_image = function(photoURL) {
         iconCls:'add',
         handler : function() {
           Ext.DomHelper.append(Ext.get("adv-search"),
-            '<div style="height:30px;padding:10px;"><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="Opel">Opel</option><option value="audi">Audi</option></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
+            '<div style="height:30px;padding:10px;"><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
         }
       },'->',{
         text : '提交',
         iconCls:'search',
-        handler : function(){
-          
+        handler : function(){	
+          	var cxtj='';
+			for (i = 0; i < Ext.get("adv-search").dom.childNodes.length; i++) {
+				if (Ext.get("adv-search").dom.childNodes[i].childNodes[2].getValue()!=''){
+					value=Ext.get("adv-search").dom.childNodes[i].childNodes[0].getValue();
+					value1=Ext.get("adv-search").dom.childNodes[i].childNodes[1].getValue();
+					value2=Ext.get("adv-search").dom.childNodes[i].childNodes[2].getValue();
+					if(cxtj!=''){
+						cxtj=cxtj+","+value+":'"+value+"$"+value1+"$"+value2+"'";
+					}else{
+						cxtj=value+":'"+value+"$"+value1+"$"+value2+"'";
+					}
+				}
+			};
+			if (cxtj!='')
+			{
+				cxtj='({' + cxtj +",dh:'"+ dh+ "'" + '})';		
+				Ext.getCmp(grid).store.proxy.url="/desktop/archive_query_sd";
+				Ext.getCmp(grid).store.proxy.extraParams=eval(cxtj);		
+				Ext.getCmp(grid).store.load();
+				Ext.getCmp('advanced-search-win').close();
+			}else
+			{
+				alert("请输入查询条件再进行提交。")
+			}
+			 
         }
+      },
+	  {
+        text : '退出',
+        iconCls:'exit',
+        handler : function() {
+        	Ext.getCmp('advanced-search-win').close();
+		}
       }],
       items:[{
          xtype: 'panel', //或者xtype: 'component',
-         html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="opel">Opel</option><option value="audi">Audi</option></select></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
+         html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
       }]
     });
     advanced_search_win.show();

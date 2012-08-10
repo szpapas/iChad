@@ -13,11 +13,7 @@ gem 'execjs'
 gem 'therubyracer', '0.9.10'
 
 #gem 'therubyracer', '~> 0.11.0beta5'
-<<<<<<< HEAD
 
-=======
-#
->>>>>>> 7f9f027ffac69c434fcc0b5db524cfa1f0b7085a
 #group :libv8 do
 #  gem 'libv8', "~> 3.11.8"
 #end
