@@ -722,7 +722,7 @@ Ext.define('MyDesktop.PrintData', {
         {name: 'dh', type: 'string'},
         {name: 'yxmc', type: 'string'},
         {name: 'yxdx', type: 'string'},
-        {name: 'yxbh', type: 'string'},
+        {name: 'yxbh', type: 'string'}
       ]
     });
     

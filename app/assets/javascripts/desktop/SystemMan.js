@@ -225,7 +225,7 @@ Ext.define('MyDesktop.SystemMan', {
                 width: 200,
                 name: 'encrypted_password',
                 id:'user_encrypted_password'
-              } ,
+              }
             ],
             buttons:[{
                 xtype: 'button',
@@ -986,7 +986,7 @@ Ext.define('MyDesktop.SystemMan', {
                           method: "POST",
                           parameters: pars,
                           onComplete:  function(request) {
-                            if (request.responseText=='success'){
+                            if (request.responseText=='success') {
                               
                               Ext.getCmp('qz_disp_win').close();
                               

@@ -120,17 +120,6 @@ Ext.define('MyDesktop.SystemStatus', {
           useArrows: true,
           singleExpand: true,
           autoScroll: true,
-          //tbar:['->',
-          //{
-          //  xtype:'button',
-          //  text:'刷新',
-          //  tooltip:'刷新目录',
-          //  iconCls:'refresh',
-          //  handler: function() {
-          //    Ext.getCmp('yx_show_tree').store.load();
-          //  }
-          //}
-          //],
           width: 200
         });
 
@@ -521,7 +510,7 @@ Ext.define('MyDesktop.SystemStatus', {
                       { text : '缩写',    align:"left",   width : 50, sortable : true, dataIndex: 'dh'},
                       { text : '目录号',   align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
                       { text : '案卷名',   align:"left", width : 250, sortable : true, dataIndex: 'wjma'},
-                      { text : '卷内名',   align:"left", width : 250, sortable : true, dataIndex: 'wjmb'},
+                      { text : '卷内名',   align:"left", width : 250, sortable : true, dataIndex: 'wjmb'}
                     ],
                     selType:'checkboxmodel',
                     multiSelect:true,
@@ -824,6 +813,7 @@ Ext.define('MyDesktop.SystemStatus', {
                             }
                          }
                        });
+                       
                      }
                   },
                   {
@@ -1349,7 +1339,7 @@ Ext.define('MyDesktop.SystemStatus', {
         { text : '旧卷', align:"right", width : 40, sortable : true, dataIndex: 'jnjn'},
         { text : '旧备', align:"right", width : 40, sortable : true, dataIndex: 'jnbk'},
         { text : '状态', align:"center", width : 40, sortable : true, dataIndex: 'zt', renderer:ztRenderer},
-        { text : '打开', align:"left", width : 200, sortable : true, dataIndex: 'yx_path', renderer:ajhRender},
+        { text : '打开', align:"left", width : 200, sortable : true, dataIndex: 'yx_path', renderer:ajhRender}
       ],
       //width :  800,
       //height : 350,

@@ -725,6 +725,5 @@ Ext.define('MyDesktop.DaPrint', {
       win.show();
       return win;
   }
-
 });
 

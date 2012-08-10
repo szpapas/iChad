@@ -4161,7 +4161,6 @@ var doc_dagl = function(title){
             handler: function() {
 				save_sql='';
 				Ext.Msg.show({
-
 		         msg: '正在处理数据, 请稍等...',
 		         progressText: 'Loading...',
 		         width:300,
@@ -4170,7 +4169,7 @@ var doc_dagl = function(title){
 				size=doc_dagl_grid.store.data.items.size();
 				if (size>0){					
 					for (i = 0; i < size; i++) {
-						data=doc_dagl_grid.store.data.items[i].data											
+						data=doc_dagl_grid.store.data.items[i].data;
 						if(doc_dagl_grid.store.data.items[i].data.rq!=null){
 							year=(doc_dagl_grid.store.data.items[i].data.rq.getYear()+1900);
 							month=doc_dagl_grid.store.data.items[i].data.rq.getMonth()+1;
@@ -10274,7 +10273,7 @@ var scale = 0.64;
 var scaleMultiplier = 0.8;
 var translatePos =  { x: 0,y: 0};
 var imageObj = new Image();
-var imagefx=1; //1代表纵向，２代表横向
+var imagefx=1; //1代表纵向，2代表横向
 var draw = function(scale, translatePos, imageObj){
 
  var canvas = document.getElementById("myCanvas");

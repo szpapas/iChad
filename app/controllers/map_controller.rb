@@ -935,7 +935,6 @@ class MapController < ApplicationController
     
     #add on July 13
     def upload_ws
-      
       params.each do |k,v|
         logger.debug("K: #{k} ,V: #{v}")
        #if k.include?("recording")
@@ -949,9 +948,38 @@ class MapController < ApplicationController
        #end
       end
       render :text => "{success:true}"
-      
-      
     end
   
-
+    def set_t_tddj
+      qrq = params['qrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[qrq]}'" 
+      zrq = params['zrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[zrq]}'" 
+      ys = '1' if params['ys'].nil?
+      js = '1' if params['js'].nil?
+      
+      insert_str = "insert into t_tddj (ajh, bgqx, cjfr, djh, dwdm, dyqrmc, dyrmc, flh, js, ys, mj, mlh, nd, qlrmc, qsxz, qzh, tdzh, tdzl, tfh, tm, txqrrmc, txqz, xmmc, ydjh, ywrmc, qrq, zrq) values ('#{parms['ajh']}', '#{parms['bgqx']}', '#{parms['cjfr']}', '#{parms['djh']}', '#{parms['dwdm']}', '#{parms['dyqrmc']}', '#{parms['dyrmc']}', '#{parms['flh']}', #{js}, #{ys}, '#{parms['mj']}', '#{parms['mlh']}', '#{parms['nd']}', '#{parms['qlrmc']}', '#{parms['qsxz']}', '#{parms['qzh']}', '#{parms['tdzh']}', '#{parms['tdzl']}', '#{parms['tfh']}', '#{parms['tm']}', '#{parms['txqrrmc']}', '#{parms['txqz']}', '#{parms['xmmc']}', '#{parms['ydjh']}', '#{parms['ywrmc']}', #{qrq}, #{zrq} ) returning id;"
+      
+      User.find_by_sql("delete from t_tddj where spbh = 'params['spbh]';" )
+      User.find_by_sql(insert_str)
+      #rendre :text => "<script>alert(\"接收已成功！\");top.close();</script>"
+      rendre :text => "success"
+    end
+    
+    def set_t_yxsj
+    	str=params["data"]
+      yxdx=str.size
+      edata=PGconn.escape_bytea(str)
+    	insert_str = "insert into t_yxsj (spbh, yxmc, yxbh, yxdx, data) values ('#{params['spbh']}', '#{params['yxmc']}', '#{params['yxbh']}', #{yxdx}, '#{edata}')"
+    	User.find_by_sql(insert_str)
+      render :text => "success"
+    end
+    
+    def get_t_yxsj_list
+      user = User.find_by_sql("select id, spbh, yxmc, yxbh, yxdx from t_yxsj")
+      render :text => user.to_json
+    end
+    
+    def get_t_yxsj_image
+      user = User.find_by_sql("select id, data from t_yxsj where id = #{params['id']};")
+      render :text => user[0]['data']
+    end
 end

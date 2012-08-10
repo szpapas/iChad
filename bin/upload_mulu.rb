@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
 
@@ -230,9 +230,11 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
 
     end
 
-    insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', TIMESTAMP '#{qrq}', TIMESTAMP '#{zrq}', '#{dalb}','0');"
+    insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', TIMESTAMP '#{qrq}', TIMESTAMP '#{zrq}', '#{dalb}','0') returning id;"
     #puts insert_str
-    $conn.exec(insert_str)
+
+    rid = $conn.exec(insert_str)
+    ownerid = rid[0]['id']
     
     case dalb
     when 0  #综合档案 
@@ -272,9 +274,9 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       sxh  =  user['序号']
       tfh  =  user['图幅号']
       tgh  =  user['图柜号']
-      insert_str =  " INSERT INTO a_tjda (sxh, tfh, tgh ) values ('#{sxh}', '#{tfh}', '#{tgh}');"
-      #puts insert_str
-      $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
+      insert_str =  " INSERT INTO a_tjml (dh, tfh, tgh, ownerid ) values ('#{dh}','#{tfh}', '#{tgh}', '#{ownerid}');"
+      puts insert_str
+      $conn.exec(" DELETE FROM a_tjml where dh='#{dh}';")
       $conn.exec(insert_str)
 
     when 19 #科技信息
@@ -402,7 +404,7 @@ if ifname.include?('aj')
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
   system ("rm -rf #{path}/#{outfile}")
   
-  if dalb != 24
+  if ![18,24].include?dalb
     #puts "delete from document where dh like '#{dh}'; "
     $conn.exec("delete from document where dh like '#{dh}'; ")
   
