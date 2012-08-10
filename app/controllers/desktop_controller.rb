@@ -3450,7 +3450,7 @@ class DesktopController < ApplicationController
   
   def import_selected_timage_aj
     if params['id'] == 'all' 
-      user = User.find_by_sql("select * from timage_tj where dh_prefix like '#{params['dh']}' and zt='空卷';")
+      user = User.find_by_sql("select * from timage_tj where dh_prefix='#{params['dh']}' and zt='空卷';")
     else
       user = User.find_by_sql("select * from timage_tj where id in (#{params['id']});")
     end
@@ -6320,25 +6320,40 @@ class DesktopController < ApplicationController
     def get_q_status_tree
       text = []
       node = params["node"]
+      
       if node == "root"
-        data = User.find_by_sql("select zt, count(*) from q_qzxx group by zt order by zt;")
+        data = User.find_by_sql("select distinct qzh from q_qzxx order by qzh;")
         data.each do |dd|
-          dd['zt'] = "未统计" if dd['zt'].nil? || dd['zt'] == ""
-          text << {:text => "#{dd['zt']} (#{dd['count']})", :id => dd["zt"], :cls => "folder"}
+          text << {:text => "全宗 #{dd['qzh']}", :id => dd["qzh"], :cls => "folder"}
         end
-      else
+      else 
         pars = node.split('|') || []
-        if pars[0] == '未统计' 
-          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='' or zt is null order by mlm;")
+        if pars.count == 1
+          
+          data = User.find_by_sql("select zt, count(*) from q_qzxx where qzh=#{pars[0]} group by zt order by zt;")
+          data.each do |dd|
+            dd['zt'] = "未统计" if dd['zt'].nil? || dd['zt'] == ""
+            text << {:text => "#{dd['zt']} (#{dd['count']})", :id => node+"|#{dd["zt"]}" , :cls => "folder"}
+          end
+          
         else
-          data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where zt='#{pars[0]}' order by mlm;")
+        
+          if pars[1] == '未统计' 
+            data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where qzh=#{pars[0]} and (zt='' or zt is null) order by mlm;")
+          else
+            data = User.find_by_sql("select dh_prefix, dalb, mlh, mlm from q_qzxx where qzh=#{pars[0]} and zt='#{pars[1]}' order by mlm;")
+          end
+
+          data.each do |dd|
+              text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
+          end
+        
+        
         end
         
-        data.each do |dd|
-            text << {:text => "目录 #{dd['mlm']}", :id => node+"|#{dd["dh_prefix"]}|#{dd["dalb"]}|#{dd['mlh']}", :leaf => true, :cls => "file"}
-        end
-      end
+      end  
       render :text => text.to_json
+      
     end
     
     
