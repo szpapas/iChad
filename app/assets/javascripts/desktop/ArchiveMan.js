@@ -340,50 +340,6 @@ Ext.define('MyDesktop.ArchiveMan', {
       });
 
       
-      //add by liujun showAdvancedSearch()
-      var showAdvancedSearch = function() {
-        
-        var panel = new Ext.Panel({  
-          title : '高级查询',  
-          width : '280px',  
-          html : '<div id="div1" style="height:160px;padding:5px">原文本</div>'  
-        });
-         
-        //Ext.DomHelper.append(Ext.get("div1"),"<br>新追加了文本",true);
-        var advanced_search_win = new Ext.Window({
-          id : 'advanced-search-win',
-          iconCls : 'picture16',
-          title: '查询条件',
-          floating: true,
-          shadow: true,
-          draggable: true,
-          closable: true,
-          modal: true,
-          width: 400,
-          height: 300,
-          layout: 'fit',
-          plain: true,
-          tbar:[{
-            text : '增加',
-            iconCls:'add',
-            handler : function() {
-              Ext.DomHelper.append(Ext.get("adv-search"),
-                '<div style="height:30px;padding:10px;"><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="Opel">Opel</option><option value="audi">Audi</option></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
-            }
-          },'->',{
-            text : '提交',
-            iconCls:'search',
-            handler : function(){
-              
-            }
-          }],
-          items:[{
-             xtype: 'panel', //或者xtype: 'component',
-             html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select><option value="案卷标题">案卷标题</option><option value="年度">年度</option><option value="opel">Opel</option><option value="audi">Audi</option></select></select><select><option value="等于">等于</option><option value="大于">大于</option><option value="小于">小于</option><option value="包含">包含</option></select><input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
-          }]
-        });
-        advanced_search_win.show();
-      };
 
 
       archive_store.load();
@@ -447,7 +403,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -839,25 +795,26 @@ Ext.define('MyDesktop.ArchiveMan', {
                         DispAj_cw(record,false,title);
                       }
                     }   , 
-                    {
-                      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
-                      handler: function() {
-                        showAdvancedSearch();
-                      }
-                    }, 
-                    {
-                      text:'查看图像',
-                      iconCls:'',
-                      handler : function() {
-                        var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
-                        if (items.length > 0) {
-                          var item = items[0];
-                          var dh = items[0].data.dh;
-                          show_image(dh);                 
-                          set_image("/assets/wuxi_pic.png");
-                        }
-                      }    
-                    },
+					{
+		              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+		              handler: function() {
+		                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
+		              }
+		            }, 
+					{
+			          text:'查看图像',
+			          iconCls:'',
+			          handler : function() {
+			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+			            if (items.length > 0) {
+			              var item = items[0];
+			              var dh = items[0].data.dh;
+			              show_image(dh);	              
+			              set_image("/assets/wuxi_pic.png");
+			            }
+			          }    
+			        },
+
                         '->',
                         {
                           xtype: 'combo',
@@ -1226,7 +1183,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           },{
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,地籍号;djh,土地座落;tdzl,权利人名称;qlrmc,土地证号;tdzh,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_tddj",title);
               }
             }, 
             {
@@ -1600,7 +1557,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("年度;docnd,保管期限;bgqx,机构问题号;jgwth,件号;jh,题名;doctm,文号;docwh,责任者;doczrz,备注;bz","archive_grid_wsda",title);
               }
             }, 
             {
@@ -1977,7 +1934,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         {
           xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
           handler: function() {
-            showAdvancedSearch();
+            showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
           }
         }, 
         {
@@ -2359,7 +2316,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -2727,7 +2684,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -3087,7 +3044,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -3449,7 +3406,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -3817,7 +3774,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -4178,7 +4135,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
             xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
             handler: function() {
-              showAdvancedSearch();
+              showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
             }
           }, 
             {
@@ -4540,7 +4497,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -4899,7 +4856,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -5245,7 +5202,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
             xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
             handler: function() {
-              showAdvancedSearch();
+              showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
             }
           }, 
             {
@@ -5600,7 +5557,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {
@@ -5955,7 +5912,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {
               xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch();
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
               }
             }, 
             {

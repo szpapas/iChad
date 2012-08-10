@@ -330,6 +330,32 @@ Ext.define('MyDesktop.Notepad', {
           get_parentNode(node.parentNode);
         }
       };
+
+      var sb_cz_win = function(record,add_new){
+        var win = Ext.getCmp('sb_cz_win');
+
+        if (win==null) {
+          win = new Ext.Window({
+            id : 'sb_cz_win',
+            title: '设备操作',
+            //closeAction: 'hide',
+            width: 370,
+            height: 240,
+
+            //minHeight: 200,
+            layout: 'fit',
+            modal: true,
+            plain: true,
+            //items:user_setup_grid,          
+            items: panel
+
+          });
+        }
+        
+
+        win.show();
+      };
+
       var sb_cz_disp = function(record,add_new){
         var win = Ext.getCmp('sb_cz_disp_win');
 
@@ -4866,6 +4892,9 @@ Ext.define('MyDesktop.Notepad', {
               if (Ext.getCmp('sb_nx_setup_win')!=undefined){Ext.getCmp('sb_nx_setup_win').close();}
               
               if (Ext.getCmp('sb_gl_tj_setup_win')!=undefined){Ext.getCmp('sb_gl_tj_setup_win').close();}
+
+			  if (Ext.getCmp('sb_cz_win')!=undefined){Ext.getCmp('sb_cz_win').close();}
+
               switch (node.data.id) { 
                 case "1": 
                   ly_setup();
@@ -4883,10 +4912,12 @@ Ext.define('MyDesktop.Notepad', {
                   sb_cz_setup();
                   break;
                 case "6": 
+				  
                   user_sb_setup();
                   break;
                 case "7": 
-                  cz_rz_setup();
+				  sb_cz_win();
+                  //cz_rz_setup();
                   break;
                 case "8": 
                   qjms_setup();
