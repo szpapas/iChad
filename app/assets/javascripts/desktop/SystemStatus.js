@@ -1302,10 +1302,11 @@ Ext.define('MyDesktop.SystemStatus', {
     
     
     treePanel.on("select",function(node){ 
-      
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
       ss=data.id.split('|');
-      if (ss.length==2){
+      if (ss.length==1) {
+        Ext.getCmp('qzh_field').setValue(ss[0]);
+      } else if (ss.length==2){
         Ext.getCmp('qzgl_tabpanel_id').setActiveTab(0);
         qzgl_store.proxy.extraParams.qzh=ss[0];
         qzgl_store.proxy.extraParams.filter=ss[1];
