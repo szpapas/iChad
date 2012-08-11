@@ -3468,7 +3468,7 @@ class DesktopController < ApplicationController
         yxgs=
         yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
         path = "#{yxmc}".gsub('$','\$')
-        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_image.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_tsimage.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
       end  
     end  
     render :text => 'Success'
