@@ -1419,7 +1419,7 @@ class DesktopController < ApplicationController
       if (dj_cx_tj!='')
         dj_cx_tj=dj_cx_tj + " and tdzl like '%#{params['tdzl']}%'"
       else
-        dj_cx_tj=" zrz like '%#{params['tdzl']}%'"
+        dj_cx_tj=" tdzl like '%#{params['tdzl']}%'"
       end
     end
     
@@ -1435,27 +1435,27 @@ class DesktopController < ApplicationController
     if (jn_cx_tj!='')
       if (cx_tj!='')
         if (dj_cx_tj!='')
-          jy_select="select * from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} and #{dj_cx_tj}"
+          jy_select="select archive.* from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} and #{dj_cx_tj}"
         else
-          jy_select="select * from document,archive WHERE document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} "
+          jy_select="select archive.* from document,archive WHERE document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} "
         end
       else
         if (dj_cx_tj!='')
-          jy_select="select * from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{jn_cx_tj} and #{dj_cx_tj}"
+          jy_select="select archive.* from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{jn_cx_tj} and #{dj_cx_tj}"
         else
-          jy_select="select * from document,archive WHERE document.ownerid = archive.id and #{jn_cx_tj}"
+          jy_select="select archive.* from document,archive WHERE document.ownerid = archive.id and #{jn_cx_tj}"
         end
       end
     else
       if (cx_tj!='')
         if (dj_cx_tj!='')
-          jy_select ="select * from archive,a_tddj where a_tddj.ownerid = archive.id AND #{cx_tj} and #{dj_cx_tj}"
+          jy_select ="select archive.* from archive,a_tddj where a_tddj.ownerid = archive.id AND #{cx_tj} and #{dj_cx_tj}"
         else
           jy_select ="select * from archive where #{cx_tj} "
         end
       else
         if (dj_cx_tj!='')
-          jy_select ="select * from archive,a_tddj where a_tddj.ownerid = archive.id and #{dj_cx_tj}"
+          jy_select ="select archive.* from archive,a_tddj where a_tddj.ownerid = archive.id and #{dj_cx_tj}"
         else
           jy_select =''
         end
@@ -2758,10 +2758,11 @@ class DesktopController < ApplicationController
             else
               strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"					    
           end
+          archive_count=User.find_by_sql("select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}  ;")
           user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh limit #{params['limit']} offset #{params['start']};")
           size = user.size;
           if size>0
-            txt = "{results:#{size},rows:["
+            txt = "{results:#{archive_count[0]['count']},rows:["
             for k in 0..user.size-1
                 txt = txt + user[k].to_json + ','
             end
@@ -5312,7 +5313,6 @@ class DesktopController < ApplicationController
   
   #控制开关
   def zn_kg_kz
-    
       rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
       sbcz= User.find_by_sql("select zn_sb_cz.* from zn_sb_cz,zn_sb where zn_sb_cz.lxid=zn_sb.sblx and zn_sb.id=#{params['sbid']} and zn_sb_cz.czsm='#{params['cz']}';")       
       size = sbcz.size   
@@ -5322,13 +5322,24 @@ class DesktopController < ApplicationController
        # end
         user=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['sbid']} ;")
         user = User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{params['sbid']}, '#{params['sbh']}', #{sbcz[0]['id']},'#{sbcz[0]['czzl']}','#{params['userid']}');")  
-        text='success:'  +params['sbid']
+        if $conn.nil?
+             $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+        end
+        for i in 0..100
+          sleep 1          
+          czzt = $conn.exec("select czzt from zn_sb where id =#{params['sbid']};")
+          if czzt[0]['czzt']!='正在操作'
+            break
+          end
+        end
+        if czzt[0]['czzt']=='成功'
+          text='success:'  +params['sbid']
+        else
+          text='false:设备操作失败。'
+        end
       else
         text='false:此设备无 ' +params['cz'] + ' 操作，请重新输入设备操作。'
-      end
-                  
-      
-    
+      end 
     render :text => text
   end
   
@@ -6375,8 +6386,13 @@ class DesktopController < ApplicationController
          #   else 
          #     nodeText = '旧卷' + dd['yxbh'][2..3]
          #   end           
-         # when 2    
-              nodeText = '影像' + dd['yxbh'][0..3]
+         # when 2
+             
+              if (dd['yxbh'].upcase.include?'JPG') || (dd['yxbh'].upcase.include?'TIF') || (dd['yxbh'].upcase.include?'TIFF') || (dd['yxbh'].upcase.include?'JPEG') 
+                nodeText = '影像' + dd['yxbh'][0..3]
+              else
+                nodeText =  dd['yxbh']
+              end
          # when 3
          #   if dd['yxbh'].include?"ML"
          #     nodeText = '备考'
@@ -7734,8 +7750,11 @@ class DesktopController < ApplicationController
       if cx[0]=='doczrz'
         cx[0]='zrz'
       end
+      if cx[0]=='nd'
+        cx[0]='archive.nd'
+      end
       if cx[0]=='docnd'
-        cx[0]='nd'
+        cx[0]='a_wsda.nd'
       end
       if cx[1]=='like'
         txt=" #{cx[0]} #{cx[1]} '%#{cx[2]}%' "
@@ -7974,6 +7993,57 @@ class DesktopController < ApplicationController
       end
       render:text=>txt
     end
-    
+   
+    def get_sb_grid
+      if (params['query'].nil?)
+        user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc,zn_sb_lx.img from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb,zn_sb_lx where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and zn_sb_lx.id=zn_sb.sblx and u_sb.userid =#{params['userid']}  order by id;")
 
+        size = user.size
+
+        if size > 0 
+         txt = "["
+         for k in 0..user.size-1
+           txt = txt + user[k].to_json + ','
+         end
+         txt = txt[0..-2] + "]"
+        else
+         txt = "[]"  
+        end
+      else
+        if (params['query']=="")
+          txt = "[]"
+        else
+          query=params['query'].split("|")
+          case query.length
+          when 1
+            user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc,zn_sb_lx.img from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb,zn_sb_lx where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and zn_sb_lx.id=zn_sb.sblx and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} order by id;")
+          when 2
+            user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc,zn_sb_lx.img from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb,zn_sb_lx where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and zn_sb_lx.id=zn_sb.sblx and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} and zn_sb.sslc=#{query[1]} order by id;")
+          when 3
+            user = User.find_by_sql("select zn_sb.*,zn_fj.fjmc,zn_ly.lymc,zn_lc.lcmc,zn_sb_lx.img from  zn_fj,zn_lc,zn_ly,u_sb,zn_sb,zn_sb_lx where  zn_sb.ssly=zn_ly.id and zn_sb.sslc=zn_lc.id and zn_sb.ssfj=zn_fj.id and zn_sb.id=u_sb.sbid and zn_sb_lx.id=zn_sb.sblx and u_sb.userid =#{params['userid']} and zn_sb.ssly=#{query[0]} and zn_sb.sslc=#{query[1]} and zn_sb.ssfj=#{query[2]} order by id;")
+          end
+          size = user.size
+
+          if size > 0 
+           txt = "["
+           for k in 0..user.size-1
+             txt = txt + user[k].to_json + ','
+           end
+           txt = txt[0..-2] + "]"
+          else
+           txt = "[]"  
+          end
+        end
+      end      
+      render :text => txt
+    end
+
+    def every_n_seconds(n) 
+         loop do 
+             before= Time.now 
+             yield 
+             interval=n-(Time.now-before) 
+             sleep(interval) if interval>0 
+         end 
+    end
 end

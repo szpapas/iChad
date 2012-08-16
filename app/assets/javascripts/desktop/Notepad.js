@@ -62,33 +62,27 @@ Ext.define('MyDesktop.Notepad', {
         var tpl = new Ext.XTemplate(
         '<tpl for=".">',
         '<div class="thumb-wrap" id="{name}">',
-        '<div class="thumb"><img src="{url}" title="{name}11"></div>',      
+        '<div class="thumb"><img src="{url}" title="{name}11"></div>',   
+		'<strong class="x-editable">{name}22</strong>',   
         '<span class="x-editable">{name}</span></div>',
         '</tpl>',
         '<div class="x-clear"></div>'
         );
 
-    var panel = new Ext.Panel({
-      id:'images-view',
-      frame:true,
-      autoWidth:true,
-      autoHeight:true,
-      collapsible:true,
-      layout:'fit',
-      title:'Simple DataView',
-      items: [
-        new Ext.DataView({
-          store: myStore,
-          singleSelect: true,
-          overItemCls: 'x-view-over',
-          tpl: tpl,
-          autoHeight:true,
-          overClass:'x-view-over',
-          itemSelector:'div.thumb-wrap',
-          emptyText: 'No images to display'          
-          })]      
-      });
-        
+    
+      
+	  //  new Ext.DataView({
+      //  store: myStore,
+      //  singleSelect: true,
+      //  overItemCls: 'x-view-over',
+      //  tpl: tpl,
+      //  autoHeight:true,
+      //  overClass:'x-view-over',
+      //  itemSelector:'div.thumb-wrap',
+      //  emptyText: 'No images to display'          
+      //  })
+
+
     var win = Ext.getCmp('user_disp_win');
     var ztRender = function(val) {
         if (val == "关") {
@@ -333,18 +327,88 @@ Ext.define('MyDesktop.Notepad', {
 
       var sb_cz_win = function(record,add_new){
         var win = Ext.getCmp('sb_cz_win');
+	      Ext.regModel('sbdisp_model', {
+	        fields: [
+	          {name: 'id',    type: 'integer'},
+	          {name: 'lxsm',    type: 'string'},
+			  {name: 'img',    type: 'string'}
+	        ]
+	      });
+	      var sbdisp_store = Ext.create('Ext.data.Store', {
+	          id:'sbdisp_store',
+			  autoLoad: true,
+	          model : 'sbdisp_model',
+	          proxy: {
+	            type: 'ajax',
+	            url : '/desktop/get_sb_grid',
+	            //extraParams: {query:title},
+	            reader: {
+	              	type: 'json',
+	                root: ''
+	            }
+	          }       
+	      });
+		var dataview = Ext.create('Ext.view.View', {
+	        deferInitialRefresh: false,
+	        store: sbdisp_store,
+	        tpl  : Ext.create('Ext.XTemplate',
+	            '<tpl for=".">',
+					'<div class="thumb-wrap" id="{name}">',
+			        	'<div class="thumb"><img src="assets/{img}" title="{lxsm}11"></div>',
+	                    //'<strong>{lxsm}</strong>',
+						'<span>{lxsm}</span>',
+	                    '<span>{lxsm}</span>',
+	                '</div>',
+	            '</tpl>'
+	        ),
 
+	        plugins : [
+	            Ext.create('Ext.ux.DataView.Animated', {
+	                duration  : 550,
+	                idProperty: 'id'
+	            })
+	        ],
+			listeners: {
+                itemclick: function(dataview, selections) {
+			        var selected = selections[0];
+
+			        if (selected) {
+			            this.down('infopanel').loadRecord(selected);
+			        }
+			    }
+            },
+	        id: 'phones',
+
+	          singleSelect: true,
+	          overItemCls: 'x-view-over',
+	          autoHeight:true,
+	          overClass:'x-view-over',
+	          itemSelector:'div.thumb-wrap',
+	          emptyText: 'No images to display'
+	    });
+		
+		var panel = new Ext.Panel({
+	      id:'images-view',
+	      frame:true,
+	      autoWidth:true,
+	      autoHeight:true,
+	      collapsible:true,
+	      layout:'fit',
+	      title:'Simple DataView',
+	      items: [dataview]      
+	      });
         if (win==null) {
           win = new Ext.Window({
             id : 'sb_cz_win',
             title: '设备操作',
             //closeAction: 'hide',
-            width: 370,
-            height: 240,
-
-            //minHeight: 200,
+            x : 300,
+            y : 50,
+            width: 670,
+            height: 500,
+            minHeight: 500,
             layout: 'fit',
-            modal: true,
+            //modal: true,
             plain: true,
             //items:user_setup_grid,          
             items: panel
@@ -1077,6 +1141,124 @@ Ext.define('MyDesktop.Notepad', {
       var sb_cz_setup = function(){
         var win = Ext.getCmp('sb_cz_setup_win');
 
+	    Ext.regModel('sbdisp_model', {
+	        fields: [
+	          {name: 'id',    type: 'integer'},
+            {name: 'sbmc',    type: 'string'},
+            {name: 'sbsm',    type: 'string'},
+            {name: 'lymc',    type: 'string'},
+            {name: 'ssly',    type: 'integer'},
+            {name: 'lcmc',    type: 'string'},
+            {name: 'sslc',    type: 'integer'},
+            {name: 'fjmc',    type: 'string'},
+            {name: 'ssfj',    type: 'integer'},
+            {name: 'kzl',   type: 'string'},
+            {name: 'gzl',   type: 'string'},
+            {name: 'sbh',   type: 'string'},
+            {name: 'kgzt',    type: 'string'},
+            {name: 'sblx',    type: 'string'},
+			  {name: 'img',    type: 'string'}
+	        ]
+	    });
+	    var sbdisp_store = Ext.create('Ext.data.Store', {
+	          id:'sbdisp_store',
+			  //autoLoad: true,
+	          model : 'sbdisp_model',
+	          proxy: {
+	            type: 'ajax',
+	            url : '/desktop/get_sb_grid',
+	            extraParams: {userid:currentUser.id},
+	            reader: {
+	              	type: 'json',
+	                root: ''
+	            }
+	          }       
+	    });
+		sbdisp_store.load();
+		var dataview = Ext.create('Ext.view.View', {
+	        //deferInitialRefresh: false,
+	        store: sbdisp_store,
+	        tpl  : Ext.create('Ext.XTemplate',
+	            '<tpl for=".">',
+					'<div class="thumb-wrap" id="{name}">',
+			        	'<div class="thumb"><img src="assets/{img}" title="{sbmc}11"></div>',
+	                    //'<strong>{lxsm}</strong>',
+						'<span>{[values.kgzt]}</span>',
+	                    '<span>{sbmc}</span>',
+	                '</div>',
+	            '</tpl>'
+	        ),
+
+	       // plugins : [
+	       //     Ext.create('Ext.ux.DataView.Animated', {
+	       //         duration  : 550,
+	       //         idProperty: 'id'
+	       //     })
+	       // ],
+			listeners: {
+                itemclick: function(dataview, selections) {
+			        var selected = selections;
+			        
+			            Ext.getCmp('zn_sb_cz_open').setVisible(false);
+						Ext.getCmp('zn_sb_cz_close').setVisible(false);
+						Ext.getCmp('zn_sb_cz_add').setVisible(false);
+						Ext.getCmp('zn_sb_cz_jw').setVisible(false);
+						Ext.getCmp('zn_sb_cz_refresh').setVisible(false);
+						Ext.getCmp('zn_sb_cz_dqzt').setVisible(false);
+						Ext.getCmp('zn_sb_cz_qczt').setVisible(false);
+						Ext.getCmp('zn_sb_cz_dqwsd').setVisible(false);
+						Ext.getCmp('zn_sb_cz_ktjz').setVisible(false);
+						switch (selected.data.sblx) { 
+			                case "1": 
+			                  Ext.getCmp('zn_sb_cz_open').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_close').setVisible(true);
+			                  break; 
+			                case "2": 
+			                  Ext.getCmp('zn_sb_cz_open').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_close').setVisible(true);
+			                  break; 
+			                case "3": 
+			                  Ext.getCmp('zn_sb_cz_open').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_close').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_add').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_jw').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_refresh').setVisible(true);
+							  Ext.getCmp('zn_sb_cz_ktjz').setVisible(true);
+			                  break; 
+			                case "4": 
+			                  Ext.getCmp('zn_sb_cz_dqwsd').setVisible(true);
+			                  break;
+			                case "5": 
+			                  
+			                  break;
+							case "6": 
+			                  Ext.getCmp('zn_sb_cz_dqzt').setVisible(true);
+			                  break;
+							case "7": 
+			                  Ext.getCmp('zn_sb_cz_dqzt').setVisible(true);
+			                  break;
+						}
+			        
+			    }
+            },
+	        id: 'zn_sb',
+			autoScroll  : true,
+	        singleSelect: true,
+	        overItemCls: 'x-view-over',
+	        autoHeight:true,
+	        overClass:'x-view-over',
+	        itemSelector:'div.thumb-wrap',
+	        emptyText: '无设备'
+	    });
+		var panel = new Ext.Panel({
+	      	id:'images-view',
+	      	frame:true,
+	      	autoWidth:true,
+	      	autoHeight:true,
+	      	//collapsible:true,
+	      	layout:'fit',
+	      	items: [dataview]      
+	   	});
         Ext.regModel('sb_cz_setup_model', {
           fields: [
             {name: 'id',    type: 'integer'},
@@ -1100,7 +1282,7 @@ Ext.define('MyDesktop.Notepad', {
         var sb_cz_setup_store = Ext.create('Ext.data.Store', {
           id:'sb_cz_setup_store',
           model : 'sb_cz_setup_model',
-          autoLoad: true,
+          //autoLoad: true,
           proxy: {
             type: 'ajax',
             url : '/desktop/get_zn_sb_grid',
@@ -1165,11 +1347,16 @@ Ext.define('MyDesktop.Notepad', {
         });
         fj_tree_panel.on("select",function(node){ 
           data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
-          Ext.getCmp('sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
-          Ext.getCmp('sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
-          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-
-          Ext.getCmp('sb_cz_setup_grid').store.load();
+         // Ext.getCmp('sb_cz_setup_grid').store.proxy.extraParams.query=  data.id;
+         // Ext.getCmp('sb_cz_setup_grid').store.proxy.extraParams.userid= currentUser.id;
+         // Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
+         //
+         // Ext.getCmp('sb_cz_setup_grid').store.load();
+			sbdisp_store.proxy.extraParams.query=  data.id;
+			sbdisp_store.proxy.extraParams.userid= currentUser.id;
+			sbdisp_store.load();
+			//sbdisp_store.load();
+			//sbdisp_store.reload(); 
         });
         loopable=false;
         i =0;
@@ -1223,20 +1410,20 @@ Ext.define('MyDesktop.Notepad', {
                 margins:'0 0 0 0',
                 layout:'fit',
                 split:true,
-                items:sb_cz_setup_grid
+                items:panel
               }
             ],
 
             tbar:[{
               xtype: 'button',
+			　　id:'zn_sb_cz_open',
               iconCls: 'dksb',
               text:'打开设备',
               handler: function() {
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
-                  var record = records[0];
-                  
+                  var record = records[0];                 
                     var pars={sbh:record.data.sbh,kzzl:record.data.kzl,cz:'开',sbid:record.data.id,userid:currentUser.id};
                     new Ajax.Request("/desktop/zn_kg_kz", { 
                       method: "POST",
@@ -1245,8 +1432,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("设备打开成功。"); 
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1256,9 +1442,7 @@ Ext.define('MyDesktop.Notepad', {
                         }
                             
                       }
-                    })
-                  
-                            
+                    })                                             
                 }else{
                   alert("请选择一个设备进行打开。");
                 }
@@ -1267,9 +1451,10 @@ Ext.define('MyDesktop.Notepad', {
             {
               xtype: 'button',
               iconCls: 'delete',
+			  id:'zn_sb_cz_close',
               text:'关闭设备',
               handler: function() {
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];                  
@@ -1281,8 +1466,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("设备关闭成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1304,9 +1488,10 @@ Ext.define('MyDesktop.Notepad', {
             {
               xtype: 'button',
               iconCls: 'add',
+			  id:'zn_sb_cz_add',
               text:'加温',
               handler: function() {
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1318,8 +1503,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("设备加温成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1341,10 +1525,11 @@ Ext.define('MyDesktop.Notepad', {
             {
               xtype: 'button',
               iconCls: 'jw',
+			  id:'zn_sb_cz_jw',
               text:'减温',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1356,9 +1541,8 @@ Ext.define('MyDesktop.Notepad', {
                       onComplete:  function(request) {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
-                          alert("设备减温成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          alert("设备减温成功。");
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1379,10 +1563,11 @@ Ext.define('MyDesktop.Notepad', {
             {
               xtype: 'button',
               iconCls: 'refresh',
+			  id:'zn_sb_cz_refresh',
               text:'模式转换',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1395,8 +1580,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("模式转换成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+						  sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1418,10 +1602,11 @@ Ext.define('MyDesktop.Notepad', {
             {
               xtype: 'button',
               iconCls: 'refresh',
+			  id:'zn_sb_cz_dqzt',
               text:'读取状态',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1434,8 +1619,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("读取状态成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1458,13 +1642,13 @@ Ext.define('MyDesktop.Notepad', {
               xtype: 'button',
               iconCls: 'refresh',
               text:'清除状态',
+			  id:'zn_sb_cz_qczt',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
-                  var record = records[0];
-                  
+                  var record = records[0];                  
                     var pars={sbh:record.data.sbh,kzzl:record.data.gzl,cz:'清除状态',sbid:record.data.id,userid:currentUser.id};
                     new Ajax.Request("/desktop/zn_kg_kz", { 
                       method: "POST",
@@ -1473,8 +1657,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("读取状态成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1484,9 +1667,7 @@ Ext.define('MyDesktop.Notepad', {
                         }
 
                       }
-                    })
-                  
-
+                    })                  
                 }else{
                   alert("请选择一个设备进行模式转换。");
                 }
@@ -1497,9 +1678,10 @@ Ext.define('MyDesktop.Notepad', {
               xtype: 'button',
               iconCls: 'refresh',
               text:'读取温湿度',
+			  id:'zn_sb_cz_dqwsd',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1512,8 +1694,7 @@ Ext.define('MyDesktop.Notepad', {
                         text=request.responseText.split(':');
                         if (text[0]=='success'){
                           alert("读取状态成功。");                                             
-                          Ext.getCmp('sb_cz_setup_grid').store.url='/desktop/get_zn_sb_grid';
-                          Ext.getCmp('sb_cz_setup_grid').store.load();
+                          sbdisp_store.load();
                         }else{
                           if (text[0]=='false'){
                             alert(text[1]);
@@ -1536,9 +1717,10 @@ Ext.define('MyDesktop.Notepad', {
               xtype: 'button',
               iconCls: 'settings',
               text:'空调校准',
+			  id:'zn_sb_cz_ktjz',
               handler: function() {
                 //this.up('window').hide();
-                var grid = Ext.getCmp('sb_cz_setup_grid');
+                var grid = Ext.getCmp('zn_sb');
                 var records = grid.getSelectionModel().getSelection();
                 if (records.length==1){
                   var record = records[0];
@@ -1548,8 +1730,6 @@ Ext.define('MyDesktop.Notepad', {
                     else{
                       alert("只有空调才需要进行校准。");
                     }
-                  
-
                 }else{
                   alert("请选择一个设备进行模式转换。");
                 }
@@ -4916,8 +5096,8 @@ Ext.define('MyDesktop.Notepad', {
                   user_sb_setup();
                   break;
                 case "7": 
-				  sb_cz_win();
-                  //cz_rz_setup();
+				  //sb_cz_win();
+                  cz_rz_setup();
                   break;
                 case "8": 
                   qjms_setup();

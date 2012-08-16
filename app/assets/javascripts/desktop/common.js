@@ -863,7 +863,7 @@ var DispAj_zh = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -1355,7 +1355,7 @@ var DispAj_cw = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -1865,7 +1865,7 @@ var DispAj_tddj = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -2431,7 +2431,7 @@ var DispAj_wsda = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -4433,7 +4433,7 @@ var DispAj_sx = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -4944,7 +4944,7 @@ var DispAj_tjml = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -5377,7 +5377,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -5988,7 +5988,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -6529,7 +6529,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -7029,7 +7029,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -7541,7 +7541,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 					}
 				},
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		          
@@ -10385,10 +10385,16 @@ var show_image = function(dh) {
         onComplete:  function(request) {
           path = request.responseText;
           if (path != '') { 
-			ifx=path.split('?');
-			imagefx=ifx[1];
-            imageObj.src = path;
-            draw(scale, translatePos,imageObj);
+			if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+				ifx=path.split('?');
+				imagefx=ifx[1];
+	            imageObj.src = path;
+	            draw(scale, translatePos,imageObj);
+			}else{				
+				location.href= path;
+				imageObj.src = '';
+	            draw(scale, translatePos,imageObj);
+			}
           }
         }
       });
@@ -10572,12 +10578,12 @@ var set_image = function(photoURL) {
         iconCls:'add',
         handler : function() {
           Ext.DomHelper.append(Ext.get("adv-search"),
-            '<div style="height:30px;padding:10px;"><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button><div>',true);
+            '<div style="height:30px;padding:10px;"><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 200px;" type="text"><div>',true);
         }
       },'->',{
         text : '提交',
         iconCls:'search',
-        handler : function(){	
+        handler : function(){
           	var cxtj='';
 			for (i = 0; i < Ext.get("adv-search").dom.childNodes.length; i++) {
 				if (Ext.get("adv-search").dom.childNodes[i].childNodes[2].getValue()!=''){
@@ -10614,7 +10620,7 @@ var set_image = function(photoURL) {
       }],
       items:[{
          xtype: 'panel', //或者xtype: 'component',
-         html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 110px;" type="text"><button type="button">删除</button></div></div>'
+         html:'<div id="adv-search" style="height:50px;padding:5px"><div style="height:30px;padding:10px;" ><select>' + select + '</select><select><option value="=">等于</option><option value=">">大于</option><option value="<">小于</option><option value="like">包含</option></select><input class="search_text"  name="query" style="margin-left: 10px;width: 200px;" type="text"></div></div>'
       }]
     });
     advanced_search_win.show();

@@ -74,6 +74,7 @@ def write_sb(li,sp,tbt)
   end
 
   puts sy  
+  
   sp.write(ss)
 end
 
@@ -84,56 +85,71 @@ end
      fhz1=""
      while true do
        ss = sprintf("%02X", sp.getc)
-       puts ss
+       puts ss       
        if ss.to_i(16)==10
-         js=0
-         fhz=ss
+         if fhz==""
+           js=0
+           fhz=ss
+          else
+            fhz=fhz + "," + ss
+            js=js+1
+          end
        else  
          if fhz==""
            fhz= ss
          else
            fhz=fhz + "," + ss
-         end
-         fhzs=fhz.split(',')
-         if fhzs.length==20
-           puts "jianting " + fhz 
-           #puts fhzs[5].to_i(16)
-          if fhzs[6].to_i(16)==255
-            list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
-            size=list.count
-            if size>0
-              kt=$conn.exec("select * from zn_sb where id=#{list[0]['sbid']};") 
-              if kt[0]['sblx']=='0000'  #空调返回值有问题，都是ff
-                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
-                zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};") 
-              else
-                puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
-                zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};")
-              end
-            end
-          else
-            list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
-            size=list.count
-            if size>0
-              
-               puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"               
-               zt=  $conn.exec("update  zn_sb_cz_list set fhz='#{fhz}', zt=1 where id=#{list[0]['id']};")                 
-            end
-          end     
-         end
+         end           
          js=js+1
        end
+       
+       fhzs=fhz.split(',')  
+       puts  fhzs.length
+       if fhzs.length==20
+         puts "jianting " + fhz 
+        if fhzs[6].to_i(16)==255
+          list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
+          size=list.count
+          if size>0
+            kt=$conn.exec("select * from zn_sb where id=#{list[0]['sbid']};") 
+            if kt[0]['sblx']=='0000'  #空调返回值有问题，都是ff
+              puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
+              zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};") 
+            else
+              puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"
+              zt=  $conn.exec("update  zn_sb_cz_list set zt=1 where id=#{list[0]['id']};")
+            end
+          end
+        else
+          list=$conn.exec("select * from zn_sb_cz_list order by id limit 1;")  
+          size=list.count
+          if size>0
+
+             puts "jianting " +"update  zn_sb_cz_list set zt=1 id=#{list[0]['id']};"               
+             zt=  $conn.exec("update  zn_sb_cz_list set fhz='#{fhz}', zt=1 where id=#{list[0]['id']};")                 
+          end
+        end     
+        fhz=""
+       end              
+
+
      end
    }
-tbt=50
+tbt=1
 every_n_seconds(1) do     
   list=$conn.exec("select zn_sb_cz_list.*,zn_sb.sblx from zn_sb_cz_list,zn_sb where zn_sb_cz_list.sbid=zn_sb.id order by id;")
   for k in 0..list.count-1
     li = list[k]
     
     tbt=tbt+1
-    if tbt>253
-      tbt=11
+    if tbt==10
+      tbt=tbt+1
+    end
+    if tbt==13
+      tbt=tbt+1
+    end
+    if tbt>127
+      tbt=1
     end
     write_sb(li,sp,tbt)
     

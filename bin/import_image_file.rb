@@ -48,6 +48,10 @@ def save2timage(filename,dh,dh_prefix)
     return 
   end
   puts filename
+  meta_tz = 0   
+  pixels = 0   
+  width =0 
+  height=0
   if (filename.include?'jpg') ||  (filename.include?'JPG')  || (filename.upcase.include?'JPEG')
     si = fo.index("\377\300")
     
@@ -127,7 +131,7 @@ end
 
 #filename.downcase 转成小写
 
-if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG')
+if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG') || (filename.upcase.include?'DOC') || (filename.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
   save2timage(filename,dh,dh_prefix)
 else
   if (filename.upcase.include?'RAR') || (filename.upcase.include?'ZIP')
@@ -154,7 +158,7 @@ else
       else
         puts filename
         puts (filename.upcase.include?'JPEG')
-        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG')
+        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
           puts path
           save2timage(path,dh,dh_prefix)
         end

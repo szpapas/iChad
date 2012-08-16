@@ -65,7 +65,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		  layout : 'absolute',
 		  items:[{
 		    xtype: 'label',
-		    text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+		    text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)',
 		    x: 10,
 		    y: 10,
 		    width: 100
@@ -74,7 +74,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		    xtype: 'fileuploadfield',
 		    id: 'filedata',
 		    x: 10,
-		    y: 30,
+		    y: 45,
 		    emptyText: '选择一个文件...',
 		    buttonText: '浏览'
 		  }],
@@ -105,9 +105,10 @@ Ext.define('MyDesktop.WenshuMan', {
 		                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
 		                    onComplete:  function(request) {
 		                      if (request.responseText=='true'){
+								msg('成功', '文件上传成功.'); 
 		                        timage_store.load();
 		                        Ext.getCmp('timage_combo').lastQuery = null;
-		                        msg('成功', '文件上传成功.');                       
+		                                              
 		                      }else{
 		                        alert("文件上传失败，请重新上传。" + request.responseText);
 		                      }
@@ -266,7 +267,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		      { text : '日期',  width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 		      { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
 		      { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'}
-		      ],
+		    ],
 		    listeners:{
 		        itemdblclick:{
 		          fn:function(v,r,i,n,e,b){
@@ -403,11 +404,11 @@ Ext.define('MyDesktop.WenshuMan', {
 				{
 		          xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
 		          handler: function() {
-		            showAdvancedSearch();
+		            showAdvancedSearch("年度;docnd,保管期限;bgqx,机构问题号;jgwth,件号;jh,题名;doctm,文号;docwh,责任者;doczrz,备注;bz","archive_grid_wsda",title);
 		          }
 		        }, 
 				{
-		          text:'查看图像',
+		          text:'查看图像或附件',
 		          iconCls:'',
 		          handler : function() {
 		            var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
@@ -689,7 +690,7 @@ Ext.define('MyDesktop.WenshuMan', {
 			      }
 			    }, 
 				{
-			      text:'查看图像',
+			      text:'查看图像或附件',
 			      iconCls:'',
 			      handler : function() {
 			        var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
@@ -924,7 +925,7 @@ Ext.define('MyDesktop.WenshuMan', {
 			      	}
 			    }, 
 				{
-			      text:'查看图像',
+			      text:'查看图像或附件',
 			      iconCls:'',
 			      handler : function() {
 			        var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
@@ -1164,7 +1165,7 @@ Ext.define('MyDesktop.WenshuMan', {
 				      }
 				    }, 
 					{
-				      text:'查看图像',
+				      text:'查看图像或附件',
 				      iconCls:'',
 				      handler : function() {
 				        var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
@@ -1381,9 +1382,14 @@ Ext.define('MyDesktop.WenshuMan', {
 	                      onComplete:  function(request) {
 	                        var path = request.responseText;
 	                        if (path != '') { 
-							 var number = Math.random(); 
-	                          Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
-	                        }
+								if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+							 		var number = Math.random(); 								
+	                          		Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
+								}else{
+							  		location.href= path;
+									Ext.getCmp('wenshu_preview_img').getEl().dom.src ='';
+	                        	}
+							}
 	                      }
 	                    });
 	                  }
@@ -1403,10 +1409,15 @@ Ext.define('MyDesktop.WenshuMan', {
 	                    parameters: pars,
 	                    onComplete:  function(request) {
 	                      var path = request.responseText;
-	                      if (path != '') { 
-	                        var number = Math.random(); 
-	                          Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
-	                      }
+	                      	if (path != '') { 
+								if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+							 		var number = Math.random(); 								
+	                          		Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
+								}else{
+							  		location.href= path;
+									Ext.getCmp('wenshu_preview_img').getEl().dom.src ='';
+	                        	}
+							}
 	                    }
 	                  });
 	                }
@@ -1425,10 +1436,15 @@ Ext.define('MyDesktop.WenshuMan', {
 	                    parameters: pars,
 	                    onComplete:  function(request) {
 	                      var path = request.responseText;
-	                      if (path != '') { 
-	                        var number = Math.random(); 
-	                          Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
-	                      }
+	                      	if (path != '') { 
+								if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+							 		var number = Math.random(); 								
+	                          		Ext.getCmp('wenshu_preview_img').getEl().dom.src = path +'?' + number;
+								}else{
+							  		location.href= path;
+									Ext.getCmp('wenshu_preview_img').getEl().dom.src ='';
+	                        	}
+							}
 	                    }
 	                  });             
 	                }

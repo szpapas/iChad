@@ -62,7 +62,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       layout : 'absolute',
       items:[{
         xtype: 'label',
-        text: '增加影像文件：(支持jpg、tif、zip、rar格式)',
+        text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)',
         x: 10,
         y: 10,
         width: 100
@@ -71,7 +71,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         xtype: 'fileuploadfield',
         id: 'filedata',
         x: 10,
-        y: 30,
+        y: 45,
         emptyText: '选择一个文件...',
         buttonText: '浏览'
       }],
@@ -407,7 +407,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -464,8 +464,8 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
           { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
           { text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-          { text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-          { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
+          //{ text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
           { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
           { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
@@ -802,7 +802,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 		              }
 		            }, 
 					{
-			          text:'查看图像',
+			          text:'查看图像或附件',
 			          iconCls:'',
 			          handler : function() {
 			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
@@ -916,6 +916,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -1187,7 +1188,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
@@ -1248,8 +1249,8 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '件数',  width : 75, sortable : true, dataIndex: 'js'},
           { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
           { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-          { text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-          { text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
           { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
           { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
           { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
@@ -1285,6 +1286,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -1561,7 +1563,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
@@ -1674,6 +1676,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -1938,7 +1941,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           }
         }, 
         {
-          text:'查看图像',
+          text:'查看图像或附件',
           iconCls:'',
           handler : function() {
             var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -2052,6 +2055,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+		Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -2320,7 +2324,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -2408,7 +2412,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      });
+      	Ext.getCmp('preview_img').getEl().dom.src="";
+	  });
       
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -2688,7 +2693,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -2781,6 +2786,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -3048,7 +3054,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -3144,6 +3150,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
 
       var tab = tabPanel.getActiveTab();
@@ -3410,7 +3417,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -3505,6 +3512,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -3778,7 +3786,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -3873,6 +3881,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -4139,7 +4148,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             }
           }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -4228,6 +4237,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -4501,7 +4511,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -4591,6 +4601,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             timage_store.load();
 
             Ext.getCmp('timage_combo').lastQuery = null;
+	      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -4860,7 +4871,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -4943,6 +4954,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -5206,7 +5218,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             }
           }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -5289,6 +5301,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
 
       var tab = tabPanel.getActiveTab();
@@ -5561,7 +5574,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -5649,6 +5662,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -5916,7 +5930,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               }
             }, 
             {
-              text:'查看图像',
+              text:'查看图像或附件',
               iconCls:'',
               handler : function() {
                 var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
@@ -5999,6 +6013,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
+      	Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -6070,6 +6085,8 @@ Ext.define('MyDesktop.ArchiveMan', {
       ss=data.id.split('_');
       if (ss.length>1){
         if (ss[1]<100){
+			Ext.getCmp('timage_combo').lastQuery = null;
+	        Ext.getCmp('preview_img').getEl().dom.src="";
             switch (ss[1]) { 
               case "0": 
                 AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
@@ -6214,7 +6231,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                             ifx=path.split('?');
                             imagefx=ifx[1];
                             var number = Math.random(); 
-                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                            if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+						 		var number = Math.random(); 								
+                          		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+							}else{
+						  		location.href= path;
+								Ext.getCmp('preview_img').getEl().dom.src ='';
+                        	}
                         }
                       }
                     });
@@ -6239,7 +6262,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                         ifx=path.split('?');
                         imagefx=ifx[1];
                         var number = Math.random(); 
-                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                        if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+					 		var number = Math.random(); 								
+                      		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+						}else{
+					  		location.href= path;
+							Ext.getCmp('preview_img').getEl().dom.src ='';
+                    	}
                       }
                     }
                   });
@@ -6263,7 +6292,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                         ifx=path.split('?');
                         imagefx=ifx[1];
                         var number = Math.random(); 
-                          Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+						if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+					 		var number = Math.random(); 								
+                      		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+						}else{
+					  		location.href= path;
+							Ext.getCmp('preview_img').getEl().dom.src ='';
+                    	}
                       }
                     }
                   });             
