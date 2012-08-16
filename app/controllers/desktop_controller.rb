@@ -3329,9 +3329,9 @@ class DesktopController < ApplicationController
   def get_qzgl_store
     where_str = "where qzh=#{params['qzh']} "
 
-    fl = params['filter']
-    fl = '' if params['filter']=='未统计'
-    where_str = where_str + " and zt= '#{fl}' " if !(fl.nil?) && fl !='全部'
+    fl = "zt = '#{params['filter']}'"
+    fl = 'zt IS NULL' if params['filter']=='未统计'
+    where_str = where_str + " and #{fl} " if !(fl.nil?) && fl !='全部'
     
     dalb = params['dalb']
     where_str = where_str + " and dalb = '#{dalb}' " if !(dalb.nil?) && dalb !=''
