@@ -116,21 +116,18 @@ def save2timage(yxbh, path, dh, yx_prefix)
         width, height = wh[0].to_i, wh[1].to_i
         pixels = width * height
       end 
-      meta = fo[fb..fe-1]
-      meta = meta.split("\377\376")[-1]
-      if meta.nil?
+      
+      metas = /(sm\w+:\s+\w+;\d*;\d*;\d*;\d*;\d*)/.match(fo)
+      
+      if metas.nil?
         $stderr.puts "Tags error: #{path}"
         meta, meta_tz = "", 0
       else
+        meta = metas[1]
         mm = meta.split("\;")
-        if mm.size > 5 && meta.size < 100
-          meta=mm[0..5].join("\;")[2..-1].gsub("\'",'')
-          meta_tz =mm[2].to_i
-        else
-          $stderr.puts "Tags error: #{path}"
-          meta, meta_tz = "", 0
-        end
-      end       
+        meta_tz =mm[2].to_i
+      end 
+            
     end
     
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
@@ -161,9 +158,10 @@ def save2timage(yxbh, path, dh, yx_prefix)
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
   yxmc="#{yx_prefix}\$#{yxbh}"
-  #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
+  #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta}   ... "
   
   tag = get_tag(yxbh)
+  #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);"
   
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);")
   
