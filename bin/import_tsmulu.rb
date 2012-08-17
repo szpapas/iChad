@@ -179,7 +179,6 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     nd      = user['年度']
     zny     = user['止年月']
     qny     = user['起年月']
-    #mlm     = user['目录号']
     js      = user['件数'].to_i
     ys      = user['页数'].to_i
     bgqx    = user['保管期限']
@@ -204,7 +203,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     js = 1 if js == 0
     
     if dalb==24
-      ajh = user['件号']
+      ajh = user['件号'].rjust(4,"0")
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
     else  
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
@@ -422,6 +421,7 @@ if ifname.include?('文档一体化')
   ss = /(\d+)(长期|永久|短期|定期-10年|定期-30年)(.*)(文档一体化.*)/.match(ifname)
   nd, bgqx, jgwth = ss[1], ss[2], ss[3]
   mlh = get_ws_mlh(qzh, nd, bgqx, jgwth)
+  
 else
   #mlh = /(\d+)(.*)/.match(ifname)[1]   ss[1], ss[2] = C-1 土地登记
   if !/(\w+-\d+)(.*)aj/.match(ifname).nil?

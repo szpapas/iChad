@@ -205,63 +205,50 @@ Find.find(path) do |path|
     #/Volumes/新加卷/C-82/C-82$C$0017/C-82$C$0017$MLBK.jpg
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       #./ws2010/长期$2010$0003$001/0002.jpg
+
+      if ! /(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
+        pp = path.split("\/")
+        ss = pp[pp.size-1].split("$")
+
+        mlm,flh,ajh,sxh = ss[0], ss[1],ss[2],ss[3].gsub("ML","JN")
+        mlh = get_qzml(qzh, dalb, mlm) 
       
-   #   if !/(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path).nil?
-   #     ss = /(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path)
-   #     #1.	./ws2010
-   #     #2.	长期
-   #     #3.	2010
-   #     #4.	0003
-   #     #5.	001
-   #     #6.	0002.jpg
-   #
-   #     qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
-   #     mlh = 8000+(ss[3].to_i-2000)*50 + ss[5].to_i*5 + qq.index(ss[2])
-   #     dh  = "#{qzh}-#{dalb}-#{mlh}-#{ss[4].to_i}-#{ss[5].to_i}"
-   #
-   #     if dh != $dh
-   #       $dh = dh
-   #       $stderr.puts "processing #{dh}... "
-   #     end
-   #     yxqz = "#{ss[3]}\$#{ss[4]}\$#{ss[5]}" 
-   #     sxh = ss[6]
-   #     
-   #     save2timage(sxh, path, $dh, yxqz)
-   #     next
-   #   end
-      
-      if /(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
+        #C-82$C$0017$MLBK.jpg
+        sp = pp[pp.size-2].split("$")
+        if (ss[2] != sp[2]) 
+          $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+          ajh = sp[2]
+          dh = "#{dh_prefix}-#{ajh.to_i}"
+          if dh != $dh
+            $dh = dh
+            $stderr.puts "processing #{dh}... "
+          end
+          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+          save2timage(sxh, path, $dh, yxqz)
+        else
+          dh = "#{dh_prefix}-#{ajh.to_i}"
+          if dh != $dh
+            $dh = dh
+            $stderr.puts "processing #{dh}... "
+          end
+          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+          save2timage(sxh, path, $dh, yxqz)
+        end  
+      elsif !/(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path).nil?
+        mm = /(\d+).(jpg|tif)$/i.match(path)
+        sxh = "#{mm[1]}.#{mm[2]}"
+        
+        ss = /(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path)
+        nd, bgqx, jgwth = ss[2], ss[1], ss[4]
+  
+        $dh = "#{dh_prefix}-#{ajh.to_i}"
+        yxqz = "#{bgqx}\$#{nd}\$#{ajh.rjust(4, '0')}\$#{jgwth}"  
+        
+        save2timage(sxh, path, $dh, yxqz)
+      else  
         $stderr.puts(" *** Import Image: #{path} Format error.")
-        next
       end
-
-      pp = path.split("\/")
-      ss = pp[pp.size-1].split("$")
-
-      mlm, flh,ajh,sxh = ss[0], ss[1],ss[2],ss[3].gsub("ML","JN")
-      mlh = get_qzml(qzh, dalb, mlm) 
-      
-      #C-82$C$0017$MLBK.jpg
-      sp = pp[pp.size-2].split("$")
-      if (ss[2] != sp[2]) 
-        $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
-        ajh = sp[2]
-        dh = "#{dh_prefix}-#{ajh.to_i}"
-        if dh != $dh
-          $dh = dh
-          $stderr.puts "processing #{dh}... "
-        end
-        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-        save2timage(sxh, path, $dh, yxqz)
-      else
-        dh = "#{dh_prefix}-#{ajh.to_i}"
-        if dh != $dh
-          $dh = dh
-          $stderr.puts "processing #{dh}... "
-        end
-        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-        save2timage(sxh, path, $dh, yxqz)
-      end  
+        
     end
   end
 end
