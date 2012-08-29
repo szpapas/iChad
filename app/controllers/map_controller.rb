@@ -45,27 +45,46 @@ class MapController < ApplicationController
   
   #通过ID获取影像文件
   def get_timage
-    user= User.find_by_sql("select * from timage  where where id=#{param['id']};") 
-    size = user.size;
-    if size.to_i > 0
-      dh = user[0]['dh']
-      if !File.exists?("./dady/img_tmp/#{dh}/")
-        system"mkdir -p ./dady/img_tmp/#{dh}/"
-      end
-      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{gid}';")
-        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
-      end
-      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
+    if (params['gid'].nil?)
+      txt = ""
     else
-      txt=""
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
+
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
+      end
+      
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{params['gid']};")
+        
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(user[0]["data"])
+        ff.close
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end 
+        system("rm ./tmp/#{tmpfile}")
+      end
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
+      
+      if width.to_i > height.to_i
+        txt = "/assets/#{convert_filename}?1".gsub('/assets/./dady/img_tmp/', '/timage/')
+      else
+        txt = "/assets/#{convert_filename}?2".gsub('/assets/./dady/img_tmp/', '/timage/')
+      end
     end
     render :text => txt
   end
+  
 
   def get_jyList
     #intjhd 1代表还回借档列表，2代表还回还档案列表。intzt 1代表显示，2代表结束显示
@@ -324,7 +343,7 @@ class MapController < ApplicationController
 
   #通过ID获取影像文件
   def wsImage(gid)
-    user= User.find_by_sql("select * from timage  where where id=#{gid};") 
+    user= User.find_by_sql("select * from timage  where id=#{gid};") 
     size = user.size;
     if size.to_i > 0
       dh = user[0]['dh']
@@ -859,7 +878,7 @@ class MapController < ApplicationController
 
     #txt = "/assets/#{local_filename}".gsub('/./','/')
 
-    txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/tiamge/')
+    txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
   end
   
   def check_result
@@ -982,4 +1001,13 @@ class MapController < ApplicationController
       user = User.find_by_sql("select id, data from t_yxsj where id = #{params['id']};")
       render :text => user[0]['data']
     end
+    
+    def get_mc_imageList
+      user = User.find_by_sql("select yxmc from mc_image order by created_at desc limit 5;")
+      jpg = []
+      for k in 0..user.size-1
+        jpg  << user[k]['yxmc']
+      end  
+      render :text => jpg.join(" ")
+    end  
 end

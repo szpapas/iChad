@@ -41,6 +41,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.2.0)
+    color (1.4.1)
     daemons (1.1.8)
     devise (1.5.3)
       bcrypt-ruby (~> 3.0)
@@ -50,6 +51,7 @@ GEM
     erubis (2.7.0)
     execjs (1.2.13)
       multi_json (~> 1.0)
+    fastimage (1.2.13)
     fastthread (1.0.7)
     gem_plugin (0.2.3)
     hike (1.2.1)
@@ -71,6 +73,9 @@ GEM
       gem_plugin (>= 0.2.3)
     multi_json (1.0.4)
     orm_adapter (0.0.6)
+    pdf-writer (1.1.8)
+      color (>= 1.4.0)
+      transaction-simple (~> 1.3)
     pg (0.12.2)
     polyglot (0.3.3)
     rack (1.3.6)
@@ -129,6 +134,7 @@ GEM
       ref
     thor (0.14.6)
     tilt (1.3.3)
+    transaction-simple (1.4.0.2)
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
@@ -146,10 +152,12 @@ DEPENDENCIES
   coffee-rails (~> 3.1.1)
   devise
   execjs
+  fastimage
   jquery-rails
   json (= 1.6.4)
   libv8 (~> 3.11.8)
   mongrel
+  pdf-writer
   pg
   rails (= 3.1.3)
   rspec-rails (>= 2.8.0)

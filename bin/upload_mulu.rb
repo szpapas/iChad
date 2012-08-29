@@ -104,6 +104,9 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     bz      = user['备注']
     
     dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    
+    rq = user['拍摄日期'] if rq.nil?
+    sxh = user['照片号'] if sxh.nil?
       
     if rq.length==0
       rq = 'null' 
@@ -254,8 +257,9 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       tdzl  = user['土地座落'].gsub("\\","~")
       qsxz  = user['权属性质']
       ydjh  = user['原地籍号']
+      tdzh  = user['土地证号']
 
-      insert_str = " INSERT INTO a_tddj(dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES ('#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
+      insert_str = " INSERT INTO a_tddj(dh,djh,qlrmc,tdzl,qsxz,ydjh,tdzh)  VALUES ('#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}','#{tdzh}');"
       #puts insert_str
       $conn.exec(" DELETE FROM a_tddj where dh='#{dh}';")
       $conn.exec(insert_str)

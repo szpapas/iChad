@@ -10,14 +10,16 @@ gem 'rails', '3.1.3'
 gem 'pg'
 gem 'execjs'
 
-gem 'therubyracer', '0.9.10'
+gem 'fastimage'
+gem 'pdf-writer'
 
-#gem 'therubyracer', '~> 0.11.0beta5'
+#gem 'therubyracer', '0.9.10'
 
-#group :libv8 do
-#  gem 'libv8', "~> 3.11.8"
-#end
+gem 'therubyracer', '~> 0.11.0beta5'
 
+group :libv8 do
+  gem 'libv8', "~> 3.11.8"
+end
 
 gem 'mongrel'
 

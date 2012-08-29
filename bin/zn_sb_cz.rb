@@ -1,12 +1,13 @@
 #!/usr/bin/ruby
 #$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/ruby-serialport-0.7.0/lib'
 
-$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
-$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/'
+#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/' << '/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 require 'serialport'
 require 'pg'
 require 'find'
-sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
+#sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
+sp = SerialPort.new "/dev/tty.PL2303-00002006", 9600
 
 # ********************************************************************************************
 #

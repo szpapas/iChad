@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
 require 'find'
@@ -27,13 +26,13 @@ t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
 
-if !ajh.nil?
-  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
-else 
-  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
-end
+#if !ajh.nil?
+#  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
+#  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
+#else 
+#  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+#  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+#end
 
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
@@ -162,7 +161,7 @@ def save2timage(yxbh, path, dh, yx_prefix)
   
   tag = get_tag(yxbh)
   #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);"
-  
+  $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);")
   
   system("rm #{infile} #{outfile}")
@@ -239,7 +238,7 @@ Find.find(path) do |path|
         sxh = "#{mm[1]}.#{mm[2]}"
         
         ss = /(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path)
-        nd, bgqx, jgwth = ss[2], ss[1], ss[4]
+        nd, bgqx, ajh, jgwth = ss[2], ss[1], ss[3], ss[4]
   
         $dh = "#{dh_prefix}-#{ajh.to_i}"
         yxqz = "#{bgqx}\$#{nd}\$#{ajh.rjust(4, '0')}\$#{jgwth}"  

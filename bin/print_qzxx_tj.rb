@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
@@ -21,9 +21,9 @@ def print_qzxx(dh_prefix)
   
   ajs = dd['zajh'].to_i - dd['qajh'].to_i + 1
   a3, a4, dt =  dd['a3'].to_i, dd['a4'].to_i, dd['dt'].to_i
+  zys = a3 * 2 + a4
   
-  
-  convert_str =  "convert ./dady/timage_t2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 600, 620 '#{dd['mlh']}' \" -draw \"text 810, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 290, 685 '#{ajs}' \"   -draw \"text 500, 750 '#{a3+a4}' \"  -draw \"text 830, 750 '#{a3}' \" -draw \"text 290, 810 '#{a4}' \"   -draw \"text 730, 810 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
+  convert_str =  "convert ./dady/timage_t2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 600, 620 '#{dd['mlh']}' \" -draw \"text 810, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 290, 685 '#{ajs}' \"  -draw \"text 690, 685 '#{dd['zt']}' \"  -draw \"text 500, 750 '#{a3+a4}' \"  -draw \"text 830, 750 '#{a3}' \" -draw \"text 290, 810 '#{a4}' \"   -draw \"text 730, 810 '#{zys}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
   system convert_str
   
   convert_str =  "convert ./dady/timage_t3.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 610, 560 '#{dd['mlh']}' \" -draw \"text 810, 560 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 300, 620 '#{ajs}' \" /share/tjsj/tj_#{dh_prefix}_02.jpg  "

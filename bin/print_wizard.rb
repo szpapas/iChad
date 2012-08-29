@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
@@ -80,7 +80,8 @@ end
  
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 def save2timage(yxbh, path, dh, yx_prefix)
-  outfile = rand(36**6).to_s(36)
+  #puts path
+  outfile = 'dady/'+rand(36**6).to_s(36)
   system("encrypt #{path} #{outfile}")
   fo = File.open(outfile).read
   yxdx=fo.size
@@ -162,7 +163,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
       
       system convert_str
-      save2timage("ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg", dh, yxqz)
       #puts ("1 ====generate ML ===")
       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
   
@@ -190,7 +191,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       dd1, dd2 = data['qny'], data['zny']    
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 96 #{tt_str}  -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
       system convert_str
-      save2timage("ML00.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg", dh, yxqz)
       #puts ("1. ====generate ML ===")
       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
     end
@@ -208,7 +209,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
     #puts ("2 ====generate BK ===")
     #puts convert_str
     system convert_str
-    save2timage("MLBK.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$MLBK.jpg", dh, yxqz)
+    save2timage("MLBK.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg", dh, yxqz)
     system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg")
   end
   
@@ -221,7 +222,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
       #puts (convert_str)
       #puts ("3 ====generate SM ===")
       system convert_str
-      save2timage("#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$#{page}.jpg", dh, yxqz)
+      save2timage("#{page}.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg", dh, yxqz)
       system ("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg")
     end
   end
@@ -290,8 +291,8 @@ def generate_single_archive(archive_id, print_option=0b1101)
        #puts (convert_str)
        #puts ("4 ====generate JN ===")
        system convert_str
-       save2timage("ML#{page}.jpg", "./dady/#{mlh}\$#{flh}\$#{ajh}\$ML#{page}.jpg", dh, yxqz)
-       system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg")
+       save2timage("ML#{page}.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg", dh, yxqz)
+       #system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg")
      
       else   
         $out_str = $out_str + "  -draw \"text 240, #{$pos_y} '#{docs[k]['sxh']}'\"  #{wh_str} #{tt_str} #{zrz_str} -draw  \"text 1710, #{$pos_y} '#{rq_str}'\"  -draw  \"text 2000, #{$pos_y} '#{docs[k]['yh']}'\"" 
