@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
 require 'socket'
 
-client = TCPSocket.open "192.168.114.46", 50000
+#client = TCPSocket.open "192.168.114.46", 50000
+client = TCPSocket.open "192.114.2.18", 50000
 
 recv_length = 1024
 
@@ -45,12 +46,10 @@ Thread.new {
 while (l = gets) do
   l = l.chomp
   if l == "exit"
-    srv.close
+    client.close
     exit
   elsif l == "open"
-    #ss=set_k("EA 87 91 01 00")
-    #ss=set_k("F2 55 22 01 00")
-    ss=set_k("F7 80 40 00 00")
+    ss=set_k("F7 8D A1 00 00")  #8D --  ZigBee ID, A1 -- WSD ID
     puts("#{Time.now.to_f}:#{hex_str(ss)}")
     client.send ss, 0
     

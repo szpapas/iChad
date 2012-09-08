@@ -264,7 +264,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     
     #puts insert_str
     rid = $conn.exec(insert_str)
-    dh_id = rid[0]['id']
+    ownerid = rid[0]['id']
     
     case dalb
     when 0  #综合档案 
@@ -311,10 +311,35 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
 
     when 19 #科技信息
     when 20 #照片档案
+      rq  =  user['拍摄日期']
+      zph   =  user['照片号']
+      psz   =  user['拍摄者']
+      cfwz  =  user['存放位置']
+      sy    =  user['事由']
+      dd    =  user['地点']
+      rw    =  user['人物']
+      bj    =  user['背景']
+      
+      
+      if rq.length==0
+        psrq = 'null' 
+      elsif rq.length==4
+        psrq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        psrq = "TIMESTAMP '#{rq}01'"
+      else    
+        psrq = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str =  " INSERT INTO a_zp (dh, ownerid, psrq, zph,  psz, cfwz, sy, dd, rw, bj) values ('#{dh}', '#{ownerid}',  #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}');"
+      
+      puts insert_str
+      $conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
+      $conn.exec(insert_str)
     when 21 #地址矿产
     when 24 #文书档案
 
-      jh    = user['件号']
+      jh    = user['件号'].rjust(4,"0")
       rq    = user['制文日期'] 
       wh    = user['文号']
       zrr   = user['责任者'] 
