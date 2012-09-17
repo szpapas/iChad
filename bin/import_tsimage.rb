@@ -25,6 +25,14 @@ puts "===ajh  of  #{ajh}  ==="
 t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
+if !ajh.nil?
+  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
+else 
+  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+end
+
 def getimgsize(fname)
   outfile = rand(36**6).to_s(36)
   rt=system "gdalinfo '#{fname}' | grep 'Lower Right' > #{outfile}"
@@ -175,10 +183,10 @@ Find.find(path) do |path|
         $dh = "#{dh_prefix}-#{ajh.to_i}"
         yxqz = "#{bgqx}\$#{nd}\$#{ajh.rjust(4, '0')}\$#{jgwth}"  
         
-        puts "save2timage (#{sxh}, #{path}, #{$dh}, #{yxqz})" 
+        #puts "save2timage (#{sxh}, #{path}, #{$dh}, #{yxqz})" 
         save2timage(sxh, path, $dh, yxqz)
 
-      elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
+      elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(.*)\.(\w+)/.match(path).nil?
         pp = path.split("\/")
         ss = pp[pp.size-1].split("$")
 
@@ -205,8 +213,22 @@ Find.find(path) do |path|
           end
           yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
           save2timage(sxh, path, $dh, yxqz)
-        end   
-      else  
+        end
+      elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path).nil?  #for format like  /mnt/lvm1/jm2012/89/89$C$0355/00000001.TIF
+        
+        ss = /(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path)
+        mlm,flh,ajh,sxh = ss[1], ss[2],ss[3],ss[4][4..-1]
+        mlh = get_qzml(qzh, dalb, mlm) 
+        
+        dh = "#{dh_prefix}-#{ajh.to_i}"
+        if dh != $dh
+          $dh = dh
+          $stderr.puts "processing #{dh}... "
+        end
+        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+        save2timage(sxh, path, $dh, yxqz)
+        
+      else
         $stderr.puts(" *** Import Image: #{path} Format error.")
       end
         

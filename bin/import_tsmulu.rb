@@ -4,6 +4,7 @@ $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems
 
 require 'pg'
 require 'active_support'
+require 'date'
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = on")
@@ -116,7 +117,7 @@ def update_owner
   $conn.exec("update a_tddj set ownerid=archive.id from archive where archive.dh=a_tddj.dh and a_tddj.ownerid is null;")
   $conn.exec("update a_tjda set ownerid=archive.id from archive where archive.dh=a_tjda.dh and a_tjda.ownerid is null;")
   $conn.exec("update a_wsda set ownerid=archive.id from archive where archive.dh=a_wsda.dh and a_wsda.ownerid is null;")
-  $conn.exec("update a_kyq  set ownerid=archive.id from archive where archive.dh=a_kyq.dh and a_kyq.ownerid is null;")
+  $conn.exec("update a_kyq  set ownerid=archive.id from archive where archive.dh=a_kyq.dh  and a_kyq.ownerid is null;")
   $conn.exec("update document set ownerid=archive.id from archive where document.dh=archive.dh and document.ownerid is null;")
   #puts "== $$$ #{Time.now.strftime("%Y-%m-%d %H:%M:%S")} end of update owener "
 end 
@@ -142,6 +143,11 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     elsif rq.length==6
       rq = "TIMESTAMP '#{rq}01'"
     else    
+      begin
+         Date.parse(rq)
+      rescue
+         rq = rq[0..5]+'01'
+      end
       rq = "TIMESTAMP '#{rq}'"
     end
 
@@ -195,9 +201,24 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     tm  = user['案卷题名'] if tm.nil?
     tm  = user['题名'] if tm.nil?
     tm  = user['图名'] if tm.nil?
+    tm  = user['项目名称'] if tm.nil?
+    tm  = user['资产名称'] if tm.nil?
+    tm  = user['名称'] if tm.nil?
+    
     ajh = user['件号'] if ajh.nil?
     ajh = user['序号'] if ajh.nil?
+    ajh = user['顺序号'] if ajh.nil?
+    
+    
     ajh = ajh.rjust(4,"0")
+    
+    #电子
+    nd = user['形成日期'] if nd.nil?
+    nd = user['建设年代'] if nd.nil?
+    nd = user['购置时间'] if nd.nil?
+    nd = user['授奖时间'] if nd.nil?
+    
+    nd = nd[0..3] if nd.length > 4
     
     js = 1 if js == 0
     
@@ -248,6 +269,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       end
     else
       if qrq.size == 6 
+
         qyy,qmm,qdd = qrq[0..3], qrq[4..5],qrq[6..7]
         zyy,zmm,zdd = zrq[0..3], zrq[4..5],zrq[6..7]
 
@@ -327,7 +349,12 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
         psrq = "TIMESTAMP '#{rq}0101'"
       elsif rq.length==6
         psrq = "TIMESTAMP '#{rq}01'"
-      else    
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
         psrq = "TIMESTAMP '#{rq}'"
       end
       
@@ -365,7 +392,12 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
         zwrq = "TIMESTAMP '#{rq}0101'"
       elsif rq.length==6
         zwrq = "TIMESTAMP '#{rq}01'"
-      else    
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
         zwrq = "TIMESTAMP '#{rq}'"
       end
       
@@ -373,7 +405,123 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       #puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
       $conn.exec(insert_str)
+    
+    when 25 #电子档案
+
+      tjr         = user['提交人']
+      rjhj        = user['软件环境']
+      czxt        = user['操作系统']
+      sl          = user['数量']
+      bfs         = user['备份数']
+      ztbhdwjgs   = user['载体包含的文件格式']
+      yyrjpt      = user['应用软件平台']
+      tjdw        = user['提交单位']
+      wjzt        = user['文件载体']
+      dzwjm       = user['电子文件名']
+      ztbh        = user['载体编号']
+      xcbm        = user['形成部门']
+      rq          = user['形成日期']
+      jsr         = user['接收人']
+      jsdw        = user['接收单位'] 
+      yjhj        = user['硬件环境']
       
+      if rq.length==0
+        xcrq = 'null' 
+      elsif rq.length==4
+        xcrq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        xcrq = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        xcrq = "TIMESTAMP '#{rq}'"
+      end
+      insert_str =  "INSERT INTO a_dzda (dh, ownerid, tjr,rjhj,czxt,sl,bfs,ztbhdwjgs,yyrjpt,tjdw,wjzt,dzwjm,ztbh,xcbm,xcrq,jsr,jsdw,yjhj) values ('#{dh}', '#{ownerid}', '#{tjr}', '#{rjhj}', '#{czxt}', '#{sl}', '#{bfs}', '#{ztbhdwjgs}', '#{yyrjpt}', '#{tjdw}', '#{wjzt}', '#{dzwjm}', '#{ztbh}', '#{xcbm}', #{xcrq}, '#{jsr}', '#{jsdw}', '#{yjhj}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_dzda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 26 #基建档案
+      
+      jsnd = user['建设年代']
+      xmmc = user['项目名称']
+      jsdw = user['建设单位']
+      
+      insert_str =  "INSERT INTO a_jjda (dh, ownerid, jsnd, xmmc, jsdw) values ('#{dh}', '#{ownerid}', '#{jsnd}', '#{xmmc}', '#{jsdw}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_jjda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 27 #设备档案
+      zcmc   = user['资产名称']
+      rq     = user['购置时间']
+      dw     = user['单位']
+      sl     = user['数量'].to_i
+      cfdd   = user['存放地点']
+      sybgdw = user['使用保管单位']
+      sybgr  = user['使用保管人']
+      jh     = user['件号']
+      zcbh   = user['资产编号']
+      dj     = user['单价']
+      je     = user['金额']
+      
+      if rq.length==0
+        gzsj = 'null' 
+      elsif rq.length==4
+        gzsj = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        gzsj = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        gzsj = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str = "INSERT INTO a_sbda (dh,ownerid,zcmc,gzsj,dw,sl,cfdd,sybgdw,sybgr,jh,zcbh,dj,je) values ('#{dh}','#{ownerid}','#{zcmc}',#{gzsj},'#{dw}','#{sl}','#{cfdd}','#{sybgdw}','#{sybgr}','#{jh}','#{zcbh}','#{dj}','#{je}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_sbda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 28 #实物档案
+      jh   = user['件号']
+      bh   = user['编号']
+      lb   = user['类别']
+      hjz  = user['获奖者']
+      rq   = user['授奖时间']
+      sjdw = user['授奖单位']
+      mc   = user['名称']
+      ztxs = user['载体形式']
+      
+      if rq.length==0
+        sjsj = 'null' 
+      elsif rq.length==4
+        sjsj = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        sjsj = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        sjsj = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str = "INSERT INTO a_swda (dh,ownerid, jh,bh,lb,hjz,sjsj,sjdw,mc,ztxs) values ('#{dh}','#{ownerid}', '#{jh}','#{bh}','#{lb}','#{hjz}',#{sjsj},'#{sjdw}','#{mc}','#{ztxs}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_swda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+             
     when 35 #矿业权
       
        xxkz  = user['现许可证号']

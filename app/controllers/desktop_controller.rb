@@ -3461,12 +3461,9 @@ class DesktopController < ApplicationController
       qzh, dalb, mlh, ajh, dh_prefix = ss[0], ss[1], ss[2], ss[3], dd.dh_prefix
       
       qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
-      yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
+      #yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
       yxgs = lookup(qzxx.yxwz)
       if yxgs.length > 0
-        #yy=yxgs.split('$') 
-        #yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
-        yxgs=
         yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
         path = "#{yxmc}".gsub('$','\$')
         User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_tsimage.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
@@ -4877,10 +4874,11 @@ class DesktopController < ApplicationController
     if !File.exists?(gxwz)
       system"mkdir -p #{gxwz}"
     end
-    system "df | grep #{gxwz} |wc|  awk '{print $1}' > gggg"
-    system "umount #{gxwz}" if File.open('gggg').read.chomp.to_i > 0
-    system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
-    system "rm gggg"
+    
+    #system "df | grep #{gxwz} |wc|  awk '{print $1}' > gggg"
+    #system "umount #{gxwz}" if File.open('gggg').read.chomp.to_i > 0
+    #system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
+    #system "rm gggg"
     
     system "ls #{gxwz} > gxwz"
     File.open('gxwz').each_line do |line|
