@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
@@ -18,16 +18,12 @@ $conn.exec("set standard_conforming_strings = off")
 #*********************************************************************************************
 
 #Print Helper funtion
-def bk_name(dalb)
-  if dalb.to_i == 0 
-    ['','']
-  elsif dalb.to_i == 10
-    ['','']
-  else
-    ['','']
-  end       
-end
-
+def bk_name(dh)
+  user = $conn.exec("select lijr, jmcr from q_qzxx where dh_prefix = '#{dh}';")
+  ljr = user[0]['lijr'].nil?  ? "" : user[0]['lijr']
+  jcr = user[0]['jmcr'].nil?  ? "" : user[0]['jmcr']
+  [ljr, jcr]
+end  
 
 # ********************************************************************************************
 #
@@ -89,16 +85,14 @@ def save2timage(yxbh, path, dh, yx_prefix)
 
   yxmc="#{yx_prefix}\$#{yxbh}"
   
-  tag = 2
-  
   if yxbh.include?('ML00')
     tag = 0
-  elsif yxbh.include?('ML')
-    tag = 1
   elsif yxbh.include?('MLBK')
     tag = 3
+  elsif yxbh.include?('ML')
+    tag = 1
   else
-    
+    tag = 2
   end       
   
   $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
@@ -123,7 +117,7 @@ end
 def generate_single_archive(archive_id, print_option=0b1101)
   user = $conn.exec("select * from archive where id=#{archive_id};")
   data = user[0]
-  mlh,flh,ajh,js,ys,dh= data['mlh'], data['flh'][0..0], data['ajh'], data['js'], data['ys'].to_i,data['dh']
+  mlh,mlm,flh,ajh,js,ys,dh= data['mlh'], data['mlm'], data['flh'][0..0], data['ajh'], data['js'], data['ys'].to_i,data['dh']
   yxqz = "#{mlh}\$#{flh}\$#{ajh}"
 
   #如果已经打印过就不需要打印了，除非标记重新打印。 0b1001
@@ -160,12 +154,14 @@ def generate_single_archive(archive_id, print_option=0b1101)
       tt_str =  "-draw  \"text 1000, 1450 '#{tddj[0]['djh']}'\"  -draw \"text 1000, 1700 '#{tddj[0]['qlrmc']}'\"  #{tt_str} "
     
       dd1, dd2 = data['qny'], data['zny']    
-      convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
+      convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg" 
+      
+      #puts convert_str
       
       system convert_str
-      save2timage("ML00.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg", dh, yxqz)
       #puts ("1 ====generate ML ===")
-      system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
+      system("rm ./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg")
   
     else 
       fl_str = flstr(data['dalb'].to_i)
@@ -189,28 +185,30 @@ def generate_single_archive(archive_id, print_option=0b1101)
       end
 
       dd1, dd2 = data['qny'], data['zny']    
-      convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 96 #{tt_str}  -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg" 
+      convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 96 #{tt_str}  -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg" 
+      
+      #puts convert_str
+      
       system convert_str
-      save2timage("ML00.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg", dh, yxqz)
+      save2timage("ML00.jpg", "./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg", dh, yxqz)
       #puts ("1. ====generate ML ===")
-      system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML00.jpg")
+      system("rm ./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg")
     end
   end
 
   # generate bk
   if (print_option & 0b0001) > 0 && (dyzt & 0b0001) == 0
     
-    ss = bk_name(data['dalb'])
+    ss = bk_name(ARGV[0])
 
     image_t = "image_3"
     year, month = data['qny'][0..3].succ, data['qny'][4..5]
-    convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1770 '#{ss[0]}'\" -draw \"text 1200, 1850 '#{ss[1]}'\"  -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg " 
+    convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/TextMate.ttf -pointsize 46 -draw \"text 1200, 1770 '#{ss[0]}'\" -draw \"text 1200, 1850 '#{ss[1]}'\"  -draw \"text 1200, 1940 '#{year}年#{month}月'\" ./dady/#{mlh}_#{flh}_#{ajh}_MLBK.jpg " 
     
-    #puts ("2 ====generate BK ===")
     #puts convert_str
     system convert_str
-    save2timage("MLBK.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg", dh, yxqz)
-    system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$MLBK.jpg")
+    save2timage("MLBK.jpg", "./dady/#{mlh}_#{flh}_#{ajh}_MLBK.jpg", dh, yxqz)
+    system("rm ./dady/#{mlh}_#{flh}_#{ajh}_MLBK.jpg")
   end
   
   #generate sm
@@ -218,12 +216,13 @@ def generate_single_archive(archive_id, print_option=0b1101)
     image_t = "image_b"
     for k in 0..ys-1
       page = (k+1).to_s.rjust(4,"0")
-      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 150  -draw \"text 600, 600 '#{data['dh']}:#{page}' \" ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg " 
-      #puts (convert_str)
-      #puts ("3 ====generate SM ===")
+      convert_str = "convert ./dady/#{image_t}.jpg -font ./dady/SimHei.ttf -pointsize 150  -draw \"text 600, 600 '#{data['dh']}:#{page}' \" ./dady/#{mlh}_#{flh}_#{ajh}_#{page}.jpg " 
+
+      puts (convert_str)
       system convert_str
-      save2timage("#{page}.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg", dh, yxqz)
-      system ("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$#{page}.jpg")
+      save2timage("#{page}.jpg", "./dady/#{mlh}_#{flh}_#{ajh}_#{page}.jpg", dh, yxqz)
+      system ("rm ./dady#{mlh}_#{flh}_#{ajh}_#{page}.jpg")
+      
     end
   end
   
@@ -286,13 +285,13 @@ def generate_single_archive(archive_id, print_option=0b1101)
         index_pos = (docs[k]['yh'].include?('-')) ? 1950 : 2000
         $out_str = $out_str + "  -draw \"text 240, #{$pos_y} '#{docs[k]['sxh']}'\"  #{wh_str} #{tt_str} #{zrz_str} -draw  \"text 1710, #{$pos_y} '#{rq_str}'\"  -draw  \"text #{index_pos}, #{$pos_y} '#{docs[k]['yh']}'\"" 
         page=page.to_s.rjust(2,'0')
-        convert_str =  "convert ./dady/#{image_t}.jpg -font  ./dady/SimHei.ttf -pointsize 48 #{$out_str}  ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg" 
+        convert_str =  "convert ./dady/#{image_t}.jpg -font  ./dady/SimHei.ttf -pointsize 48 #{$out_str}  ./dady/#{mlh}_#{flh}_#{ajh}_ML#{page}.jpg" 
 
-       #puts (convert_str)
-       #puts ("4 ====generate JN ===")
+       puts (convert_str)
        system convert_str
-       save2timage("ML#{page}.jpg", "./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg", dh, yxqz)
-       #system("rm ./dady/#{mlh}\\$#{flh}\\$#{ajh}\\$ML#{page}.jpg")
+       save2timage("ML#{page}.jpg", "./dady/#{mlh}_#{flh}_#{ajh}_ML#{page}.jpg", dh, yxqz)
+       
+       system("rm ./dady/#{mlh}_#{flh}_#{ajh}_ML#{page}.jpg")
      
       else   
         $out_str = $out_str + "  -draw \"text 240, #{$pos_y} '#{docs[k]['sxh']}'\"  #{wh_str} #{tt_str} #{zrz_str} -draw  \"text 1710, #{$pos_y} '#{rq_str}'\"  -draw  \"text 2000, #{$pos_y} '#{docs[k]['yh']}'\"" 
@@ -322,26 +321,21 @@ end
 #    @dylb --- 打印类别, 0--普通白纸打印， 1-用土地登记类的， 2-财务类 等等
 #
 #*********************************************************************************************
-dydh, qajh, zajh, dylb = ARGV[0], ARGV[1],  ARGV[2], ARGV[3]
-#qzh, mlh, dalb, qajh, zajh, dylb = ARGV[0], ARGV[1], ARGV[2], ARGV[3], ARGV[4], ARGV[5] 
-#dydh = "#{qzh}-#{dalb}-#{mlh}"
+dh, qajh, zajh, dylb = ARGV[0], ARGV[1],  ARGV[2], ARGV[3]
 
-ss=dydh.split('-')
+ss=dh.split('-')
 qzh, dalb, mlh = ss[0], ss[1], ss[2]
 
 #$stderr.puts  "=====Started At #{Time.now}===="
-$stderr.puts  "Process print: #{dydh}  from #{qajh} to #{zajh}"
+$stderr.puts  "Process print: #{dh}  from #{qajh} to #{zajh}"
 if( defined? ARGV[4]) && (ARGV[4].to_i == 1)
-   $conn.exec("update archive set dyzt = '0' where dh like '#{dydh}-%' and cast (ajh as integer) >= #{qajh} and cast (ajh as integer) <= #{zajh}; ")
+   $conn.exec("update archive set dyzt = '0' where dh like '#{dh}-%' and cast (ajh as integer) >= #{qajh} and cast (ajh as integer) <= #{zajh}; ")
 end   
 
-# select id, ajh from archive then process each aj using generatea_sg (id, print_option) 
-#puts "select id, ajh from archive where qzh='#{qzh}' and dalb='#{dalb}' and mlh='#{mlh}' and  ajh >= '#{qajh.rjust(4,'0')}' and ajh <= '#{zajh.rjust(4,'0')}' order by ajh;"
-user = $conn.exec("select id, ajh from archive where dh like '#{dydh}-%' and  ajh >= '#{qajh.rjust(4,'0')}' and ajh <= '#{zajh.rjust(4,'0')}' order by ajh;" )
+user = $conn.exec("select id, ajh from archive where dh like '#{dh}-%' and  ajh >= '#{qajh.rjust(4,'0')}' and ajh <= '#{zajh.rjust(4,'0')}' order by ajh;" )
 
 for k in 0..user.count-1 do
-  $conn.exec("update q_status set dqwz='#{user[k]['ajh'].to_i}' where dhp='#{dydh}';")
-  #puts "generating  #{user[k]['id']}  #{user[k]['ajh']}... type #{sprintf("%04b", dylb.to_i)}"
+  $conn.exec("update q_status set dqwz='#{user[k]['ajh'].to_i}' where dhp='#{dh}';")
   generate_single_archive(user[k]['id'], dylb.to_i)
 end
 
