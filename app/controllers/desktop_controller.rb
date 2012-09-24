@@ -1382,6 +1382,9 @@ class DesktopController < ApplicationController
     end
         
     if !(params['ajtm'].nil?)
+      
+      ss = ajtm.split("")
+      
       if (cx_tj!='')
         cx_tj=cx_tj + " and archive.tm like '%#{params['ajtm']}%'"
       else

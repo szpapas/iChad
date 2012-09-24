@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
@@ -78,7 +78,10 @@ def print_timage(dh_prefix)
   user = $conn.exec("select id, dwdm from d_dwdm where id = #{qzh};")
   dwdm = user[0]['dwdm']
 
-  convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+  user = $conn.exec("select dh, mlh, mlm from archive where dh like '#{dh}-%' limit 1; ")
+  mlh = user[0]['mlh']
+  
+  convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 250, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
 
   puts "select * from timage_tj where dh like '#{dh}-%' order by ajh;"
   user = $conn.exec("select * from timage_tj where dh like '#{dh}-%' order by ajh;")
@@ -171,7 +174,7 @@ def print_timage(dh_prefix)
       end
 
       #new begining page
-      convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 465, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
+      convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -fill black -draw \"text 250, 208 '#{dwdm} 目录 #{mlh} 统计表'\"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
     end 
   
   end
@@ -247,7 +250,7 @@ def print_qzxx(dh_prefix)
   a3, a4, dt =  dd['a3'].to_i, dd['a4'].to_i, dd['dt'].to_i
   
   
-  convert_str =  "convert ./dady/timage_tj2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 580, 590 '#{dd['mlh']}' \" -draw \"text 810, 590 '#{dd['qajh']} ~ #{dd['qajh']}' \"  -draw \"text 290, 670 '#{ajs}' \"   -draw \"text 500, 730 '#{a3+a4}' \" -draw \"text 830, 730 '#{a3}' \"  -draw \"text 290, 800 '#{a4}' \"   -draw \"text 730, 800 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}.jpg  "
+  convert_str =  "convert ./dady/timage_tj2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 580, 590 '#{dd['mlm']}' \" -draw \"text 810, 590 '#{dd['qajh']} ~ #{dd['qajh']}' \"  -draw \"text 290, 670 '#{ajs}' \"   -draw \"text 500, 730 '#{a3+a4}' \" -draw \"text 830, 730 '#{a3}' \"  -draw \"text 290, 800 '#{a4}' \"   -draw \"text 730, 800 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}.jpg  "
   
   system convert_str
 end  
