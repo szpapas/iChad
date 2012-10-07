@@ -291,7 +291,8 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'dh_prefix',type: 'string'},
         {name: 'wcz',      type: 'integer'}, 
         {name: 'mlm',      type: 'string'},
-        {name: 'yxwz',     type: 'string'}
+        {name: 'yxwz',     type: 'string'},
+        {name: 'dtbl',     type: 'string'}
       ]
     });
 
@@ -1023,6 +1024,10 @@ Ext.define('MyDesktop.SystemStatus', {
             xtype:"textfield",
             fieldLabel:"影像路径",
             name:"yxwz"
+          },{
+            xtype:"textfield",
+            fieldLabel:"大图比例",
+            name:"dtbl"
           }]        
       });
       
@@ -1072,6 +1077,7 @@ Ext.define('MyDesktop.SystemStatus', {
       form.findField('lijr').setValue(data.lijr);
       form.findField('jmcr').setValue(data.jmcr);
       form.findField('yxwz').setValue(data.yxwz);
+      form.findField('dtbl').setValue(data.dtbl);
       
       qzxx_win.show();
       

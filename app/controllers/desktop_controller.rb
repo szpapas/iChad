@@ -3435,8 +3435,8 @@ class DesktopController < ApplicationController
   end
   
   def save_mulu_info
-    id, mlh, lijr, jmcr, yxwz = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz']
-    User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}' where id=#{id} ;")
+    id, mlh, lijr, jmcr, yxwz, dtbl = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz'], params['dtbl']
+    User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}', dtbl = '#{dtbl}' where id=#{id} ;")
     render :text => 'Success'
   end
   
