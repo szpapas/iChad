@@ -172,7 +172,7 @@ Find.find(path) do |path|
     #/Volumes/新加卷/C-82/C-82$C$0017/C-82$C$0017$MLBK.jpg
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       #./ws2010/长期$2010$0003$001/0002.jpg
-      
+       
      if !/(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path).nil?
         mm = /(\d+).(jpg|tif)$/i.match(path)
         sxh = "#{mm[1]}.#{mm[2]}"
@@ -183,7 +183,7 @@ Find.find(path) do |path|
         $dh = "#{dh_prefix}-#{ajh.to_i}"
         yxqz = "#{bgqx}\$#{nd}\$#{ajh.rjust(4, '0')}\$#{jgwth}"  
         
-        #puts "save2timage (#{sxh}, #{path}, #{$dh}, #{yxqz})" 
+        puts "save2timage (#{sxh}, #{path}, #{$dh}, #{yxqz})" 
         save2timage(sxh, path, $dh, yxqz)
 
       elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(.*)\.(\w+)/.match(path).nil?

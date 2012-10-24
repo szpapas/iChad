@@ -15,7 +15,7 @@ class MapController < ApplicationController
   
   #search=%@&dalb=%@&offset=%d&qzh=%d
   def search_aj
-    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' where qzh = '#{params[qzh]}' limit 10;")
+    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' and qzh = '#{params['qzh']}' limit 10;")
     render :text=>user.to_json
   end 
   
@@ -853,6 +853,14 @@ class MapController < ApplicationController
     User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
     render :text => request_id
   end
+
+  def get_document_where
+    archive_id = params['archive_id']
+    user = User.find_by_sql("select * from docuemnt where ownerid = #{archive_id};")
+    render :text => user.to_json
+  end
+  
+  
   
   def get_timage_from_db(gid)
     user = User.find_by_sql("select id, dh, yxmc from timage where id=#{gid};")
@@ -1007,5 +1015,24 @@ class MapController < ApplicationController
         jpg  << user[k]['yxmc']
       end  
       render :text => jpg.join(" ")
+    end
+    
+    def get_image_list
+      where_str = "where dh = '#{params['dh']}'"
+      users = User.find_by_sql("select id, yxmc, yxbh, tag from timage #{where_str} order by tag, yxbh;")
+      ss = []
+      for k in 0..users.size-1
+       pp = {"image_path"=>get_timage_from_db(users[k].id), "image_id"=>users[k].id}
+       ss << pp 
+      end
+      txt = ss.to_json
+      render :text => txt;
     end  
+    
+    def get_image_by_id
+      id = params['gid']
+      render :text => get_timage_from_db(id)
+    end  
+    
+    
 end

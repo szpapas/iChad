@@ -2,7 +2,7 @@ $: << '/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib'
 require 'serialport'
 
 #sp = SerialPort.new "com3", 9600
-$sp = SerialPort.new "/dev/cu.BOLUTEK-SPPDev", 9600
+$sp = SerialPort.new "/dev/cu.BOLUTEK-SPPDev-1", 9600
 puts "serial opened" 
 
 def set_k(cmd)
@@ -63,12 +63,12 @@ while (l = gets) do
   if l == "exit"
     exit
   elsif l == "soft"
-    ss=set_k("03 AA 06 02 01")
+    ss=set_k("03 AA 07 04 01")
     puts("#{Time.now.to_f}:#{hex_str(ss)}")
 
     $sp.write(ss)
   elsif l == "hard"
-    ss=set_k("03 AA 06 02 00")
+    ss=set_k("03 AA 07 04 00")
     puts("#{Time.now.to_f}:#{hex_str(ss)}")
 
     $sp.write(ss)

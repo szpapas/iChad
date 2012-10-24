@@ -217,6 +217,8 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     nd = user['建设年代'] if nd.nil?
     nd = user['购置时间'] if nd.nil?
     nd = user['授奖时间'] if nd.nil?
+    nd = user['出版年度'] if nd.nil?
+    
     
     nd = nd[0..3] if nd.length > 4
     
@@ -629,10 +631,8 @@ if ifname.include?('aj')
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
   system ("rm #{path}/#{outfile}")
   
-  if dalb != 24
-    #puts "delete from document where dh like '#{dh}'; "
+  if File.exists?(ifname.gsub('aj','jr'))
     $conn.exec("delete from document where dh like '#{dh}'; ")
-  
     outfile = rand(36**8).to_s(36)
     decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
     data = File.open("#{path}/#{outfile}").read

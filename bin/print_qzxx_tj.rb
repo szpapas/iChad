@@ -64,11 +64,11 @@ def print_qzxx(dh_prefix)
   zys = (a3 * 2 + a4 + dt * dtbl).to_s.to_i 
   
   
-  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 290, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 500, 750 '#{a3+a4+dt}' \"  -draw \"text 830, 750 '#{a3}' \" -draw \"text 250, 810 '#{a4}' \"  -draw \"text 485, 810 '#{dt}' \"  -draw \"text 845, 810 '#{zys}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
+  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 290, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 675, 750 '#{a3}' \" -draw \"text 210, 810 '#{a4}' \"  -draw \"text 485, 810 '#{dt}' \"  -draw \"text 845, 810 '#{zys}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
   system convert_str
   
-  #convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" /share/tjsj/tj_#{dh_prefix}_02.jpg  "
-  #system convert_str
+  convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" /share/tjsj/tj_#{dh_prefix}_02.jpg  "
+  system convert_str
     
 end  
 

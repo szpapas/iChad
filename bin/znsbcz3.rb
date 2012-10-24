@@ -1,10 +1,13 @@
 #!/usr/bin/ruby
 
-$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/' << '/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/' << '/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'C:/Ruby187/lib/ruby/gems/1.8/gems/serialport-0.6.0-x86-mswin32/lib'
+
 require 'serialport'
 require 'pg'
 
-sp = SerialPort.new "/dev/tty.PL2303-00002006", 9600
+#sp = SerialPort.new "/dev/tty.PL2303-00002006", 9600
+sp = SerialPort.new "com1", 9600
 
 # ********************************************************************************************
 #

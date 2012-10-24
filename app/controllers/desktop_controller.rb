@@ -4902,7 +4902,7 @@ class DesktopController < ApplicationController
       system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjma};"
       system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjmb};"
     end
-    User.find_by_sql("delete from q_sdwj where id in (#{params['id']});")  
+    User.find_by_sql("delete from q_sdwj where id in (#{params['id']});") 
     render :text => 'Success'
   end  
   
