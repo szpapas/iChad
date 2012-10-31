@@ -1009,7 +1009,7 @@ class MapController < ApplicationController
     end
     
     def get_mc_imageList
-      user = User.find_by_sql("select yxmc from mc_image order by created_at desc limit 5;")
+      user = User.find_by_sql("select yxmc from mc_image where device_id = #{params['device_id']} and yxmc is not null order by created_at desc limit 10;")
       jpg = []
       for k in 0..user.size-1
         jpg  << user[k]['yxmc']
@@ -1034,5 +1034,37 @@ class MapController < ApplicationController
       render :text => get_timage_from_db(id)
     end  
     
+    def get_sfz
+       host_ip = "192.168.114.48"
+       client = TCPSocket.open host_ip, 50000
+       recv_length = 1024
+       ss="D&C00040101"
+       client.send ss, 0
+       sleep 2
+       ss = client.recv(1024)
+       str= hex_str(ss)
+       puts str
+       if str.length>200
+         idx = str.index("AA AA AA 96 69 05 08 00 00 90 ")/3
+         if !idx.nil?
+           wb_len = ss[idx+10]*256+ss[idx+11]
+           tx_len = ss[idx+12]*256+ss[idx+13]
+
+           wb   = ss[idx+14..idx+4+wb_len-1]
+           name = wb[0..29]
+           dz   = wb[52..121]
+           sfzh = wb[122..157]
+           name = Iconv.iconv('UTF-8','UTF-16LE', name).to_s
+           dz   = Iconv.iconv('UTF-8','UTF-16LE', dz).to_s
+           sfzh = Iconv.iconv('UTF-8','UTF-16LE', sfzh).to_s
+           
+           txt= "success:" + name.strip + "|" + sfzh.strip + "|" + dz.strip
+         end
+       else
+         txt= "fail:请放入或移动一下身份证。"
+       end
+       client.close
+       render :text => txt
+    end
     
 end
