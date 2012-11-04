@@ -1117,17 +1117,18 @@ class MapController < ApplicationController
       render :text => txt 
     end  
     
-    
+
+   
     
     
     #map/dd_search?ajbh=#{}&tm={}&wh={}&djh={}&tdzl={}&qlrmc={}&dalb={}&offset={}
     def dd_search
       cond = []
       cond << "tm like    '%#{params['tm']}%'" if !params['tm'].nil?
-      cond << "wh like    '%#{params['wh']}%'" if !params['wh'].nil?
-      cond << "djh like   '%#{params['djh']}%'" if !params['djh'].nil?
-      cond << "tdzl like  '%#{params['tdzl']}%'" if !params['tdzl'].nil?
-      cond << "qlrmc like '%#{params['qlrmc']}%'" if !params['qlrmc'].nil?
+      cond << "a_tddj.wh like    '%#{params['wh']}%'" if !params['wh'].nil?
+      cond << "a_tddj.djh like   '%#{params['djh']}%'" if !params['djh'].nil?
+      cond << "a_tddj.tdzl like  '%#{params['tdzl']}%'" if !params['tdzl'].nil?
+      cond << "a_tddj.qlrmc like '%#{params['qlrmc']}%'" if !params['qlrmc'].nil?
       
       conds = cond.join(" and ")
       
@@ -1135,11 +1136,11 @@ class MapController < ApplicationController
       offset = params['offset'] || 0
       limit  = params['limit']  || 25
 
-      user = User.find_by_sql("select count(*) from document where #{conds};")[0]
+      user = User.find_by_sql("select count(*) from document inner join a_tddj on document.id = a_tddj.owner_id where #{conds};")[0]
       size = user.count.to_i;
       if size > 0
         txt = "{results:#{size},rows:["
-        user = User.find_by_sql("select * from document where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
+        user = User.find_by_sql("select document.*, a_tddj.djh, a_tddj.qlrmc, a_tddj.qsxz,a_tddj.ydjh,a_tddj.tdzh,a_tddj.tfh,a_tddj.cjfr,a_tddj.dyrmc,a_tddj.dyqrmc,a_tddj.txqz,a_tddj.ywrmc,a_tddj.txqrrmc,a_tddj.xmmc,a_tddj.tdzl from document inner join a_tddj on document.id = a_tddj.owner_id where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
         for k in 0..user.size-1
           txt = txt + user[k].to_json + ','
         end
