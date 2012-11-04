@@ -1125,7 +1125,6 @@ class MapController < ApplicationController
     def dd_search
       cond = []
       cond << "tm like    '%#{params['tm']}%'" if !params['tm'].nil?
-      cond << "a_tddj.wh like    '%#{params['wh']}%'" if !params['wh'].nil?
       cond << "a_tddj.djh like   '%#{params['djh']}%'" if !params['djh'].nil?
       cond << "a_tddj.tdzl like  '%#{params['tdzl']}%'" if !params['tdzl'].nil?
       cond << "a_tddj.qlrmc like '%#{params['qlrmc']}%'" if !params['qlrmc'].nil?
