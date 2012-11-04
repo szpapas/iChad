@@ -1122,6 +1122,7 @@ class MapController < ApplicationController
     
     #map/dd_search?ajbh=#{}&tm={}&wh={}&djh={}&tdzl={}&qlrmc={}&dalb={}&offset={}
     def dd_search
+      cond = []
       cond << "tm like '%#{tm}%'" if !params['tm'].nil?
       cond << "wh like '%#{wh}%'" if !params['wh'].nil?
       cond << "djh like '%#{djh}%'" if !params['djh'].nil?
