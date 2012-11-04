@@ -974,7 +974,7 @@ class MapController < ApplicationController
       end
       render :text => "{success:true}"
     end
-  
+    
     def set_t_tddj
       qrq = params['qrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[qrq]}'" 
       zrq = params['zrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[zrq]}'" 
@@ -1034,7 +1034,7 @@ class MapController < ApplicationController
       render :text => get_timage_from_db(id)
     end  
     
-    def get_sfz
+    def get_sfz_oo
        host_ip = "192.168.114.48"
        client = TCPSocket.open host_ip, 50000
        recv_length = 1024
@@ -1066,5 +1066,28 @@ class MapController < ApplicationController
        client.close
        render :text => txt
     end
+    
+    #map/query_leader?username=#{username}&password=#{password}
+    def query_leader
+      username, password = params['username'], params['password']
+      txt = ''
+      if username == "张飞"
+        txt = 'true'
+      else
+        txt = 'false'
+      end
+      
+      render :text => txt  
+    end
+    
+    def get_sfz
+      sleep(1)
+      name = '刘永'
+      sfzh = '612102196407240673'
+      dz   = '江苏省徐州市云龙区积翠新村17幢2单元202室'
+      txt= "success:" + name.strip + "|" + sfzh.strip + "|" + dz.strip
+    end
+    
+    
     
 end
