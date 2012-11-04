@@ -1140,7 +1140,7 @@ class MapController < ApplicationController
       size = user.count.to_i;
       if size > 0
         txt = "{results:#{size},rows:["
-        user = User.find_by_sql("select document.*, a_tddj.djh, a_tddj.qlrmc, a_tddj.qsxz,a_tddj.ydjh,a_tddj.tdzh,a_tddj.tfh,a_tddj.cjfr,a_tddj.dyrmc,a_tddj.dyqrmc,a_tddj.txqz,a_tddj.ywrmc,a_tddj.txqrrmc,a_tddj.xmmc,a_tddj.tdzl from document inner join a_tddj on document.id = a_tddj.ownerid where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
+        user = User.find_by_sql("select document.*, a_tddj.djh, a_tddj.qlrmc, a_tddj.qsxz,a_tddj.ydjh,a_tddj.tdzh,a_tddj.tfh,a_tddj.cjfr,a_tddj.dyrmc,a_tddj.dyqrmc,a_tddj.txqz,a_tddj.ywrmc,a_tddj.txqrrmc,a_tddj.xmmc,a_tddj.tdzl from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
         for k in 0..user.size-1
           txt = txt + user[k].to_json + ','
         end
