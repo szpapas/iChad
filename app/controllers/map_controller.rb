@@ -1086,6 +1086,7 @@ class MapController < ApplicationController
       sfzh = '612102196407240673'
       dz   = '江苏省徐州市云龙区积翠新村17幢2单元202室'
       txt= "success:" + name.strip + "|" + sfzh.strip + "|" + dz.strip
+      render :text => txt
     end
     
     
