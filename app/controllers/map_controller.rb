@@ -1136,7 +1136,7 @@ class MapController < ApplicationController
       offset = params['offset'] || 0
       limit  = params['limit']  || 25
 
-      user = User.find_by_sql("select count(*) from document inner join a_tddj on document.id = a_tddj.ownerid where #{conds};")[0]
+      user = User.find_by_sql("select count(*) from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds};")[0]
       size = user.count.to_i;
       if size > 0
         txt = "{results:#{size},rows:["
