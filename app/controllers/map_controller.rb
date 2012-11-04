@@ -882,9 +882,9 @@ class MapController < ApplicationController
       system("rm ./tmp/#{tmpfile}")
     end
 
-    #txt = "/assets/#{local_filename}".gsub('/./','/')
-
+    puts "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
     txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
+    
   end
   
   def check_result
