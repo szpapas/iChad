@@ -1094,7 +1094,7 @@ class MapController < ApplicationController
       search = params['search']
       txt = ''
       if params['dalb'].nil?
-        user = User.find_by_sql"select dalb, lbmc, count(*) from archive inner join d_dalb on cast(archive.dalb as integer) = d_dalb.id where tm like '%search%' group by dalb, lbmc;"
+        user = User.find_by_sql"select dalb, lbmc, count(*) from archive inner join d_dalb on cast(archive.dalb as integer) = d_dalb.id where tm like '%#{search}%' group by dalb, lbmc;"
         txt = user.to_json
       else
         offset = params['offset'] || 0
