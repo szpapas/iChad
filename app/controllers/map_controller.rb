@@ -1128,6 +1128,25 @@ class MapController < ApplicationController
       cond << "tdzl like '%#{tdzl}%'" if !params['tdzl'].nil?
       cond << "qlrmc like '%#{qlrmc}%'" if !params['qlrmc'].nil?
       
+      conds = cond.join(" and ")
+      
+      txt = ''
+      offset = params['offset'] || 0
+      limit  = params['limit']  || 25
+
+      user = User.find_by_sql("select count(*) from document where #{conds};")[0]
+      size = user.count.to_i;
+      if size > 0
+        txt = "{results:#{size},rows:["
+        user = User.find_by_sql("select * from document where tm like  #{conds} order by mlh,ajh offset #{offset} limit #{limit};")
+        for k in 0..user.size-1
+          txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+      else
+        txt = "{results:0,rows:[]}"
+      end
+      
       render :text => txt 
     end  
 end
