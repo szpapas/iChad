@@ -1139,7 +1139,7 @@ class MapController < ApplicationController
       size = user.count.to_i;
       if size > 0
         txt = "{results:#{size},rows:["
-        user = User.find_by_sql("select * from document where tm like  #{conds} order by mlh,ajh offset #{offset} limit #{limit};")
+        user = User.find_by_sql("select * from document where #{conds} order by mlh,ajh offset #{offset} limit #{limit};")
         for k in 0..user.size-1
           txt = txt + user[k].to_json + ','
         end
