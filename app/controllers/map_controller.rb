@@ -105,13 +105,13 @@ class MapController < ApplicationController
       #boxstr,目录号,案卷号,标签ID,档案类别,案卷标题,借阅人,借阅时间
       size = user.size;
       if size.to_i > 0
-          text = "{results:#{size},rows:["          
+          text = "{\"results\":#{size},\"rows\":["          
           for k in 0..user.size-1
               text = text + user[k].to_json + ','
           end
           text = text[0..-2] + "]}"
       else
-          text = "{results:0,rows:[]}"
+          text = "{\"results\":0,\"rows\":[]}"
       end
     end
     render :text => text
@@ -146,13 +146,13 @@ class MapController < ApplicationController
     end
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -222,13 +222,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -290,13 +290,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -310,13 +310,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -328,13 +328,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -1103,14 +1103,14 @@ class MapController < ApplicationController
         user = User.find_by_sql("select count(*) from archive where tm like '%#{search}%' and dalb = '#{params['dalb']}';")[0]
         size = user.count.to_i;
         if size > 0
-          txt = "{results:#{size},rows:["
+          txt = "{\"results\":#{size},\"rows\":["
           user = User.find_by_sql("select * from archive where tm like '%#{search}%'  and dalb = '#{params['dalb']}' order by mlh,ajh offset #{offset} limit #{limit};")
           for k in 0..user.size-1
             txt = txt + user[k].to_json + ','
           end
           txt = txt[0..-2] + "]}"
         else
-          txt = "{results:0,rows:[]}"
+          txt = "{\"results\":0,\"rows\":[]}"
         end
       end
         
@@ -1138,14 +1138,14 @@ class MapController < ApplicationController
       user = User.find_by_sql("select count(*) from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds};")[0]
       size = user.count.to_i;
       if size > 0
-        txt = "{results:#{size},rows:["
+        txt = "{\"results\":#{size},\"rows\":["
         user = User.find_by_sql("select document.*, a_tddj.djh, a_tddj.qlrmc, a_tddj.qsxz,a_tddj.ydjh,a_tddj.tdzh,a_tddj.tfh,a_tddj.cjfr,a_tddj.dyrmc,a_tddj.dyqrmc,a_tddj.txqz,a_tddj.ywrmc,a_tddj.txqrrmc,a_tddj.xmmc,a_tddj.tdzl from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
         for k in 0..user.size-1
           txt = txt + user[k].to_json + ','
         end
         txt = txt[0..-2] + "]}"
       else
-        txt = "{results:0,rows:[]}"
+        txt = "{\"results\":0,\"rows\":[]}"
       end
       
       render :text => txt 
