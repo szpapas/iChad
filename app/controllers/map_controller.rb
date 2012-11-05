@@ -861,7 +861,6 @@ class MapController < ApplicationController
   end
   
   
-  
   def get_timage_from_db(gid)
     user = User.find_by_sql("select id, dh, yxmc from timage where id=#{gid};")
     dh = user[0]['dh']
@@ -870,22 +869,17 @@ class MapController < ApplicationController
     end
     user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
     local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-    puts local_filename
     if !File.exists?(local_filename)
       user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{gid};")
       tmpfile = rand(36**10).to_s(36)
       ff = File.open("./tmp/#{tmpfile}",'w')
       ff.write(user[0]["data"])
       ff.close
-      puts "./tmp/#{tmpfile} #{local_filename}"
+      #puts "./tmp/#{tmpfile} #{local_filename}"
       system("decrypt ./tmp/#{tmpfile} #{local_filename}")
-      #system("scp ./tmp/#{tmpfile} #{local_filename}")
       system("rm ./tmp/#{tmpfile}")
     end
-
-    puts "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
     txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
-    
   end
   
   def check_result
@@ -1023,8 +1017,9 @@ class MapController < ApplicationController
       users = User.find_by_sql("select id, yxmc, yxbh, tag from timage #{where_str} order by tag, yxbh;")
       ss = []
       for k in 0..users.size-1
-       pp = {"image_path"=>get_timage_from_db(users[k].id), "image_id"=>users[k].id}
-       ss << pp 
+        image_id = users[k].id
+        image_path = get_timage_from_db(image_id)
+        ss <<  {"image_path"=>image_path, "image_id"=>image_id} 
       end
       txt = ss.to_json
       render :text => txt;

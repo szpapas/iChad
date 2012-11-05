@@ -18,8 +18,8 @@ $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs
 $conn.exec("set standard_conforming_strings = off")
 
 
-def get_image(cameraIP, deviceID)
-    client = TCPSocket.open cameraIP, 50000
+def get_image(cameraIP, port, deviceID)
+    client = TCPSocket.open cameraIP, port
     puts "port opened"
     #send comand to take photos
     client.send "UG3#", 0
@@ -88,7 +88,8 @@ def get_image(cameraIP, deviceID)
     client.close
 end
 
-get_image(ARGV[0], ARGV[1])
+#wl_sb_cz_m1.rb 192.168.117.13 50002 2
+get_image(ARGV[0], ARGV[1], ARGV[2])
 
 $conn.close
 
