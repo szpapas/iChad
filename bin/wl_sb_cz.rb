@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' 
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+
 require 'pg'
 require 'socket'
 

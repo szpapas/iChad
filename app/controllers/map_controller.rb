@@ -1014,15 +1014,14 @@ class MapController < ApplicationController
     
     def get_image_list
       where_str = "where dh = '#{params['dh']}'"
-      users = User.find_by_sql("select id, yxmc, yxbh, tag from timage #{where_str} order by tag, yxbh;")
-      ss = []
+      users = User.find_by_sql("select id, yxmc, yxbh, tag from timage #{where_str} order by tag, yxbh limit 10;")
+      ss,txt = [],''
       for k in 0..users.size-1
         image_id = users[k].id
         image_path = get_timage_from_db(image_id)
         ss <<  {"image_path"=>image_path, "image_id"=>image_id} 
       end
-      txt = ss.to_json
-      render :text => txt;
+      render :text => ss.to_json;
     end  
     
     def get_image_by_id

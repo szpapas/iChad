@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 
 require 'pg'
 require 'active_support'
@@ -645,6 +645,7 @@ if ifname.include?('aj')
   #生成q_qzxx
   dh_prefix = "#{qzh}-#{dalb}-#{mlh}"
   $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
+  puts "insert into q_qzxx(qzh, dalb, mlh, mlm, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{mlm}','#{dh_prefix}', '#{ifname}' );"
   $conn.exec("insert into q_qzxx(qzh, dalb, mlh, mlm, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{mlm}','#{dh_prefix}', '#{ifname}' );") 
   qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}-%';")
   $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
