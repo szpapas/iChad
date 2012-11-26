@@ -826,7 +826,7 @@ class MapController < ApplicationController
     render :text => txt   
   end  
 
-  def set_device_zt   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
+  def set_device_zt_old   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
     case params['zt']
     when '1'
       zt='开'
@@ -844,6 +844,11 @@ class MapController < ApplicationController
     end
     sb=User.find_by_sql("select zn_sb_cz.*,zn_sb.id as sbid,zn_sb.sbh from zn_sb,zn_sb_cz,zn_sb_lx where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb_cz.czsm='#{zt}' and zn_sb.id=#{params['device_id']};")
     qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
+    render :text => 'Success'
+  end
+  
+  def set_device_zt  #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
+    system ("ruby ./bin/ktcz_lx.rb #{params['device_id']} #{params['zt']}")
     render :text => 'Success'
   end
   

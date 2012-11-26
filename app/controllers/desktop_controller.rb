@@ -8062,4 +8062,27 @@ class DesktopController < ApplicationController
              sleep(interval) if interval>0 
          end 
     end
+    
+    def export_selected_backup
+      user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+      for k in 0..user.size-1
+        dd = user[k]
+        ss = dd.dh_prefix.split('-')
+        qzh, dalb, mlh, dh_prefix, mlm = ss[0], ss[1], ss[2], dd.dh_prefix, dd['mlm']
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlm}', 'ruby ./dady/bin/export_backup.rb #{dh_prefix}', '', '', '未开始');")
+      end  
+      render :text => 'Success'
+    end
+    
+    def import_selected_backup
+      user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+      for k in 0..user.size-1
+        dd = user[k]
+        ss = dd.dh_prefix.split('-')
+        qzh, dalb, mlh, dh_prefix, mlm = ss[0], ss[1], ss[2], dd.dh_prefix, dd['mlm']
+        backup_file = "/share/timage_#{dh_prefix.gsub('-','_')}.backup" 
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlm}', 'ruby ./dady/bin/import_backup.rb #{backup_file} #{dh_prefix} ', '', '', '未开始');")
+      end  
+      render :text => 'Success'
+    end
 end
