@@ -26,11 +26,11 @@ t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
 if !ajh.nil?
-  #puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
-  #$conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
 else 
-  #puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  #$conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
 end
 
 def getimgsize(fname)
