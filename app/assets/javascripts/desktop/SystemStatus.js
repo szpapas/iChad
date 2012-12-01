@@ -28,7 +28,7 @@ Ext.define('MyDesktop.SystemStatus', {
     var desktop = this.app.getDesktop();
     
     var win = desktop.getWindow('systemstatus');
-    
+    var refreshml=0;
     //图像显示窗口
     var scale = 0.64;
     var scaleMultiplier = 0.8;
@@ -1273,7 +1273,7 @@ Ext.define('MyDesktop.SystemStatus', {
             type: 'ajax',
             url: 'desktop/get_q_status_tree',
             extraParams: {
-              node:"root",userid:currentUser.id
+              node:"root",userid:currentUser.id,lb:refreshml
             },
             actionMethods: 'POST'
         }
@@ -1289,10 +1289,24 @@ Ext.define('MyDesktop.SystemStatus', {
       tbar:[
       {
         xtype:'button',
-        text:'刷新目录',
-        tooltip:'刷新目录',
+        text:'分类刷新',
+        tooltip:'按分类刷新目录',
         iconCls:'refresh',
         handler: function() {
+		  refreshml=0;
+		  Ext.getCmp('system_status_tree').store.proxy.extraParams=eval("({node:'root',userid:" + currentUser.id + ",lb:" + refreshml +"})");
+          Ext.getCmp('system_status_tree').store.load();
+        }
+      },
+	　　'->',
+	  {
+        xtype:'button',
+        text:'目录刷新',
+        tooltip:'按目录号刷新目录',
+        iconCls:'refresh',
+        handler: function() {
+		  refreshml=1;
+		  Ext.getCmp('system_status_tree').store.proxy.extraParams=eval("({node:'root',userid:" + currentUser.id + ",lb:" + refreshml +"})");
           Ext.getCmp('system_status_tree').store.load();
         }
       }

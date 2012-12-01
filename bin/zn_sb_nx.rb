@@ -28,25 +28,24 @@ def every_n_seconds(n)
      end 
 end 
 
-#电流值5分种  #烟感和门禁　要５秒轮一次
+#电流值15分种  #烟感和门禁　要５秒轮一次
 sj=0
-every_n_seconds(5) do  
-
+every_n_seconds(5) do
   rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
   puts rq
   list=$conn.exec("select zn_nx.*,zn_sb_cz.czzl,zn_sb.sbh from zn_sb_cz,zn_sb,zn_nx where zn_sb_cz.id=zn_nx.czid and zn_sb.id=zn_nx.sbid and zn_nx.nxdj=1;")
   for k in 0..list.count-1
     li = list[k]
-    puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);"
-    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);")     
+    puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);"
+    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")     
   end
   sj=sj+1
-  if sj==60
+  if sj==180
     list=$conn.exec("select zn_nx.*,zn_sb_cz.czzl,zn_sb.sbh from zn_sb_cz,zn_sb,zn_nx where zn_sb_cz.id=zn_nx.czid and zn_sb.id=zn_nx.sbid and zn_nx.nxdj=2;")
     for k in 0..list.count-1
       li = list[k]
-      puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);"
-      $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0);")
+      puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);"
+      $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")
     end
     sj=0
   end

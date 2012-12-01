@@ -65,7 +65,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		  layout : 'absolute',
 		  items:[{
 		    xtype: 'label',
-		    text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)',
+		    text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)，文件名不能包含空格和单引号。',
 		    x: 10,
 		    y: 10,
 		    width: 100
@@ -99,6 +99,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		                var isSuc = action.result.success; 
 		                filename=myForm._fields.items[0].lastValue.split('\\');
 		                file=filename[filename.length-1];
+						file=file.gsub("'","\'")
 		                if (isSuc) {
 		                  new Ajax.Request("/desktop/save_image_db", { 
 		                    method: "POST",
@@ -416,61 +417,56 @@ Ext.define('MyDesktop.WenshuMan', {
 		              var item = items[0];
 		              var dh = items[0].data.dh;
 		              show_image(dh);	              
-		              set_image("/assets/wuxi_pic.png");
+		              set_image("/assets/dady/fm.jpg");
 		            }
 		          }    
 		        },
 		            '->',
-		            {
-		              xtype: 'combo',
-		              name: 'aj_select',
-		              store: aj_where_field_data,
-		              emptyText:'案卷标题',
-		              mode: 'local',
-		              minChars : 2,
-		              valueField:'text',
-		              displayField:'text',
-		              triggerAction:'all',
-		              id:'wenshu_aj_select_field'
-		            } ,
-		            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-		            {
-		              xtype:'textfield',
-		              id:'wenshu_query_text',
-		            } ,         
-		            { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-		              handler: function() {
-		                console.log(Ext.getCmp('wenshu_query_text').value);
-		                if(Ext.getCmp('wenshu_query_text').value != null ){
-		                  var grid = Ext.getCmp('archive_grid_wsda');
-		                  grid.store.proxy.url="/desktop/get_archive_where";
-		                  archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
-		                  archive_store.load();
-		                }
-		              }
-		            }
+		          //  {
+		          //    xtype: 'combo',
+		          //    name: 'aj_select',
+		          //    store: aj_where_field_data,
+		          //    emptyText:'案卷标题',
+		          //    mode: 'local',
+		          //    minChars : 2,
+		          //    valueField:'text',
+		          //    displayField:'text',
+		          //    triggerAction:'all',
+		          //    id:'wenshu_aj_select_field'
+		          //  } ,
+		          //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+		          //  {
+		          //    xtype:'textfield',
+		          //    id:'wenshu_query_text',
+		          //  } ,         
+		          //  { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+		          //    handler: function() {
+		          //      console.log(Ext.getCmp('wenshu_query_text').value);
+		          //      if(Ext.getCmp('wenshu_query_text').value != null ){
+		          //        var grid = Ext.getCmp('archive_grid_wsda');
+		          //        grid.store.proxy.url="/desktop/get_archive_where";
+		          //        archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
+		          //        archive_store.load();
+		          //      }
+		          //    }
+		          //  }
 		          ],
 		    columns: [
+				{ text : '件号',   width : 50, sortable : true, dataIndex: 'jh'},
+		      
+			  { text : '文号',   width : 175, sortable : true, dataIndex: 'wh'},		      
+		      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+		      { text : '机构问题号',  width : 50, sortable : true, dataIndex: 'jgwth'},
+		      { text : '年度',  width : 40, sortable : true, dataIndex: 'nd'},
+			  { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrr'},
+		      { text : '保管期限', width : 50, sortable : true, dataIndex: 'bgqx'},		      		      
+		      { text : '制文日期',  width : 75, sortable : true, dataIndex: 'zwrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+		      { text : '缩微号',  width : 75, sortable : true, dataIndex: 'swh'},
+		      { text : '全宗号', width : 0, sortable : true, dataIndex: 'qzh'},
+		      { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
 		      { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
 		      { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
 		      { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-		      { text : '年度',  width : 75, sortable : true, dataIndex: 'nd'},
-		      { text : '机构问题号',  width : 75, sortable : true, dataIndex: 'jgwth'},
-		      { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
-
-		      { text : '件号',   width : 75, sortable : true, dataIndex: 'jh'},
-		      { text : '文号',   width : 75, sortable : true, dataIndex: 'wh'},
-		      { text : '责任者',  width : 175, sortable : true, dataIndex: 'zrr'},
-
-
-		      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
-		      { text : '制文日期',  width : 75, sortable : true, dataIndex: 'zwrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-		      { text : '缩微号',  width : 75, sortable : true, dataIndex: 'swh'},
-
-
-		      { text : '全宗号', width : 75, sortable : true, dataIndex: 'qzh'},
-		      { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
-
 		      { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
 		      ],
 		      selType:'checkboxmodel',
@@ -538,16 +534,18 @@ Ext.define('MyDesktop.WenshuMan', {
 		        layout: 'fit',
 		        split:true,
 		        items: archiveGrid
-		      },{
-		        region: 'south',
-		        iconCls:'icon-grid',
-		        layout: 'fit',
-		        height: 150,
-		        split: true,
-		        collapsible: true,
-		        title: '卷内目录',
-		        items: documentGrid
-		      }]
+		      }
+			// ,{
+		    //    region: 'south',
+		    //    iconCls:'icon-grid',
+		    //    layout: 'fit',
+		    //    height: 150,
+		    //    split: true,
+		    //    collapsible: true,
+		    //    title: '卷内目录',
+		    //    items: documentGrid
+		    //  }
+			]
 		  });
 		  tabPanel.setActiveTab(tabPage);
 		  userManagePageIsOpen = true;
@@ -608,6 +606,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		    store: archive_store,
 		    bbar:[
 		      new Ext.PagingToolbar({
+				id:'swtoolbar',
 		        store: archive_store,
 		        pageSize: 25,
 		        width : 350,
@@ -686,7 +685,7 @@ Ext.define('MyDesktop.WenshuMan', {
 				{
 			      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
 			      handler: function() {
-			        showAdvancedSearch();
+			        showAdvancedSearch("年度;docnd,保管期限;bgqx,机构问题号;jgwth,收文编号;swbh,题名;doctm,文号;docwh,责任者;doczrz,备注;bz","archive_grid_wsda",title,true);
 			      }
 			    }, 
 				{
@@ -698,54 +697,59 @@ Ext.define('MyDesktop.WenshuMan', {
 			          var item = items[0];
 			          var dh = items[0].data.dh;
 			          show_image(dh);	              
-			          set_image("/assets/wuxi_pic.png");
+			          set_image("/assets/dady/fm.jpg");
 			        }
 			      }    
 			    },
 			        '->',
-			        {
-			          xtype: 'combo',
-			          name: 'aj_select',
-			          store: aj_where_field_data,
-			          emptyText:'案卷标题',
-			          mode: 'local',
-			          minChars : 2,
-			          valueField:'text',
-			          displayField:'text',
-			          triggerAction:'all',
-			          id:'wenshu_wenshu_aj_select_field'
-			        } ,
-			        '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-			        {
-			          xtype:'textfield',
-			          id:'wenshu_query_text',
-			        } ,         
-			        { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-			          handler: function() {
-			            console.log(Ext.getCmp('wenshu_query_text').value);
-			            if(Ext.getCmp('wenshu_query_text').value != null ){
-			              var grid = Ext.getCmp('archive_grid_wsda');
-			              grid.store.proxy.url="/desktop/get_archive_where";
-			              archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
-			              archive_store.load();
-			            }
-			          }
-			        }
+			       // {
+			       //   xtype: 'combo',
+			       //   name: 'aj_select',
+			       //   store: aj_where_field_data,
+			       //   emptyText:'案卷标题',
+			       //   mode: 'local',
+			       //   minChars : 2,
+			       //   valueField:'text',
+			       //   displayField:'text',
+			       //   triggerAction:'all',
+			       //   id:'wenshu_wenshu_aj_select_field'
+			       // } ,
+			       // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+			       // {
+			       //   xtype:'textfield',
+			       //   id:'wenshu_query_text',
+			       // } ,         
+			       // { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+			       //   handler: function() {
+			       //     console.log(Ext.getCmp('wenshu_query_text').value);
+			       //     if(Ext.getCmp('wenshu_query_text').value != null ){
+			       //       var grid = Ext.getCmp('archive_grid_wsda');
+			       //       grid.store.proxy.url="/desktop/get_archive_where";
+			       //       archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
+			       //       archive_store.load();
+			       //     }
+			       //   }
+			       // }
 			      ],
 		    columns: [
-		      { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-		      { text : '归档年度',  width : 75, sortable : true, dataIndex: 'zdnd'},
-		      { text : '机构问题号',  width : 75, sortable : true, dataIndex: 'jgwt'},
+		      
+			  { text : '归档年度',  width : 40, sortable : true, dataIndex: 'zdnd'},
+			  { text : '文号',   width : 175, sortable : true, dataIndex: 'wh'},		      
+		      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+		      { text : '机构问题号',  width : 50, sortable : true, dataIndex: 'jgwt'},
+		
+
 		      { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
 		      { text : '收文编号',   width : 75, sortable : true, dataIndex: 'swbh'},
-		      { text : '文号',   width : 75, sortable : true, dataIndex: 'wh'},
+
 		      { text : '责任者',  width : 175, sortable : true, dataIndex: 'zrz'},
-		      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+
 			  { text : '收文日期',  width : 75, sortable : true, dataIndex: 'swrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 		      { text : '制文日期',  width : 75, sortable : true, dataIndex: 'zwrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 			  { text : '是否已归临时库',  width : 75, sortable : true, dataIndex: 'sfyglsk'},
 			  { text : '是否已归档',  width : 75, sortable : true, dataIndex: 'sfygd'},			      
 		      { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
+			  { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
 		      { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
 		      ],
 		      selType:'checkboxmodel',
@@ -921,7 +925,7 @@ Ext.define('MyDesktop.WenshuMan', {
 				{
 			      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
 			      	handler: function() {
-			        	showAdvancedSearch();
+			        	showAdvancedSearch("年度;docnd,保管期限;bgqx,机构问题号;jgwth,发文编号;fwbh,题名;doctm,文号;docwh,责任者;doczrz,备注;bz","archive_grid_wsda",title,true);
 			      	}
 			    }, 
 				{
@@ -933,53 +937,59 @@ Ext.define('MyDesktop.WenshuMan', {
 			          var item = items[0];
 			          var dh = items[0].data.dh;
 			          show_image(dh);	              
-			          set_image("/assets/wuxi_pic.png");
+			          set_image("/assets/dady/fm.jpg");
 			        }
 			      }    
 			    },
 			        '->',
-			        {
-			          xtype: 'combo',
-			          name: 'aj_select',
-			          store: aj_where_field_data,
-			          emptyText:'案卷标题',
-			          mode: 'local',
-			          minChars : 2,
-			          valueField:'text',
-			          displayField:'text',
-			          triggerAction:'all',
-			          id:'wenshu_aj_select_field'
-			        } ,
-			        '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-			        {
-			          xtype:'textfield',
-			          id:'wenshu_query_text',
-			        } ,         
-			        { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-			          handler: function() {
-			            console.log(Ext.getCmp('wenshu_query_text').value);
-			            if(Ext.getCmp('wenshu_query_text').value != null ){
-			              var grid = Ext.getCmp('archive_grid_wsda');
-			              grid.store.proxy.url="/desktop/get_archive_where";
-			              archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
-			              archive_store.load();
-			            }
-			          }
-			        }
+			      //  {
+			      //    xtype: 'combo',
+			      //    name: 'aj_select',
+			      //    store: aj_where_field_data,
+			      //    emptyText:'案卷标题',
+			      //    mode: 'local',
+			      //    minChars : 2,
+			      //    valueField:'text',
+			      //    displayField:'text',
+			      //    triggerAction:'all',
+			      //    id:'wenshu_aj_select_field'
+			      //  } ,
+			      //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+			      //  {
+			      //    xtype:'textfield',
+			      //    id:'wenshu_query_text',
+			      //  } ,         
+			      //  { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+			      //    handler: function() {
+			      //      console.log(Ext.getCmp('wenshu_query_text').value);
+			      //      if(Ext.getCmp('wenshu_query_text').value != null ){
+			      //        var grid = Ext.getCmp('archive_grid_wsda');
+			      //        grid.store.proxy.url="/desktop/get_archive_where";
+			      //        archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
+			      //        archive_store.load();
+			      //      }
+			      //    }
+			      //  }
 			],
 		    columns: [
-		    	{ text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-			    { text : '归档年度',  width : 75, sortable : true, dataIndex: 'zdnd'},
-			    { text : '机构问题号',  width : 75, sortable : true, dataIndex: 'jgwt'},
+		    	
+		
+			  { text : '归档年度',  width : 40, sortable : true, dataIndex: 'zdnd'},
+			  { text : '文号',   width : 175, sortable : true, dataIndex: 'wh'},		      
+		      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+		      { text : '机构问题号',  width : 50, sortable : true, dataIndex: 'jgwt'},
+		
+
 			    { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
 			    { text : '发文编号',   width : 75, sortable : true, dataIndex: 'fwbh'},
-			    { text : '文号',   width : 75, sortable : true, dataIndex: 'wh'},
+
 			    { text : '责任者',  width : 175, sortable : true, dataIndex: 'zrz'},
-			    { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+
 			    { text : '制文日期',  width : 75, sortable : true, dataIndex: 'zwrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},	
 				{ text : '是否已归临时库',  width : 75, sortable : true, dataIndex: 'sfyglsk'},
 				{ text : '是否已归档',  width : 75, sortable : true, dataIndex: 'sfygd'},		      
 			    { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
+			{ text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
 			    { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
 			],
 		    selType:'checkboxmodel',
@@ -1077,18 +1087,22 @@ Ext.define('MyDesktop.WenshuMan', {
 			    id : 'archive_grid_wsda',
 			    store: archive_store,					    				    
 			    columns: [
-			    	  { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-				      { text : '归档年度',  width : 75, sortable : true, dataIndex: 'zdnd'},
-				      { text : '机构问题号',  width : 75, sortable : true, dataIndex: 'jgwt'},
+
+					  { text : '归档年度',  width : 40, sortable : true, dataIndex: 'zdnd'},
+					  { text : '文号',   width : 175, sortable : true, dataIndex: 'wh'},		      
+				      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+				      { text : '机构问题号',  width : 50, sortable : true, dataIndex: 'jgwt'},
+
 				      { text : '保管期限', width : 75, sortable : true, dataIndex: 'bgqx'},
 				      { text : '文件编号',   width : 75, sortable : true, dataIndex: 'wjbh'},
-				      { text : '文号',   width : 75, sortable : true, dataIndex: 'wh'},
+
 				      { text : '责任者',  width : 175, sortable : true, dataIndex: 'zrz'},
-				      { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+
 				      { text : '制文日期',  width : 75, sortable : true, dataIndex: 'zwrq' ,renderer: Ext.util.Format.dateRenderer('Y-m-d')},			      
 				      { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
 					　　{ text : '是否已归临时库',  width : 75, sortable : true, dataIndex: 'sfyglsk'},
 					  { text : '是否已归档',  width : 75, sortable : true, dataIndex: 'sfygd'},
+					  { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
 				      { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
 			    ],
 				tbar:[
@@ -1161,7 +1175,7 @@ Ext.define('MyDesktop.WenshuMan', {
 					{
 				      xtype:'button',text:'高级查询',tooltip:'查询条件',id:'advance-search',iconCls:'search',
 				      handler: function() {
-				        showAdvancedSearch();
+				        showAdvancedSearch("年度;docnd,保管期限;bgqx,机构问题号;jgwth,文件编号;wjbh,题名;doctm,文号;docwh,责任者;doczrz,备注;bz","archive_grid_wsda",title,true);
 				      }
 				    }, 
 					{
@@ -1173,39 +1187,39 @@ Ext.define('MyDesktop.WenshuMan', {
 				          var item = items[0];
 				          var dh = items[0].data.dh;
 				          show_image(dh);	              
-				          set_image("/assets/wuxi_pic.png");
+				          set_image("/assets/dady/fm.jpg");
 				        }
 				      }    
 				    },
 				    '->',
-			        {
-			          xtype: 'combo',
-			          name: 'aj_select',
-			          store: aj_where_field_data,
-			          emptyText:'案卷标题',
-			          mode: 'local',
-			          minChars : 2,
-			          valueField:'text',
-			          displayField:'text',
-			          triggerAction:'all',
-			          id:'wenshu_aj_select_field'
-			        } ,
-			        '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-			        {
-			          xtype:'textfield',
-			          id:'wenshu_query_text',
-			        } ,         
-			        { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'wenshu_query',iconCls:'search',
-			          handler: function() {
-			            console.log(Ext.getCmp('wenshu_query_text').value);
-			            if(Ext.getCmp('wenshu_query_text').value != null ){
-			              var grid = Ext.getCmp('archive_grid_wsda');
-			              grid.store.proxy.url="/desktop/get_archive_where";
-			              archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
-			              archive_store.load();
-			            }
-			          }
-			        }
+			     //  {
+			     //    xtype: 'combo',
+			     //    name: 'aj_select',
+			     //    store: aj_where_field_data,
+			     //    emptyText:'案卷标题',
+			     //    mode: 'local',
+			     //    minChars : 2,
+			     //    valueField:'text',
+			     //    displayField:'text',
+			     //    triggerAction:'all',
+			     //    id:'wenshu_aj_select_field'
+			     //  } ,
+			     //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+			     //  {
+			     //    xtype:'textfield',
+			     //    id:'wenshu_query_text',
+			     //  } ,         
+			     //  { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'wenshu_query',iconCls:'search',
+			     //    handler: function() {
+			     //      console.log(Ext.getCmp('wenshu_query_text').value);
+			     //      if(Ext.getCmp('wenshu_query_text').value != null ){
+			     //        var grid = Ext.getCmp('archive_grid_wsda');
+			     //        grid.store.proxy.url="/desktop/get_archive_where";
+			     //        archive_store.proxy.extraParams.query=Ext.getCmp('wenshu_query_text').value;
+			     //        archive_store.load();
+			     //      }
+			     //    }
+			     //  }
 				],
 				bbar:[
 			      	new Ext.PagingToolbar({
@@ -1292,7 +1306,7 @@ Ext.define('MyDesktop.WenshuMan', {
 		                AjListFn_fwdj(data.id,node.selected.items[0].parentNode.data.text+data.text);
 		                break;
 		            case "5":
-		                AjListFn_lbzl(data.id,node.selected.items[0].parentNode.data.text+data.text);
+		                doc_jgwt_setup();
 		                break;
 		            case "6":
 		                doc_dagl(ss[0]);
@@ -1313,6 +1327,8 @@ Ext.define('MyDesktop.WenshuMan', {
 	        title:'文书处理',        
 	        width:1000,
 	        height:600,
+			//maximizable :true,
+			maximized:true,
 	        x:0,
 	        y:0,
 	        iconCls: 'archiveman',
@@ -1327,7 +1343,7 @@ Ext.define('MyDesktop.WenshuMan', {
 	            iconCls:'dept_tree',
 	            xtype:'panel',
 	            margins:'5 2 5 5',
-	            width: 200,
+	            width: 150,
 	            collapsible:true,//可以被折叠
 	            id:'wenshu_west-tree',
 	            layout:'fit',
@@ -1346,6 +1362,9 @@ Ext.define('MyDesktop.WenshuMan', {
 	            collapsible:true
 	          },{
 	            title: '影像图列表',
+					collapsed:true,
+					collapseMode:'mini',
+					hideCollapseTool:true,
 	              collapsible: true,
 	              iconCls:'dept_tree',
 	              region:'east',
@@ -1512,7 +1531,7 @@ Ext.define('MyDesktop.WenshuMan', {
 	            win.show();
 	          }else{
 	            alert('您无文书处理的权限。');
-	            Ext.getCmp('archiveman').close();
+	            Ext.getCmp('wushuman').close();
 	          }
 	        }
 	    });

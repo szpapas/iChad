@@ -43,6 +43,16 @@ Ext.define('MyDesktop.DaPrint', {
   createWindow : function(){
       var desktop = this.app.getDesktop();
       var win = desktop.getWindow('daprint');
+	function getNodes(node,tf) {
+      //遍历所有子节点
+      if (node.childNodes.size() == 0) return;
+      node.eachChild(function(n){
+        //Ext.getCmp('user_ml_qx_tree_panel').store.getNodeById("1_1_1").data.checked
+        n.data.checked=tf;
+        n.updateInfo({checked:tf});
+        getNodes(n,tf);
+      });
+    };
 	Ext.regModel('qz_model_print', {
 	   	fields: [
 	   		{name: 'id',		type: 'integer'},
@@ -85,13 +95,38 @@ Ext.define('MyDesktop.DaPrint', {
 			}				
 	});
 	dalb_store_print.load();
+	
+	var print_model_query='';
+	Ext.regModel('print_model_print', {
+		fields: [
+			{name: 'id',		type: 'integer'},
+			{name: 'mbmc',		type: 'string'}
+		]
+	});
+	var print_store_print = Ext.create('Ext.data.Store', {
+			id:'print_store_print',
+			model : 'print_model_print',
+			
+			proxy: {
+				type: 'ajax',
+				url : '/desktop/get_print_print_grid',
+				extraParams: {param:print_model_query},
+				reader: {
+					type: 'json',
+					root: 'rows',
+					totalProperty: 'results'
+				}
+			}				
+	});
+	
+	
 		var ym_disp = function(record,add_new){
 			var win = Ext.getCmp('ym_disp_win');
 			
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'ym_disp_win',
-					title: '修改用户信息',
+					title: '修改信息',
 					//closeAction: 'hide',
 					width: 370,
 					height: 300,
@@ -373,6 +408,167 @@ Ext.define('MyDesktop.DaPrint', {
 			win.show();
 		};
 
+	    var print_model_disp = function(id,name,add_new){
+	      var win = Ext.getCmp('print_model_disp_win');
+
+	      if (win==null) {
+	        win = new Ext.Window({
+	          id : 'print_model_disp_win',
+	          title: '修改打印模板名称',
+	          //closeAction: 'hide',
+	          width: 370,
+	          height: 140,
+	          //minHeight: 200,
+	          layout: 'fit',
+	          modal: true,
+	          plain: true,
+	          //items:user_setup_grid,          
+	          items: [{
+	            width: 370,
+	            height: 140,
+	            xtype:'form',
+	            layout: 'absolute',
+	            id : 'print_model_disp_form',
+	            items: [
+	              {
+	                xtype: 'label',
+	                text: '打印模板名称：',
+	                x: 10,
+	                y: 10,
+	                width: 100
+	              },
+	              {
+	                xtype: 'label',
+	                text: '打印模板类别：',
+	                x: 10,
+	                y: 40,
+					id:'jr_lx_label',
+	                width: 100
+	              },
+	              {
+	                xtype: 'textfield',
+	                hidden : true,
+	                name : 'id' ,
+	                id:'jr_id'                    
+	              },
+
+	              {
+	                xtype: 'textfield',
+	                x: 130,
+	                y: 10,
+	                width: 200,
+	                name: 'name',
+	                id:'jr_name'
+	              },
+	              {
+	                xtype: 'combobox',
+	                x: 130,
+	                y: 40,
+	                width: 200,
+	                store: print_model_store,
+	                emptyText:'请选择',
+	                mode: 'remote',
+	                minChars : 2,
+	                valueField:'text',
+	                displayField:'text',
+	                triggerAction:'all',
+	                name: 'lx',
+	                id:'jr_lx'
+	              }
+	            ],
+	            buttons:[{
+	                xtype: 'button',
+	                iconCls: 'option',
+	                id:'button_user_add',
+	                text:'修改',
+	                handler: function() {
+	                  var pars=this.up('panel').getForm().getValues();
+	                  if(pars['name']!=''){
+	                      if(add_new==false){
+	                        new Ajax.Request("/desktop/update_print_model", { 
+	                          method: "POST",
+	                          parameters: pars,
+	                          onComplete:  function(request) {
+	                            text=request.responseText.split(':');
+			                    if (text[0]=='success'){
+	                              	Ext.getCmp('print_model_disp_win').close();
+		                            Ext.getCmp('print_model_tree_panel').store.url='/desktop/get_print_model_tree';
+									Ext.getCmp('print_model_tree_panel').store.clearOnLoad = false;
+									Ext.getCmp('print_model_tree_panel').store.getRootNode().removeAll() ;
+		                            Ext.getCmp('print_model_tree_panel').store.load();
+	                            }else{
+	                              	if (text[0]=='false'){
+			                          alert(text[1]);
+			                        }else{
+			                          alert("修改失败。");
+			                        }
+	                            }
+
+	                          }
+	                        });
+	                      }else{
+							if(pars['lx']!=undefined){
+	                        	new Ajax.Request("/desktop/insert_print_model", { 
+		                          method: "POST",
+		                          parameters: pars,
+		                          onComplete:  function(request) {
+		                            text=request.responseText.split(':');
+				                    if (text[0]=='success'){
+
+		                              	Ext.getCmp('print_model_disp_win').close();
+		                              	Ext.getCmp('print_model_tree_panel').store.url='/desktop/get_print_model_tree';
+										Ext.getCmp('print_model_tree_panel').store.clearOnLoad = false;
+										Ext.getCmp('print_model_tree_panel').store.getRootNode().removeAll() ;
+		                              	Ext.getCmp('print_model_tree_panel').store.load();
+		                            }else{
+		                              	if (text[0]=='false'){
+				                          alert(text[1]);
+				                        }else{
+				                          alert("新增失败。");
+				                        }
+		                            }
+		                          }
+		                        });
+							}else{
+								alert("卷内模板类别不能为空。");
+							}
+	                      }
+
+	                  }else{
+	                    alert("卷内模板名称不能为空。");
+	                  }
+	                }
+	              },
+	              {
+	                xtype: 'button',
+	                iconCls: 'exit',
+	                text:'退出',
+	                handler: function() {
+	                  //this.up('window').hide();
+	                  Ext.getCmp('print_model_disp_win').close();
+	                }
+	              }]
+	          }]
+
+	        });
+	      }
+	      if(add_new==false){
+	      //设置数据
+	        //Ext.getCmp('jr_model_disp_form').getForm().setValues(record.data);
+	        Ext.getCmp('jr_name').setValue(name);
+			Ext.getCmp('jr_id').setValue(id);
+			Ext.getCmp('jr_lx').hidden=true;
+			Ext.getCmp('jr_lx_label').hidden=true;
+	      }else{
+	        Ext.getCmp('print_model_disp_win').title="新增信息";
+	        Ext.getCmp('button_user_add').text="新增";
+	        Ext.getCmp('button_user_add').iconCls="add";
+	      }
+
+	      win.show();
+	    };
+
+
 		var ym_setup = function(){
 			var win = Ext.getCmp('ym_setup_win');
 
@@ -394,7 +590,7 @@ Ext.define('MyDesktop.DaPrint', {
 			var ym_setup_store = Ext.create('Ext.data.Store', {
 				id:'ym_setup_store',
 				model : 'ym_setup_model',
-				autoLoad: true,
+				//autoLoad: true,
 				proxy: {
 					type: 'ajax',
 					url : '/desktop/get_ym_grid',
@@ -426,34 +622,156 @@ Ext.define('MyDesktop.DaPrint', {
 					selType:'checkboxmodel',
 					//multiSelect:true,
 					listeners:{
-						
-					},
+			          itemdblclick:{
+			            fn:function(v,r,i,n,e,b){
+			              var tt=r.get("zrq");
+							ym_disp(r,false);
+			            }
+			          }
+			        },
 				
 				viewConfig: {
 					stripeRows:true
 				}
 			});
-			
+			var print_model_tree_store = Ext.create('Ext.data.TreeStore', {
+	          autoLoad: true,
+	          proxy: {
+	              type: 'ajax',
+	              url: 'desktop/get_print_model_tree',
+	              extraParams: {style:"0"},
+	              actionMethods: 'POST'
+	          }
+	      	}); 
+	      var print_model_tree_panel = Ext.create('Ext.tree.Panel', {
+	        id : 'print_model_tree_panel',
+	        store: print_model_tree_store,
+	        rootVisible:false,
+	        useArrows: true,
+			listeners:{
+		        checkchange:function(node,checked,option){
+		          if(checked){
+		            root=Ext.getCmp('print_model_tree_panel').store.getRootNode();     
+		            getNodes(root,false);
+		            node.data.checked=true;
+		            node.updateInfo({checked:true});
+					jr_modelid='';
+					jr_modelname='';
+					jr_tm_modelid='';
+					if (node.data.leaf==true){
+						jr_modelid=node.data.id;
+						jr_modelname=node.data.text;
+						ym_setup_store.proxy.extraParams.dylx=node.data.id;
+			            ym_setup_store.load();
+					};
+
+				  }
+				}
+			},
+	        //singleExpand: true,
+	        width: 200
+
+	      });
+
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'ym_setup_win',
-					title: '页面设置(单位：0.1毫米)',
-					
+					title: '页面设置(单位：0.1毫米。页面左上角坐标：0,0)',					
 					width: 700,
 					height: 580,
 					minHeight: 530,
-					layout: 'fit',
+					layout: 'border',
 					modal: true,
 					plain: true,
-					items:ym_setup_grid,					
-					tbar:[
+					items: [
+			            { title:'模板名称树',
+			              region:'west',
+			              iconCls:'users',
+			              xtype:'panel',
+			              margins:'0 0 0 0',
+			              width: 200,
+			              collapsible:true,//可以被折叠              
+			              layout:'fit',
+			              split:true,
+			              items:print_model_tree_panel
+			            },
+			            { title:'打印模板字段列表',
+			              region:'center',
+			              iconCls:'dept_tree',
+			              xtype:'panel',
+			              margins:'0 0 0 0',
+			              layout:'fit',
+			              split:true,
+			              items:ym_setup_grid
+			            }
+			          ],					
+					tbar:[{
+			            xtype: 'button',
+			            iconCls: 'add',
+			            text:'新增模板名称',
+			            handler: function() {
+							print_model_disp("record","",true);
+			              }
+			          },
+			          {
+			            xtype: 'button',
+			            iconCls: 'option',
+			            text:'修改模板名称',
+			            handler: function() {  
+							if (jr_modelname!='标准通用打印模板' && jr_modelname!='标准土地登记打印模板'){            
+			              		if (jr_modelid!=''){
+				              		print_model_disp(jr_modelid,jr_modelname,false);        
+				              	}else{
+				                	alert("请选择一个模板名称进行修改。");
+				              	}
+							}else{
+								alert("标准打印模板不能进行修改。");
+							}
+			            }
+			          },
+			          {
+			            xtype: 'button',
+			            iconCls: 'delete',
+			            text:'删除模板名称',
+			            handler: function() {
+							if (jr_modelname!='标准通用打印模板' && jr_modelname!='标准土地登记打印模板'){
+			              		if (jr_modelid!=''){
+					              	var pars={id:jr_modelid};
+					                  new Ajax.Request("/desktop/delete_print_model", { 
+					                    method: "POST",
+					                    parameters: pars,
+					                    onComplete:  function(request) {
+					                      text=request.responseText.split(':');
+					                      if (text[0]=='success'){
+					                        alert("删除成功。");    
+					                        jr_modelid='';
+											jr_tm_modelid='';
+					                        Ext.getCmp('print_model_tree_panel').store.url='/desktop/get_print_model_tree';
+											Ext.getCmp('print_model_tree_panel').store.clearOnLoad = false;
+											Ext.getCmp('print_model_tree_panel').store.getRootNode().removeAll() ;
+				                            Ext.getCmp('print_model_tree_panel').store.load();
+					                      }else{
+					                        if (text[0]=='false'){
+					                          alert(text[1]);
+					                        }else{
+					                          alert("删除失败。");
+					                        }
+					                      }
+					                    }   
+									});
+					              }else{
+					                alert("请选择一个模板名称进行删除。");
+					              }
+							}else{
+								alert("标准打印模板不能进行删除。");
+							}
+			            }
+			          },
 					{
 						xtype: 'button',
 						iconCls: 'option',
-						text:'修改',
-						handler: function() {
-							
-							
+						text:'修改打印字段',
+						handler: function() {														
 							var grid = Ext.getCmp('ym_setup_grid');
 							var records = grid.getSelectionModel().getSelection();
 							if (records.length==1){
@@ -464,27 +782,7 @@ Ext.define('MyDesktop.DaPrint', {
 							}
 						}
 					},
-					'<span style=" font-size:12px;font-weight:600;color:#3366FF;">打印类别</span>:&nbsp;&nbsp;',{
-			           xtype: 'combo',           
-			           x: 130,
-			           y: 190,
-			           width: 200,
-			           name: 'dylx',
-			           id: 'dylx',
-			           store: print_dylx_store,
-			           emptyText:'请选择',
-			           mode: 'local',
-			           minChars : 2,
-			           valueField:'text',
-			           displayField:'text',
-			           triggerAction:'all',
-			           listeners:{
-			             select:function(combo, records, index) {
-			               ym_setup_store.proxy.extraParams.dylx=combo.lastValue;
-			               ym_setup_store.load();
-			             }
-			           }
-					  },
+					
 					{
 						xtype: 'button',
 						iconCls: 'exit',
@@ -501,21 +799,20 @@ Ext.define('MyDesktop.DaPrint', {
 
 			win.show();
 		};
+
+
       if(!win){
           win = desktop.createWindow({
               id: 'daprint',
               title:'档案打印',
               	
 				width:250,
-	            height:355,
-              
+	            height:380,              
 				//layout: 'border',
-				modal: true,
-				
-				items:[{
-						
+				modal: true,				
+				items:[{						
 						//region: 'north',
-					height: 320,
+						height: 345,
 						xtype:'form',
 						border:false,
 						layout: 'absolute',
@@ -567,7 +864,27 @@ Ext.define('MyDesktop.DaPrint', {
 								name: 'dalb',
 			                    labelWidth: 65,
 			                    x: 10,
-			                    y: 70
+			                    y: 70,
+								listConfig: { loadMask: false },
+				                  listeners:{  
+				                    select:function(combo, record,index){
+				                    	var parent=Ext.getCmp('print_model');
+									
+					                    parent.clearValue();
+										if (this.value=='3' || this.value=='5' || this.value=='6' || this.value=='7' ){
+					                    	parent.store.load({params:{param:'土地登记打印'}});
+											print_model_query='土地登记打印';
+										}else{
+											parent.store.load({params:{param:'通用打印'}});
+											print_model_query='通用打印';
+										}
+						                  //var currentImage = combo.getStore().getById(parent.getValue());
+						                  //var currentStoreIndex = parent.getStore().indexOf(currentImage);
+						                  //var nextStoreValue = parent.getStore().getAt(1).get('id');
+						                  parent.setValue('标准'+print_model_query+'模板');
+				                    //Ext.getCmp('fj_sslc').lastQuery = null;
+				                    }
+								}
 			                },
 							{
 			                    xtype: 'combobox',
@@ -575,7 +892,7 @@ Ext.define('MyDesktop.DaPrint', {
 			                    fieldLabel: '保管期限',
 			                    labelWidth: 65,
 								name: 'bgqx',
-								store: bgqx_store,
+								store: doc_bgqx_store,
 								emptyText:'请选择',
 								mode: 'remote',
 								minChars : 2,
@@ -636,22 +953,41 @@ Ext.define('MyDesktop.DaPrint', {
 			                    x: 10,
 			                    y: 250
 			                },
-			                {
+							{
+			                    xtype: 'combobox',
+			                    width: 215,
+			                    fieldLabel: '打印模板',
+								id:'print_model',
+								store: print_store_print,
+								emptyText:'请选择',
+								//mode: 'remote',
+								queryMode:'local', 
+								minChars : 2,
+								valueField:'mbmc',
+								displayField:'mbmc',
+								triggerAction:'all',
+								name: 'print_model',
+								listConfig: { loadMask: false },
+			                    labelWidth: 65,
+			                    x: 10,
+			                    y: 280
+			                },
+							{
 			                    xtype: 'button',
 			                    text: '页面设置',
 								iconCls:'print',
 			                    x: 10,
-			                    y: 280,
+			                    y: 310,
 								handler:function(){
 									ym_setup();
 								}
 			                },
-			                {
+							{
 			                    xtype: 'button',
 			                    text: '打印',
 								iconCls:'print',
 			                    x: 105,
-			                    y: 280,
+			                    y: 310,
 								handler : function() {
 									var pars=this.up('panel').getForm().getValues();
 									//Ext.getCmp('print_preview_img').getEl().dom.src = 'assets/dady/1_A2_0001_ML02.jpg';
@@ -660,27 +996,41 @@ Ext.define('MyDesktop.DaPrint', {
 										parameters: pars,
 										onComplete:	 function(request) {
 											fhz=request.responseText.split(":");
-											if (fhz[0]=='success'){
-												
-											    printfile=fhz[1].split(",");
-											    for (k=0;k<printfile.length;k++){
-											      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
-									              //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-									              //image_path = "http://192.168.10.193:3000/assets/dady/tmp1/" + printfile[k];
-													//alert(window.location.href);
-												  image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
-											      LODOP.PRINT_INIT(image_path);
-									              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-									              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-									              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-									              //LODOP.PREVIEW();
-											      LODOP.PRINT();
+											if (fhz[0]=='success'){	
+												if (pars.dylb=='案卷封面打印' || pars.dylb=='卷内目录打印'){									
+											    	printfile=fhz[1].split(",");
+												    for (k=0;k<printfile.length;k++){
+												      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
+										              //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+										              //image_path = "http://192.168.10.193:3000/assets/dady/tmp1/" + printfile[k];
+														//alert(window.location.href);
+													  var number = Math.random(); 
+													  image_path = window.location.href + "assets/dady/tmp1/" + printfile[k] +'?' + number;
+													  LODOP.PRINT_INIT(image_path);  
+													  if (pars.dylb=='案卷目录打印'){
+															LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
+													  }else{
+															if (pars.dylb=='卷内目录打印'){
+																LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
+															}
+
+													  }									      
+										              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+										              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+										              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+										              LODOP.PREVIEW();
+												      //LODOP.PRINT();
+													  
+													}
+													alert("打印成功。" );
+												}else{
+													//location.href= fhz[1];
+													window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 												}
-													alert("打印成功。"+fhz[1] );
-													
-												
+													//alert("打印成功。"+fhz[1] );	
+													//alert("打印成功。" );								
 											}else{
-												alert("打印失败。");
+												alert("打印失败。"+request.responseText);
 											}
 										}
 									});
@@ -691,34 +1041,14 @@ Ext.define('MyDesktop.DaPrint', {
 			                    text: '退出 ',
 								iconCls:'exit',
 			                    x: 175,
-			                    y: 280
-			                },
-			                {
-			                    xtype: 'box', //或者xtype: 'component',
-					            id: 'print_preview_img',
-					            width: 150, //图片宽度
-								x: 350,
-				                y: 10,
-					            autoEl: {
-					            tag: 'img',    //指定为img标签
-					            alt: './dady/1_A2_0001_ML02.jpg' , }    //指定url路径
-
-
-			                },
-							{
-			                    xtype: 'combobox',
-			                    width: 215,
-			                    fieldLabel: '文件列表',
-			                    labelWidth: 65,
-			                    x: 350,
-			                    y: 280
+			                    y: 310,
+								handler:function(){
+									Ext.getCmp('daprint').close();
+								}
 			                }
-
-
 			              ]
 					}
-
-					]
+				]
               
           });
       }

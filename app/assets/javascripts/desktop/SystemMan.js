@@ -2437,6 +2437,7 @@ Ext.define('MyDesktop.SystemMan', {
 
       win.show();
     };
+
     var jr_model_list_disp = function(id,name,add_new){
       var win = Ext.getCmp('jr_model_list_disp_win');
 
@@ -2572,6 +2573,106 @@ Ext.define('MyDesktop.SystemMan', {
       win.show();
     };
 
+    var qcj_setup = function(){
+	//缺重卷检验
+      var win = Ext.getCmp('qcj_setup_win');
+
+      Ext.regModel('qcj_setup_model', {
+        fields: [
+          {name: 'xh',    type: 'integer'},
+          {name: 'mlh',    type: 'string'},
+          {name: 'ajh',    type: 'string'},
+          {name: 'sm',    type: 'string'}
+        ]
+      });
+
+      var qcj_setup_store = Ext.create('Ext.data.Store', {
+        id:'qcj_setup_store',
+        model : 'qcj_setup_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_qcj_grid',
+          //extraParams: cx_tj,
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+      var qcj_setup_grid = new Ext.grid.GridPanel({
+        id : 'qcj_setup_grid',
+        store: qcj_setup_store,        
+        columns: [
+          { text : '序号',  width : 50, sortable : true, dataIndex: 'xh'},
+          { text : '目录号',  width : 100, sortable : true, dataIndex: 'mlh'},
+          { text : '案卷号',  width : 100, sortable : true, dataIndex: 'ajh'},
+          { text : '说明',  width : 100, sortable : true, dataIndex: 'sm'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            
+          },
+        
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'qcj_setup_win',
+          title: '档案缺重卷检验',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:qcj_setup_grid,          
+          tbar:[
+          	'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">目录号</span>:&nbsp;&nbsp;',
+			{
+				xtype:'textfield',
+				id:'qcj_mlh',
+			},				  
+			{	
+				xtype:'button',text:'检索',tooltip:'检索',id:'qcj_query',iconCls:'search',
+				handler: function() {
+					console.log(Ext.getCmp('qcj_mlh').value);
+					if (Ext.getCmp('qcj_mlh').rawValue!=""){
+						var grid = Ext.getCmp('qcj_setup_grid');
+						grid.store.proxy.url="/desktop/get_qcj_grid";
+						grid.store.proxy.extraParams.query=Ext.getCmp('qcj_mlh').rawValue;	
+						grid.store.proxy.extraParams.userid=currentUser.id; 							
+						grid.store.load();
+					}
+				}
+			},
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('qcj_setup_win').close();
+            }
+          }]
+          
+        });
+      }
+      
+
+      win.show();
+    };
+
+
     var sys_cd_tree_store = Ext.create('Ext.data.TreeStore', {
       autoLoad: true,
       proxy: {
@@ -2601,6 +2702,7 @@ Ext.define('MyDesktop.SystemMan', {
             if (Ext.getCmp('user_sb_setup_win')!=undefined){Ext.getCmp('user_sb_setup_win').close();}
             if (Ext.getCmp('user_setup_win')!=undefined){Ext.getCmp('user_setup_win').close();}           
             if (Ext.getCmp('jr_model_setup_win')!=undefined){Ext.getCmp('jr_model_setup_win').close();}
+			if (Ext.getCmp('qcj_setup_win')!=undefined){Ext.getCmp('qcj_setup_win').close();}
             switch (node.data.id) { 
               case "11": 
                 qz_setup();
@@ -2620,6 +2722,10 @@ Ext.define('MyDesktop.SystemMan', {
               case "16": 
                 user_setup();
                 break;
+			  case "18": 
+	            qcj_setup();
+	            break;
+
 			　　case "17": 
 	            jr_model_setup();
                 break;

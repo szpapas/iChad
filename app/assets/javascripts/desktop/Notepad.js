@@ -1181,10 +1181,10 @@ Ext.define('MyDesktop.Notepad', {
 	        tpl  : Ext.create('Ext.XTemplate',
 	            '<tpl for=".">',
 					'<div class="thumb-wrap" id="{name}">',
-			        	'<div class="thumb"><img src="assets/{img}" title="{sbmc}11"></div>',
+			        	'<div class="thumb"><img src="assets/{img}" title="{sbsm}"></div>',
 	                    //'<strong>{lxsm}</strong>',
 						'<span>{[values.kgzt]}</span>',
-	                    '<span>{sbmc}</span>',
+	                    '<span>{sbmc}</span>',	
 	                '</div>',
 	            '</tpl>'
 	        ),
@@ -1275,7 +1275,6 @@ Ext.define('MyDesktop.Notepad', {
             {name: 'sbh',   type: 'string'},
             {name: 'kgzt',    type: 'string'},
             {name: 'sblx',    type: 'string'}
-
           ]
         });
 
@@ -1307,8 +1306,7 @@ Ext.define('MyDesktop.Notepad', {
             { text : '所属房间',  width : 100, sortable : true, dataIndex: 'fjmc'},
             { text : '所属楼层',  width : 100, sortable : true, dataIndex: 'lcmc'},
             { text : '所属楼宇',  width : 100, sortable : true, dataIndex: 'lymc'},
-            { text : '设备号', width : 50, sortable : true, dataIndex: 'sbh'}
-            
+            { text : '设备号', width : 50, sortable : true, dataIndex: 'sbh'}           
             ],
             selType:'checkboxmodel',
             //multiSelect:true,
@@ -1316,12 +1314,10 @@ Ext.define('MyDesktop.Notepad', {
               itemdblclick:{
                 fn:function(v,r,i,n,e,b){
                   var tt=r.get("zrq");
-
                   //DispAj(r,false);
                 }
               }
             },
-
           viewConfig: {
             stripeRows:true
           }
@@ -1343,7 +1339,6 @@ Ext.define('MyDesktop.Notepad', {
           useArrows: true,
           //singleExpand: true,
           width: 200
-
         });
         fj_tree_panel.on("select",function(node){ 
           data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
@@ -1401,7 +1396,6 @@ Ext.define('MyDesktop.Notepad', {
                 layout:'fit',
                 split:true,
                 items:fj_tree_panel
-
               },
               { title:'设备列表',
                 region:'center',
@@ -1413,7 +1407,6 @@ Ext.define('MyDesktop.Notepad', {
                 items:panel
               }
             ],
-
             tbar:[{
               xtype: 'button',
 			　　id:'zn_sb_cz_open',
@@ -2630,7 +2623,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: lc_store,
                   emptyText:'请选择',
-                  mode: 'local',
+                  queryMode:'local', 
                   minChars : 2,
                   valueField:'id',
                   displayField:'lcmc',
@@ -3035,7 +3028,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: lc_store,
                   emptyText:'请选择',
-                  mode: 'remote',
+                  queryMode:'local', 
                   minChars : 2,
                   valueField:'id',
                   displayField:'lcmc',
@@ -3060,7 +3053,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: fj_store,
                   emptyText:'请选择',
-                  mode: 'remote',
+                  queryMode:'local', 
                   minChars : 2,
                   valueField:'id',
                   displayField:'fjmc',
@@ -4057,7 +4050,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: sb_cz_store,
                   emptyText:'请选择',
-                  mode: 'remote',
+                  queryMode:'local', 
                   minChars : 2,
                   valueField:'czid',
                   displayField:'czsm',
@@ -4576,7 +4569,7 @@ Ext.define('MyDesktop.Notepad', {
                   width: 200,
                   store: sb_cz_store,
                   emptyText:'请选择',
-                  mode: 'remote',
+                  queryMode:'local', 
                   minChars : 2,
                   valueField:'czid',
                   displayField:'czsm',
@@ -5091,8 +5084,7 @@ Ext.define('MyDesktop.Notepad', {
                 case "5": 
                   sb_cz_setup();
                   break;
-                case "6": 
-				  
+                case "6": 				  
                   user_sb_setup();
                   break;
                 case "7": 

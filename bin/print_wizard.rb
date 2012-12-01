@@ -344,5 +344,7 @@ for k in 0..user.count-1 do
   generate_single_archive(user[k]['id'], dylb.to_i)
 end
 
+system("ruby ./dady/bin/update_qzxx_tj.rb #{dydh}") 
+
 $conn.close
 

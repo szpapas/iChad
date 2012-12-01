@@ -21,6 +21,12 @@ gem 'therubyracer', '0.9.10'
 
 gem 'mongrel'
 
+gem 'fastimage'
+
+#gem 'pdf-writer'
+
+gem 'prawn'
+
 gem 'json', '1.6.4'
 
 # Gems used only for assets and not required

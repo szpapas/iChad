@@ -2,7 +2,6 @@
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 #$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
-
 require 'pg'
 require 'find'
 
@@ -26,16 +25,13 @@ puts "===ajh  of  #{ajh}  ==="
 t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
 
-
 if !ajh.nil?
-  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
+  #puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
+  #$conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
 else 
-  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+  #puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  #$conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
 end
-
-#/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
 def getimgsize(fname)
   outfile = rand(36**6).to_s(36)
@@ -46,7 +42,7 @@ def getimgsize(fname)
   else
     $stderr.puts(" *** Import Image: #{fname}  file is corrupt.")
     ss = "0, 0"
-  end    
+  end
   ss
 end
 
@@ -84,54 +80,29 @@ def save2timage(yxbh, path, dh, yx_prefix)
   if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
 
     si = fo.index("\377\300")
-    
     if si.nil?
       $stderr.puts(" *** Import Image: #{path}  corrupt image file.")
       return
     end
-    width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    metas = /(sm\w+:\s+\w+;\d*;\d*;\d*;\d*;\d*)/.match(fo)
     
-    fb,fe=fo.index("\377\376"), fo.index("\377\333")
-    meta=''
-    
-    if fb.nil? || fe.nil?
+    if metas.nil?
+      $stderr.puts "Tags error: #{path}"
       meta, meta_tz = "", 0
-      pixels = width * height
-      if pixels > 6000000
-        meta_tz = 2
-
-        wh = getimgsize(path).split(",")
-        width, height = wh[0].to_i, wh[1].to_i
-        pixels = width * height
-        
-      elsif pixels > 4000000
-        meta_tz = 1
-      else
-        meta_tz = 0    
-      end
     else
-      pixels = width * height
-      if pixels > 1000000000
-        wh = getimgsize(path).split(",")
-        width, height = wh[0].to_i, wh[1].to_i
-        pixels = width * height
-      end 
-      
-      metas = /(sm\w+:\s+\w+;\d*;\d*;\d*;\d*;\d*)/.match(fo)
-      
-      if metas.nil?
-        $stderr.puts "Tags error: #{path}"
-        meta, meta_tz = "", 0
-      else
-        meta = metas[1]
-        mm = meta.split("\;")
-        meta_tz =mm[2].to_i
-      end 
-            
-    end
+      meta = metas[1]
+      mm = meta.split("\;")
+      meta_tz =mm[2].to_i
+    end 
+
+    wh = getimgsize(infile).split(",")
+    width, height = wh[0].to_i, wh[1].to_i
+    pixels = width * height
     
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
     meta = ""
+    puts "getimgsize #{infile}"
+
     wh = getimgsize(infile).split(",")  #decrypted file
     width, height = wh[0].to_i, wh[1].to_i
     pixels = width * height
@@ -149,11 +120,8 @@ def save2timage(yxbh, path, dh, yx_prefix)
     end  
   end
   
-  #puts "encrypt #{infile} #{outfile}"
   system("encrypt #{infile} #{outfile}")
   fo = File.open(outfile).read
-
-  #puts "yxdx encrypted size: #{fo.size}"
 
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
@@ -161,8 +129,8 @@ def save2timage(yxbh, path, dh, yx_prefix)
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta}   ... "
   
   tag = get_tag(yxbh)
-  #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);"
-  
+  #puts "insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);"
+  $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag, jm_tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag}, 1);")
   
   system("rm #{infile} #{outfile}")
@@ -197,7 +165,6 @@ $dh, $archive_id = '', 0
 Find.find(path) do |path|
   if FileTest.directory?(path)
     if File.basename(path)[0] == ?.
-      #Find.prune       # Don't look any further into this directory.
     else
       next
     end
@@ -205,47 +172,54 @@ Find.find(path) do |path|
     #/Volumes/新加卷/C-82/C-82$C$0017/C-82$C$0017$MLBK.jpg
     if (path.include?'jpg') || (path.include?'TIF') || (path.include?'tif') || (path.include?'JPG')
       #./ws2010/长期$2010$0003$001/0002.jpg
-      
-   #   if !/(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path).nil?
-   #     ss = /(.*)\/(.*)\$(.*)\$(.*)\$(.*)\/(.*)/.match(path)
-   #     #1.	./ws2010
-   #     #2.	长期
-   #     #3.	2010
-   #     #4.	0003
-   #     #5.	001
-   #     #6.	0002.jpg
-   #
-   #     qq = ["永久", "长期", "短期", "定期-10年" ,"定期-30年" ]
-   #     mlh = 8000+(ss[3].to_i-2000)*50 + ss[5].to_i*5 + qq.index(ss[2])
-   #     dh  = "#{qzh}-#{dalb}-#{mlh}-#{ss[4].to_i}-#{ss[5].to_i}"
-   #
-   #     if dh != $dh
-   #       $dh = dh
-   #       $stderr.puts "processing #{dh}... "
-   #     end
-   #     yxqz = "#{ss[3]}\$#{ss[4]}\$#{ss[5]}" 
-   #     sxh = ss[6]
-   #     
-   #     save2timage(sxh, path, $dh, yxqz)
-   #     next
-   #   end
-      
-      if /(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(....)\.(\w+)/.match(path).nil?
-        $stderr.puts(" *** Import Image: #{path} Format error.")
-        next
-      end
+      puts path
+     if !/(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path).nil?
+        mm = /(\d+).(jpg|tif)$/i.match(path)
+        sxh = "#{mm[1]}.#{mm[2]}"
+        
+        ss = /(长期|永久|短期|定期-10年|定期-30年)\$(\d+)\$(\d+)\$(\d+)/.match(path)
+        nd, bgqx, ajh, jgwth = ss[2], ss[1], ss[3], ss[4]
+  
+        $dh = "#{dh_prefix}-#{ajh.to_i}"
+        yxqz = "#{bgqx}\$#{nd}\$#{ajh.rjust(4, '0')}\$#{jgwth}"  
+        
+        puts "save2timage (#{sxh}, #{path}, #{$dh}, #{yxqz})" 
+        save2timage(sxh, path, $dh, yxqz)
 
-      pp = path.split("\/")
-      ss = pp[pp.size-1].split("$")
+      elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\$(.*)\.(\w+)/.match(path).nil?
+        pp = path.split("\/")
+        ss = pp[pp.size-1].split("$")
 
-      mlm, flh,ajh,sxh = ss[0], ss[1],ss[2],ss[3].gsub("ML","JN")
-      mlh = get_qzml(qzh, dalb, mlm) 
-      
-      #C-82$C$0017$MLBK.jpg
-      sp = pp[pp.size-2].split("$")
-      if (ss[2] != sp[2]) 
-        $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
-        ajh = sp[2]
+        mlm,flh,ajh,sxh = ss[0], ss[1],ss[2],ss[3].gsub("ML","JN")
+        mlh = get_qzml(qzh, dalb, mlm) 
+
+        #C-82$C$0017$MLBK.jpg
+        sp = pp[pp.size-2].split("$")
+        if (ss[2] != sp[2]) 
+          $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+          ajh = sp[2]
+          dh = "#{dh_prefix}-#{ajh.to_i}"
+          if dh != $dh
+            $dh = dh
+            $stderr.puts "processing #{dh}... "
+          end
+          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+          save2timage(sxh, path, $dh, yxqz)
+        else
+          dh = "#{dh_prefix}-#{ajh.to_i}"
+          if dh != $dh
+            $dh = dh
+            $stderr.puts "processing #{dh}... "
+          end
+          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+          save2timage(sxh, path, $dh, yxqz)
+        end
+      elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path).nil?  #for format like  /mnt/lvm1/jm2012/89/89$C$0355/00000001.TIF
+        
+        ss = /(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path)
+        mlm,flh,ajh,sxh = ss[1], ss[2],ss[3],ss[4][4..-1]
+        mlh = get_qzml(qzh, dalb, mlm) 
+        
         dh = "#{dh_prefix}-#{ajh.to_i}"
         if dh != $dh
           $dh = dh
@@ -253,20 +227,18 @@ Find.find(path) do |path|
         end
         yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
         save2timage(sxh, path, $dh, yxqz)
+        
       else
-        dh = "#{dh_prefix}-#{ajh.to_i}"
-        if dh != $dh
-          $dh = dh
-          $stderr.puts "processing #{dh}... "
-        end
-        yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-        save2timage(sxh, path, $dh, yxqz)
-      end  
+        $stderr.puts(" *** Import Image: #{path} Format error.")
+      end
+        
     end
   end
 end
 
 $conn.exec("update timage set dh_prefix = split_part(dh, '-', 1) || '-' || split_part(dh, '-', 2)  ||  '-' || split_part(dh, '-', 3) where dh_prefix is null;")
 $conn.close
+
+system("ruby ./dady/bin/update_qzxx_tj.rb #{dh_prefix}")
 
 puts "=== Total time is #{Time.now-t1} seconds"

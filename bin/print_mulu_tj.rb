@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
@@ -91,7 +91,10 @@ def print_timage(dh_prefix)
   if !File.exists?(pr_path)
     system("mkdir -p #{pr_path}")
   end  
-    
+  pr_path="/share/tjsj/" + dh
+  if !File.exists?(pr_path)
+    system("mkdir -p #{pr_path}")
+  end
   #xj, tj, xj_2, tj_2 = [], [], [], []
   for k in 0..user.count-1 do
     dd = user[k]
@@ -150,23 +153,23 @@ def print_timage(dh_prefix)
       
       if xj[1] != xj[5]
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-        convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
+        convert_str = convert_str + " " + pr_path +"/timage_#{dh}_#{sxh}.png"
         puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.png"
         system convert_str
 
-        puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
-        save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+        puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.png"
+        save2timage("#{sxh}.png", pr_path +"/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
 
       else
         convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-        convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+        convert_str = convert_str + " " + pr_path +"/timage_#{dh}_#{sxh}.jpg"
 
         puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.jpg"
         
         system convert_str
 
-        puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
-        save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+        puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.jpg"
+        save2timage("#{sxh}.jpg", pr_path +"/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
 
       end
 
@@ -201,18 +204,18 @@ def print_timage(dh_prefix)
  
     if tj[1] != tj[5]
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
+      convert_str = convert_str + " " + pr_path +"/timage_#{dh}_#{sxh}.png"
       system convert_str
 
-      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
-      save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+      puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.png"
+      save2timage("#{sxh}.png", " " + pr_path +"/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
     else
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+      convert_str = convert_str + " " + pr_path +"/timage_#{dh}_#{sxh}.jpg"
       system convert_str
 
-      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
-      save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+      puts " save to file #{pr_path}/timage_#{dh}_#{sxh}.jpg"
+      save2timage("#{sxh}.jpg", " " + pr_path +"/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
     end
     
 

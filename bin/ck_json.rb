@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #check_json *.txt
 #$:<<'/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
-$:<<'/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+$:<<'/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
 require 'thread'
 require 'active_support'
 

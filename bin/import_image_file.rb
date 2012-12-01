@@ -57,9 +57,9 @@ def save2timage(filename,dh,dh_prefix)
     
     if si.nil?
       $stderr.puts(" *** Import Image: #{filename}  corrupt image file.")
-      return
+      #return
     end
-    width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    #width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
     
     fb,fe=fo.index("\377\376"), fo.index("\377\333")
     meta=''
@@ -130,8 +130,9 @@ def save2timage(filename,dh,dh_prefix)
 end
 
 #filename.downcase 转成小写
-
-if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG') || (filename.upcase.include?'DOC') || (filename.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+puts filename.upcase
+if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG') || (filename.upcase.include?'XLS') || (filename.upcase.include?'XLSX') || (filename.upcase.include?'DOC') || (filename.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+  puts (filename.upcase.include?'JPG')
   save2timage(filename,dh,dh_prefix)
 else
   if (filename.upcase.include?'RAR') || (filename.upcase.include?'ZIP')
@@ -140,11 +141,12 @@ else
     puts filen
     system("rm -rf ./dady/sc/#{filen[0]}")
     puts "rm -rf ./dady/sc/#{filen[0]}"
-    #system("mkdir -p ./dady/sc")
+    system("mkdir -p ./dady/sc/#{filen[0]}")
     if (filename.upcase.include?'RAR')
-      system("unrar x #{filename} ./dady/sc/  ")
+      system("unrar x #{filename} ./dady/sc/#{filen[0]}  ")
     else
-      system("unzip -o -d ./dady/sc/  #{filename} ")
+      puts "unzip -o -d ./dady/sc/#{filen[0]}  #{filename} "
+      system("unzip -o -d ./dady/sc/#{filen[0]}  #{filename} ")
     end
     path1="./dady/sc/#{filen[0]}"
     puts path1
@@ -158,7 +160,7 @@ else
       else
         puts filename
         puts (filename.upcase.include?'JPEG')
-        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
           puts path
           save2timage(path,dh,dh_prefix)
         end

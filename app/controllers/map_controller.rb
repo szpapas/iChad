@@ -6,7 +6,7 @@ class MapController < ApplicationController
   
   #search=%@&dalb=%@&offset=%d&qzh=%d
   def search_aj
-    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' limit 10;")
+    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' and qzh='#{params['qzh']}' limit 10;")
     render :text=>user.to_json
   end 
   
@@ -45,7 +45,50 @@ class MapController < ApplicationController
   
   #通过ID获取影像文件
   def get_timage
-    user= User.find_by_sql("select * from timage  where where id=#{param['id']};") 
+    if (params['gid'].nil?)
+      txt = ""
+    else
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
+
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
+      end
+      
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{params['gid']};")
+        
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(user[0]["data"])
+        ff.close
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end 
+        system("rm ./tmp/#{tmpfile}")
+      end
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
+
+      if width.to_i > height.to_i
+        txt = "/assets/#{convert_filename}?1".gsub('/assets/./dady/img_tmp/', '/timage/')
+      else
+        txt = "/assets/#{convert_filename}?2".gsub('/assets/./dady/img_tmp/', '/timage/')
+      end     
+ 
+    end
+    render :text => txt
+  end
+  
+
+  def get_timage_old
+    user= User.find_by_sql("select * from timage where id=#{params['id']};") 
     size = user.size;
     if size.to_i > 0
       dh = user[0]['dh']
@@ -54,7 +97,7 @@ class MapController < ApplicationController
       end
       local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
       if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{gid}';")
+        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{id}';")
         File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
       end
       small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
@@ -324,7 +367,7 @@ class MapController < ApplicationController
 
   #通过ID获取影像文件
   def wsImage(gid)
-    user= User.find_by_sql("select * from timage  where where id=#{gid};") 
+    user= User.find_by_sql("select * from timage where id=#{gid};") 
     size = user.size;
     if size.to_i > 0
       dh = user[0]['dh']
@@ -467,7 +510,7 @@ class MapController < ApplicationController
           if ss[2]!=""
             strwhere=strwhere + " and mlh='#{ss[2]}'"
           end
-          if ss.length>3
+          if ss.length==4
             if ss[3]!=""
               if ss[3].length>3
                 strwhere=strwhere + " and ajh='#{ss[3]}'"
@@ -475,6 +518,11 @@ class MapController < ApplicationController
                 strwhere=strwhere + " and ajh='" + sprintf("%04d", ss[3]) + "'"
               end
             
+            end
+          end
+          if ss.length==5
+            if ss[4]!=""              
+                strwhere=strwhere + " and ajh>='#{ss[3].rjust(4,"0")}' and ajh<='#{ss[4].rjust(4,"0")}'"                          
             end
           end
           case (query[1]) 
@@ -809,6 +857,16 @@ class MapController < ApplicationController
     render :text => txt   
   end  
 
+
+  def get_mc_imageList
+    user = User.find_by_sql("select yxmc from mc_image where device_id = #{params['device_id']} order by created_at desc limit 5;")
+    jpg = []
+    for k in 0..user.size-1
+      jpg  << user[k]['yxmc']
+    end  
+    render :text => jpg.join(" ")
+  end
+
   def set_device_zt   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
     case params['zt']
     when '1'
@@ -825,13 +883,47 @@ class MapController < ApplicationController
       zt='关'
     else
     end
+    $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
     sb=User.find_by_sql("select zn_sb_cz.*,zn_sb.id as sbid,zn_sb.sbh from zn_sb,zn_sb_cz,zn_sb_lx where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb_cz.czsm='#{zt}' and zn_sb.id=#{params['device_id']};")
-    qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
+    sbh=sb[0]['sbh'].split('.')
+    if sb[0]['lxid'].to_i!=3
+    #if sbh.length==4
+      user=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
+      #puts "ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]['sbh']} #{zt} #{params['device_id']} &"
+      #system("ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]['sbh']} #{zt} #{params['device_id']} &")
+      sb=sb[0]['sbh'].split(',')
+      puts "ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]} #{zt} #{params['device_id']} #{sb[1]}  "
+      system("ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]} #{zt} #{params['device_id']} #{sb[1]}  ")
+      for i in 0..10
+        sleep 1          
+        czzt = $conn.exec("select czzt from zn_sb where id =#{params['device_id']};")
+        if czzt[0]['czzt']!='正在操作'
+          break
+        end
+      end
+    else
+      ser=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
+      system ("ruby ./bin/ktcz_lx.rb #{params['device_id']} #{params['zt']}")
+      for i in 0..10
+        sleep 1          
+        czzt = $conn.exec("select czzt from zn_sb where id =#{params['device_id']};")            
+        if czzt[0]['czzt']!='正在操作'
+          break
+        end
+      end
+      if czzt[0]['czzt']=='成功'
+        text='success:'  +params['device_id']
+      else
+        text='false:设备操作失败。'
+      end
+      #qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
+    end
+    $conn.close
     render :text => 'Success'
   end
   
-  def get_archive_where
-    tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
+  def get_archive_wheremp
+    ajtm, tm, wh = params['tm'], params['ajtm'], params['wh']
     request_id = rand(36**32).to_s(36);
     User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
     render :text => request_id
@@ -859,7 +951,7 @@ class MapController < ApplicationController
 
     #txt = "/assets/#{local_filename}".gsub('/./','/')
 
-    txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/tiamge/')
+    txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
   end
   
   def check_result

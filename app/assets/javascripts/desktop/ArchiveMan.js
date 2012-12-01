@@ -62,7 +62,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       layout : 'absolute',
       items:[{
         xtype: 'label',
-        text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)',
+        text: '增加影像或附件文件：(支持jpg、tif、zip、rar、doc、ceb、pdf格式)，文件名不能包含空格和单引号。',
         x: 10,
         y: 10,
         width: 100
@@ -84,44 +84,92 @@ Ext.define('MyDesktop.ArchiveMan', {
           } 
           else
           {
-            myForm = Ext.getCmp('my_upload_form').getForm();
+			myForm = Ext.getCmp('my_upload_form').getForm();
+			filename=myForm._fields.items[0].lastValue.split('\\');
+            file=filename[filename.length-1];
+			new Ajax.Request("/desktop/get_image_sfcf", { 
+				method: "POST",
+                parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+                onComplete:  function(request) {
+					sfsc=false;
+					if (request.responseText=='true'){
+						Ext.Msg.confirm("提示信息","此卷中文件名为："+file+"的已经存在，是否插入？",function callback(id){
+	                    	if(id=="yes"){
+								if(myForm.isValid())
+					            {
+					                form_action=1;
+					                myForm.submit({
+					                  url: '/desktop/upload_file',
+					                  waitMsg: '文件上传中...',
+					                  success: function(form, action){
+					                    var isSuc = action.result.success; 
 
-            if(myForm.isValid())
-            {
-                form_action=1;
-                myForm.submit({
-                  url: '/desktop/upload_file',
-                  waitMsg: '文件上传中...',
-                  success: function(form, action){
-                    var isSuc = action.result.success; 
-                    filename=myForm._fields.items[0].lastValue.split('\\');
-                    file=filename[filename.length-1];
-                    if (isSuc) {
-                      new Ajax.Request("/desktop/save_image_db", { 
-                        method: "POST",
-                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-                        onComplete:  function(request) {
-                          if (request.responseText=='true'){
-                            timage_store.load();
-                            Ext.getCmp('timage_combo').lastQuery = null;
-                            msg('成功', '文件上传成功.');                       
-                          }else{
-                            alert("文件上传失败，请重新上传。" + request.responseText);
-                          }
-                        }
-                      }); //save_image_db
-                    } else { 
-                      msg('失败', '文件上传失败.');
-                    }
-                  }, 
-                  failure: function(){
-                    msg('失败', '文件上传失败.');
-                  }
-                });
-            }
+					                    if (isSuc) {
+					                      new Ajax.Request("/desktop/save_image_db", { 
+					                        method: "POST",
+					                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+					                        onComplete:  function(request) {
+					                          if (request.responseText=='true'){
+					                            timage_store.load();
+					                            Ext.getCmp('timage_combo').lastQuery = null;
+					                            msg('成功', '文件上传成功.');                       
+					                          }else{
+					                            alert("文件上传失败，请重新上传。" + request.responseText);
+					                          }
+					                        }
+					                      }); //save_image_db
+					                    } else { 
+					                      msg('失败', '文件上传失败.');
+					                    }
+					                  }, 
+					                  failure: function(){
+					                    msg('失败', '文件上传失败.');
+					                  }
+					                });
+					            }
+							}
+						})
+					}
+					else {
+						if(myForm.isValid())
+			            {
+			                form_action=1;
+			                myForm.submit({
+			                  url: '/desktop/upload_file',
+			                  waitMsg: '文件上传中...',
+			                  success: function(form, action){
+			                    var isSuc = action.result.success; 
+		                    
+			                    if (isSuc) {
+			                      new Ajax.Request("/desktop/save_image_db", { 
+			                        method: "POST",
+			                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+			                        onComplete:  function(request) {
+			                          if (request.responseText=='true'){
+			                            timage_store.load();
+			                            Ext.getCmp('timage_combo').lastQuery = null;
+			                            msg('成功', '文件上传成功.');                       
+			                          }else{
+			                            alert("文件上传失败，请重新上传。" + request.responseText);
+			                          }
+			                        }
+			                      }); //save_image_db
+			                    } else { 
+			                      msg('失败', '文件上传失败.');
+			                    }
+			                  }, 
+			                  failure: function(){
+			                    msg('失败', '文件上传失败.');
+			                  }
+			                });
+			            }
+					}					
+                  	
+			  	}
+			});
           } //else
         } //handler
-      }] //buttons
+      }] //buttonsj
     });
     var tabPanel = new Ext.TabPanel({
       activeTab : 0,//默认激活第一个tab页
@@ -272,7 +320,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -415,46 +463,437 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.proxy.extraParams.dh=title;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.proxy.extraParams.dh=title;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          
+          { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
+          { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
+          { text : '案卷号',  width : 75, sortable : true, dataIndex: 'ajh'},
+          { text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
+          { text : '年度',  width : 75, sortable : true, dataIndex: 'nd'},
+          { text : '件数',  width : 75, sortable : true, dataIndex: 'js'},
+          { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
+          { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
+          { text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
+          { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
+          { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
+		  { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
+          { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
+        ],
+        selType:'checkboxmodel',
+        //multiSelect:true,
+        listeners:{
+          itemdblclick:{
+            fn:function(v,r,i,n,e,b){
+              var tt=r.get("zrq");
+              switch (r.data.dalb) { 
+                case "0": 
+                  DispAj_zh(r,false,title);
+                  break; 
+                case "2": 
+                  DispAj_cw(r,false,title);
+                  break; 
+                case "3": 
+                  DispAj_tddj(r,false,title);
+                  break; 
+                default:
+                  DispAj_zh(r,false,title);
+                  break;
+              }
+            }
+          }
+        },
+        viewConfig: {
+          stripeRows:true
+        }
+      }); 
+        
+      documentGrid.on("select", function(node){
+          data = node.selected.items[0].data;
+          timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
+          timage_store.load();
+        });
+        
+      archiveGrid.on("select",function(node){
+        data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
+        archive_id = data.id; 
+        store3.proxy.extraParams.query=data.id;
+        store3.load();
+        dh=data.dh;
+        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        timage_store.load();
+        Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
+      });
+      
+      var tab = tabPanel.getActiveTab();
+      tabPanel.remove(tab);   
+      var tabPage = tabPanel.add({
+        title:text,
+        closable:true,
+        iconCls:'tabs',
+        layout: 'border',
+        split:true,
+        items:[{
+            id:title,
+            region: 'center',
+            layout: 'fit',
+            split:true,
+            items: archiveGrid
+          },{
+            region: 'south',
+            iconCls:'icon-grid',
+            layout: 'fit',
+            height: 150,
+            split: true,
+            collapsible: true,
+            title: '卷内目录',
+            items: documentGrid
+
+          }]
+      });
+      tabPanel.setActiveTab(tabPage);
+      userManagePageIsOpen = true;
+    };
+
+    var AjListFn_zp = function(title,text) {
+      
+      dh='';
+      Ext.regModel('document_model', {
+        fields: [
+            {name: 'id',    type: 'integer'},
+            {name: 'tm',    type: 'string'},
+            {name: 'sxh',   type: 'string'},
+            {name: 'yh',    type: 'string'},
+            {name: 'wh',    type: 'string'},
+            {name: 'zrz',   type: 'string'},
+            {name: 'psrq',    type: 'string',  type: 'date',  dateFormat: 'Y-m-d H:i:s'},
+            {name: 'bz',    type: 'string'},
+            {name: 'dh',    type: 'string'},
+			{name: 'zph',    type: 'string'},
+			{name: 'psz',    type: 'string'},
+            {name: 'sy',    type: 'string'},
+			{name: 'dd',    type: 'string'},
+			{name: 'rw',    type: 'string'},
+			{name: 'bj',    type: 'string'},
+            {name: 'ownerid',   type: 'integer'}
+        ]
+      });
+      
+      var store3 = Ext.create('Ext.data.Store', {
+        model : 'document_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_document',
+          extraParams: {query:""},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+
+      var documentGrid = new Ext.grid.GridPanel({
+        id : 'document_grid',
+        store: store3,
+        tbar:[
+          {xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
+            handler: function() {
+              var grid = Ext.getCmp('archive_grid');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+              DispJr(record,true);
+            }
+          },
+          {xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
+            handler: function() {
+
+              var grid = Ext.getCmp('document_grid');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+
+              var pars="id="+record.data.id;
+              Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+                    if(id=="yes"){
+                      new Ajax.Request("/desktop/delete_document", { 
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          Ext.getCmp('document_grid').store.load();
+                        }
+                      });
+                    }else{
+                      //alert('O,no');
+                    }
+                  
+                });
+              
+            }},
+          {xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
+          handler: function() {
+              var grid  = this.ownerCt.ownerCt;
+              var store = grid.getStore(); 
+              var records = grid.getSelectionModel().getSelection();
+              var data = [];
+              Ext.Array.each(records,function(model){
+                data.push(Ext.JSON.encode(model.get('id')));
+                DispJr(model,false);
+              });
+            }
+          } ,
+         {
+            xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+              handler: function() {
+                  var grid = Ext.getCmp('archive_grid');                    
+                  var records = grid.getSelectionModel().getSelection();
+                  size=Ext.getCmp('archive_grid').getSelectionModel().getSelection().size();
+                  if (size==1){         
+                    size=Ext.getCmp('document_grid').store.count();
+                      if (size>0){                                    
+                        alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                      }else{
+                        var record = records[0];
+                        DispJr_model(record.data.id,record.data.dh,false);
+                      }
+                  }else{
+                    alert("请先选择一个案卷目录。");
+                  }
+                }
+         }
+          
+        ],
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
+          { text : '照片号',  width : 30, sortable : true, dataIndex: 'zph'},
+          
+          { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+          { text : '拍摄者',  width : 105, sortable : true, dataIndex: 'psz'},
+
+		  { text : '事由',  width : 105, sortable : true, dataIndex: 'sy'},
+          { text : '地点',  width : 75, sortable : true, dataIndex: 'dd'},
+		　　{ text : '人物',  width : 105, sortable : true, dataIndex: 'rw'},
+          { text : '背景',  width : 75, sortable : true, dataIndex: 'bj'},
+
+
+          { text : '页号',  width : 75, sortable : true, dataIndex: 'yh'},
+
+          { text : '日期',  width : 75, sortable : true, dataIndex: 'psrq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
+          { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'}
+          ],
+        listeners:{
+            itemdblclick:{
+              fn:function(v,r,i,n,e,b){
+                var tt=r.get("zrq");
+                DispJr(r,false);
+              }
+            }
+          },
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      Ext.regModel('archive_model', {
+        fields: [
+          {name: 'id',    type: 'integer'},
+          {name: 'dwdm',    type: 'string'},
+          {name: 'dh',    type: 'string'},
+          {name: 'qzh',   type: 'string'},
+          {name: 'mlh',   type: 'string'},
+          {name: 'ajh',   type: 'string'},
+          {name: 'tm',    type: 'string'},
+          {name: 'flh',   type: 'string'},
+          {name: 'nd',    type: 'string'},
+          {name: 'qrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'zrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'js',    type: 'string'},
+          {name: 'ys',    type: 'string'},
+          {name: 'bgqx',    type: 'string'},
+          {name: 'mj',    type: 'string'},
+          {name: 'xh',    type: 'string'},
+          {name: 'cfwz',    type: 'string'},
+          {name: 'bz',    type: 'string'},
+          {name: 'boxstr',  type: 'string'},
+          {name: 'boxrfid', type: 'string'},
+          {name: 'rfidstr', type: 'string'},
+          {name: 'qny',   type: 'string'},
+          {name: 'zny',   type: 'string'},
+          {name: 'dalb',    type: 'string'}
+        ]
+      });
+      
+      var archive_store = Ext.create('Ext.data.Store', {
+        id:'archive_store',
+        model : 'archive_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_archive_qxdm',
+          extraParams: {query:title},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+
+      
+
+
+      archive_store.load();
+      var archiveGrid = new Ext.grid.GridPanel({
+        id : 'archive_grid',
+        store: archive_store,
+        //multiSelect:false,
+        bbar:[
+          new Ext.PagingToolbar({
+            store: archive_store,
+            pageSize: 25,
+            width : 350,
+            border : false,
+            displayInfo: true,
+            displayMsg: '{0} - {1} of {2}',
+            emptyMsg: "没有找到！",
+            prependButtons: true
+          })
+        ],
+
+        tbar:[
+          {
+            xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
+            handler: function() {
+              var grid = Ext.getCmp('archive_grid');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+              DispAj_zh(record,true,title);
+            }
+          } ,
+            {
+              xtype:'button',text:'删除',tooltip:'删除案卷信息',id:'delete',iconCls:'remove',
+              handler: function() {
+                var grid = Ext.getCmp('archive_grid');
+                var records = grid.getSelectionModel().getSelection();
+                var record = records[0];
+
+                var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            Ext.getCmp('archive_grid').store.load();
+                          }
+                        });
+                      }
+                  });
+              }
+            },
+            {
+              xtype:'button',text:'修改',tooltip:'显示或修改案卷信息',id:'save',iconCls:'option',
+              handler: function() {
+                var grid = Ext.getCmp('archive_grid');
+                var records = grid.getSelectionModel().getSelection();
+                var record = records[0];
+                DispAj_zh(record,false,title);
+              }
+            }, 
+            {
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid",title);
+              }
+            }, 
+            {
+              text:'查看图像或附件',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+            '->',
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.proxy.extraParams.dh=title;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
+        ],
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+          { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
           { text : '案卷号',  width : 75, sortable : true, dataIndex: 'ajh'},
@@ -545,6 +984,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       tabPanel.setActiveTab(tabPage);
       userManagePageIsOpen = true;
     };
+
     
     var AjListFn_cw = function(title,text) {
       
@@ -667,7 +1107,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -810,45 +1250,45 @@ Ext.define('MyDesktop.ArchiveMan', {
 			              var item = items[0];
 			              var dh = items[0].data.dh;
 			              show_image(dh);	              
-			              set_image("/assets/wuxi_pic.png");
+			              set_image("/assets/dady/fm.jpg");
 			            }
 			          }    
 			        },
 
                         '->',
-                        {
-                          xtype: 'combo',
-                          name: 'aj_select',
-                          store: aj_where_field_data,
-                          emptyText:'案卷标题',
-                          mode: 'local',
-                          minChars : 2,
-                          valueField:'text',
-                          displayField:'text',
-                          triggerAction:'all',
-                          id:'aj_select_field'
-                        } ,
-                        '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-                        {
-                          xtype:'textfield',
-                          id:'query_text',
-                        } ,         
-                        { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-                          handler: function() {
-                            console.log(Ext.getCmp('query_text').value);
-                            if(Ext.getCmp('query_text').value != null ){
-                              var grid = Ext.getCmp('archive_grid_cw');
-                              grid.store.proxy.url="/desktop/get_archive_where";
-                              archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                              archive_store.load();
-                            }
-                          }
-                        }
+                      //  {
+                      //    xtype: 'combo',
+                      //    name: 'aj_select',
+                      //    store: aj_where_field_data,
+                      //    emptyText:'案卷标题',
+                      //    mode: 'local',
+                      //    minChars : 2,
+                      //    valueField:'text',
+                      //    displayField:'text',
+                      //    triggerAction:'all',
+                      //    id:'aj_select_field'
+                      //  } ,
+                      //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+                      //  {
+                      //    xtype:'textfield',
+                      //    id:'query_text',
+                      //  } ,         
+                      //  { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+                      //    handler: function() {
+                      //      console.log(Ext.getCmp('query_text').value);
+                      //      if(Ext.getCmp('query_text').value != null ){
+                      //        var grid = Ext.getCmp('archive_grid_cw');
+                      //        grid.store.proxy.url="/desktop/get_archive_where";
+                      //        archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+                      //        archive_store.load();
+                      //      }
+                      //    }
+                      //  }
                 ],
         columns: [
           { text : 'id',  width : 75, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -1050,7 +1490,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -1196,43 +1636,44 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-          {
-            xtype: 'combo',
-            name: 'aj_select',
-            store: aj_where_field_data,
-            emptyText:'案卷标题',
-            mode: 'local',
-            minChars : 2,
-            valueField:'text',
-            displayField:'text',
-            triggerAction:'all',
-            id:'aj_select_field'
-          } ,
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',
-            id:'query_text'                        } ,         
-          { 
-            xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-            handler: function() {
-              console.log(Ext.getCmp('query_text').value);
-              if(Ext.getCmp('query_text').value != null ){
-                var grid = Ext.getCmp('archive_grid_tddj');
-                grid.store.proxy.url="/desktop/get_archive_where";
-                archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                archive_store.load();
-              }
-            }
-        }],
+         // {
+         //   xtype: 'combo',
+         //   name: 'aj_select',
+         //   store: aj_where_field_data,
+         //   emptyText:'案卷标题',
+         //   mode: 'local',
+         //   minChars : 2,
+         //   valueField:'text',
+         //   displayField:'text',
+         //   triggerAction:'all',
+         //   id:'aj_select_field'
+         // } ,
+         //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+         // {
+         //   xtype:'textfield',
+         //   id:'query_text'                        } ,         
+         // { 
+         //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+         //   handler: function() {
+         //     console.log(Ext.getCmp('query_text').value);
+         //     if(Ext.getCmp('query_text').value != null ){
+         //       var grid = Ext.getCmp('archive_grid_tddj');
+         //       grid.store.proxy.url="/desktop/get_archive_where";
+         //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+         //       archive_store.load();
+         //     }
+         //   }
+        //	}
+		],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -1263,6 +1704,403 @@ Ext.define('MyDesktop.ArchiveMan', {
               fn:function(v,r,i,n,e,b){
                 var tt=r.get("zrq");
                 DispAj_tddj(r,false,title);
+              }
+            }
+          },
+        viewConfig: {
+          stripeRows:true
+        }
+      }); 
+        
+      documentGrid.on("select", function(node){
+          data = node.selected.items[0].data;
+          timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
+          timage_store.load();
+        });
+        
+      archiveGrid.on("select",function(node){
+        data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
+        archive_id = data.id; 
+        store3.proxy.extraParams.query=data.id;
+        store3.load();
+        dh=data.dh;
+        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        timage_store.load();
+        Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
+      });
+      
+      var tab = tabPanel.getActiveTab();
+      tabPanel.remove(tab); 
+      var tabPage = tabPanel.add({
+        title:text,
+        closable:true,
+        iconCls:'tabs',
+        layout: 'border',
+        split:true,
+        items:[{
+            id:title,
+            region: 'center',
+            layout: 'fit',
+            split:true,
+            items: archiveGrid
+          },{
+            region: 'south',
+            iconCls:'icon-grid',
+            layout: 'fit',
+            height: 150,
+            split: true,
+            collapsible: true,
+            title: '卷内目录',
+            items: documentGrid
+
+          }]
+      });
+      tabPanel.setActiveTab(tabPage);
+      userManagePageIsOpen = true;
+    };
+
+    var AjListFn_kyq = function(title,text) {
+      
+      dh='';
+      Ext.regModel('document_model', {
+        fields: [
+            {name: 'id',    type: 'integer'},
+            {name: 'tm',    type: 'string'},
+            {name: 'sxh',   type: 'string'},
+            {name: 'yh',    type: 'string'},
+            {name: 'wh',    type: 'string'},
+            {name: 'zrz',   type: 'string'},
+            {name: 'rq',    type: 'string',  type: 'date',  dateFormat: 'Y-m-d H:i:s'},
+            {name: 'bz',    type: 'string'},
+            {name: 'dh',    type: 'string'},
+            {name: 'ownerid',   type: 'integer'}
+        ]
+      });
+      
+      var store3 = Ext.create('Ext.data.Store', {
+        model : 'document_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_document',
+          extraParams: {query:""},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+
+      var documentGrid = new Ext.grid.GridPanel({
+        id : 'document_grid',
+        store: store3,
+        tbar:[
+          {xtype:'button',text:'添加',tooltip:'添加卷内目录',iconCls:'add',
+            handler: function() {
+              var grid = Ext.getCmp('archive_grid_tddj');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+              DispJr(record,true);
+              
+            }
+          },
+          {xtype:'button',text:'删除',tooltip:'删除卷内目录',iconCls:'remove',
+            handler: function() {
+
+              var grid = Ext.getCmp('document_grid');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+
+              var pars="id="+record.data.id;
+              Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+                    if(id=="yes"){
+                      new Ajax.Request("/desktop/delete_document", { 
+                        method: "POST",
+                        parameters: pars,
+                        onComplete:  function(request) {
+                          Ext.getCmp('document_grid').store.load();
+                        }
+                      });
+                    }
+                });
+              
+            }},
+          {xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',iconCls:'option',
+          handler: function() {
+              var grid  = this.ownerCt.ownerCt;
+              var store = grid.getStore(); 
+              var records = grid.getSelectionModel().getSelection();
+              var data = [];
+              Ext.Array.each(records,function(model){
+                data.push(Ext.JSON.encode(model.get('id')));
+                DispJr(model,false);
+              });
+            }
+          } , 
+        {
+            xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+              handler: function() {
+                  var grid = Ext.getCmp('archive_grid_tddj');                   
+                  var records = grid.getSelectionModel().getSelection();
+                  size=Ext.getCmp('archive_grid_tddj').getSelectionModel().getSelection().size();
+                  if (size==1){         
+                    size=Ext.getCmp('document_grid').store.count();
+                      if (size>0){                                    
+                        alert("此案卷已经有卷内目录，不能以模板方式进行增加卷内目录。");
+                      }else{
+                        var record = records[0];
+                        DispJr_model(record.data.id,record.data.dh,false);
+                      }
+                  }else{
+                    alert("请先选择一个案卷目录。");
+                  }
+                }
+         }
+        ],
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
+          { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
+          { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
+          { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
+          { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+          { text : '页号',  width : 75, sortable : true, dataIndex: 'yh'},
+          { text : '日期',  width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
+          { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'}
+          ],
+        listeners:{
+            itemdblclick:{
+              fn:function(v,r,i,n,e,b){
+                var tt=r.get("zrq");
+                DispJr(r,false);
+              }
+            }
+          },
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+
+      Ext.regModel('archive_model', {
+        fields: [
+          {name: 'id',    type: 'integer'},
+          {name: 'dwdm',    type: 'string'},
+          {name: 'dh',    type: 'string'},
+          {name: 'qzh',   type: 'string'},
+          {name: 'mlh',   type: 'string'},
+          {name: 'ajh',   type: 'string'},
+          {name: 'tm',    type: 'string'},
+          {name: 'flh',   type: 'string'},
+          {name: 'nd',    type: 'string'},
+          {name: 'qrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'zrq',   type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'js',    type: 'string'},
+          {name: 'ys',    type: 'string'},
+          {name: 'bgqx',    type: 'string'},
+          {name: 'mj',    type: 'string'},
+          {name: 'xh',    type: 'string'},
+          {name: 'cfwz',    type: 'string'},
+          {name: 'bz',    type: 'string'},
+          {name: 'boxstr',  type: 'string'},
+          {name: 'boxrfid', type: 'string'},
+          {name: 'rfidstr', type: 'string'},
+          {name: 'qny',   type: 'string'},
+          {name: 'zny',   type: 'string'},
+          {name: 'djh',   type: 'string'},
+          {name: 'qlrmc',   type: 'string'},
+          {name: 'tdzl',    type: 'string'},
+          {name: 'qsxz',    type: 'string'},
+          {name: 'ydjh',    type: 'string'},
+          {name: 'tdzh',    type: 'string'},
+          {name: 'tfh',   type: 'string'},
+          {name: 'dalb',    type: 'string'},
+          {name: 'ksmc',    type: 'string'},
+          {name: 'kyqr',    type: 'string'},
+          {name: 'kswz',   type: 'string'},
+
+          {name: 'xxkz',    type: 'string'},
+          {name: 'yxkz',    type: 'string'},
+          {name: 'ksbh',   type: 'string'},
+          {name: 'ksgm',    type: 'string'},
+          {name: 'xzqdm',    type: 'string'},
+          {name: 'kz',    type: 'string'},
+          {name: 'djlx',   type: 'string'},
+
+		  {name: 'kqfw',    type: 'string'},
+          {name: 'ksmj',    type: 'string'},
+          {name: 'cl',   type: 'string'},
+          {name: 'sjncl',    type: 'string'},
+          {name: 'clgm',    type: 'string'},
+          {name: 'yxqq',    type: 'string'},
+          {name: 'yxqz',   type: 'string'},
+
+		{name: 'yxqx',    type: 'string'},
+          {name: 'fzjg',    type: 'string'},
+          {name: 'mjdw',   type: 'string'},
+          {name: 'cldw',    type: 'string'},
+          {name: 'scgm',    type: 'string'},
+          {name: 'scldw',    type: 'string'},
+          {name: 'jjlx',   type: 'string'}
+        ]
+      });
+      
+      var archive_store = Ext.create('Ext.data.Store', {
+        id:'archive_store',
+        model : 'archive_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_archive_qxdm',
+          extraParams: {query:title},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+
+      archive_store.load();
+      var archiveGrid = new Ext.grid.GridPanel({
+        id : 'archive_grid_tddj',
+        store: archive_store,
+            bbar:[
+              new Ext.PagingToolbar({
+                store: archive_store,
+                pageSize: 25,
+                width : 350,
+                border : false,
+                displayInfo: true,
+                displayMsg: '{0} - {1} of {2}',
+                emptyMsg: "没有找到！",
+                prependButtons: true
+              })
+            ],
+        tbar:[
+          {
+            xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
+            handler: function() {
+
+              var grid = Ext.getCmp('archive_grid_tddj');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+              DispAj_kyq(record,true,title);
+            }
+          },
+          {
+            xtype:'button',text:'删除',tooltip:'删除案卷信息',id:'delete',iconCls:'remove',
+            handler: function() {
+
+              var grid = Ext.getCmp('archive_grid_tddj');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+
+              var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
+              Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                    if(id=="yes"){
+                      new Ajax.Request("/desktop/delete_archive", { 
+                        method: "POST",
+                        parameters: eval(pars),
+                        onComplete:  function(request) {
+                          Ext.getCmp('archive_grid_tddj').store.load();
+                        }
+                      });
+                    }
+                });
+            }
+          },
+          {
+            xtype:'button',text:'修改',tooltip:'显示或修改案卷信息',id:'save',iconCls:'option',
+            handler: function() {
+              var grid = Ext.getCmp('archive_grid_tddj');
+              var records = grid.getSelectionModel().getSelection();
+              var record = records[0];
+              DispAj_kyq(record,false,title);
+            }
+          },{
+              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+              handler: function() {
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,矿业权人;kyqr,矿山名称;ksmc,矿山编号;ksbh,矿山位置;kswz,现许可证号;xxkz,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_tddj",title);
+              }
+            }, 
+            {
+              text:'查看图像或附件',
+              iconCls:'',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var dh = items[0].data.dh;
+                  show_image(dh);                 
+                  set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+            '->',
+         // {
+         //   xtype: 'combo',
+         //   name: 'aj_select',
+         //   store: aj_where_field_data,
+         //   emptyText:'案卷标题',
+         //   mode: 'local',
+         //   minChars : 2,
+         //   valueField:'text',
+         //   displayField:'text',
+         //   triggerAction:'all',
+         //   id:'aj_select_field'
+         // } ,
+         //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+         // {
+         //   xtype:'textfield',
+         //   id:'query_text'                        } ,         
+         // { 
+         //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+         //   handler: function() {
+         //     console.log(Ext.getCmp('query_text').value);
+         //     if(Ext.getCmp('query_text').value != null ){
+         //       var grid = Ext.getCmp('archive_grid_tddj');
+         //       grid.store.proxy.url="/desktop/get_archive_where";
+         //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+         //       archive_store.load();
+         //     }
+         //   }
+        //	}
+		],
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+          { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
+          { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
+          
+          { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
+          { text : '案卷号',  width : 75, sortable : true, dataIndex: 'ajh'},
+          { text : '年度',  width : 75, sortable : true, dataIndex: 'nd'},
+          { text : '矿山名称',  width : 175, sortable : true, dataIndex: 'ksmc'},
+          
+          { text : '矿业权人',  width : 175, sortable : true, dataIndex: 'kyqr'},
+          { text : '矿山位置',  width : 175, sortable : true, dataIndex: 'kswz'},
+          { text : '矿山编号',  width : 175, sortable : true, dataIndex: 'ksbh'},
+          { text : '矿种',  width : 175, sortable : true, dataIndex: 'kz'},
+          { text : '矿区范围',  width : 75, sortable : true, dataIndex: 'kqfw'},
+          
+          { text : '件数',  width : 75, sortable : true, dataIndex: 'js'},
+          { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
+          { text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
+          //{ text : '起日期',  width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          //{ text : '止日期',  width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
+          { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
+          { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
+          { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            itemdblclick:{
+              fn:function(v,r,i,n,e,b){
+                var tt=r.get("zrq");
+                DispAj_kyq(r,false,title);
               }
             }
           },
@@ -1412,7 +2250,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -1571,39 +2409,39 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
-                '->',
-                {
-                  xtype: 'combo',
-                  name: 'aj_select',
-                  store: aj_where_field_data,
-                  emptyText:'案卷标题',
-                  mode: 'local',
-                  minChars : 2,
-                  valueField:'text',
-                  displayField:'text',
-                  triggerAction:'all',
-                  id:'aj_select_field'
-                } ,
-                '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-                {
-                  xtype:'textfield',
-                  id:'query_text',
-                } ,         
-                { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-                  handler: function() {
-                    console.log(Ext.getCmp('query_text').value);
-                    if(Ext.getCmp('query_text').value != null ){
-                      var grid = Ext.getCmp('archive_grid_wsda');
-                      grid.store.proxy.url="/desktop/get_archive_where";
-                      archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                      archive_store.load();
-                    }
-                  }
-                }
+              //  '->',
+              //  {
+              //    xtype: 'combo',
+              //    name: 'aj_select',
+              //    store: aj_where_field_data,
+              //    emptyText:'案卷标题',
+              //    mode: 'local',
+              //    minChars : 2,
+              //    valueField:'text',
+              //    displayField:'text',
+              //    triggerAction:'all',
+              //    id:'aj_select_field'
+              //  } ,
+              //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+              //  {
+              //    xtype:'textfield',
+              //    id:'query_text',
+              //  } ,         
+              //  { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+              //    handler: function() {
+              //      console.log(Ext.getCmp('query_text').value);
+              //      if(Ext.getCmp('query_text').value != null ){
+              //        var grid = Ext.getCmp('archive_grid_wsda');
+              //        grid.store.proxy.url="/desktop/get_archive_where";
+              //        archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+              //        archive_store.load();
+              //      }
+              //    }
+              //  }
               ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -1808,7 +2646,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -1949,46 +2787,46 @@ Ext.define('MyDesktop.ArchiveMan', {
               var item = items[0];
               var dh = items[0].data.dh;
               show_image(dh);                 
-              set_image("/assets/wuxi_pic.png");
+              set_image("/assets/dady/fm.jpg");
             }
           }    
         },
         '->',
-        {
-          xtype: 'combo',
-          name: 'aj_select',
-          store: aj_where_field_data,
-          emptyText:'案卷标题',
-          mode: 'local',
-          minChars : 2,
-          valueField:'text',
-          displayField:'text',
-          triggerAction:'all',
-          id:'aj_select_field'
-        } ,
-        '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-        {
-          xtype:'textfield',
-          id:'query_text' 
-        },         
-        { 
-          xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-          handler: function() {
-            console.log(Ext.getCmp('query_text').value);
-            if(Ext.getCmp('query_text').value != null ){
-              var grid = Ext.getCmp('archive_grid');
-              grid.store.proxy.url="/desktop/get_archive_where";
-              archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-              archive_store.load();
-            }
-          }
-        }
+       // {
+       //   xtype: 'combo',
+       //   name: 'aj_select',
+       //   store: aj_where_field_data,
+       //   emptyText:'案卷标题',
+       //   mode: 'local',
+       //   minChars : 2,
+       //   valueField:'text',
+       //   displayField:'text',
+       //   triggerAction:'all',
+       //   id:'aj_select_field'
+       // } ,
+       // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+       // {
+       //   xtype:'textfield',
+       //   id:'query_text' 
+       // },         
+       // { 
+       //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+       //   handler: function() {
+       //     console.log(Ext.getCmp('query_text').value);
+       //     if(Ext.getCmp('query_text').value != null ){
+       //       var grid = Ext.getCmp('archive_grid');
+       //       grid.store.proxy.url="/desktop/get_archive_where";
+       //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+       //       archive_store.load();
+       //     }
+       //   }
+       // }
         ],
 
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -2188,7 +3026,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -2332,45 +3170,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
                   '->',
-                  {
-                    xtype: 'combo',
-                    name: 'aj_select',
-                    store: aj_where_field_data,
-                    emptyText:'案卷标题',
-                    mode: 'local',
-                    minChars : 2,
-                    valueField:'text',
-                    displayField:'text',
-                    triggerAction:'all',
-                    id:'aj_select_field'
-                  },
-                  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-                  {
-                    xtype:'textfield',
-                    id:'query_text'
-                  },         
-                  { 
-                    xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-                    handler: function() {
-                      console.log(Ext.getCmp('query_text').value);
-                      if(Ext.getCmp('query_text').value != null ){
-                        var grid = Ext.getCmp('archive_grid');
-                        grid.store.proxy.url="/desktop/get_archive_where";
-                        archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                        archive_store.load();
-                      }
-                    }
-                  }
+                //  {
+                //    xtype: 'combo',
+                //    name: 'aj_select',
+                //    store: aj_where_field_data,
+                //    emptyText:'案卷标题',
+                //    mode: 'local',
+                //    minChars : 2,
+                //    valueField:'text',
+                //    displayField:'text',
+                //    triggerAction:'all',
+                //    id:'aj_select_field'
+                //  },
+                //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+                //  {
+                //    xtype:'textfield',
+                //    id:'query_text'
+                //  },         
+                //  { 
+                //    xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+                //    handler: function() {
+                //      console.log(Ext.getCmp('query_text').value);
+                //      if(Ext.getCmp('query_text').value != null ){
+                //        var grid = Ext.getCmp('archive_grid');
+                //        grid.store.proxy.url="/desktop/get_archive_where";
+                //        archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+                //        archive_store.load();
+                //      }
+                //    }
+                //  }
           ],
         columns: [
           { text : 'id',    width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',    width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',    width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号',   width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '序号',   width : 75, sortable : true, dataIndex: 'ajh'},
           { text : '图名',  width : 175, sortable : true, dataIndex: 'tm'},
@@ -2544,7 +3382,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -2701,45 +3539,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            },         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // },         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : 'dh',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : 'dh',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '档号', width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '分类号', width : 75, sortable : true, dataIndex: 'flh'},         
           { text : '顺序号',  width : 75, sortable : true, dataIndex: 'ajh'},
@@ -2914,7 +3752,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3062,45 +3900,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -3281,7 +4119,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3425,45 +4263,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-              '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+            //{
+            //  xtype: 'combo',
+            //  name: 'aj_select',
+            //  store: aj_where_field_data,
+            //  emptyText:'案卷标题',
+            //  mode: 'local',
+            //  minChars : 2,
+            //  valueField:'text',
+            //  displayField:'text',
+            //  triggerAction:'all',
+            //  id:'aj_select_field'
+            //} ,
+            //  '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+            //{
+            //  xtype:'textfield',
+            //  id:'query_text'
+            //} ,         
+            //{ 
+            //  xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+            //  handler: function() {
+            //    console.log(Ext.getCmp('query_text').value);
+            //    if(Ext.getCmp('query_text').value != null ){
+            //      var grid = Ext.getCmp('archive_grid');
+            //      grid.store.proxy.url="/desktop/get_archive_where";
+            //      archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+            //      archive_store.load();
+            //    }
+            //  }
+            //}
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -3646,7 +4484,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3794,45 +4632,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-              '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
@@ -4014,7 +4852,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -4156,45 +4994,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
           '->',
-          {
-            xtype: 'combo',
-            name: 'aj_select',
-            store: aj_where_field_data,
-            emptyText:'案卷标题',
-            mode: 'local',
-            minChars : 2,
-            valueField:'text',
-            displayField:'text',
-            triggerAction:'all',
-            id:'aj_select_field'
-          } ,
-          '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',
-            id:'query_text'
-          } ,         
-          { 
-            xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-            handler: function() {
-              console.log(Ext.getCmp('query_text').value);
-              if(Ext.getCmp('query_text').value != null ){
-                var grid = Ext.getCmp('archive_grid');
-                grid.store.proxy.url="/desktop/get_archive_where";
-                archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                archive_store.load();
-              }
-            }
-          }
+         // {
+         //   xtype: 'combo',
+         //   name: 'aj_select',
+         //   store: aj_where_field_data,
+         //   emptyText:'案卷标题',
+         //   mode: 'local',
+         //   minChars : 2,
+         //   valueField:'text',
+         //   displayField:'text',
+         //   triggerAction:'all',
+         //   id:'aj_select_field'
+         // } ,
+         // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+         // {
+         //   xtype:'textfield',
+         //   id:'query_text'
+         // } ,         
+         // { 
+         //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+         //   handler: function() {
+         //     console.log(Ext.getCmp('query_text').value);
+         //     if(Ext.getCmp('query_text').value != null ){
+         //       var grid = Ext.getCmp('archive_grid');
+         //       grid.store.proxy.url="/desktop/get_archive_where";
+         //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+         //       archive_store.load();
+         //     }
+         //   }
+         // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
           { text : '件号',   width : 75, sortable : true, dataIndex: 'ajh'},
@@ -4372,7 +5210,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -4519,45 +5357,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-              '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '登记号', width : 75, sortable : true, dataIndex: 'djh'},
           { text : '刑期',   width : 75, sortable : true, dataIndex: 'kq'},
           { text : '名称',  width : 175, sortable : true, dataIndex: 'mc'},
@@ -4879,39 +5717,39 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
                 '->',
-                {
-                  xtype: 'combo',
-                  name: 'aj_select',
-                  store: aj_where_field_data,
-                  emptyText:'案卷标题',
-                  mode: 'local',
-                  minChars : 2,
-                  valueField:'text',
-                  displayField:'text',
-                  triggerAction:'all',
-                  id:'aj_select_field'
-                } ,
-                '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-                {
-                  xtype:'textfield',
-                  id:'query_text'
-                } ,         
-                { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-                  handler: function() {
-                    console.log(Ext.getCmp('query_text').value);
-                    if(Ext.getCmp('query_text').value != null ){
-                      var grid = Ext.getCmp('archive_grid');
-                      grid.store.proxy.url="/desktop/get_archive_where";
-                      archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                      archive_store.load();
-                    }
-                  }
-                }
+               // {
+               //   xtype: 'combo',
+               //   name: 'aj_select',
+               //   store: aj_where_field_data,
+               //   emptyText:'案卷标题',
+               //   mode: 'local',
+               //   minChars : 2,
+               //   valueField:'text',
+               //   displayField:'text',
+               //   triggerAction:'all',
+               //   id:'aj_select_field'
+               // } ,
+               // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+               // {
+               //   xtype:'textfield',
+               //   id:'query_text'
+               // } ,         
+               // { xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+               //   handler: function() {
+               //     console.log(Ext.getCmp('query_text').value);
+               //     if(Ext.getCmp('query_text').value != null ){
+               //       var grid = Ext.getCmp('archive_grid');
+               //       grid.store.proxy.url="/desktop/get_archive_where";
+               //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+               //       archive_store.load();
+               //     }
+               //   }
+               // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
@@ -5083,7 +5921,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5226,45 +6064,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
         '->',
-          {
-            xtype: 'combo',
-            name: 'aj_select',
-            store: aj_where_field_data,
-            emptyText:'案卷标题',
-            mode: 'local',
-            minChars : 2,
-            valueField:'text',
-            displayField:'text',
-            triggerAction:'all',
-            id:'aj_select_field'
-          },
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-          {
-            xtype:'textfield',
-            id:'query_text'
-          },         
-          { 
-            xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-            handler: function() {
-              console.log(Ext.getCmp('query_text').value);
-              if(Ext.getCmp('query_text').value != null ){
-                var grid = Ext.getCmp('archive_grid');
-                grid.store.proxy.url="/desktop/get_archive_where";
-                archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                archive_store.load();
-              }
-            }
-          }
+         // {
+         //   xtype: 'combo',
+         //   name: 'aj_select',
+         //   store: aj_where_field_data,
+         //   emptyText:'案卷标题',
+         //   mode: 'local',
+         //   minChars : 2,
+         //   valueField:'text',
+         //   displayField:'text',
+         //   triggerAction:'all',
+         //   id:'aj_select_field'
+         // },
+         //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+         // {
+         //   xtype:'textfield',
+         //   id:'query_text'
+         // },         
+         // { 
+         //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+         //   handler: function() {
+         //     console.log(Ext.getCmp('query_text').value);
+         //     if(Ext.getCmp('query_text').value != null ){
+         //       var grid = Ext.getCmp('archive_grid');
+         //       grid.store.proxy.url="/desktop/get_archive_where";
+         //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+         //       archive_store.load();
+         //     }
+         //   }
+         // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '机构名称', width : 75, sortable : true, dataIndex: 'jgmc'},
           { text : '组织系统领导成员组成',   width : 175, sortable : true, dataIndex: 'zzzc'},
           { text : '起止年月',  width : 75, sortable : true, dataIndex: 'qzny'},
@@ -5432,7 +6270,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5582,45 +6420,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-            '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            } ,         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           // '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // } ,         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '地点', width : 75, sortable : true, dataIndex: 'dd'},
           { text : '记录人',  width : 175, sortable : true, dataIndex: 'jlr'},
           { text : '材料来源',  width : 75, sortable : true, dataIndex: 'clly'},          
@@ -5792,7 +6630,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5938,45 +6776,45 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var item = items[0];
                   var dh = items[0].data.dh;
                   show_image(dh);                 
-                  set_image("/assets/wuxi_pic.png");
+                  set_image("/assets/dady/fm.jpg");
                 }
               }    
             },
             '->',
-            {
-              xtype: 'combo',
-              name: 'aj_select',
-              store: aj_where_field_data,
-              emptyText:'案卷标题',
-              mode: 'local',
-              minChars : 2,
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-              id:'aj_select_field'
-            } ,
-              '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
-            {
-              xtype:'textfield',
-              id:'query_text'
-            },         
-            { 
-              xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
-              handler: function() {
-                console.log(Ext.getCmp('query_text').value);
-                if(Ext.getCmp('query_text').value != null ){
-                  var grid = Ext.getCmp('archive_grid');
-                  grid.store.proxy.url="/desktop/get_archive_where";
-                  archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
-                  archive_store.load();
-                }
-              }
-            }
+           // {
+           //   xtype: 'combo',
+           //   name: 'aj_select',
+           //   store: aj_where_field_data,
+           //   emptyText:'案卷标题',
+           //   mode: 'local',
+           //   minChars : 2,
+           //   valueField:'text',
+           //   displayField:'text',
+           //   triggerAction:'all',
+           //   id:'aj_select_field'
+           // } ,
+           //   '&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">查询</span>:&nbsp;&nbsp;',
+           // {
+           //   xtype:'textfield',
+           //   id:'query_text'
+           // },         
+           // { 
+           //   xtype:'button',text:'查询',tooltip:'查询案卷信息',id:'query',iconCls:'search',
+           //   handler: function() {
+           //     console.log(Ext.getCmp('query_text').value);
+           //     if(Ext.getCmp('query_text').value != null ){
+           //       var grid = Ext.getCmp('archive_grid');
+           //       grid.store.proxy.url="/desktop/get_archive_where";
+           //       archive_store.proxy.extraParams.query=Ext.getCmp('query_text').value;
+           //       archive_store.load();
+           //     }
+           //   }
+           // }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
-          { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '全宗构成者简介',  width : 175, sortable : true, dataIndex: 'qzgczjj'},
           { text : '时间',  width : 75, sortable : true, dataIndex: 'sj', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
@@ -6145,7 +6983,13 @@ Ext.define('MyDesktop.ArchiveMan', {
             case "18":
               AjListFn_tjml(data.id,node.selected.items[0].parentNode.data.text+data.text);
                   break;
-              default:
+	        case "20":
+	              AjListFn_zp(data.id,node.selected.items[0].parentNode.data.text+data.text);
+	              break;
+			case "35":
+	              AjListFn_kyq(data.id,node.selected.items[0].parentNode.data.text+data.text);
+	              break;
+            default:
                 AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
                 break;
             }
@@ -6163,6 +7007,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         y:0,
         iconCls: 'archiveman',
         animCollapse:false,
+		maximized:true,
         border: false,
         hideMode: 'offsets',
         layout: 'border',
@@ -6230,6 +7075,8 @@ Ext.define('MyDesktop.ArchiveMan', {
                         if (path != '') { 
                             ifx=path.split('?');
                             imagefx=ifx[1];
+							
+
                             var number = Math.random(); 
                             if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
 						 		var number = Math.random(); 								
@@ -6316,15 +7163,15 @@ Ext.define('MyDesktop.ArchiveMan', {
                   LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
                   LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
                   LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-                  //LODOP.PREVIEW();
-                  LODOP.PRINT();
+                  LODOP.PREVIEW();
+                  //LODOP.PRINT();
                 }
               },
               {
                   text: '删除图像',
                   handler : function() {
                   if (dh!=''){
-                    combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc;
+                    combo = Ext.getCmp('timage_combo').displayTplData[0].yxbh;
                     if (combo!=''){
                       Ext.Msg.confirm("提示信息","是否要删除："+combo+" 图像？",function callback(id){
                         if(id=="yes"){

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 require 'pg'
 
 # ********************************************************************************************
@@ -61,7 +61,6 @@ def update_timage(dh_prefix)
   #$conn.exec"update timage_tj set DT = A4+A3*2 where timage_tj.dh_prefix='#{dh_prefix}';"
 
   puts "update 状态"
-
   $conn.exec("update timage_tj set zt=''   where dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='空卷' where  smyx = 0 and dh_prefix='#{dh_prefix}';")
   $conn.exec("update timage_tj set zt='缺页' where  smyx > 0  and smyx < ajys and dh_prefix='#{dh_prefix}';")
@@ -78,7 +77,7 @@ def update_qzxx(dh_cond)
   $stderr.puts"更新 q_qzxx #{dh_cond}..."
   
   datas = $conn.exec("select sum (ajys) as ajys, sum(ml00) as ml00, sum(mlbk) as mlbk, sum(mljn) as mljn, sum(jn00) as jn00, sum(jnjn) as jnjn, sum(smyx) as smyx, sum(a3) as a3, sum(a4) as a4, sum(dt) as dt, sum(jnts) as jnts, sum(jnbk) as jnbk, dh_prefix from timage_tj where dh_prefix like '#{dh_cond}' group by dh_prefix order by dh_prefix;")
-
+  $stderr.puts "select sum (ajys) as ajys, sum(ml00) as ml00, sum(mlbk) as mlbk, sum(mljn) as mljn, sum(jn00) as jn00, sum(jnjn) as jnjn, sum(smyx) as smyx, sum(a3) as a3, sum(a4) as a4, sum(dt) as dt, sum(jnts) as jnts, sum(jnbk) as jnbk, dh_prefix from timage_tj where dh_prefix like '#{dh_cond}' group by dh_prefix order by dh_prefix;"
   for k in 0..datas.count - 1 
     data = datas[k]
     dh_prefix = data['dh_prefix']

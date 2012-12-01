@@ -1,16 +1,18 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
-#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
-
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#这个是服务器上的文件夹
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
 require 'pg'
 require 'active_support'
+
+
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = on")
 
 #2综合档案aj.txt
-def get_dalb(key) 
+def get_dalb(key)
   #key = /(\d+)(.*)(aj|jr)/.match(ifname)[2]
   hh = {
     "综合档案"=>0,
@@ -124,31 +126,73 @@ end
 
 def set_documents(tt, dwdm, qzh, dalb, mlh)
   for k in 0..tt.size-1 
-    user = tt[k]['Table']
-    tm      = user['题名'] 
-    ajh     = user['案卷号'].rjust(4,"0")
-    sxh     = user['顺序号']
-    yh      = user['页号']
-    wh      = user['文号']
-    zrz     = user['责任者']
-    rq      = user['日期']
-    bz      = user['备注']
     
-    dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-      
-    if rq.length==0
-      rq = 'null' 
-    elsif rq.length==4
-      rq = "TIMESTAMP '#{rq}0101'"
-    elsif rq.length==6
-      rq = "TIMESTAMP '#{rq}01'"
-    else    
-      rq = "TIMESTAMP '#{rq}'"
-    end
+      user = tt[k]['Table']
+      tm      = user['题名'] 
+      ajh     = user['案卷号'].rjust(4,"0")
+      if dalb!=20
+        sxh     = user['顺序号']
+      else
+        #sxh     = user['照片号']
+        sxh     = 0
+      end
+      yh      = user['页号']
+      wh      = user['文号']
+      zrz     = user['责任者']
+      rq      = user['日期']
+      bz      = user['备注']
+    
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+      if rq.nil?
+        rq=""
+      end
+      if rq.length==0
+        rq = 'null' 
+      elsif rq.length==4
+        rq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        rq = "TIMESTAMP '#{rq}01'"
+      else    
+        rq = "TIMESTAMP '#{rq}'"
+      end
 
-    insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}');"
-    #puts insert_str
-    $conn.exec(insert_str)
+      insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}')  RETURNING id;"
+      #puts insert_str
+      document=$conn.exec(insert_str)
+    if dalb==20
+      user = tt[k]['Table']
+      puts user
+      rq=user['拍摄日期']
+      if rq.nil?
+        rq=""
+      else
+        rq  =  user['拍摄日期']
+      end
+      zph   =  user['照片号']
+      psz   =  user['拍摄者']
+      cfwz  =  user['存放位置']
+      sy    =  user['事由']
+      dd    =  user['地点']
+      rw    =  user['人物']
+      bj    =  user['背景']
+      
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+      if rq.length==0
+        psrq = 'null' 
+      elsif rq.length==4
+        psrq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        psrq = "TIMESTAMP '#{rq}01'"
+      else    
+        psrq = "TIMESTAMP '#{rq}'"
+      end
+      $conn.exec(" DELETE FROM a_zp where dh='#{dh}' and zph='#{zph}';")
+      insert_str =  " INSERT INTO a_zp (dh, psrq, zph,  psz, cfwz, sy, dd, rw, bj,ownerid) values ('#{dh}',   #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}',#{document[0]['id']});"
+      
+      #puts insert_str
+      #$conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
+      $conn.exec(insert_str)
+    end
     
     case dalb
     when 0  #综合档案 
@@ -179,7 +223,6 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     nd      = user['年度']
     zny     = user['止年月']
     qny     = user['起年月']
-    #mlm     = user['目录号']
     js      = user['件数'].to_i
     ys      = user['页数'].to_i
     bgqx    = user['保管期限']
@@ -194,17 +237,21 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     zrq     = user['止日期']
     jgwth   = user['机构问题号']
 
+    
     tm  = user['案卷题名'] if tm.nil?
     tm  = user['题名'] if tm.nil?
     tm  = user['图名'] if tm.nil?
     ajh = user['件号'] if ajh.nil?
     ajh = user['序号'] if ajh.nil?
+    if dalb==25
+      ajh     = user['顺序号']
+    end
     ajh = ajh.rjust(4,"0")
     
     js = 1 if js == 0
     
     if dalb==24
-      ajh = user['件号']
+      ajh = user['件号'].rjust(4,"0")
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
     else  
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
@@ -266,7 +313,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     
     #puts insert_str
     rid = $conn.exec(insert_str)
-    dh_id = rid[0]['id']
+    ownerid = rid[0]['id']
     
     case dalb
     when 0  #综合档案 
@@ -275,7 +322,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       pzqh  = user['凭证起号']
       pzzh  = user['凭证止号']
       fjzs  = user['附件编号']
-      insert_str =  " INSERT INTO a_jhcw(dh,jnzs,pzqh,pzzh,fjzs)  VALUES ('#{dh}','#{jnzs}','#{pzqh}','#{pzzh}','#{fjzs}');"
+      insert_str =  " INSERT INTO a_jhcw(ownerid,dh,jnzs,pzqh,pzzh,fjzs)  VALUES (#{ownerid},'#{dh}','#{jnzs}','#{pzqh}','#{pzzh}','#{fjzs}');"
       #puts insert_str
       $conn.exec(" DELETE FROM a_jhcw where dh='#{dh}';")
       $conn.exec(insert_str)
@@ -287,7 +334,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       qsxz  = user['权属性质']
       ydjh  = user['原地籍号']
 
-      insert_str = " INSERT INTO a_tddj(dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES ('#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
+      insert_str = " INSERT INTO a_tddj(ownerid,dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES (#{ownerid},'#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
       #puts insert_str
       $conn.exec(" DELETE FROM a_tddj where dh='#{dh}';")
       $conn.exec(insert_str)
@@ -313,10 +360,11 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
 
     when 19 #科技信息
     when 20 #照片档案
+      
     when 21 #地址矿产
     when 24 #文书档案
 
-      jh    = user['件号']
+      jh    = user['件号'].rjust(4,"0")
       rq    = user['制文日期'] 
       wh    = user['文号']
       zrr   = user['责任者'] 
@@ -345,12 +393,128 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       else    
         zwrq = "TIMESTAMP '#{rq}'"
       end
-      
-      insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
-      #puts insert_str
+      if ztsl==""
+        ztsl=0
+      end
+      insert_str =  " INSERT INTO a_wsda (ownerid,jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values (#{ownerid},'#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
+      puts insert_str
       $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
       $conn.exec(insert_str)
+    when 25 #电子档案
+
+      tjr         = user['提交人']
+      rjhj        = user['软件环境']
+      czxt        = user['操作系统']
+      sl          = user['数量']
+      bfs         = user['备份数']
+      ztbhdwjgs   = user['载体包含的文件格式']
+      yyrjpt      = user['应用软件平台']
+      tjdw        = user['提交单位']
+      wjzt        = user['文件载体']
+      dzwjm       = user['电子文件名']
+      ztbh        = user['载体编号']
+      xcbm        = user['形成部门']
+      rq          = user['形成日期']
+      jsr         = user['接收人']
+      jsdw        = user['接收单位'] 
+      yjhj        = user['硬件环境']
       
+      if rq.length==0
+        xcrq = 'null' 
+      elsif rq.length==4
+        xcrq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        xcrq = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        xcrq = "TIMESTAMP '#{rq}'"
+      end
+      insert_str =  "INSERT INTO a_dzda (dh, ownerid, tjr,rjhj,czxt,sl,bfs,ztbhdwjgs,yyrjpt,tjdw,wjzt,dzwjm,ztbh,xcbm,xcrq,jsr,jsdw,yjhj) values ('#{dh}', '#{ownerid}', '#{tjr}', '#{rjhj}', '#{czxt}', '#{sl}', '#{bfs}', '#{ztbhdwjgs}', '#{yyrjpt}', '#{tjdw}', '#{wjzt}', '#{dzwjm}', '#{ztbh}', '#{xcbm}', #{xcrq}, '#{jsr}', '#{jsdw}', '#{yjhj}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_dzda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 26 #基建档案
+      
+      jsnd = user['建设年代']
+      xmmc = user['项目名称']
+      jsdw = user['建设单位']
+      
+      insert_str =  "INSERT INTO a_jjda (dh, ownerid, jsnd, xmmc, jsdw) values ('#{dh}', '#{ownerid}', '#{jsnd}', '#{xmmc}', '#{jsdw}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_jjda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 27 #设备档案
+      zcmc   = user['资产名称']
+      rq     = user['购置时间']
+      dw     = user['单位']
+      sl     = user['数量'].to_i
+      cfdd   = user['存放地点']
+      sybgdw = user['使用保管单位']
+      sybgr  = user['使用保管人']
+      jh     = user['件号']
+      zcbh   = user['资产编号']
+      dj     = user['单价']
+      je     = user['金额']
+      
+      if rq.length==0
+        gzsj = 'null' 
+      elsif rq.length==4
+        gzsj = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        gzsj = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        gzsj = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str = "INSERT INTO a_sbda (dh,ownerid,zcmc,gzsj,dw,sl,cfdd,sybgdw,sybgr,jh,zcbh,dj,je) values ('#{dh}','#{ownerid}','#{zcmc}',#{gzsj},'#{dw}','#{sl}','#{cfdd}','#{sybgdw}','#{sybgr}','#{jh}','#{zcbh}','#{dj}','#{je}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_sbda where dh like '#{dh}';")
+      $conn.exec(insert_str)
+      
+    when 28 #实物档案
+      jh   = user['件号']
+      bh   = user['编号']
+      lb   = user['类别']
+      hjz  = user['获奖者']
+      rq   = user['授奖时间']
+      sjdw = user['授奖单位']
+      mc   = user['名称']
+      ztxs = user['载体形式']
+      
+      if rq.length==0
+        sjsj = 'null' 
+      elsif rq.length==4
+        sjsj = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        sjsj = "TIMESTAMP '#{rq}01'"
+      else
+        begin
+           Date.parse(rq)
+        rescue
+           rq = rq[0..5]+'01'
+        end
+        sjsj = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str = "INSERT INTO a_swda (dh,ownerid, jh,bh,lb,hjz,sjsj,sjdw,mc,ztxs) values ('#{dh}','#{ownerid}', '#{jh}','#{bh}','#{lb}','#{hjz}',#{sjsj},'#{sjdw}','#{mc}','#{ztxs}');"
+
+      #puts insert_str
+      $conn.exec("DELETE from a_swda where dh like '#{dh}';")
+      $conn.exec(insert_str)      
     when 35 #矿业权
       
        xxkz  = user['现许可证号']
@@ -378,11 +542,13 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
        scldw = user['生产量单位']
        jjlx  = user['经济类型']
       
-      insert_str =  " INSERT INTO a_kyq (xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,dh) values ('#{xxkz}','#{yxkz}','#{kyqr}','#{ksmc}','#{ksbh}','#{ksgm}','#{xzqdm}','#{kz}','#{djlx}','#{kswz}','#{kqfw}','#{mj}','#{cl}','#{sjncl}','#{clgm}','#{yxqq}','#{yxqz}','#{yxqx}','#{fzjg}','#{mjdw}','#{cldw}','#{scgm}','#{scldw}','#{jjlx}', '#{dh}');"
+      insert_str =  " INSERT INTO a_kyq (ownerid,xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,dh) values (#{ownerid},'#{xxkz}','#{yxkz}','#{kyqr}','#{ksmc}','#{ksbh}','#{ksgm}','#{xzqdm}','#{kz}','#{djlx}','#{kswz}','#{kqfw}','#{mj}','#{cl}','#{sjncl}','#{clgm}','#{yxqq}','#{yxqz}','#{yxqx}','#{fzjg}','#{mjdw}','#{cldw}','#{scgm}','#{scldw}','#{jjlx}', '#{dh}');"
       #puts insert_str
       $conn.exec("DELETE from a_kyq where dh like '#{dh}';")
       $conn.exec(insert_str)
-      
+      update_str = " UPDATE archive set tm = '#{kyqr} ' ||'#{ksmc} ' || '#{kswz}' where dh='#{dh}'; "
+      #puts update_str
+      $conn.exec(update_str)
     else
       #puts "#{dalb}"  
     end
@@ -399,7 +565,7 @@ end
 #*********************************************************************************************
 #ruby ./dady/bin/upload_mulu.rb  10用地档案jr.txt 泰州市国土资源局 4 17 &
 
-if ARGV.count < 4 
+if ARGV.count < 4
   $stderr.puts "usages : ruby ./dady/bin/upload_mulu.rb {aj_file} {dwdm} {qzh} {path}"
   $stderr.puts "         ruby ./dady/bin/upload_mulu.rb 10用地档案aj.txt 泰州市国土资源局 4 tz"
   exit
@@ -422,6 +588,7 @@ if ifname.include?('文档一体化')
   ss = /(\d+)(长期|永久|短期|定期-10年|定期-30年)(.*)(文档一体化.*)/.match(ifname)
   nd, bgqx, jgwth = ss[1], ss[2], ss[3]
   mlh = get_ws_mlh(qzh, nd, bgqx, jgwth)
+  
 else
   #mlh = /(\d+)(.*)/.match(ifname)[1]   ss[1], ss[2] = C-1 土地登记
   if !/(\w+-\d+)(.*)aj/.match(ifname).nil?
@@ -454,16 +621,19 @@ if ifname.include?('aj')
   #puts "#{ifname}\t#{outfile}\t#{path}"
   decode_file("#{ifname}", "#{outfile}", path)
   data = File.open("#{path}/#{outfile}").read.gsub("\000","")
+  #puts ActiveSupport::JSON.decode(data)
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
   system ("rm #{path}/#{outfile}")
   
-  if dalb != 24
+  if dalb != 24 && dalb!=25 && dalb!=26 && dalb!=27 && dalb!=28
     #puts "delete from document where dh like '#{dh}'; "
     $conn.exec("delete from document where dh like '#{dh}'; ")
   
     outfile = rand(36**8).to_s(36)
     decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
     data = File.open("#{path}/#{outfile}").read
+    #puts ActiveSupport::JSON.decode(data)
+    
     set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
     system ("rm #{path}/#{outfile}")
   end
