@@ -1,7 +1,7 @@
+#!/usr/bin/ruby
 #统计影像文件缺重页情况
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
 require 'find'
