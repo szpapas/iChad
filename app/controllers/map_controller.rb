@@ -1,12 +1,21 @@
 class MapController < ApplicationController
 
   def get_temp
-    render :text=>"{\"sd\":\"45\",\"wd\":\"25.6\"}"
+    
+    #render :text=>"{\"sd\":\"45\",\"wd\":\"25.6\"}"
+    xzmc = params['xzmc']
+    conn = PGconn.open(:dbname=>'WSD', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+    user = conn.exec("select dqwd, dqsd, dqdl from d_wsd where xzmc = '#{xzmc}' ;")[0]
+    conn.close
+    
+    #ss = {"mode" => "1", "result" => user.to_json}
+    render :text => user.to_json
+    
   end
   
   #search=%@&dalb=%@&offset=%d&qzh=%d
   def search_aj
-    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' and qzh='#{params['qzh']}' limit 10;")
+    user = User.find_by_sql("select * from archive where tm like '%#{params['search']}%' and qzh = '#{params['qzh']}' limit 10;")
     render :text=>user.to_json
   end 
   
@@ -20,7 +29,7 @@ class MapController < ApplicationController
     render :text => outstr[0..-2] 
   end
 
-  #获取影像文件列表
+  #获取影像文件列表 http://192.168.113.40:3000/map/get_imageList?dh=12-0-2-106
   def get_imageList
     ss = []
 
@@ -75,37 +84,12 @@ class MapController < ApplicationController
       end
       
       system("convert '#{local_filename}' '#{convert_filename}'")
-
+      
       if width.to_i > height.to_i
         txt = "/assets/#{convert_filename}?1".gsub('/assets/./dady/img_tmp/', '/timage/')
       else
         txt = "/assets/#{convert_filename}?2".gsub('/assets/./dady/img_tmp/', '/timage/')
-      end     
- 
-    end
-    render :text => txt
-  end
-  
-
-  def get_timage_old
-    user= User.find_by_sql("select * from timage where id=#{params['id']};") 
-    size = user.size;
-    if size.to_i > 0
-      dh = user[0]['dh']
-      if !File.exists?("./dady/img_tmp/#{dh}/")
-        system"mkdir -p ./dady/img_tmp/#{dh}/"
       end
-      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data from timage where id='#{id}';")
-        File.open(local_filename, 'w') {|f| f.write(user[0]["data"]) }
-      end
-      small_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
-      puts("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      system("convert -resize 20% '#{local_filename}' '#{small_filename}'")
-      txt = "/assets/dady/img_tmp/#{dh}/#{user[0]["yxmc"].gsub('$', '-')}".gsub('TIF','JPG')
-    else
-      txt=""
     end
     render :text => txt
   end
@@ -120,13 +104,13 @@ class MapController < ApplicationController
       #boxstr,目录号,案卷号,标签ID,档案类别,案卷标题,借阅人,借阅时间
       size = user.size;
       if size.to_i > 0
-          text = "{results:#{size},rows:["          
+          text = "{\"results\":#{size},\"rows\":["          
           for k in 0..user.size-1
               text = text + user[k].to_json + ','
           end
           text = text[0..-2] + "]}"
       else
-          text = "{results:0,rows:[]}"
+          text = "{\"results\":0,\"rows\":[]}"
       end
     end
     render :text => text
@@ -161,13 +145,13 @@ class MapController < ApplicationController
     end
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -237,76 +221,65 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
   
-
   #通过档号获取整目录档案  query 格式  qzh_dalb_mlh(文书处理24的mlh格式为 年度_机构问题号_保管期限 )
   def wsAjToTxt
     dh = params['query']
     ss = params['query'].split('-')
-    
+
     case (ss[1]) 
-			when "0"
-				user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' order by ajh ;")
-			 
-			when "2"
-				user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
-				
-			when "3","5","6","7"
-				user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}'  order by ajh ;")
-			when "15"
-				user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  		when "0"
+  			user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm = '#{ss[2]}' order by ajh ;")
+
+  		when "2"
+  			user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
+
+  		when "3","5","6","7"
+  			user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm = '#{ss[2]}'  order by ajh ;")
+  		when "15"
+  			user = User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "18"
-				user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "25"
-				user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "27"
-				user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}' order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}' order by ajh ;")
       when "26"
-				user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "28"
-				user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxsfrom archive left join a_swda on archive.id=a_swda.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "29"
-				user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh ;")
+  			user = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdw from archive left join a_zlxx on archive.id=a_zlxx.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh ;")
       when "30"
-				user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh ;")
+  			user = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by djh ;")
       when "31"
-				user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by zt ;")
+  			user = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by zt ;")
       when "32"
-				user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by jgmc ;")
+  			user = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by jgmc ;")
       when "33"
-				user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by fsrq ;")
+  			user = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by fsrq ;")
       when "34"
-				user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj ;")
-      
-			when "24"
-			  #年度_机构问题号_保管期限
-			  case ss.length
-		      when 3
-		        strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}'"
-	        when 4
-	          strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.jgwth='#{ss[3]}'"
-          when 5
-            strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and a_wsda.nd='#{ss[2]}' and a_wsda.jgwth='#{ss[3]}' and a_wsda.bgqx='#{ss[4]}'"
-          else
-            strwhere="where archive.qzh = '#{ss[0]}' and dalb ='#{ss[1]}'"
-				    
-        end
-        user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh ;")
-			else
-				user = User.find_by_sql("select * from archive where dh like '#{dh}-%' order by ajh ;")
-				
-		end
-    
+  			user = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by sj ;")
+
+  		when "24"
+        strwhere="where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlm =  '#{ss[2]}'  order by ajh "
+        user = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.mlm,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere} ;")
+
+  		else
+  			user = User.find_by_sql("select * from archive where dh like '#{dh}-%' order by ajh ;")
+
+  	end
+
     render :text => user.to_json
   end
   
@@ -316,13 +289,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -336,13 +309,13 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive  where rfidstr=  '#{strrfid}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
@@ -354,20 +327,20 @@ class MapController < ApplicationController
     user=User.find_by_sql("select * from archive where rfidstr='#{params['rfidstr']}';") 
     size = user.size;
     if size.to_i > 0
-        text = "{results:#{size},rows:["          
+        text = "{\"results\":#{size},\"rows\":["          
         for k in 0..user.size-1
             text = text + user[k].to_json + ','
         end
         text = text[0..-2] + "]}"
     else
-        text = "{results:0,rows:[]}"
+        text = "{\"results\":0,\"rows\":[]}"
     end
     render :text => text
   end
 
   #通过ID获取影像文件
   def wsImage(gid)
-    user= User.find_by_sql("select * from timage where id=#{gid};") 
+    user= User.find_by_sql("select * from timage  where id=#{gid};") 
     size = user.size;
     if size.to_i > 0
       dh = user[0]['dh']
@@ -857,9 +830,8 @@ class MapController < ApplicationController
     render :text => txt   
   end  
 
-
   def get_mc_imageList
-    user = User.find_by_sql("select yxmc from mc_image where device_id = #{params['device_id']} order by created_at desc limit 5;")
+    user = User.find_by_sql("select yxmc from mc_image where device_id = #{params['device_id']} and yxmc is not null order by created_at desc limit 10;")
     jpg = []
     for k in 0..user.size-1
       jpg  << user[k]['yxmc']
@@ -867,67 +839,24 @@ class MapController < ApplicationController
     render :text => jpg.join(" ")
   end
 
-  def set_device_zt   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
-    case params['zt']
-    when '1'
-      zt='开'
-    when '0'
-      zt='关'
-    when '2'
-      zt='加温'
-    when '3'
-      zt='减温'
-    when '4'
-      zt='模式转换'
-    when '5'
-      zt='关'
-    else
-    end
-    $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
-    sb=User.find_by_sql("select zn_sb_cz.*,zn_sb.id as sbid,zn_sb.sbh from zn_sb,zn_sb_cz,zn_sb_lx where zn_sb.sblx=zn_sb_lx.id and zn_sb_lx.id=zn_sb_cz.lxid and zn_sb_cz.czsm='#{zt}' and zn_sb.id=#{params['device_id']};")
-    sbh=sb[0]['sbh'].split('.')
-    if sb[0]['lxid'].to_i!=3
-    #if sbh.length==4
-      user=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
-      #puts "ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]['sbh']} #{zt} #{params['device_id']} &"
-      #system("ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]['sbh']} #{zt} #{params['device_id']} &")
-      sb=sb[0]['sbh'].split(',')
-      puts "ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]} #{zt} #{params['device_id']} #{sb[1]}  "
-      system("ruby ./dady/bin/zn_sb_cz_lan.rb #{sb[0]} #{zt} #{params['device_id']} #{sb[1]}  ")
-      for i in 0..10
-        sleep 1          
-        czzt = $conn.exec("select czzt from zn_sb where id =#{params['device_id']};")
-        if czzt[0]['czzt']!='正在操作'
-          break
-        end
-      end
-    else
-      ser=User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
-      system ("ruby ./bin/ktcz_lx.rb #{params['device_id']} #{params['zt']}")
-      for i in 0..10
-        sleep 1          
-        czzt = $conn.exec("select czzt from zn_sb where id =#{params['device_id']};")            
-        if czzt[0]['czzt']!='正在操作'
-          break
-        end
-      end
-      if czzt[0]['czzt']=='成功'
-        text='success:'  +params['device_id']
-      else
-        text='false:设备操作失败。'
-      end
-      #qjms_cz= User.find_by_sql("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,yxj) values (#{sb[0]['sbid']}, '#{sb[0]['sbh']}', #{sb[0]['id']},'#{sb[0]['czzl']}',0,0);")
-    end
-    $conn.close
+  def set_device_zt  #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
+    system ("ruby ./bin/ktcz_lx.rb #{params['device_id']} #{params['zt']}")
     render :text => 'Success'
   end
   
-  def get_archive_wheremp
-    ajtm, tm, wh = params['tm'], params['ajtm'], params['wh']
+  def get_archive_where
+    tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
     request_id = rand(36**32).to_s(36);
     User.find_by_sql("insert into jy_zxjy (request_id, zt, tm, ajtm, wh) values ('#{request_id}','查找中', '#{tm}', '#{ajtm}', '#{wh}');")
     render :text => request_id
   end
+
+  def get_document_where
+    archive_id = params['archive_id']
+    user = User.find_by_sql("select * from docuemnt where ownerid = #{archive_id};")
+    render :text => user.to_json
+  end
+  
   
   def get_timage_from_db(gid)
     user = User.find_by_sql("select id, dh, yxmc from timage where id=#{gid};")
@@ -943,14 +872,10 @@ class MapController < ApplicationController
       ff = File.open("./tmp/#{tmpfile}",'w')
       ff.write(user[0]["data"])
       ff.close
-      puts "./tmp/#{tmpfile} #{local_filename}"
+      #puts "./tmp/#{tmpfile} #{local_filename}"
       system("decrypt ./tmp/#{tmpfile} #{local_filename}")
-      #system("scp ./tmp/#{tmpfile} #{local_filename}")
       system("rm ./tmp/#{tmpfile}")
     end
-
-    #txt = "/assets/#{local_filename}".gsub('/./','/')
-
     txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
   end
   
@@ -1041,7 +966,7 @@ class MapController < ApplicationController
       end
       render :text => "{success:true}"
     end
-  
+    
     def set_t_tddj
       qrq = params['qrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[qrq]}'" 
       zrq = params['zrq'].nil?  ? 'NULL'  : "TIMESTAMP '#{params[zrq]}'" 
@@ -1074,4 +999,147 @@ class MapController < ApplicationController
       user = User.find_by_sql("select id, data from t_yxsj where id = #{params['id']};")
       render :text => user[0]['data']
     end
+    
+    def get_mc_imageList
+      user = User.find_by_sql("select yxmc from mc_image where device_id = #{params['device_id']} and yxmc is not null order by created_at desc limit 10;")
+      jpg = []
+      for k in 0..user.size-1
+        jpg  << user[k]['yxmc']
+      end  
+      render :text => jpg.join(" ")
+    end
+    
+    def get_image_list
+      where_str = "where dh = '#{params['dh']}'"
+      users = User.find_by_sql("select id, yxmc, yxbh, tag from timage #{where_str} order by tag, yxbh limit 10;")
+      ss,txt = [],''
+      for k in 0..users.size-1
+        image_id = users[k].id
+        image_path = get_timage_from_db(image_id)
+        ss <<  {"image_path"=>image_path, "image_id"=>image_id} 
+      end
+      render :text => ss.to_json;
+    end  
+    
+    def get_image_by_id
+      id = params['gid']
+      render :text => get_timage_from_db(id)
+    end  
+    
+    def get_sfz_oo
+       host_ip = "192.168.114.48"
+       client = TCPSocket.open host_ip, 50000
+       recv_length = 1024
+       ss="D&C00040101"
+       client.send ss, 0
+       sleep 2
+       ss = client.recv(1024)
+       str= hex_str(ss)
+       puts str
+       if str.length>200
+         idx = str.index("AA AA AA 96 69 05 08 00 00 90 ")/3
+         if !idx.nil?
+           wb_len = ss[idx+10]*256+ss[idx+11]
+           tx_len = ss[idx+12]*256+ss[idx+13]
+
+           wb   = ss[idx+14..idx+4+wb_len-1]
+           name = wb[0..29]
+           dz   = wb[52..121]
+           sfzh = wb[122..157]
+           name = Iconv.iconv('UTF-8','UTF-16LE', name).to_s
+           dz   = Iconv.iconv('UTF-8','UTF-16LE', dz).to_s
+           sfzh = Iconv.iconv('UTF-8','UTF-16LE', sfzh).to_s
+           
+           txt= "success:" + name.strip + "|" + sfzh.strip + "|" + dz.strip
+         end
+       else
+         txt= "fail:请放入或移动一下身份证。"
+       end
+       client.close
+       render :text => txt
+    end
+    
+    #map/query_leader?username=#{username}&password=#{password}
+    def query_leader
+      username, password = params['username'], params['password']
+      txt = ''
+      if username == "张飞"
+        txt = 'true'
+      else
+        txt = 'false'
+      end
+      
+      render :text => txt  
+    end
+    
+    def get_sfz
+      sleep(1)
+      name = '刘永'
+      sfzh = '612102196407240673'
+      dz   = '江苏省徐州市云龙区积翠新村17幢2单元202室'
+      txt= "success:" + name.strip + "|" + sfzh.strip + "|" + dz.strip
+      render :text => txt
+    end
+    
+    #map/fti_search?username={}&search={}&dalb={}&offset={}&limit={}
+    def fti_search
+      search = params['search']
+      txt = ''
+      if params['dalb'].nil?
+        user = User.find_by_sql"select dalb, lbmc, count(*) from archive inner join d_dalb on cast(archive.dalb as integer) = d_dalb.id where tm like '%#{search}%' group by dalb, lbmc;"
+        txt = user.to_json
+      else
+        offset = params['offset'] || 0
+        limit  = params['limit']  || 25
+
+        user = User.find_by_sql("select count(*) from archive where tm like '%#{search}%' and dalb = '#{params['dalb']}';")[0]
+        size = user.count.to_i;
+        if size > 0
+          txt = "{\"results\":#{size},\"rows\":["
+          user = User.find_by_sql("select * from archive where tm like '%#{search}%'  and dalb = '#{params['dalb']}' order by mlh,ajh offset #{offset} limit #{limit};")
+          for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+          end
+          txt = txt[0..-2] + "]}"
+        else
+          txt = "{\"results\":0,\"rows\":[]}"
+        end
+      end
+        
+      render :text => txt 
+    end  
+    
+
+   
+    
+    
+    #map/dd_search?ajbh=#{}&tm={}&wh={}&djh={}&tdzl={}&qlrmc={}&dalb={}&offset={}
+    def dd_search
+      cond = []
+      cond << "tm like    '%#{params['tm']}%'" if !params['tm'].nil?
+      cond << "a_tddj.djh like   '%#{params['djh']}%'" if !params['djh'].nil?
+      cond << "a_tddj.tdzl like  '%#{params['tdzl']}%'" if !params['tdzl'].nil?
+      cond << "a_tddj.qlrmc like '%#{params['qlrmc']}%'" if !params['qlrmc'].nil?
+      
+      conds = cond.join(" and ")
+      
+      txt = ''
+      offset = params['offset'] || 0
+      limit  = params['limit']  || 25
+
+      user = User.find_by_sql("select count(*) from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds};")[0]
+      size = user.count.to_i;
+      if size > 0
+        txt = "{\"results\":#{size},\"rows\":["
+        user = User.find_by_sql("select document.*, a_tddj.djh, a_tddj.qlrmc, a_tddj.qsxz,a_tddj.ydjh,a_tddj.tdzh,a_tddj.tfh,a_tddj.cjfr,a_tddj.dyrmc,a_tddj.dyqrmc,a_tddj.txqz,a_tddj.ywrmc,a_tddj.txqrrmc,a_tddj.xmmc,a_tddj.tdzl from document inner join a_tddj on document.ownerid = a_tddj.ownerid where #{conds} order by dh,sxh offset #{offset} limit #{limit};")
+        for k in 0..user.size-1
+          txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+      else
+        txt = "{\"results\":0,\"rows\":[]}"
+      end
+      
+      render :text => txt 
+    end  
 end

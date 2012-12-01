@@ -1,17 +1,21 @@
 #!/usr/bin/ruby
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/ruby-serialport-0.7.0/lib'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/ruby-serialport-0.7.0/lib'
 
-$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
-$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
-$:<<'/Library/Ruby/Gems/1.8/gems/ruby-serialport-0.7.0/lib/'
 require 'socket'
 require 'serialport'
 require 'pg'
 require 'find'
-sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
-#sp = SerialPort.new "/dev/ttyUSB0", 9600
-#client = TCPSocket.open "192.168.0.12", 50000
-#client = TCPSocket.open "172.27.20.107", 50000
+
+sp = SerialPort.new "/dev/ttyUSB0", 9600 if File.exist?('/dev/ttyUSB0')
+sp = SerialPort.new "/dev/ttyUSB1", 9600 if File.exist?('/dev/ttyUSB1')
+
+begin
+  system "kill $(ps ax | grep -v grep | grep wl_sb_cz | awk '{print $1}')"
+  sleep 1
+  system "cd /home/liujun/iChad && ruby ./dady/bin/wl_sb_cz.rb > /tmp/wl_sb_cz.log 2>&1 &"
+  sleep 5
+  client = TCPSocket.open "192.168.114.91", 50000
+end
 
 # ********************************************************************************************
 #
@@ -22,6 +26,8 @@ sp = SerialPort.new "/dev/tty.PL2303-000012FD", 9600
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
+$conn.exec("delete from zn_sb_cz_list;")
+
 $fhz=''
 def every_n_seconds(n) 
      loop do 

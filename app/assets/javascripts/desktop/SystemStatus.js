@@ -291,7 +291,8 @@ Ext.define('MyDesktop.SystemStatus', {
         {name: 'dh_prefix',type: 'string'},
         {name: 'wcz',      type: 'integer'}, 
         {name: 'mlm',      type: 'string'},
-        {name: 'yxwz',     type: 'string'}
+        {name: 'yxwz',     type: 'string'},
+        {name: 'dtbl',     type: 'string'}
       ]
     });
 
@@ -846,48 +847,102 @@ Ext.define('MyDesktop.SystemStatus', {
              }
 
            },'-',{
-             text : '导入影像',
+             text : '影像处理',
              iconCls : 'import',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/import_selected_image", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzzt_store.load();
-                 }
-               });
-             }
-           },{
-             text : '导出影像',
-             iconCls : 'export',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
-               };
-               pars = {id:id_str};
-               new Ajax.Request("/desktop/export_selected_image", { 
-                 method: "POST",
-                 parameters: pars,
-                 onComplete:  function(request) {
-                   qzzt_store.load();
-                 }
-               });
+             split:true,
+             menu: {
+                width:100,
+                items:[{
+                  text : '导入影像',
+                  iconCls : 'import',
+                  handler : function() {
+                    items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                    id_str = '';
+                    for (var i=0; i < items.length; i ++) {
+                      if (i==0) {
+                        id_str = id_str+items[i].data.id ;
+                      } else {
+                        id_str = id_str + ',' +items[i].data.id ;
+                      }
+                    };
+                    pars = {id:id_str};
+                    new Ajax.Request("/desktop/import_selected_image", { 
+                      method: "POST",
+                      parameters: pars,
+                      onComplete:  function(request) {
+                        qzzt_store.load();
+                      }
+                    });
+                  }
+                },{
+                  text : '导出影像',
+                  iconCls : 'export',
+                  handler : function() {
+                    items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                    id_str = '';
+                    for (var i=0; i < items.length; i ++) {
+                      if (i==0) {
+                        id_str = id_str+items[i].data.id ;
+                      } else {
+                        id_str = id_str + ',' +items[i].data.id ;
+                      }
+                    };
+                    pars = {id:id_str};
+                    new Ajax.Request("/desktop/export_selected_image", { 
+                      method: "POST",
+                      parameters: pars,
+                      onComplete:  function(request) {
+                        qzzt_store.load();
+                      }
+                    });
+                  }
+                },'-',{
+                  text : '备份影像',
+                  iconCls : 'import',
+                  handler : function() {
+                    items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                    id_str = '';
+                    for (var i=0; i < items.length; i ++) {
+                      if (i==0) {
+                        id_str = id_str+items[i].data.id ;
+                      } else {
+                        id_str = id_str + ',' +items[i].data.id ;
+                      }
+                    };
+                    pars = {id:id_str};
+                    new Ajax.Request("/desktop/export_selected_backup", { 
+                      method: "POST",
+                      parameters: pars,
+                      onComplete:  function(request) {
+                        qzzt_store.load();
+                        alert('命令发送成功');
+                      }
+                    });                    
+                  }
+                }, {
+                  text : '还原影像',
+                  iconCls : 'export',
+                  handler : function() {
+                    items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+                    id_str = '';
+                    for (var i=0; i < items.length; i ++) {
+                      if (i==0) {
+                        id_str = id_str+items[i].data.id ;
+                      } else {
+                        id_str = id_str + ',' +items[i].data.id ;
+                      }
+                    };
+                    pars = {id:id_str};
+                    new Ajax.Request("/desktop/import_selected_backup", { 
+                      method: "POST",
+                      parameters: pars,
+                      onComplete:  function(request) {
+                        qzzt_store.load();
+                        alert('命令发送成功');
+                      }
+                    });                    
+                  }                  
+               }]
              }
            },'-', {
              text : '设置状态',
@@ -1023,6 +1078,10 @@ Ext.define('MyDesktop.SystemStatus', {
             xtype:"textfield",
             fieldLabel:"影像路径",
             name:"yxwz"
+          },{
+            xtype:"textfield",
+            fieldLabel:"大图比例",
+            name:"dtbl"
           }]        
       });
       
@@ -1072,6 +1131,7 @@ Ext.define('MyDesktop.SystemStatus', {
       form.findField('lijr').setValue(data.lijr);
       form.findField('jmcr').setValue(data.jmcr);
       form.findField('yxwz').setValue(data.yxwz);
+      form.findField('dtbl').setValue(data.dtbl);
       
       qzxx_win.show();
       

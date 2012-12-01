@@ -71,7 +71,6 @@ IChad::Application.routes.draw do
 
   match 'get_user' => 'desktop#get_user'
 
-
   root :to => "desktop#index"
   match ':controller(/:action(/:id(.:format)))'
 end

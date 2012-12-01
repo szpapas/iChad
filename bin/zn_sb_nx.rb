@@ -7,7 +7,8 @@ require 'serialport'
 require 'pg'
 require 'find'
 
-sp = SerialPort.new "/dev/ttyUSB0", 9600
+sp = SerialPort.new "/dev/ttyUSB0", 9600 if File.exist?('/dev/ttyUSB0')
+sp = SerialPort.new "/dev/ttyUSB1", 9600 if File.exist?('/dev/ttyUSB1')
 
 # ********************************************************************************************
 #
@@ -37,7 +38,8 @@ every_n_seconds(5) do
   for k in 0..list.count-1
     li = list[k]
     puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);"
-    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")     
+    user = $conn.exec("select count(*) from zn_sb_cz_list where sbid = #{li['sbid']} and sbh = '#{li['sbh']}' and sbczzl = '#{li['czzl']}';")
+    $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")   if user[0]['count'].to_i == 0   
   end
   sj=sj+1
   if sj==180
@@ -45,7 +47,8 @@ every_n_seconds(5) do
     for k in 0..list.count-1
       li = list[k]
       puts "insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);"
-      $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")
+      user = $conn.exec("select count(*) from zn_sb_cz_list where sbid = #{li['sbid']} and sbh = '#{li['sbh']}' and sbczzl = '#{li['czzl']}';")
+      $conn.exec("insert into zn_sb_cz_list(sbid,sbh,sbczid,sbczzl,userid,sfnx) values (#{li['sbid']}, '#{li['sbh']}', #{li['czid']},'#{li['czzl']}',0,1);")  if user[0]['count'].to_i == 0   
     end
     sj=0
   end

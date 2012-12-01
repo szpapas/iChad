@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
-#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'
 
 require 'pg'
 require 'find'
@@ -21,20 +20,9 @@ $conn.exec("set standard_conforming_strings = off")
 dh_prefix, path, ajh = ARGV[0], ARGV[1], ARGV[2]
 ss = dh_prefix.split('-')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
-puts "===ajh  of  #{ajh}  ==="
+
 t1 = Time.now
 puts "===Import images of  #{dh_prefix} begin at #{t1} ==="
-
-
-if !ajh.nil?
-  puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
-else 
-  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
-end
-
-#/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 
 def getimgsize(fname)
   outfile = rand(36**6).to_s(36)
@@ -80,60 +68,33 @@ def save2timage(yxbh, path, dh, yx_prefix)
   ff.write(fo)
   ff.close
   
+
   if (yxbh.include?'jpg') ||  (yxbh.include?'JPG')  
 
     si = fo.index("\377\300")
-    
     if si.nil?
       $stderr.puts(" *** Import Image: #{path}  corrupt image file.")
       return
     end
-    width, height = fo[si+5].to_i*256+fo[si+6].to_i,fo[si+7].to_i*256+fo[si+8].to_i
+    metas = /(sm\w+:\s+\w+;\d*;\d*;\d*;\d*;\d*)/.match(fo)
     
-    fb,fe=fo.index("\377\376"), fo.index("\377\333")
-    meta=''
-    
-    if fb.nil? || fe.nil?
+    if metas.nil?
+      $stderr.puts "Tags error: #{path}"
       meta, meta_tz = "", 0
-      pixels = width * height
-      if pixels > 6000000
-        meta_tz = 2
-
-        wh = getimgsize(path).split(",")
-        width, height = wh[0].to_i, wh[1].to_i
-        pixels = width * height
-        
-      elsif pixels > 4000000
-        meta_tz = 1
-      else
-        meta_tz = 0    
-      end
     else
-      pixels = width * height
-      if pixels > 1000000000
-        wh = getimgsize(path).split(",")
-        width, height = wh[0].to_i, wh[1].to_i
-        pixels = width * height
-      end 
-      meta = fo[fb..fe-1]
-      meta = meta.split("\377\376")[-1]
-      if meta.nil?
-        $stderr.puts "Tags error: #{path}"
-        meta, meta_tz = "", 0
-      else
-        mm = meta.split("\;")
-        if mm.size > 5 && meta.size < 100
-          meta=mm[0..5].join("\;")[2..-1].gsub("\'",'')
-          meta_tz =mm[2].to_i
-        else
-          $stderr.puts "Tags error: #{path}"
-          meta, meta_tz = "", 0
-        end
-      end       
-    end
+      meta = metas[1]
+      mm = meta.split("\;")
+      meta_tz =mm[2].to_i
+    end 
+
+    wh = getimgsize(infile).split(",")
+    width, height = wh[0].to_i, wh[1].to_i
+    pixels = width * height
     
   elsif (yxbh.include?'TIF') || (yxbh.include?'tif') 
     meta = ""
+    puts "getimgsize #{infile}"
+
     wh = getimgsize(infile).split(",")  #decrypted file
     width, height = wh[0].to_i, wh[1].to_i
     pixels = width * height
@@ -150,12 +111,9 @@ def save2timage(yxbh, path, dh, yx_prefix)
       end
     end  
   end
-  
-  #puts "encrypt #{infile} #{outfile}"
+
   system("encrypt #{infile} #{outfile}")
   fo = File.open(outfile).read
-
-  #puts "yxdx encrypted size: #{fo.size}"
 
   yxdx = fo.size
   edata=PGconn.escape_bytea(fo)
@@ -163,7 +121,8 @@ def save2timage(yxbh, path, dh, yx_prefix)
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
   
   tag = get_tag(yxbh)
-  
+
+  $conn.exec("delete from timage where dh='#{dh}' and yxbh='#{yxbh}';")
   $conn.exec("insert into timage (dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel, width, height, tag) values ('#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , E'#{meta}', #{meta_tz}, #{pixels}, #{width}, #{height}, #{tag});")
   
   system("rm #{infile} #{outfile}")
@@ -251,5 +210,7 @@ end
 
 $conn.exec("update timage set dh_prefix = split_part(dh, '-', 1) || '-' || split_part(dh, '-', 2)  ||  '-' || split_part(dh, '-', 3) where dh_prefix is null;")
 $conn.close
+
+system("ruby ./dady/bin/update_qzxx_tj.rb #{dh_prefix}")
 
 puts "=== Total time is #{Time.now-t1} seconds"

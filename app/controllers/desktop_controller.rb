@@ -2,12 +2,10 @@
 
 require 'socket'
 require 'find'
-require "fastimage"
 require 'timeout'
 require 'iconv'
-#require 'pdf/writer'
-#require 'serialport'
 require "prawn"
+
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images, :add_new_wsda]
@@ -3537,9 +3535,9 @@ class DesktopController < ApplicationController
   def get_qzgl_store
     where_str = "where qzh=#{params['qzh']} "
 
-    fl = params['filter']
-    fl = '' if params['filter']=='未统计'
-    where_str = where_str + " and zt= '#{fl}' " if !(fl.nil?) && fl !='全部'
+    fl = "zt = '#{params['filter']}'"
+    fl = 'zt IS NULL' if params['filter']=='未统计'
+    where_str = where_str + " and #{fl} " if !(fl.nil?) && fl !='全部'
     
     dalb = params['dalb']
     where_str = where_str + " and dalb = '#{dalb}' " if !(dalb.nil?) && dalb !=''
@@ -3640,8 +3638,8 @@ class DesktopController < ApplicationController
   end
   
   def save_mulu_info
-    id, mlh, lijr, jmcr, yxwz = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz']
-    User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}' where id=#{id} ;")
+    id, mlh, lijr, jmcr, yxwz, dtbl = params['id'], params['mlh'],params['lijr'], params['jmcr'],params['yxwz'], params['dtbl']
+    User.find_by_sql("update q_qzxx set yxwz='#{yxwz}', lijr='#{lijr}', jmcr='#{jmcr}', dtbl = '#{dtbl}' where id=#{id} ;")
     render :text => 'Success'
   end
   
@@ -3669,12 +3667,9 @@ class DesktopController < ApplicationController
       qzh, dalb, mlh, ajh, dh_prefix = ss[0], ss[1], ss[2], ss[3], dd.dh_prefix
       
       qzxx=User.find_by_sql("select * from q_qzxx where dh_prefix='#{dd.dh_prefix}';")[0]
-      yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
+      #yxgs=User.find_by_sql("select id, yxmc, yxbh from timage where dh like '#{dh_prefix}-%' limit 1;")
       yxgs = lookup(qzxx.yxwz)
       if yxgs.length > 0
-        #yy=yxgs.split('$') 
-        #yxmc = "#{yy[0]}\$#{yy[1][0..0]}\$#{ajh.rjust(4,'0')}"
-        yxgs=
         yxmc = "#{yxgs[0..-5]}#{ajh.rjust(4,'0')}" 
         path = "#{yxmc}".gsub('$','\$')
         User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlh}', 'ruby ./dady/bin/import_tsimage.rb #{dh_prefix} #{path} #{ajh}', '', '', '未开始');")
@@ -5405,10 +5400,11 @@ class DesktopController < ApplicationController
     if !File.exists?(gxwz)
       system"mkdir -p #{gxwz}"
     end
-    system "df | grep #{gxwz} |wc|  awk '{print $1}' > gggg"
-    system "umount #{gxwz}" if File.open('gggg').read.chomp.to_i > 0
-    system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
-    system "rm gggg"
+    
+    #system "df | grep #{gxwz} |wc|  awk '{print $1}' > gggg"
+    #system "umount #{gxwz}" if File.open('gggg').read.chomp.to_i > 0
+    #system "mount -t cifs -o username=Administrator,password=#{password},iocharset=utf8 #{yxwz} #{gxwz}"
+    #system "rm gggg"
     
     system "ls #{gxwz} > gxwz"
     File.open('gxwz').each_line do |line|
@@ -5429,7 +5425,7 @@ class DesktopController < ApplicationController
       system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjma};"
       system "rm -rf ./dady/tmp1/#{user[0].dh}/#{user[0].wjmb};"
     end
-    User.find_by_sql("delete from q_sdwj where id in (#{params['id']});")  
+    User.find_by_sql("delete from q_sdwj where id in (#{params['id']});") 
     render :text => 'Success'
   end  
   
@@ -9217,8 +9213,27 @@ class DesktopController < ApplicationController
      end
      
      
-     def mkdir_test
-       system("mkdir -p ./dady/sc/450-0789")
-     end
-     
+    def export_selected_backup
+      user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+      for k in 0..user.size-1
+        dd = user[k]
+        ss = dd.dh_prefix.split('-')
+        qzh, dalb, mlh, dh_prefix, mlm = ss[0], ss[1], ss[2], dd.dh_prefix, dd['mlm']
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlm}', 'ruby ./dady/bin/export_backup.rb #{dh_prefix}', '', '', '未开始');")
+      end  
+      render :text => 'Success'
+    end
+    
+    def import_selected_backup
+      user = User.find_by_sql("select * from q_qzxx where id in (#{params['id']});")
+      for k in 0..user.size-1
+        dd = user[k]
+        ss = dd.dh_prefix.split('-')
+        qzh, dalb, mlh, dh_prefix, mlm = ss[0], ss[1], ss[2], dd.dh_prefix, dd['mlm']
+        backup_file = "/share/timage_#{dh_prefix.gsub('-','_')}.backup" 
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('#{dh_prefix}','#{mlm}', 'ruby ./dady/bin/import_backup.rb #{backup_file} #{dh_prefix} ', '', '', '未开始');")
+      end  
+      render :text => 'Success'
+    end
+
 end

@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
-
-#$:<<'/usr/share/devicemgr/backend/vendor/gems/pg-0.9.0/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
 
 require 'pg'
 require 'active_support'
@@ -104,6 +102,9 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     bz      = user['备注']
     
     dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+    
+    rq = user['拍摄日期'] if rq.nil?
+    sxh = user['照片号'] if sxh.nil?
       
     if rq.length==0
       rq = 'null' 
@@ -116,7 +117,6 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
     end
 
     insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}');"
-    #puts insert_str
     $conn.exec(insert_str)
     
     case dalb
@@ -254,8 +254,9 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       tdzl  = user['土地座落'].gsub("\\","~")
       qsxz  = user['权属性质']
       ydjh  = user['原地籍号']
+      tdzh  = user['土地证号']
 
-      insert_str = " INSERT INTO a_tddj(dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES ('#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
+      insert_str = " INSERT INTO a_tddj(dh,djh,qlrmc,tdzl,qsxz,ydjh,tdzh)  VALUES ('#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}','#{tdzh}');"
       #puts insert_str
       $conn.exec(" DELETE FROM a_tddj where dh='#{dh}';")
       $conn.exec(insert_str)
@@ -281,6 +282,33 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
 
     when 19 #科技信息
     when 20 #照片档案
+      
+      rq  =  user['拍摄日期']
+      zph   =  user['照片号']
+      psz   =  user['拍摄者']
+      cfwz  =  user['存放位置']
+      sy    =  user['事由']
+      dd    =  user['地点']
+      rw    =  user['人物']
+      bj    =  user['背景']
+      
+      
+      if rq.length==0
+        psrq = 'null' 
+      elsif rq.length==4
+        psrq = "TIMESTAMP '#{rq}0101'"
+      elsif rq.length==6
+        psrq = "TIMESTAMP '#{rq}01'"
+      else    
+        psrq = "TIMESTAMP '#{rq}'"
+      end
+      
+      insert_str =  " INSERT INTO a_zp (dh, ownerid, psrq, zph,  psz, cfwz, sy, dd, rw, bj) values ('#{dh}', '#{ownerid}',  #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}');"
+      
+      puts insert_str
+      $conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
+      $conn.exec(insert_str)
+      
     when 21 #地址矿产
     when 24 #文书档案
 
@@ -316,7 +344,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       
       insert_str =  " INSERT INTO a_wsda (jh, zwrq, wh, zrr, gb, wz, ztgg, ztlx, ztdw, dagdh, dzwdh, swh, ztsl, qwbs, ztc, zbbm, dh, nd, bgqx, jgwth) values ('#{jh}', #{zwrq}, '#{wh}', '#{zrr}', '#{gb}', '#{wz}', '#{ztgg}', '#{ztlx}', '#{ztdw}', '#{dagdh}', '#{dzwdh}', '#{swh}', '#{ztsl}', '#{qwbs}','#{ztc}','#{zbbm}','#{dh}', '#{nd}', '#{bgqx}', '#{jgwth}');"
       #puts insert_str
-      $conn.exec("DELETE from a_wsda where dh like '#{dh}';")
+      $conn.exec("DELETE from a_wsda where dh = '#{dh}';")
       $conn.exec(insert_str)
       
     when 35 #矿业权
@@ -348,7 +376,7 @@ def set_archive(tt, dwdm, qzh, dalb, mlh)
       
       insert_str =  " INSERT INTO a_kyq (xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,dh) values ('#{xxkz}','#{yxkz}','#{kyqr}','#{ksmc}','#{ksbh}','#{ksgm}','#{xzqdm}','#{kz}','#{djlx}','#{kswz}','#{kqfw}','#{mj}','#{cl}','#{sjncl}','#{clgm}','#{yxqq}','#{yxqz}','#{yxqx}','#{fzjg}','#{mjdw}','#{cldw}','#{scgm}','#{scldw}','#{jjlx}', '#{dh}');"
       #puts insert_str
-      $conn.exec("DELETE from a_kyq where dh like '#{dh}';")
+      $conn.exec("DELETE from a_kyq where dh = '#{dh}';")
       $conn.exec(insert_str)
       
     else
