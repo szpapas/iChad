@@ -81,7 +81,6 @@ Ext.define('MyDesktop.App', {
                     { name: '借阅管理', iconCls: 'borrowman-shortcut', module: 'borrowman' },                    
                     { name: '档案打印', iconCls: 'printdata-shortcut', module: 'daprint' },
                     { name: '档案统计', iconCls: 'cpu-shortcut', module: 'datj'},
-					//{ name: '档案统计', iconCls: 'cpu-shortcut', module: 'systemstatus'},
                     { name: '系统设置', iconCls: 'systemman-shortcut', module: 'systemman' },
                     { name: '智慧物联', iconCls: 'zhwl-shortcut', module: 'notepad' }
                 ]
@@ -103,9 +102,9 @@ Ext.define('MyDesktop.App', {
                 width: 100,
                 items: [
                     {
-                        text:'基本设置',
+                        text:'Rev(1216)',
                         iconCls:'settings',
-                        handler: me.onSettings,
+                        //handler: me.onSettings,
                         scope: me
                     },
                     {  
