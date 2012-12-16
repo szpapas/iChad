@@ -128,7 +128,7 @@ def generate_single_archive(archive_id, print_option=0b1101)
     if data['dalb'].to_i == 3
 
       fl_str = flstr(data['dalb'].to_i)
-      image_t = "image_d"
+      image_t = "image_1"
       
       #puts "select * from a_tddj where dh='#{data['dh']}';"
       tddj = $conn.exec("select * from a_tddj where dh='#{data['dh']}';")
@@ -142,16 +142,36 @@ def generate_single_archive(archive_id, print_option=0b1101)
     
       $tt = titles.split("\n")
       tt_str = ""
-      if $tt.size > 1 
+      if $tt.size > 1
         for kk in 0..$tt.size-1 do 
-          pos2 = 2000-100*(1-kk)
+          pos2 = 2100-100*(1-kk)
           tt_str = tt_str + " -draw  \"text 1000, #{pos2} '#{$tt[kk]}'\""
         end
       else
-        tt_str = tt_str + " -draw  \"text 1000, 1950 '#{tddj[0]['tdzl']}'\"" 
+        tt_str = tt_str + " -draw  \"text 1000, 2100 '#{tddj[0]['tdzl']}'\"" 
       end
+      
+      
+      #qrlmc
+      ss = tddj[0]['qlrmc'].split(/  \s*/)
+      for k in 0..ss.size-1 do 
+        ss[k] = split_string(ss[k],14).gsub("\"", "\\\"")
+      end
+      titles=ss.join("\n") 
     
-      tt_str =  "-draw  \"text 1000, 1450 '#{tddj[0]['djh']}'\"  -draw \"text 1000, 1700 '#{tddj[0]['qlrmc']}'\"  #{tt_str} "
+      $tt = titles.split("\n")
+      #tt_str = ""
+      if $tt.size > 1
+        for kk in 0..$tt.size-1 do 
+          pos2 = 1800-100*(1-kk)
+          tt_str = tt_str + " -draw  \"text 1000, #{pos2} '#{$tt[kk]}'\""
+        end
+      else
+        tt_str = tt_str + " -draw  \"text 1000, 1700 '#{tddj[0]['qlrmc']}'\"" 
+      end
+
+      
+      tt_str =  "-draw  \"text 570, 1450 '地 籍 号:'\" -draw  \"text 500, 1700 '权利人名称:'\" -draw  \"text 570, 2100 '土地坐落:'\" -draw  \"text 1000, 1450 '#{tddj[0]['djh']}'\" #{tt_str} "
     
       dd1, dd2 = data['qny'], data['zny']    
       convert_str =  "convert ./dady/#{image_t}.jpg -font ./dady/STZHONGS.ttf  -pointsize 180 -draw \"text 550, 550 '#{data['dwdm']}'\" -pointsize 160 -draw \"text 800, 970 '#{fl_str}'\"  -font ./dady/SimHei.ttf  -pointsize 80 #{tt_str} -pointsize 70  -draw \"text 300, 2675 '自 #{dd1[0..3]} 年 #{dd1[4..5]} 月 至 #{dd2[0..3]} 年 #{dd2[4..5]} 月'\"  -draw \"text 1950, 2675 '#{data['bgqx']}'\"    -draw \"text 300, 2900 '    本卷共  #{data['js']}  件  #{data['ys']}  页'\"  -pointsize 96 -draw \"text 1950, 2675 '#{data['mj']}'\"   -pointsize 50 -draw \"text 1750, 3225 '#{mlh}'\"  -draw \"text 1950, 3225 '#{flh}'\"  -draw \"text 2150, 3225 '#{ajh.to_i}'\"  ./dady/#{mlh}_#{flh}_#{ajh}_ML00.jpg" 
