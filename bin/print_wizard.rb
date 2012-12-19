@@ -76,8 +76,9 @@ end
  
 #/assets/dady/#{mlh}\$#{flh}\$#{ajh}\$ML01.jpg   => dh, yxmc, yxbh, yxdx, data
 def save2timage(yxbh, path, dh, yx_prefix)
-  #puts path
+  puts path
   outfile = 'dady/'+rand(36**6).to_s(36)
+  puts "encrypt #{path} #{outfile}"
   system("encrypt #{path} #{outfile}")
   fo = File.open(outfile).read
   yxdx=fo.size

@@ -41,6 +41,9 @@ var msg = function(title, msg){
 };
 
 //Simple Store
+
+
+
 var kyq_djlx_data = [
  ['0','地质勘查工作标准、规程、规范实施及管理办法等材料'],
  ['1','采矿权管理规范性文件材料（申请、变更、延续、注销、采矿权出让、转让审批等）'],
@@ -1312,11 +1315,20 @@ var DispAj_zh = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }	,
+						{
+		                    xtype: 'textfield',
+		                    hidden : true,
+							name: 'userid',
+							id: 'userid',
+		                    x: 10,
+		                    y: 190
+		                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -1825,11 +1837,20 @@ var DispAj_cw = function(record,add_new,title){
 						id: 'cw_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -2383,11 +2404,20 @@ var DispAj_tddj = function(record,add_new,title){
 						id: 'tddj_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -3201,11 +3231,20 @@ var DispAj_kyq = function(record,add_new,title){
 						id: 'kyq_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -3948,11 +3987,20 @@ var DispAj_wsda = function(record,add_new,title){
 						id: 'wsda_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -3979,6 +4027,11 @@ var DispAj_wsda = function(record,add_new,title){
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+						var datazwrq=requestdata[0]['zwrq'].split(" ");
+						var dateArr = datazwrq[0].split("-");
+						var stateDate = new Date(dateArr[0]-0, dateArr[1]-1, dateArr[2]);
+						//var stateDate = new Date(2012,1,12);
+						Ext.getCmp('wsda_zwrq').setValue(stateDate);
 			     	}
 			     });
 			//Ext.getCmp('button_aj_add').hidden=true;
@@ -4407,11 +4460,20 @@ var DispAj_swdj = function(record,add_new,title){
 	                    labelWidth: 60,
 	                    x: 460,
 	                    y: 290
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);		
@@ -4852,11 +4914,20 @@ var DispAj_fwdj = function(record,add_new,title){
 	                    labelWidth: 60,
 	                    x: 230,
 	                    y: 290
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);		
@@ -5161,11 +5232,20 @@ var DispAj_lbzl = function(record,add_new,title){
 						id: 'bz',
 	                    x: 10,
 	                    y: 230
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);		
@@ -5999,11 +6079,20 @@ var DispAj_sx = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -6432,11 +6521,20 @@ var DispAj_tjml = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -7041,11 +7139,20 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -7582,11 +7689,20 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -8082,11 +8198,20 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -8600,11 +8725,20 @@ var DispAj_qtda_swda = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -9088,11 +9222,20 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -9483,11 +9626,20 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 						id: 'zh_dh',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -9784,11 +9936,20 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -10083,11 +10244,20 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -10426,11 +10596,20 @@ var DispAj_by_dsj = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -10725,11 +10904,20 @@ var DispAj_by_qzsm = function(record,add_new,title){
 						id: 'zh_id',
 	                    x: 10,
 	                    y: 190
-	                }
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 	            ]
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -11183,6 +11371,7 @@ var doc_jgwt_disp = function(record,add_new){
 
     });
   }
+	Ext.getCmp('userid').setValue(currentUser.id);
   if(add_new==false){
   //设置数据
     Ext.getCmp('doc_jgwt_disp_form').getForm().setValues(record.data);
@@ -11509,7 +11698,15 @@ var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 						name: 'bz',
 						id:'jr_bz',
 						height: 80
-					}
+					}		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
 				],
 				buttons:[{
 						xtype: 'button',
@@ -11601,6 +11798,7 @@ var DispJr = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 			}]
 		});
 	}
+	Ext.getCmp('userid').setValue(currentUser.id);
 	Ext.getCmp('jr_dh').readOnly=true;
 	if(add_new==false){
 	//设置数据
@@ -12098,58 +12296,66 @@ var show_image = function(dh) {
 		  id:'image_print',
 		　　iconCls:'print',
           handler : function() {
-			
-				root=Ext.getCmp('yx_show_tree').store.getRootNode();
-                print_id="";
-                get_NodesChecked(root);
-				if (print_id!=""){
-					Ext.getCmp('image_print').setVisible(false);
-					var pars={gid:print_id};
-				    new Ajax.Request("/desktop/get_timage_from_db_print", {
-				        method: "POST",
-				        parameters: pars,
-				        onComplete:  function(request) {
-				          printfile = request.responseText;
-				          if (printfile != '') { 
-							//set_image("/assets/dady/fm.jpg");
-							//alert(path);
+				new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+			        method: "POST",
+			        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
+			        onComplete:  function(request) {
+			        	if (request.responseText=='success'){
+							root=Ext.getCmp('yx_show_tree').store.getRootNode();
+			                print_id="";
+			                get_NodesChecked(root);
+							if (print_id!=""){
+								Ext.getCmp('image_print').setVisible(false);
+								var pars={gid:print_id};
+							    new Ajax.Request("/desktop/get_timage_from_db_print", {
+							        method: "POST",
+							        parameters: pars,
+							        onComplete:  function(request) {
+							          printfile = request.responseText;
+							          if (printfile != '') { 
+										//set_image("/assets/dady/fm.jpg");
+										//alert(path);
 							
-							path=printfile.split(",");
-						    for (k=0;k<path.length;k++){
-								if (path[k].toUpperCase().include('JPG') || path[k].toUpperCase().include('TIF') || path[k].toUpperCase().include('JPEG') || path[k].toUpperCase().include('TIFF')) { 
-									ifx=path[k].split('?');
-									imagefx=ifx[1];
-										LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
-								          //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-								          image_path = window.location.href + path[k];				
-								          LODOP.PRINT_INIT(image_path);				
-									  	LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
-								          LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-								          LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-								          LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");				
-								          //LODOP.PREVIEW();
-								          LODOP.PRINT();
+										path=printfile.split(",");
+									    for (k=0;k<path.length;k++){
+											if (path[k].toUpperCase().include('JPG') || path[k].toUpperCase().include('TIF') || path[k].toUpperCase().include('JPEG') || path[k].toUpperCase().include('TIFF')) { 
+												ifx=path[k].split('?');
+												imagefx=ifx[1];
+													LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+											          //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+											          image_path = window.location.href + path[k];				
+											          LODOP.PRINT_INIT(image_path);				
+												  	LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
+											          LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+											          LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+											          LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");				
+											          //LODOP.PREVIEW();
+											          LODOP.PRINT();
 
-						            //imageObj.src = path;
-						            //draw(scale, translatePos,imageObj);
-								}else{	
-									if (path[k]!=""){			
-										location.href= path[k];
-										imageObj.src = '';
-							            draw(scale, translatePos,imageObj);
-									}
-								}
+									            //imageObj.src = path;
+									            //draw(scale, translatePos,imageObj);
+											}else{	
+												if (path[k]!=""){			
+													location.href= path[k];
+													imageObj.src = '';
+										            draw(scale, translatePos,imageObj);
+												}
+											}
 								
-					          };
-							  alert('打印完成。');
+								          };
+										  alert('打印完成。');
 							  
-							}
-							Ext.getCmp('image_print').setVisible(true);
-					     }
-					  });
+										}
+										Ext.getCmp('image_print').setVisible(true);
+								     }
+								  });
 					
-				}
-				
+							}
+						}else{
+				            alert('您无此类档案的打印影像文件的权限。');
+				          }
+				        }
+				    });
 				
 				//alert(print_id);
 		  //  if (path != '') {
@@ -12193,12 +12399,25 @@ var show_image = function(dh) {
       }]
     }]
   });
-	var yxtree_store = Ext.getCmp('yx_show_tree').store;
-    yxtree_store.clearOnLoad = false;
-    yxtree_store.getRootNode().removeAll() ;
-    yxtree_store.proxy.extraParams = {node:"root", dh:dh};
-    yxtree_store.load();
-  yxxs_win.show();
+	new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+        method: "POST",
+        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+        onComplete:  function(request) {
+          if (request.responseText=='success'){
+            var yxtree_store = Ext.getCmp('yx_show_tree').store;
+		    yxtree_store.clearOnLoad = false;
+		    yxtree_store.getRootNode().removeAll() ;
+		    yxtree_store.proxy.extraParams = {node:"root", dh:dh};
+		    yxtree_store.load();
+		  	yxxs_win.show();
+			set_image("/assets/dady/fm.jpg");
+          }else{
+            alert('您无此类档案的查看影像文件的权限。');
+            Ext.getCmp('yxxs_win').close();
+          }
+        }
+    });
+	
 
 }
 

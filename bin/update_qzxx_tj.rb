@@ -22,7 +22,17 @@ def update_timage(dh_prefix)
   
   ss = dh_prefix.split('-')
   qzh, dalb, mlh = ss[0], ss[1], ss[2]
-  
+  timage_tj=$conn.exec("delete from  timage_tj  where dh_prefix='#{dh_prefix}';")
+  #if timage_tj.count==0
+      archives = $conn.exec("select distinct dh,mlh, ajh, ys from archive where dh like '#{dh_prefix}-%' order by mlh,ajh;")
+      puts "generating timage_tj files ..."
+      
+      for k in 0..archives.count-1
+        ar = archives[k]
+        puts "insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{ar['mlh']}');"
+        $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{ar['mlh']}');")
+      end
+  #end
   puts "update basic info for qz:#{qzh}, mlh:#{mlh}..."
   $conn.exec("update timage_tj set ajys=archive.ys from archive where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
   
@@ -91,7 +101,7 @@ def update_qzxx(dh_cond)
       puts "insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );"
       $conn.exec("insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
     end
-    qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}_%';")
+    qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}-%';")
     $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';") 
     
     $conn.exec("update q_qzxx set zt=''   where dh_prefix='#{dh_prefix}';")

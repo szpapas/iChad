@@ -24,7 +24,7 @@ def update_qzxx(dh_cond)
       puts "insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );"
       $conn.exec("insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
     end
-    qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}_%';")
+    qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}-%';")
     $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';") 
     
     $conn.exec("update q_qzxx set zt=''   where dh_prefix='#{dh_prefix}';")

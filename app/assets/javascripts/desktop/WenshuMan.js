@@ -88,43 +88,54 @@ Ext.define('MyDesktop.WenshuMan', {
 		      else
 		      {
 		        myForm = Ext.getCmp('my_upload_form').getForm();
-
-		        if(myForm.isValid())
-		        {
-		            form_action=1;
-		            myForm.submit({
-		              url: '/desktop/upload_file',
-		              waitMsg: '文件上传中...',
-		              success: function(form, action){
-		                var isSuc = action.result.success; 
-		                filename=myForm._fields.items[0].lastValue.split('\\');
-		                file=filename[filename.length-1];
-						file=file.gsub("'","\'")
-		                if (isSuc) {
-		                  new Ajax.Request("/desktop/save_image_db", { 
-		                    method: "POST",
-		                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-		                    onComplete:  function(request) {
-		                      if (request.responseText=='true'){
-								msg('成功', '文件上传成功.'); 
-		                        timage_store.load();
-		                        Ext.getCmp('timage_combo').lastQuery = null;
+				filename=myForm._fields.items[0].lastValue.split('\\');
+                file=filename[filename.length-1];
+				file=file.gsub("'","\'")
+				new Ajax.Request("/desktop/get_image_sfcf", { 
+					method: "POST",
+	                parameters: eval("({filename:'" + file + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
+	                onComplete:  function(request) {
+						if (request.responseText=='notsort'){
+							alert("您无此类档案影像文件上传的权限。");
+						}else{
+					        if(myForm.isValid())
+					        {
+					            form_action=1;
+					            myForm.submit({
+					              url: '/desktop/upload_file',
+					              waitMsg: '文件上传中...',
+					              success: function(form, action){
+					                var isSuc = action.result.success; 
+					                
+					                if (isSuc) {
+					                  new Ajax.Request("/desktop/save_image_db", { 
+					                    method: "POST",
+					                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+					                    onComplete:  function(request) {
+					                      if (request.responseText=='true'){
+											msg('成功', '文件上传成功.'); 
+					                        timage_store.load();
+					                        Ext.getCmp('timage_combo').lastQuery = null;
 		                                              
-		                      }else{
-		                        alert("文件上传失败，请重新上传。" + request.responseText);
-		                      }
-		                    }
-		                  }); //save_image_db
-		                } else { 
-		                  msg('失败', '文件上传失败.');
-		                }
-		              }, 
-		              failure: function(){
-		                msg('失败', '文件上传失败.');
-		              }
-		            });
-		        }
-		      } //else
+					                      }else{
+					                        alert("文件上传失败，请重新上传。" + request.responseText);
+					                      }
+					                    }
+					                  }); //save_image_db
+					                } else { 
+					                  msg('失败', '文件上传失败.');
+					                }
+					              }, 
+					              failure: function(){
+					                msg('失败', '文件上传失败.');
+					              }
+					            });
+					        }
+						}
+					}
+				})
+		      
+		} //else
 		    } //handler
 		  }] //buttons
 		});
@@ -211,6 +222,8 @@ Ext.define('MyDesktop.WenshuMan', {
 		          var grid = Ext.getCmp('document_grid');
 		          var records = grid.getSelectionModel().getSelection();
 		          var record = records[0];
+		
+		
 
 		          var pars="id="+record.data.id;
 		          Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
@@ -378,19 +391,25 @@ Ext.define('MyDesktop.WenshuMan', {
 		            var grid = Ext.getCmp('archive_grid_wsda');
 		            var records = grid.getSelectionModel().getSelection();
 		            var record = records[0];
+		
+					var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+	                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+	                      if(id=="yes"){
+	                        new Ajax.Request("/desktop/delete_archive", { 
+	                          method: "POST",
+	                          parameters: eval(pars),
+	                          onComplete:  function(request) {
+								if (request.responseText=='success'){
+	                            	Ext.getCmp('archive_grid_wsda').store.load();
+								}else{
+									alert(request.responseText);
+								}
+	                          }
+	                        });
+	                      }
+	                  });
 
-		            var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})"; 
-		            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-		                  if(id=="yes"){
-		                    new Ajax.Request("/desktop/delete_archive", { 
-		                      method: "POST",
-		                      parameters: eval(pars),
-		                      onComplete:  function(request) {
-		                        Ext.getCmp('archive_grid_wsda').store.load();
-		                      }
-		                    });
-		                  }
-		              });
+		            
 
 		          }
 		        },
@@ -1471,15 +1490,26 @@ Ext.define('MyDesktop.WenshuMan', {
 	              {
 	                text: '打印图像',
 	                handler : function() {
-	                  LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
-	                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-	                  image_path = Ext.getCmp('wenshu_preview_img').getEl().dom.src.replace(/-/ig, "_");
-	                  LODOP.PRINT_INIT(image_path);
-	                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-	                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-	                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-	                  //LODOP.PREVIEW();
-	                  LODOP.PRINT();
+						new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+					        method: "POST",
+					        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
+					        onComplete:  function(request) {
+					        	if (request.responseText=='success'){
+	                  				LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+					                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+					                  image_path = Ext.getCmp('wenshu_preview_img').getEl().dom.src.replace(/-/ig, "_");
+					                  LODOP.PRINT_INIT(image_path);
+					                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+					                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+					                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+					                  //LODOP.PREVIEW();
+					                  LODOP.PRINT();
+								}else{
+						            alert('您无此类档案的打印影像文件的权限。');
+						          }
+						        }
+						    });
+							
 	                }
 	              },
 	              {
@@ -1490,18 +1520,23 @@ Ext.define('MyDesktop.WenshuMan', {
 	                    if (combo!=''){
 	                      Ext.Msg.confirm("提示信息","是否要删除："+combo+" 图像？",function callback(id){
 	                        if(id=="yes"){
-	                          var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";
+	                          var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";							  
 	                          new Ajax.Request("/desktop/delete_timage", {
 	                              method: "POST",
-	                              parameters: {yxmc:combo,dh:dh},
+	                              //parameters: {yxmc:combo,dh:dh},
+								  parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
 	                              onComplete:  function(request) {
 	                                var path = request.responseText;
-	                                if (path == 'success') { 
-	                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
-	                                  timage_store.load();
-	                                  Ext.getCmp('wenshu_timage_combo').lastQuery = null;
-	                                  Ext.getCmp('wenshu_preview_img').getEl().dom.src = '';
-	                                }
+									if (path == 'notsort'){
+										alert("您无删除此类档案影像文件的权限。")
+									}else{
+	                                	if (path == 'success') { 
+		                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
+		                                  timage_store.load();
+		                                  Ext.getCmp('wenshu_timage_combo').lastQuery = null;
+		                                  Ext.getCmp('wenshu_preview_img').getEl().dom.src = '';
+		                                }
+									}
 	                              }
 	                          });
 	                        }

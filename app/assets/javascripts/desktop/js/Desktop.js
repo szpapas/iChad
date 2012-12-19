@@ -115,7 +115,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
         me.shortcutsView = me.items.getAt(1);
         me.shortcutsView.on('itemclick', me.onShortcutItemClick, me);
-
+		me.shortcutsView.on('itemdblclick', me.onShortcutItemClick, me);
         var wallpaper = me.wallpaper;
         me.wallpaper = me.items.getAt(0);
         if (wallpaper) {
