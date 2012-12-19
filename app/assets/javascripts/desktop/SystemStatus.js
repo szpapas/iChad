@@ -1048,6 +1048,69 @@ Ext.define('MyDesktop.SystemStatus', {
                qzgl_store.load();
              }
            }
+         },{
+           text:'打印',
+           handler : function() {
+             
+             var runner = new Ext.util.TaskRunner();
+             
+             var modi_win = new Ext.Window({
+               id : 'print_monitor_win',
+               iconCls : 'add',
+               title: '案卷修改',
+               floating: true,
+               shadow: true,
+               draggable: true,
+               closable: true,
+               modal: true,
+               width: 300,
+               height: 200,
+               layout: 'fit',
+               plain: true,
+               items:[{
+                 xtype : 'panel',
+                 items : [{
+                     xtype: 'box',
+                     id : 'wait_box_id',
+                     autoEl: {
+                         tag: 'a',
+                         html: 'Please wait'
+                     }
+                  }]
+               }],
+               buttons: [{
+                   text: '取消',
+                   handler: function() {
+                     Ext.getCmp('print_monitor_win').close();
+                   }
+                 },{
+                   text: '检查',
+                   handler: function() {
+                     var el = Ext.get("wait_box_id");
+                     el.dom.innerHTML='new string'; 
+                   }
+               }]
+             });
+             
+             var check_print_task = function() {
+                 var el = Ext.get("wait_box_id");
+                 if (el == null) {
+                   runner.stopAll();
+                 } else { 
+                   el.dom.innerHTML=el.dom.innerHTML+"<br />new string";
+                }   
+             };
+             
+             var task = {
+                 run: check_print_task,
+                 interval: 10000 //1 second
+             };
+             
+             runner.start(task);
+             
+             modi_win.show();
+
+           }
          }]
     }); 
     

@@ -24,6 +24,9 @@ If you are unsure which license is appropriate for your use, please contact the 
  * @extends Ext.panel.Panel
  * <p>This class manages the wallpaper, shortcuts and taskbar.</p>
  */
+ 
+var bDblClick=false;
+ 
 Ext.define('Ext.ux.desktop.Desktop', {
     extend: 'Ext.panel.Panel',
 
@@ -91,7 +94,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
      * The config object for the TaskBar.
      */
     taskbarConfig: null,
-
+    
     windowMenu: null,
 
     initComponent: function () {
@@ -115,7 +118,12 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
         me.shortcutsView = me.items.getAt(1);
         me.shortcutsView.on('itemclick', me.onShortcutItemClick, me);
+<<<<<<< HEAD
 		me.shortcutsView.on('itemdblclick', me.onShortcutItemClick, me);
+=======
+        me.shortcutsView.on('itemdblclick', me.onShortcutItemDblClick, me);
+
+>>>>>>> 047b78d6e3ba8656d6b7111106710ce11a09d999
         var wallpaper = me.wallpaper;
         me.wallpaper = me.items.getAt(0);
         if (wallpaper) {
@@ -202,12 +210,25 @@ Ext.define('Ext.ux.desktop.Desktop', {
     },
 
     onShortcutItemClick: function (dataView, record) {
-        var me = this, module = me.app.getModule(record.data.module),
-            win = module && module.createWindow();
-
-        if (win) {
-            me.restoreWindow(win);
-        }
+      var me = this, module = me.app.getModule(record.data.module),
+          win = module && module.createWindow();
+  
+      if (win) {
+          console.log("item clicked... restore win");
+          me.restoreWindow(win);
+          bDblClick = false;
+      }
+    },
+    
+    onShortcutItemDblClick: function (dataView, record) {
+      var me = this, module = me.app.getModule(record.data.module),
+          win = module && module.createWindow();
+  
+      if (win) {
+          console.log("item clicked... restore win");
+          me.restoreWindow(win);
+          bDblClick = false;
+      }
     },
 
     onWindowClose: function(win) {
