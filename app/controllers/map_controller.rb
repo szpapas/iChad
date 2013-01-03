@@ -844,6 +844,28 @@ class MapController < ApplicationController
     render :text => 'Success'
   end
   
+  def set_device_hw   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
+      $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+      User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
+      system ("ruby ./bin/ktcz_hw.rb #{params['device_id']} #{params['zt']}")
+      for i in 0..10
+        sleep 1          
+        czzt = $conn.exec("select czzt from zn_sb where id =#{params['device_id']};")            
+        if czzt[0]['czzt']!='正在操作'
+          break
+        end
+      end
+      if czzt[0]['czzt']=='成功'
+        text='success:'  +params['device_id']
+      else
+        text='false:设备操作失败。'
+      end
+      $conn.close
+      render :text => 'Success'
+    end
+  end
+  
+    
   def get_archive_where
     tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
     request_id = rand(36**32).to_s(36);
