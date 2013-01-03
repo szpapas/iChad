@@ -75,6 +75,12 @@ GEM
       gem_plugin (>= 0.2.3)
     multi_json (1.0.4)
     orm_adapter (0.0.6)
+<<<<<<< HEAD
+      Ascii85 (~> 1.0.0)
+      hashery (~> 2.0)
+      ruby-rc4
+=======
+>>>>>>> 047b78d6e3ba8656d6b7111106710ce11a09d999
     pdf-reader (1.2.0)
       Ascii85 (~> 1.0.0)
       hashery (~> 2.0)

@@ -338,7 +338,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					}
 				}				
 		});
-		dalb_store_print.load();	
+		//dalb_store_print.load();	
 		function get_mlqx_NodesChecked(node) {
 			//insert_qx="";
 			//获取用户目录权限树
@@ -485,11 +485,6 @@ Ext.define('MyDesktop.BorrowMan', {
 							}							
 						
 					},
-				  //  {	
-				  //  	xtype:'button',text:'打印',tooltip:'打印',id:'print',iconCls:'print',
-				  //  	handler: function() {
-				  //  	}
-				  //  },
 					{	
 						xtype:'button',text:'读取身份证',tooltip:'读取身份证',id:'jydj_sfz',iconCls:'option',
 						handler: function() {									
@@ -733,7 +728,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					                }
 					            ]}],
 				
-			});
+		});
 			
 		
 		  var qwjsform= new Ext.FormPanel({
@@ -852,11 +847,11 @@ Ext.define('MyDesktop.BorrowMan', {
 											};
 											if(pars['zrz']!=''){
 												if (cx_tj!=''){
-													cx_tj=cx_tj + ",zrz:'" + pars['rzr']+ "'";
+													cx_tj=cx_tj + ",rzr:'" + pars['zrz']+ "'";
 													cdlr=cdlr + ",责任者："+ pars['rzr'];
 												}else{
 													cx_tj="{rzr:'" + pars['zrz']+ "'";
-													cdlr="责任者："+ pars['rzr'];
+													cdlr="责任者："+ pars['zrz'];
 												}
 											};
 											if(pars['wh']!=''){
@@ -1105,8 +1100,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					                },
 									
 					            ]}]
-			});
-			Ext.regModel('jydjlist_dj_model', {
+		});
+		Ext.regModel('jydjlist_dj_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
 					{name: 'dwdm',		type: 'string'},
@@ -1133,9 +1128,9 @@ Ext.define('MyDesktop.BorrowMan', {
 					{name: 'zny',		type: 'string'},
 					{name: 'dalb',		type: 'string'}
 				]
-			});
+		});
 			
-			var jydjlist_dj_store = Ext.create('Ext.data.Store', {
+		var jydjlist_dj_store = Ext.create('Ext.data.Store', {
 				id:'jydjlist_dj_store',
 				model : 'jydjlist_dj_model',
 				//autoload:true,
@@ -1151,9 +1146,9 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 				//sortInfo:{field: 'level4', direction: "ASC"},
 				//baseParams: {start:0, limit:25, query:""}
-			});
+		});
 
-			var jydjlist_dj_Grid = new Ext.grid.GridPanel({
+		var jydjlist_dj_Grid = new Ext.grid.GridPanel({
 				id : 'jydjlist_dj_grid',
 				store: jydjlist_dj_store,
 				
@@ -1175,8 +1170,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
 					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '起日期',	 width : 0, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '止日期',	 width : 0, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
 					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
 					{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
@@ -1262,9 +1257,9 @@ Ext.define('MyDesktop.BorrowMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});
+		});
 
-			Ext.regModel('archive_model', {
+		Ext.regModel('archive_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
 					{name: 'dwdm',		type: 'string'},
@@ -1291,9 +1286,9 @@ Ext.define('MyDesktop.BorrowMan', {
 					{name: 'zny',		type: 'string'},
 					{name: 'dalb',		type: 'string'}
 				]
-			});
+		});
 			
-			var archive_jydj_store = Ext.create('Ext.data.Store', {
+		var archive_jydj_store = Ext.create('Ext.data.Store', {
 				id:'archive_jydj_store',
 				model : 'archive_model',
 				
@@ -1309,11 +1304,11 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 				//sortInfo:{field: 'level4', direction: "ASC"},
 				//baseParams: {start:0, limit:25, query:""}
-			});
-			function renderDes(value, cellmeta, record, rowIndex, columnIndex, store){
+		});
+		function renderDes(value, cellmeta, record, rowIndex, columnIndex, store){
 				return "<span style='color:RGB(255, 69, 0);' ext:qtip='" + value + "'>" + value + "</span>";
 			};
-			var archiveGrid = new Ext.grid.GridPanel({
+		var archiveGrid = new Ext.grid.GridPanel({
 				id : 'archive_jydj_grid',
 				store: archive_jydj_store,
 				bbar:[
@@ -1404,8 +1399,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
 					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '起日期',	 width : 0, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '止日期',	 width : 0, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
 					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
 					{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
@@ -1493,7 +1488,7 @@ Ext.define('MyDesktop.BorrowMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});
+		});
 			
 			
 			
@@ -1535,7 +1530,7 @@ Ext.define('MyDesktop.BorrowMan', {
 					{name: 'zj',	type: 'string'}
 				]
 			});
-			var jydjlc_store = Ext.create('Ext.data.Store', {
+		var jydjlc_store = Ext.create('Ext.data.Store', {
 				id:'jydjlc_store',
 				model : 'jydjlc_model',
 				proxy: {
@@ -1550,8 +1545,8 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 				//sortInfo:{field: 'level4', direction: "ASC"},
 				//baseParams: {start:0, limit:25, query:""}
-			});
-			var jydjlc_grid = new Ext.grid.GridPanel({
+		});
+		var jydjlc_grid = new Ext.grid.GridPanel({
 				id : 'jydjlc_grid',
 				store: jydjlc_store,
 				
@@ -1585,8 +1580,8 @@ Ext.define('MyDesktop.BorrowMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});
-			jydjlc_grid.on("select",function(node){
+		});
+		jydjlc_grid.on("select",function(node){
 				data = node.selected.items[0].data;		 // data.id, data.parent, data.text, data.leaf
 				archive_id = data.id; 
 				if (data.jyzt==2 || data.jyzt==4){
@@ -1598,8 +1593,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					jydjlist_store.proxy.extraParams.query='';
 					jydjlist_store.load();
 				}
-			});
-			Ext.regModel('jydjlist_model', {
+		});
+		Ext.regModel('jydjlist_model', {
 				fields: [
 					{name: 'id',		type: 'integer'},
 					{name: 'dwdm',		type: 'string'},
@@ -1627,8 +1622,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{name: 'dalb',		type: 'string'}
 				
 				]
-			});
-			var jydjlist_store = Ext.create('Ext.data.Store', {
+		});
+		var jydjlist_store = Ext.create('Ext.data.Store', {
 				id:'jydjlist_store',
 				model : 'jydjlist_model',
 				proxy: {
@@ -1643,8 +1638,8 @@ Ext.define('MyDesktop.BorrowMan', {
 				}
 				//sortInfo:{field: 'level4', direction: "ASC"},
 				//baseParams: {start:0, limit:25, query:""}
-			});
-			var jydjlist_grid = new Ext.grid.GridPanel({
+		});
+		var jydjlist_grid = new Ext.grid.GridPanel({
 				id : 'jydjlist_grid',
 				store: jydjlist_store,
 				
@@ -1665,8 +1660,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
 					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '起日期',	 width : 0, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '止日期',	 width : 0, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
 					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
 					{ text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
@@ -1751,7 +1746,7 @@ Ext.define('MyDesktop.BorrowMan', {
 				viewConfig: {
 					stripeRows:true
 				}
-			});	
+		});	
 
 			Ext.regModel('zxjydjlc_model', {
 				fields: [
@@ -1857,8 +1852,8 @@ Ext.define('MyDesktop.BorrowMan', {
 					{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
 					{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 					{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-					{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-					{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '起日期',	 width : 0, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+					{ text : '止日期',	 width : 0, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 					{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
 					{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
 					
@@ -1885,8 +1880,8 @@ Ext.define('MyDesktop.BorrowMan', {
 			});
 			zxjydjlist_grid.on("select",function(node){
 				data = node.selected.items[0].data;
-			    timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
-			    timage_store.load();			
+			    timage_store_zxjy.proxy.extraParams = {dh:data.dh, type:'1'};
+			    timage_store_zxjy.load();			
 			});
 			
 			var jyqq = function(recordad){//add_change 1代表新增，２代表修改
@@ -2610,8 +2605,8 @@ Ext.define('MyDesktop.BorrowMan', {
 						{ text : '件数',	width : 75, sortable : true, dataIndex: 'js'},
 						{ text : '页数',	width : 75, sortable : true, dataIndex: 'ys'},
 						{ text : '保管期限',  width : 75, sortable : true, dataIndex: 'bgqx'},
-						{ text : '起日期',	 width : 75, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
-						{ text : '止日期',	 width : 75, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+						{ text : '起日期',	 width : 0, sortable : true, dataIndex: 'qrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+						{ text : '止日期',	 width : 0, sortable : true, dataIndex: 'zrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
 						{ text : '起年月',	 width : 75, sortable : true, dataIndex: 'qny'},
 						{ text : '止年月',	 width : 75, sortable : true, dataIndex: 'zny'},
 						{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
@@ -3026,19 +3021,19 @@ Ext.define('MyDesktop.BorrowMan', {
 				win.show();
 			};	
 		
-			var timage_store	= Ext.create('Ext.data.TreeStore', {
+			var timage_store_zxjy	= Ext.create('Ext.data.TreeStore', {
 				//autoLoad: true,
 				proxy: {
 						type: 'ajax',
 						url : '/desktop/get_timage_tree',
-				        extraParams: {dh:"",type:"0"},
+				        //extraParams: {dh:"",type:"0"},
 						actionMethods: 'POST'
 				}
 			});
 			
 			var image_tree1 = Ext.create('Ext.tree.Panel', {
 				id : 'image_tree1',
-				store: timage_store,
+				store: timage_store_zxjy,
 				rootVisible:false,
 				useArrows: true,
 				listeners:{

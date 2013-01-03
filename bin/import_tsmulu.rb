@@ -1,6 +1,9 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#这个是服务器上的文件夹
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
+$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
 require 'pg'
 require 'active_support'
 
@@ -153,9 +156,9 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
       else    
         rq = "TIMESTAMP '#{rq}'"
       end
-
+      tm=tm.gsub(' ','')
       insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}')  RETURNING id;"
-      #puts insert_str
+      puts insert_str
       document=$conn.exec(insert_str)
     if dalb==20
       user = tt[k]['Table']
@@ -623,7 +626,7 @@ if ifname.include?('aj')
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
   system ("rm #{path}/#{outfile}")
   
-  if dalb != 24 && dalb!=25 && dalb!=26 && dalb!=27 && dalb!=28
+  if dalb != 24 && dalb!=25  && dalb!=27 && dalb!=28  && dalb!=29 && dalb!=18
     #puts "delete from document where dh like '#{dh}'; "
     $conn.exec("delete from document where dh like '#{dh}'; ")
   
