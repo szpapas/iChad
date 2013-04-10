@@ -1334,6 +1334,9 @@ Ext.define('MyDesktop.BorrowMan', {
 									ids.push(record.get("id"));
 						
 								});
+								
+								jyajlist=Ext.getCmp('jydjlist_dj_grid').store.data;
+								
 								//alert(ids);
 								Ext.getCmp('jy_aj_list').setValue(ids);
 								new Ajax.Request("/desktop/check_jylist", { 
@@ -1342,22 +1345,30 @@ Ext.define('MyDesktop.BorrowMan', {
 									onComplete:	 function(request) {
 										if (request.responseText=='success'){
 											Ext.Array.each(data,function(record){
-												var gjcx = Ext.getCmp('jydjlist')													
-												gjcx.expand(true);	
-												var r = Ext.create('jydjlist_dj_model', {
-								                    mlh: record.get("mlh"),
-								                    flh: record.get("flh"),
-								                    ajh: record.get("ajh"),
-													tm: record.get("tm"),
-								                    dalb: record.get("dalb"),
-								                    qzh: record.get("qzh"),
-													id: record.get("id"),
-								                    nd: record.get("nd"),
-													js: record.get("js"),
-								                    bgqx: record.get("bgqx"),
-								                    ys: record.get("ys")
-								                });
-								                jydjlist_dj_store.insert(0, r);
+												sfydj=false;
+												for(k=0;k<jyajlist.length;k++){
+													if(record.get("id")==jyajlist.items[k].data.id){
+														sfydj=true;
+													}
+												};
+												if (sfydj==false){
+													var gjcx = Ext.getCmp('jydjlist')													
+													gjcx.expand(true);	
+													var r = Ext.create('jydjlist_dj_model', {
+									                    mlh: record.get("mlh"),
+									                    flh: record.get("flh"),
+									                    ajh: record.get("ajh"),
+														tm: record.get("tm"),
+									                    dalb: record.get("dalb"),
+									                    qzh: record.get("qzh"),
+														id: record.get("id"),
+									                    nd: record.get("nd"),
+														js: record.get("js"),
+									                    bgqx: record.get("bgqx"),
+									                    ys: record.get("ys")
+									                });
+									                jydjlist_dj_store.insert(0, r);
+												}
 											});
 										}else{
 											alert(request.responseText);
@@ -1588,6 +1599,19 @@ Ext.define('MyDesktop.BorrowMan', {
 					
 					jydjlist_store.proxy.extraParams=eval("({id:" + data.id + ",jyzt:" + data.jyzt + "})");
 					jydjlist_store.load();
+					var pars={qzid:data.id};
+	                  new Ajax.Request("/desktop/get_qz_from_db", {
+	                    method: "POST",
+	                    parameters: pars,
+	                    onComplete:  function(request) {
+	                      	var path = request.responseText;
+	                      	if (path != '') { 
+	                        	Ext.getCmp('preview_img_qz').getEl().dom.src = path;
+	                      	}else{
+								Ext.getCmp('preview_img_qz').getEl().dom.src = "./dady/fm.jpg";
+							}
+	                    }
+	                  });
 					
 				}else{
 					jydjlist_store.proxy.extraParams.query='';
@@ -2204,7 +2228,7 @@ Ext.define('MyDesktop.BorrowMan', {
 																	jydjlc_store.proxy.extraParams=eval("({userid:" + currentUser.id + ",jyzt:" + jydj_jyzt + "})");
 																	jydjlc_store.load();
 																}else{
-																	alert("阅览失败，请重新阅览。");
+																	alert("申请失败，请重新申请。");
 																}
 															}
 														});
@@ -3391,12 +3415,36 @@ Ext.define('MyDesktop.BorrowMan', {
 							},{
 								region: 'east',
 								//iconCls:'icon-grid',
-								layout: 'fit',
+								layout: 'border',
 								split:true,
 								width:550,
-								items: jydjlist_grid
-
-							}]
+								items:[{
+										region: 'center',
+										//iconCls:'icon-grid',
+										layout: 'fit',
+										split:true,
+										height:100,
+										//width:100,
+										items: jydjlist_grid
+									},{
+										region: 'south',
+										//iconCls:'icon-grid',
+										layout: 'fit',
+										split:true,
+										height:200,
+										items: [{
+							              xtype: 'box', //或者xtype: 'component',
+							              id: 'preview_img_qz',
+										  layout: 'fit',
+							              //width: 350, //图片宽度
+							              autoEl: {
+							                tag: 'img',    //指定为img标签
+							                alt: ''      //指定url路径
+							              }
+							            }]
+									}]
+								}]
+						
 					},
 					{
 						title: '专项借阅',

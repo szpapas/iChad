@@ -41,6 +41,7 @@ def print_qzxx(dh_prefix)
   $stderr.puts" output 目录统计 #{dh_prefix}..."
   
   pr_path="/share/tjsj"
+  #pr_path='./dady/tjsj'
   if !File.exists?(pr_path)
     system("mkdir -p #{pr_path}")
   end
@@ -57,23 +58,23 @@ def print_qzxx(dh_prefix)
   
   dtbl = dd['dtbl'].to_f
   ajs = dd['zajh'].to_i - dd['qajh'].to_i + 1
-
+  mlh=dd['mlm']
   #ml = dd['ml00'].to_i + dd['mlbk'].to_i + dd['mljn'].to_i + dd['jn00'].to_i + dd['jnbk'].to_i + dd['jnjn'].to_i
   
   a3, a4, dt =  dd['a3'].to_i, dd['a4'].to_i, dd['dt'].to_i
   zys = (a3 * 2 + a4 + dt * dtbl).to_s.to_i 
   
   
-  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 290, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 675, 750 '#{a3}' \" -draw \"text 210, 810 '#{a4}' \"  -draw \"text 485, 810 '#{dt}' \"  -draw \"text 845, 810 '#{zys}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
+  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 270, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 675, 750 '#{a3}' \" -draw \"text 210, 810 '#{a4}' \"  -draw \"text 460, 810 '#{dt}' \"  -draw \"text 820, 810 '#{zys}' \"  #{pr_path}/tj_#{dh_prefix}_01.jpg  "
   system convert_str
   
-  convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" /share/tjsj/tj_#{dh_prefix}_02.jpg  "
+  convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" #{pr_path}/tj_#{dh_prefix}_02.jpg  "
   system convert_str
     
 end  
 
 dh = ARGV[0]
-update_qzxx(dh)
+#update_qzxx(dh)
 print_qzxx(dh)
 
 

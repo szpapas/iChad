@@ -246,9 +246,10 @@ Ext.define('MyDesktop.SystemMan', {
                               Ext.getCmp('user_disp_win').close();
                               
                               Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+							  Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                               Ext.getCmp('user_setup_grid').store.load();
                             }else{
-                              alert("修改失败，请重新修改。");
+                              alert("修改失败，请重新修改。" + request.responseText);
                             }
                           
                           }
@@ -263,9 +264,10 @@ Ext.define('MyDesktop.SystemMan', {
                                 alert("新增成功。");
                                 Ext.getCmp('user_disp_win').close();
                                 Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+								Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                                 Ext.getCmp('user_setup_grid').store.load();
                               }else{
-                                alert("新增失败，请重新新增。");
+                                alert("新增失败，请重新新增。" + request.responseText);
                               }
                             }
                           });
@@ -555,7 +557,7 @@ Ext.define('MyDesktop.SystemMan', {
           title: '用户设置',
           x : 300,
           y : 50,
-          width: 670,
+          width: 720,
           height: 500,
           minHeight: 500,
           layout: 'border',
@@ -635,6 +637,7 @@ Ext.define('MyDesktop.SystemMan', {
                           onComplete:  function(request) {
                             if (request.responseText=='success'){
                               Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+							  Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                               Ext.getCmp('user_setup_grid').store.load();
                             }else{
                               alert("删除失败，请重新删除。");
@@ -710,6 +713,20 @@ Ext.define('MyDesktop.SystemMan', {
               }
             }
           },
+			'<span style=" font-size:12px;font-weight:600;color:#3366FF;">用户名称查询</span>:&nbsp;&nbsp;',
+            {
+              xtype:'textfield',id:'query_username_text'
+            },          
+            {xtype:'button',text:'查询',tooltip:'用户名称',iconCls:'accordion',
+                handler: function() {
+					Ext.getCmp('user_setup_grid').store.proxy.url='/desktop/get_user_grid';
+					Ext.getCmp('user_setup_grid').store.proxy.extraParams.username=Ext.getCmp('query_username_text').value;
+                	Ext.getCmp('user_setup_grid').store.load();
+                  	//store3.proxy.url="/desktop/get_document_where";
+                  	//store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
+                  	//store3.load();
+                }
+            },
           {
             xtype: 'button',
             iconCls: 'exit',
@@ -2672,6 +2689,105 @@ Ext.define('MyDesktop.SystemMan', {
       win.show();
     };
 
+    var tj_ysjs_setup = function(){
+	//缺重卷检验
+      var win = Ext.getCmp('tj_ysjs_win');
+
+      Ext.regModel('tj_ysjs_model', {
+        fields: [
+          {name: 'xh',    type: 'integer'},
+          {name: 'mlh',    type: 'string'},
+          {name: 'jshj',    type: 'string'},
+          {name: 'yshj',    type: 'string'}
+        ]
+      });
+
+      var tj_ysjs_store = Ext.create('Ext.data.Store', {
+        id:'tj_ysjs_store',
+        model : 'tj_ysjs_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/tj_ysjs_grid',
+          //extraParams: cx_tj,
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+      var tj_ysjs_grid = new Ext.grid.GridPanel({
+        id : 'tj_ysjs_grid',
+        store: tj_ysjs_store,        
+        columns: [
+          { text : '目录号',  width : 100, sortable : true, dataIndex: 'mlh'},
+          { text : '页数合计',  width : 100, sortable : true, dataIndex: 'yshj'},
+          { text : '件数合计',  width : 100, sortable : true, dataIndex: 'jshj'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            
+          },
+        
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'tj_ysjs_win',
+          title: '档案页数件数统计',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:tj_ysjs_grid,          
+          tbar:[
+          	'&nbsp;&nbsp;<span style=" font-size:12px;font-weight:600;color:#3366FF;">目录号</span>:&nbsp;&nbsp;',
+			{
+				xtype:'textfield',
+				id:'tj_ysjs_mlh',
+			},				  
+			{	
+				xtype:'button',text:'检索',tooltip:'检索',id:'tj_ysjs_query',iconCls:'search',
+				handler: function() {
+					console.log(Ext.getCmp('tj_ysjs_mlh').value);
+					if (Ext.getCmp('tj_ysjs_mlh').rawValue!=""){
+						var grid = Ext.getCmp('tj_ysjs_grid');
+						grid.store.proxy.url="/desktop/tj_ysjs_grid";
+						grid.store.proxy.extraParams.query=Ext.getCmp('tj_ysjs_mlh').rawValue;	
+						grid.store.proxy.extraParams.userid=currentUser.id; 							
+						grid.store.load();
+					}
+				}
+			},
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('tj_ysjs_win').close();
+            }
+          }]
+          
+        });
+      }
+      
+
+      win.show();
+    };
+
+
 
     var sys_cd_tree_store = Ext.create('Ext.data.TreeStore', {
       autoLoad: true,
@@ -2703,6 +2819,8 @@ Ext.define('MyDesktop.SystemMan', {
             if (Ext.getCmp('user_setup_win')!=undefined){Ext.getCmp('user_setup_win').close();}           
             if (Ext.getCmp('jr_model_setup_win')!=undefined){Ext.getCmp('jr_model_setup_win').close();}
 			if (Ext.getCmp('qcj_setup_win')!=undefined){Ext.getCmp('qcj_setup_win').close();}
+			if (Ext.getCmp('tj_ysjs_win')!=undefined){Ext.getCmp('tj_ysjs_win').close();}
+			
             switch (node.data.id) { 
               case "11": 
                 qz_setup();
@@ -2728,6 +2846,9 @@ Ext.define('MyDesktop.SystemMan', {
 
 			　　case "17": 
 	            jr_model_setup();
+                break;
+			　　case "19": 
+	            tj_ysjs_setup();
                 break;
               
             }

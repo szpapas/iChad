@@ -997,7 +997,7 @@ Ext.define('MyDesktop.DaPrint', {
 										onComplete:	 function(request) {
 											fhz=request.responseText.split(":");
 											if (fhz[0]=='success'){	
-												if (pars.dylb=='案卷封面打印' || pars.dylb=='卷内目录打印'){									
+												if (pars.dylb=='卷内目录打印'){									
 											    	printfile=fhz[1].split(",");
 												    for (k=0;k<printfile.length;k++){
 												      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
@@ -1024,8 +1024,14 @@ Ext.define('MyDesktop.DaPrint', {
 													}
 													alert("打印成功。" );
 												}else{
-													//location.href= fhz[1];
-													window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+													if(pars.dylb=='案卷封面打印'){
+														window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+													}
+													else{
+														cz_msg(fhz[1]);
+													}
+													
+												//	window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 												}
 													//alert("打印成功。"+fhz[1] );	
 													//alert("打印成功。" );								

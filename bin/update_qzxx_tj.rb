@@ -91,16 +91,36 @@ def update_qzxx(dh_cond)
   for k in 0..datas.count - 1 
     data = datas[k]
     dh_prefix = data['dh_prefix']
-    dd = $conn.exec("select id from q_qzxx where dh_prefix='#{data['dh_prefix']}';")
+    dd = $conn.exec("select * from q_qzxx where dh_prefix='#{data['dh_prefix']}';")
     if dd.count > 0
-      $conn.exec("update q_qzxx set ajys=#{data['ajys']}, ml00=#{data['ml00']}, mlbk=#{data['mlbk']}, mljn=#{data['mljn']}, jn00=#{data['jn00']}, jnjn=#{data['jnjn']}, jnbk=#{data['jnbk']}, smyx=#{data['smyx']}, a3=#{data['a3']}, a4=#{data['a4']}, dt=#{data['dt']}, jnts=#{data['jnts']} where id=#{dd[0]['id']};")
+      #$conn.exec("update q_qzxx set ajys=#{data['ajys']}, ml00=#{data['ml00']}, mlbk=#{data['mlbk']}, mljn=#{data['mljn']}, jn00=#{data['jn00']}, jnjn=#{data['jnjn']}, jnbk=#{data['jnbk']}, smyx=#{data['smyx']}, a3=#{data['a3']}, a4=#{data['a4']}, dt=#{data['dt']}, jnts=#{data['jnts']} where id=#{dd[0]['id']};")
+      yxwz=dd[0]['yxwz']
+      puts 'yxwz' + dd[0]['yxwz']
+      $conn.exec("delete from q_qzxx where dh_prefix='#{data['dh_prefix']}';")
     else
+      yxwz=''
+    end
       dh_prefx = data['dh_prefix']
       ss=/(\d+)-(\d+)-(\d+)/.match(dh_prefix)
       qzh,dalb,mlh = ss[1],ss[2],ss[3]
-      puts "insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );"
-      $conn.exec("insert into q_qzxx(ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values (#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
-    end
+      if dalb=='24'
+        rsmlh=$conn.exec("select * from a_wsda_key where id=#{mlh}")
+        if rsmlh.count>0
+          mlm=rsmlh[0]['nd'].to_s + rsmlh[0]['bgqx'].to_s + rsmlh[0]['jgwth'].to_s 
+        else
+          mlm=''
+        end
+      else
+        rsmlh=$conn.exec("select * from qzml_key where id=#{mlh}")
+        if rsmlh.count>0
+          mlm=rsmlh[0]['mlm']
+        else
+          mlm=''
+        end
+      end
+      puts "insert into q_qzxx(yxwz,mlm,ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values ('#{yxwz}','#{mlm}',#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );"
+      $conn.exec("insert into q_qzxx(yxwz,mlm,ajys, ml00, mlbk, mljn, jn00, jnjn, jnbk, smyx, a3, a4, dt, jnts, qzh, dalb, mlh, dh_prefix) values ('#{yxwz}','#{mlm}',#{data['ajys']},#{data['ml00']}, #{data['mlbk']}, #{data['mljn']}, #{data['jn00']}, #{data['jnjn']}, #{data['jnbk']}, #{data['smyx']}, #{data['a3']}, #{data['a4']}, #{data['dt']}, #{data['jnts']}, #{qzh}, #{dalb}, #{mlh}, '#{dh_prefix}' );")  
+    
     qzjh = $conn.exec("select min(ajh), max(ajh) from archive where dh like '#{dh_prefix}-%';")
     $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';") 
     
@@ -113,7 +133,6 @@ def update_qzxx(dh_cond)
 
   end
 end
-
 update_timage(dh)
 update_qzxx(dh)
 

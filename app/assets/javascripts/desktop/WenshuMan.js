@@ -110,7 +110,8 @@ Ext.define('MyDesktop.WenshuMan', {
 					                if (isSuc) {
 					                  new Ajax.Request("/desktop/save_image_db", { 
 					                    method: "POST",
-					                    parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+					                    //parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+										parameters: eval("({filename:'" + file + "',dh:'" + dh +"',czr:'" + currentUser.id +"',czrname:'" + currentUser.username +"'})"),
 					                    onComplete:  function(request) {
 					                      if (request.responseText=='true'){
 											msg('成功', '文件上传成功.'); 

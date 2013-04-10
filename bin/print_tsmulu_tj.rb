@@ -232,7 +232,7 @@ def print_qzxx(dh_prefix)
   a3, a4, dt =  dd['a3'].to_i, dd['a4'].to_i, dd['dt'].to_i
   ml = dd['ml00'].to_i + dd['mlbk'].to_i + dd['mljn'].to_i + dd['jn00'].to_i + dd['jnbk'].to_i + dd['jnjn'].to_i
   
-  convert_str =  "convert ./dady/timage_tj2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 580, 590 '#{dd['mlh']}' \" -draw \"text 810, 590 '#{dd['qajh']} ~ #{dd['qajh']}' \"  -draw \"text 290, 670 '#{ajs}' \"   -draw \"text 500, 730 '#{a3+a4+ml}' \" -draw \"text 830, 730 '#{a3}' \"  -draw \"text 290, 800 '#{a4+ml}' \"   -draw \"text 730, 800 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}.jpg  "
+  convert_str =  "convert ./dady/timage_tj2.png -font ./dady/TextMate.ttf  -pointsize 24 -draw \"text 580, 590 '#{dd['mlm']}' \" -draw \"text 810, 590 '#{dd['qajh']} ~ #{dd['qajh']}' \"  -draw \"text 290, 670 '#{ajs}' \"   -draw \"text 500, 730 '#{a3+a4+ml}' \" -draw \"text 830, 730 '#{a3}' \"  -draw \"text 290, 800 '#{a4+ml}' \"   -draw \"text 730, 800 '#{dt}' \"  /share/tjsj/tj_#{dh_prefix}.jpg  "
   
   system convert_str
 end  
@@ -250,7 +250,7 @@ end
 
 dh = ARGV[0]
 
-update_timage(dh)
+#update_timage(dh)
 print_timage(dh)
 
 $conn.close

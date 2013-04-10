@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#这个是服务器上的文件夹
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
 require 'pg'
 require 'find'
 
@@ -10,6 +11,9 @@ require 'find'
 #   main fucntions 
 #
 #    @ARGV[0] --- 
+#
+#    2012-12-25 wny修改 在导入扫描文件时，删除一个页再导一个页，而不是先删除整个目录号再导入。
+#
 #   
 #    ruby import_iamge.rb 11-10-3 /share/1/1_1/ 15 
 #*********************************************************************************************
@@ -29,8 +33,8 @@ if !ajh.nil?
   puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
   $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
 else 
-  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+  #puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  #$conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
 end
 
 def getimgsize(fname)

@@ -867,13 +867,17 @@ class MapController < ApplicationController
     user[0]["yxmc"]=user[0]["yxmc"].gsub('tif','JPG')
     local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG')
     if !File.exists?(local_filename)
-      user = User.find_by_sql("select id, dh, yxmc, data from timage where id=#{gid};")
+      user = User.find_by_sql("select id, dh, yxmc, data,jm_tag from timage where id=#{gid};")
       tmpfile = rand(36**10).to_s(36)
       ff = File.open("./tmp/#{tmpfile}",'w')
       ff.write(user[0]["data"])
       ff.close
       #puts "./tmp/#{tmpfile} #{local_filename}"
-      system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+      if (user[0]['jm_tag'].to_i == 1)
+        system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+      else
+        system("scp ./tmp/#{tmpfile} #{local_filename}")
+      end      
       system("rm ./tmp/#{tmpfile}")
     end
     txt = "/assets/#{local_filename}".gsub('/./','/').gsub('/assets/dady/img_tmp/','/timage/')
@@ -926,19 +930,32 @@ class MapController < ApplicationController
     
     
     def upload_file
-      params.each do |k,v|
-        logger.debug("K: #{k} ,V: #{v}")
-       #if k.include?("recording")
-       #  logger.debug("#{v.original_filename}")
-       #  logger.debug("#{v.tempfile.path}")
-       #  logger.debug("#{v.content_type}")
-       #  ff = File.new("./dady/#{v.original_filename}","w+")
-       #  ff.write(v.tempfile.read)
-       #  ff.close
-       #  break
-       #end
-      end
-      render :text => "{success:true}"
+        params.each do |k,v|
+          logger.debug("K: #{k} ,V: #{v}")
+         if k.include?("recording") || k.include?("sign")
+           logger.debug("#{v.original_filename}")
+           logger.debug("#{v.tempfile.path}")
+           logger.debug("#{v.content_type}")
+           ff = File.new("./dady/#{v.original_filename}","w+")
+           ff.write(v.tempfile.read)
+           ff.close
+           User.find_by_sql("delete from jy_zxjylist_htts;")
+           if  k.include?("sign")
+             if !params['jyid'].nil?
+               jyid=params['jyid']
+               User.find_by_sql("delete from qz_image where jyid=#{params['jyid']};")
+               fo = File.open(filename).read
+               edata=PGconn.escape_bytea(fo)
+               $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+               $conn.exec("set standard_conforming_strings = off")
+               $conn.exec("insert into qz_image (jyid, data) values ( #{params['jyid']}, E'#{edata}');")
+             end
+           end
+           break
+         end
+         
+        end
+        render :text => "{success:true}"
     end
     
     
@@ -1068,7 +1085,7 @@ class MapController < ApplicationController
       else
         txt = 'false'
       end
-      
+      txt = 'true'
       render :text => txt  
     end
     
@@ -1142,4 +1159,196 @@ class MapController < ApplicationController
       
       render :text => txt 
     end  
+    
+    def get_jytj
+      if params['query']!=""
+        xh=1
+        strwhere=""
+        if params['jyr']!=""
+          strwhere=" and jyr = '#{params['jyr']}' "
+        end        
+        if params['jydw']!=""
+          strwhere=strwhere + " and jydw like '%#{params['jydw']}%' "
+        end        
+        strwhere=" where jysj<='#{params['zrq']}' and jysj>='#{params['qrq']}' " + strwhere
+        case params['query']
+        when "1"
+          user = User.find_by_sql("select * from jylc  #{strwhere} and (jyzt='2') order by jysj;")
+        when "2"
+          user = User.find_by_sql("select * from jylc #{strwhere} and (jyzt='4') order by jysj;")
+        when "3"
+          user = User.find_by_sql("select * from jylc #{strwhere} order by jysj;")
+        when "4"
+          user = User.find_by_sql("select count(*) as jyrc,sum(fyys) as fyys,sum(zcys) as zcys from jylc #{strwhere} ;")
+          if user[0]['jyrc'].to_i>0
+            txt = "{results:1,rows:["
+            txt=txt + "{'jyrc':'" + user[0]['jyrc'] + "','fyys':'" + user[0]['fyys'] + "','zcys':'" + user[0]['zcys'] + "'"
+            jylist=User.find_by_sql("select count(*) as jyjc from jylc,jylist #{strwhere} and jylc.id=jylist.jyid;")
+            txt=txt + ",'jyjc':'" + jylist[0]['jyjc'] + "'"
+            bsxz = User.find_by_sql("select count(*) as count from jylc #{strwhere} and lymd='编史修志' ;")
+            bsxz_s=(bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3]
+            txt=txt + ",'bsxz':'" + (bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3] + "'"
+            bsxz = User.find_by_sql("select count(*) as count from jylc #{strwhere} and lymd='工作考查' ;")
+            gzkc_s=(bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3]
+            txt=txt + ",'gzkc':'" + (bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3] + "'"
+            bsxz = User.find_by_sql("select count(*) as count from jylc #{strwhere} and lymd='学术研究' ;")
+            xsyj_s=(bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3]
+            txt=txt + ",'xsyj':'" + (bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3] + "'"
+            bsxz = User.find_by_sql("select count(*) as count from jylc #{strwhere} and lymd='经济建设' ;")
+            jjjs_s=(bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3]
+            txt=txt + ",'jjjs':'" + (bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3] + "'"
+            bsxz = User.find_by_sql("select count(*) as count from jylc #{strwhere} and lymd='宣传教育' ;")
+            xcjy_s=(bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3]
+            txt=txt + ",'xcjy':'" + (bsxz[0]['count'].to_f/user[0]['jyrc'].to_f).to_s[0..3] + "'"
+            qt_s=(1-(bsxz_s.to_f+gzkc_s.to_f+xsyj_s.to_f+jjjs_s.to_f+xcjy_s.to_f)).to_s[0..3]
+            txt=txt + ",'qrq':'" + params['qrq'] + "'"
+            txt=txt + ",'zrq':'" + params['zrq'] + "'"
+            txt=txt + ",'qt':'" + qt_s + "'}]}"
+            puts txt
+          else
+            txt = "{results:0,rows:[]}"  
+          end                
+        end
+      else
+        txt = "{results:0,rows:[]}"
+      end
+      render :text => txt
+    end
+    
+    #获取温湿度
+    def get_wsd
+      #'intxl 1代表返回指定日期的最后一个小时的温湿度记录，2代表返回指定日期的全部温湿度记录
+      intlx=params['intlx']
+      strrq=params['strrq']
+      if intlx.to_i==1
+        user = User.find_by_sql("select sbmc,ktzt as wsd from zn_sb where id in (39,40);")
+        txt ="[{\"jyrc\":\"#{users[0]['jyrc']}\",\"jyjc\":\"#{users[0]['jyjc']}\",\"jtjyrc\":\"#{users[0]['jtjyrc']}\",\"jtjyjc\":\"#{users[0]['jtjyjc']}\",\"ajs\":\"#{archive[0]['ajs']}\"}]"
+        render :text => txt
+      else
+        if !params['strrq'].nil?
+          user = User.find_by_sql("select xzmc as sbmc,dqwd || ',' || dqsd as wsd from d_wsd_his  where created_at>='#{strrq} 00:00:00' and created_at<='#{strrq} 23:59:59' and cmd in ('20 42','30 43');")
+          render :text => user.to_json
+        else
+          user = User.find_by_sql("select sbmc,ktzt as wsd from zn_sb where id in (39,40);")
+          wsd1=user[0]['wsd'].split(',')
+          wsd2=user[1]['wsd'].split(',')
+          mc1="关"
+          mc2="关"
+          sjnh='12385'
+          jsnh='246'
+          txt ="[{\"wd1\":\"#{wsd1[0]}\",\"sd1\":\"#{wsd1[1]}\",\"wd2\":\"#{wsd2[0]}\",\"sd2\":\"#{wsd2[1]}\",\"mc1\":\"#{mc1}\",\"mc2\":\"#{mc2}\",\"sjnh\":\"#{sjnh}\",\"jsnh\":\"#{jsnh}\"}]"
+          render :text => txt
+        end
+      end
+    end
+
+    #获取各类档案实体卷数
+    def get_stajs
+      users = User.find_by_sql("select distinct qzh,lbmc,d_dalb.id,count(*) as js from archive ,d_dalb where qzh='10' and cast(archive.dalb as integer)=d_dalb.id group by qzh,lbmc,d_dalb.id order by qzh,d_dalb.id")
+      txt = users.to_json
+      render :text =>txt
+    end
+    
+    #获取各类档案影像文件数
+    def get_yxxs
+      users = User.find_by_sql("select distinct qzh,lbmc,d_dalb.id,count(*) as js from archive ,d_dalb where qzh='10' and cast(archive.dalb as integer)=d_dalb.id group by qzh,lbmc,d_dalb.id order by qzh,d_dalb.id")
+      #txt = users.to_json
+      txt="["
+      for i in 0..users.size-1
+        dalbcd=users[i]['id'].to_s.length
+        yxxs=User.find_by_sql("select count(*) as ys from timage where substring(dh from 4 for #{dalbcd})=cast(#{users[i]['id']} as character)")
+        txt=txt.to_s + "{\"lbmc\":\"#{users[i]['lbmc']}\",\"ys\":\"#{yxxs[0]['ys']}\"},"
+      end
+      txt=txt.to_s + "]"
+      render :text =>txt
+    end
+    
+    #获取档案借阅情况
+    def get_dajytj
+      if !params['zrq'].nil?
+        strwhere=" where jysj<='#{params['zrq']} 23:59:59' and jysj>='#{params['qrq']} 00:00:00' " 
+        users = User.find_by_sql("select count(*) as jyjc,jysj from jylc,jylist #{strwhere} and jylc.id=jylist.jyid group by jysj;")
+        txt = users.to_json
+      else   
+        rq=Time.now.strftime("%Y-%m-%d") 
+        strwhere=" where jysj<='#{rq} 23:59:59' and jysj>='#{rq} 00:00:00' " 
+        users = User.find_by_sql("select count(*) as jyrc,(select count(*) from jylist) as jyjc,(select count(*) from jylc #{strwhere}) as jtjyrc, (select count(*) from jylist,jylc #{strwhere} and  jylc.id=jylist.jyid) as jtjyjc from jylc ;")
+        archive=User.find_by_sql("select count(*) as ajs from archive where rq<='#{rq} 23:59:59' and rq>='#{rq} 00:00:00'")        
+        txt ="[{\"jyrc\":\"#{users[0]['jyrc']}\",\"jyjc\":\"#{users[0]['jyjc']}\",\"jtjyrc\":\"#{users[0]['jtjyrc']}\",\"jtjyjc\":\"#{users[0]['jtjyjc']}\",\"ajs\":\"#{archive[0]['ajs']}\"}]"
+      end
+      
+      render :text =>txt
+    end
+    
+    
+    
+    #获取名类档案借阅情况
+    def get_dajytj_dalb
+      strwhere=" where jysj<='#{params['zrq']} 23:59:59' and jysj>='#{params['qrq']} 00:00:00' " 
+      users = User.find_by_sql("select lbmc,count(*) as jyjc,jysj from jylc,jylist,d_dalb,archive #{strwhere} and jylc.id=jylist.jyid and cast(archive.dalb as integer)=d_dalb.id and jylist.daid=archive.id group by jysj,lbmc;")
+      txt = users.to_json
+      render :text =>txt
+    end
+    
+    #获取档案馆设备情况
+    def get_dagsb     
+      txt="["     
+      txt=txt.to_s + "{\"温湿度计\":\"2\",\"空调\":\"6\"},"
+      txt=txt.to_s + "]"
+      render :text =>txt
+    end
+    
+    #获取档案借阅人职业统计
+    def get_dagsb      
+      txt="["      
+      txt=txt.to_s + "{\"国土系统\":\"40\",\"政府部门\":\"21\",\"事业单位\":\"9\",\"律师\":\"30\",\"法院\":\"8\",\"市民\":\"25\",\"其它\":\"6\"}"
+      txt=txt.to_s + "]"
+      render :text =>txt
+    end
+    
+    
+    #获取各类档案电子标签数
+    def get_bqs
+      users = User.find_by_sql("select distinct qzh,lbmc,d_dalb.id,count(*) as js from archive ,d_dalb where qzh='10' and cast(archive.dalb as integer)=d_dalb.id group by qzh,lbmc,d_dalb.id order by qzh,d_dalb.id")
+      #txt = users.to_json
+      txt="["
+      for j in 0..users.size-1
+        
+        jbq=User.find_by_sql("select count(*) as jbq from archive where qzh='#{users[j]['qzh']}' and dalb='#{users[j]['id']}' and rfidstr<>'';")  
+        hbq=User.find_by_sql("select distinct boxrfid as hbq  from archive where boxrfid<>'' and  qzh='#{users[j]['qzh']}' and dalb='#{users[j]['id']}' ;")        
+        txt=txt.to_s + "{\"lbmc\":\"#{users[j]['lbmc']}\",\"jbq\":\"#{jbq[0]['jbq']}\",\"hbq\":\"#{hbq.size}\"},"
+      end
+      txt=txt.to_s + "]"
+      render :text =>txt
+    end
+    
+    
+    def upload_file_qz
+      params.each do |k,v|
+        logger.debug("K: #{k} ,V: #{v}")
+       if k.include?("qz")
+         logger.debug("#{v.original_filename}")
+         logger.debug("#{v.tempfile.path}")
+         logger.debug("#{v.content_type}")
+         ff = File.new("./dady/#{v.original_filename}","w+")
+         ff.write(v.tempfile.read)
+         ff.close
+         break
+       end
+      end
+      render :text => "{success:true}"
+    end
+
+    
+    #获取档案员在后台推送到前台的数据
+    def check_cxlist
+      users = User.find_by_sql("select dh, image_id,zxjyid from  jy_zxjylist_htts")
+      ss = []
+      for k in 0..users.size-1
+       pp = {"image_path"=>get_timage_from_db(users[k].image_id), "image_id"=>users[k].image_id,"id"=>users[k].zxjyid}
+       ss << pp 
+      end
+      txt = ss.to_json
+      render :text => txt;
+    end
 end
