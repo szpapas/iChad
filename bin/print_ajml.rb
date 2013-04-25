@@ -102,6 +102,8 @@ when "15"
 	user = $conn.exec("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq ;")
  when "34"
 	user = $conn.exec("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where #{strwhere}   order by sj ;")
+ when "35"
+	user = $conn.exec("select archive.*,a_kyq.* from archive left join a_kyq on archive.id=a_kyq.ownerid  #{strwhere}   order by ajh ;")
 
  when "24"
   #年度_机构问题号_保管期限  
@@ -208,17 +210,6 @@ if size.to_i>0
         end
       when "3"
         pdfsize=':at =>[-40,780], :width => 580, :height => 890'
-       # intwidth<<205
-       # intwidth<<398
-       # intwidth<<588
-       # intwidth<<752
-       # intwidth<<1183
-       # intwidth<<1941
-       # intwidth<<2475
-       # intwidth<<2640
-       # intwidth<<2812
-       # intwidth<<2942
-       # intwidth<<3124
         intwidth<<205
         intwidth<<398
         intwidth<<588
@@ -289,6 +280,78 @@ if size.to_i>0
          end
         end
         puts tm
+      when "35"
+        pdfsize=':at =>[-40,780], :width => 580, :height => 890'
+        intwidth<<205
+        intwidth<<398
+        intwidth<<588
+        intwidth<<745
+        intwidth<<908
+        intwidth<<1239
+        intwidth<<1694
+        intwidth<<2455
+        intwidth<<2895
+        intwidth<<3055
+        intwidth<<3207
+        printfilename="ajml_kyq.jpg"
+        #intheight= i*160+684
+        intheight= i*177+589
+        puts intheight
+        user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
+        intheight=intheight-60
+        if !(user[i+k*10]['xxkz'].nil?)
+          tm=split_string(user[i+k*10]['xxkz'],6)
+          strtm=tm.split("\n")
+          intheight1=0
+          #for j in 0..strtm.length-1
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        puts tm
+        if !(user[i+k*10]['kyqr'].nil?)
+          tm=split_string(user[i+k*10]['kyqr'],9)
+          strtm=tm.split("\n")
+          intheight1=0
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        if !(user[i+k*10]['kswz'].nil?)
+          puts tm
+          tm=split_string(user[i+k*10]['kswz'],15)
+          strtm=tm.split("\n")
+          intheight1=0
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        if !(user[i+k*10]['ksmc'].nil?)
+           tm=split_string(user[i+k*10]['ksmc'],8)
+           strtm=tm.split("\n")
+           intheight1=0
+           for j in 0..2
+             intheight1=intheight+ j*50
+             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight1} '#{strtm[j]}'\" "
+           end
+          end
+        if !(user[i+k*10]['bz'].nil?)
+          puts tm
+          tm=split_string(user[i+k*10]['bz'],3)
+          strtm=tm.split("\n")
+          intheight1=0
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[10]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+       puts tm
+       
       when "24"
         intwidth<<304
         intwidth<<437

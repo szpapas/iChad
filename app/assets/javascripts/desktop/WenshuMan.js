@@ -719,7 +719,27 @@ Ext.define('MyDesktop.WenshuMan', {
 			          show_image(dh);	              
 			          set_image("/assets/dady/fm.jpg");
 			        }
-			      }    
+			      }
+			  
+			    },
+				{
+					xtype:'button',text:'打印',tooltip:'打印收文登记簿',id:'print',iconCls:'print',
+			      		handler: function() {
+							var grid = Ext.getCmp('archive_grid_wsda');
+			        		var pars=grid.store.proxy.extraParams;
+							new Ajax.Request("/desktop/print_sfwdjb", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									fhz=request.responseText.split(":");
+									if (fhz[0]=='success'){
+										window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+									}else{
+										alert("打印失败。"+request.responseText);
+									}
+								}
+							})
+					    }
 			    },
 			        '->',
 			       // {
@@ -960,6 +980,25 @@ Ext.define('MyDesktop.WenshuMan', {
 			          set_image("/assets/dady/fm.jpg");
 			        }
 			      }    
+			    },
+				{
+					xtype:'button',text:'打印',tooltip:'打印收文登记簿',id:'print',iconCls:'print',
+			      		handler: function() {
+							var grid = Ext.getCmp('archive_grid_wsda');
+			        		var pars=grid.store.proxy.extraParams;
+							new Ajax.Request("/desktop/print_sfwdjb", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									fhz=request.responseText.split(":");
+									if (fhz[0]=='success'){
+										window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+									}else{
+										alert("打印失败。"+request.responseText);
+									}
+								}
+							})
+					    }
 			    },
 			        '->',
 			      //  {

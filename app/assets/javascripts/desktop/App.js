@@ -38,6 +38,8 @@ Ext.define('MyDesktop.App', {
 
   init: function() {
     this.callParent();
+	this.desktop.initShortcut();
+
     new Ajax.Request("/desktop/get_user", {
       method: "POST",
       onComplete: function(request) {

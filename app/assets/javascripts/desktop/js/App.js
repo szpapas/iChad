@@ -51,8 +51,8 @@ Ext.define('Ext.ux.desktop.App', {
     },
 
     init: function() {
+		
         var me = this, desktopCfg;
-
         if (me.useQuickTips) {
             Ext.QuickTips.init();
         }

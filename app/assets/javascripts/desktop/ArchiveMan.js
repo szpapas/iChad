@@ -7252,36 +7252,36 @@ Ext.define('MyDesktop.ArchiveMan', {
           Ext.getCmp('archive_tree').store.load();
         }
       },'->',
-	  {
-        xtype:'button',text:'删除目录',tooltip:'删除目录',iconCls:'delete',
-        handler: function() {
-          //Ext.getCmp('archive_tree').store.load();
-		  var tree = Ext.getCmp('archive_tree');
-          var records = tree.getSelectionModel().getSelection();
-          var record = records[0];
-		  //data = node.selected.items[0].data;
-		  ss=record.data.id.split('_');
-	      if (ss.length=3 && ss[1]!=24){
-          	  var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	          Ext.Msg.confirm("提示信息","是否要删除："+record.data.text+"的整个目录号数据？",function callback(id){
-	                if(id=="yes"){
-	                  new Ajax.Request("/desktop/delete_all_archive", { 
-	                    method: "POST",
-	                    parameters: eval(pars),
-	                    onComplete:  function(request) {
-			    			if (request.responseText=='success'){
-	                      		Ext.getCmp('archive_grid').store.load();
-			    			}else{
-			    				alert(request.responseText);
-			    			}
-	                    }
-	                  });
-	                }
-	           });
-			}
-			
-        }
-      }
+	 // {
+     //   xtype:'button',text:'删除目录',tooltip:'删除目录',iconCls:'delete',
+     //   handler: function() {
+     //     //Ext.getCmp('archive_tree').store.load();
+	 //     var tree = Ext.getCmp('archive_tree');
+     //     var records = tree.getSelectionModel().getSelection();
+     //     var record = records[0];
+	 //     //data = node.selected.items[0].data;
+	 //     ss=record.data.id.split('_');
+	 //     if (ss.length=3 && ss[1]!=24){
+     //     	  var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+	 //         Ext.Msg.confirm("提示信息","是否要删除："+record.data.text+"的整个目录号数据？",function callback(id){
+	 //               if(id=="yes"){
+	 //                 new Ajax.Request("/desktop/delete_all_archive", { 
+	 //                   method: "POST",
+	 //                   parameters: eval(pars),
+	 //                   onComplete:  function(request) {
+	 //   	    			if (request.responseText=='success'){
+	 //                     		Ext.getCmp('archive_grid').store.load();
+	 //   	    			}else{
+	 //   	    				alert(request.responseText);
+	 //   	    			}
+	 //                   }
+	 //                 });
+	 //               }
+	 //          });
+	 //   	}
+	 //   	
+     //   }
+     // }
       ],
       width: 200
     });

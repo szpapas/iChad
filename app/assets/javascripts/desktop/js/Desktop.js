@@ -96,6 +96,36 @@ Ext.define('Ext.ux.desktop.Desktop', {
     taskbarConfig: null,
     
     windowMenu: null,
+	initShortcut : function() {  
+		var btnHeight = 80;         
+		var btnWidth = 80; 
+		var btnPadding = 8;         
+		this.col = null;         
+		this.row = null;         
+		var bottom;          
+		var bodyHeight = Ext.getBody().getHeight();            
+		function initColRow() {             
+			col = {                 index : 1,                 x : btnPadding             };              
+			row = {                 index : 1,                 y : btnPadding + 27             };         
+		}
+		this.setXY = function(item) {             
+			bottom = row.y + btnHeight;              
+			if (bottom > bodyHeight && bottom > (btnHeight + btnPadding)) {                
+				col = {                     index : col.index++,                     x : col.x + btnWidth + btnPadding                };
+				row = {                     index : 1,                     y : btnPadding + 27                };
+			}
+		    Ext.fly(item).setXY([col.x, row.y]);
+		    row.y = row.y + btnHeight + btnPadding + 4;
+		}                  
+		this.handleUpdate = function() {             
+			initColRow();               
+			var items = Ext.query(".ux-desktop-shortcut");              
+			for (var i = 0, len = items.length; i < len; i++) {                  
+				this.setXY(items[i]);              
+			}          
+		};           
+		this.handleUpdate();  
+	},
 
     initComponent: function () {
         var me = this;
@@ -118,10 +148,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
         me.shortcutsView = me.items.getAt(1);
         me.shortcutsView.on('itemclick', me.onShortcutItemClick, me);
-<<<<<<< HEAD
 
-=======
->>>>>>> 47c02519d45cf239f86f363d3fa584da473a5f20
         var wallpaper = me.wallpaper;
         me.wallpaper = me.items.getAt(0);
         if (wallpaper) {
@@ -133,6 +160,7 @@ Ext.define('Ext.ux.desktop.Desktop', {
         var me = this;
         me.callParent();
         me.el.on('contextmenu', me.onDesktopMenu, me);
+		Ext.Function.defer(me.initShortcut,1);
     },
 
     //------------------------------------------------------
@@ -146,7 +174,12 @@ Ext.define('Ext.ux.desktop.Desktop', {
             trackOver: true,
             itemSelector: me.shortcutItemSelector,
             store: me.shortcuts,
-            tpl: new Ext.XTemplate(me.shortcutTpl)
+            tpl: new Ext.XTemplate(me.shortcutTpl),
+			listeners:{               
+				resize:function(){               
+					me.initShortcut();              
+				}             
+			} 
         };
     },
 

@@ -67,7 +67,19 @@ def sb_cz(host_ip,cz,port)   #cz　１代表读取开关量，２代表读取当
         return ""
     end  
 end
-
+def wsd(host_ip,port)
+  begin 
+    timeout(5) do
+      client = TCPSocket.open '10.5.6.24',50008
+      ss = client.recv(1024)
+      client.close
+      return ss  
+    end
+  rescue Timeout::Error,Errno::EHOSTUNREACH,Errno::EHOSTDOWN,Errno::ECONNREFUSED
+    puts "eeeeeeeeeeee #{host_ip} #{port}  Timed out! eeeeeeeee"
+    return ""
+  end
+end
 
 jg37=0 #库房一继电器中红外无运作时间
 jg38=0 #库房二继电器中红外无运作时间
@@ -90,9 +102,8 @@ end
 every_n_seconds(1) do
 
       rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")  
-      puts '办公室。。。。。。'      
-        client = TCPSocket.open '10.5.6.24',50008
-        ss = client.recv(1024)
+      puts '办公室。。。。。。'              
+        ss = wsd('10.5.6.24',50008)
         #获取温湿度
         str=ss.split('A2 00')
         if str.length>1
@@ -107,17 +118,19 @@ every_n_seconds(1) do
         end
         #获取红外
         str=ss.split('A3 40D1')
-        client.close
+        #client.close
         if str.length>1
           puts "insert into zn_cz_rz(dlz,czid, userid, sbid, rq,czsm) values ('10.5.6.24:50008,1,办公室',0, 0, 0, '#{rq}', '开');"
           $conn.exec("insert into zn_cz_rz(dlz,czid, userid, sbid, rq,czsm) values ('10.5.6.24:50008,1,办公室',0, 0, 0, '#{rq}', '开');")
           fhz=sb_cz("10.5.6.24",2,50006)  #办公室继电器
-          fhz2=fhz.split(" ")
-          fhz2jz_kg=fhz2[5].to_i(16).to_s(2).rjust(8,"0")
-          puts fhz
-          jg39=1            
-          if fhz2jz_kg[8-4..-4]=='0' #办公室灯在第４位
-            system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 2 50006  ")
+          if fhz!=""
+            fhz2=fhz.split(" ")
+            fhz2jz_kg=fhz2[5].to_i(16).to_s(2).rjust(8,"0")
+            puts fhz
+            jg39=1            
+            if fhz2jz_kg[8-4..-4]=='0' #办公室灯在第４位
+              system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 2 50006  ")
+            end
           end
         else
           jg39=jg39+1          
@@ -315,20 +328,22 @@ every_n_seconds(1) do
       end
       fhz=sb_cz("10.5.6.24",2,50004)  #加湿器继电器
       puts "加湿器继电器:" + fhz
-      fhz2=fhz.split(" ")
-      fhz2jz_kg=fhz2[5].to_i(16).to_s(2).rjust(8,"0")
-      if sd>55
-        if fhz2jz_kg[8-4..-4]=='1'
-          system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '关' 48 50004 ")
-        end
-      else
-        if sd<45
-          if fhz2jz_kg[8-4..-4]=='0'
-            system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 48 50004 ")
+      if fhz!=""
+        fhz2=fhz.split(" ")
+        fhz2jz_kg=fhz2[5].to_i(16).to_s(2).rjust(8,"0")
+        if sd>55
+          if fhz2jz_kg[8-4..-4]=='1'
+            system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '关' 48 50004 ")
           end
         else
-          if fhz2jz_kg[8-4..-4]=='0'
-            system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 48 50004 ")
+          if sd<45
+            if fhz2jz_kg[8-4..-4]=='0'
+              system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 48 50004 ")
+            end
+          else
+            if fhz2jz_kg[8-4..-4]=='0'
+              system("ruby ./dady/bin/zn_sb_cz_lan.rb '10.5.6.24' '开' 48 50004 ")
+            end
           end
         end
       end

@@ -397,6 +397,62 @@ Ext.define('MyDesktop.DaPrint', {
 						Ext.getCmp('ym_sfdybt').x=130;
 						Ext.getCmp('ym_sfdybt').y=190;
 						break;
+					case '矿业权人': 
+						Ext.getCmp('sfdybt').hidden=false;
+						Ext.getCmp('ym_sfkg').hidden=true;
+						Ext.getCmp('ym_sfdybt').hidden=false;
+						Ext.getCmp('ym_sfdybt').x=130;
+						Ext.getCmp('ym_sfdybt').y=190;
+						break;
+						case '矿业权人': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '现许可证': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿山名称': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿山位置': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿种': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '登记类型': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;		
+						case '有效期限': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
 					default:
 						Ext.getCmp('sfdybt').hidden=true;
 						Ext.getCmp('ym_sfdybt').hidden=true;
@@ -846,6 +902,7 @@ Ext.define('MyDesktop.DaPrint', {
 								displayField:'dwdm',
 								triggerAction:'all',
 								name: 'qzh',
+								id:'print_qzh',
 			                  labelWidth: 65,
 			                  x: 10,
 			                  y: 40
@@ -875,8 +932,13 @@ Ext.define('MyDesktop.DaPrint', {
 					                    	parent.store.load({params:{param:'土地登记打印'}});
 											print_model_query='土地登记打印';
 										}else{
-											parent.store.load({params:{param:'通用打印'}});
-											print_model_query='通用打印';
+											if(this.value=='35'){
+												parent.store.load({params:{param:'矿业权打印'}});
+												print_model_query='矿业权打印';
+											}else{
+												parent.store.load({params:{param:'通用打印'}});
+												print_model_query='通用打印';
+											}
 										}
 						                  //var currentImage = combo.getStore().getById(parent.getValue());
 						                  //var currentStoreIndex = parent.getStore().indexOf(currentImage);
@@ -1018,14 +1080,30 @@ Ext.define('MyDesktop.DaPrint', {
 										              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 										              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
 										              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-										              LODOP.PREVIEW();
-												      //LODOP.PRINT();
+										              //LODOP.PREVIEW();
+												      LODOP.PRINT();
 													  
 													}
 													alert("打印成功。" );
 												}else{
 													if(pars.dylb=='案卷封面打印'){
-														window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+														if(Ext.getCmp('print_qzh').rawValue!='无锡市国土资源局'){
+															window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+														}else{
+															printfile=fhz[1].split(",");
+														    for (k=0;k<printfile.length;k++){
+														      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
+															  var number = Math.random(); 
+															  image_path = window.location.href + "assets/dady/tmp1/" + printfile[k] +'?' + number;
+															  LODOP.PRINT_INIT(image_path);  															  								      
+												              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+												              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+												              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+												              //LODOP.PREVIEW();
+														      LODOP.PRINT();
+															}
+															alert("打印成功。" );
+														}
 													}
 													else{
 														cz_msg(fhz[1]);
