@@ -1,0 +1,40 @@
+
+<html>
+	<head>
+	  <meta charset="UTF-8" />	
+		<meta http-equiv="Content-Type" content="text/html;" />
+		<meta http-equiv="refresh" content="300;URL=w2.html">
+		<script src="prototype.js" type="text/javascript" charset="utf-8"></script>
+	  <script src="scripts.js" type="text/javascript" charset="utf-8"></script>
+	  <title>欢迎使用激扬智慧档案查询系统</title>
+	  <script language="javascript">
+	  	var a ="rwdat";
+		var ajjs=0;
+		var pars="";
+		new Ajax.Request('/map/get_stajs',{
+	    	method: "POST",
+		    parameters: pars,
+		    onSuccess: function(transport){
+				ajjs = eval(transport.responseText);
+				xslr1="<table><tr><td><font size = 8>一、规范化的档案</font></td></tr>";
+				//document.getElementById("xx").initialConfig.html
+				var x=0
+				var zjs=0
+				xslr=""
+				for(var i=0; i < ajjs.length; i ++){
+					x=i+1;
+					zjs=zjs+parseInt(ajjs[i]['js'],10);
+					xslr=xslr + "<tr><td><font size = 6>(" + x + ")、" + ajjs[i]['lbmc'] + "档案有：" + ajjs[i]['js'] + "卷</font></td></tr>"
+				}	
+				xslr=xslr1 + "<tr><td><font size = 6>1" + "、本档案馆共有" + zjs + "卷档案，其中：</font></td></tr>" + xslr + "</table>";
+				document.getElementById("xx").innerHTML= xslr;
+		    }
+		})
+	  </script>
+	</head>
+	<body class="jive-body-formpage jive-body-formpage-login">
+		<table cellpadding=8>
+			<div id="xx">正在检索数据，请稍候。。。。。。</div>			
+		</table>
+	</body>
+</html>
