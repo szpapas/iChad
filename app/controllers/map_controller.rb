@@ -1281,7 +1281,7 @@ class MapController < ApplicationController
 
   #获取各类档案实体卷数
   def get_stajs
-    users = User.find_by_sql("select distinct qzh,lbmc,d_dalb.id,count(*) as js from archive ,d_dalb where qzh='6' and cast(archive.dalb as integer)=d_dalb.id group by qzh,lbmc,d_dalb.id order by qzh,d_dalb.id")
+    users = User.find_by_sql("select distinct qzh,lbmc,d_dalb.id,count(*) as js from archive ,d_dalb where qzh='9' and cast(archive.dalb as integer)=d_dalb.id group by qzh,lbmc,d_dalb.id order by qzh,d_dalb.id")
     txt = users.to_json
     render :text =>txt
   end

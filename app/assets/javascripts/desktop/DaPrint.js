@@ -151,7 +151,7 @@ Ext.define('MyDesktop.DaPrint', {
 							},
 							{
 								xtype: 'label',
-								text: 'X坐标:',
+								text: 'X坐标(横):',
 								x: 10,
 								y: 40,
 								width: 100
@@ -159,7 +159,7 @@ Ext.define('MyDesktop.DaPrint', {
 							,
 							{
 								xtype: 'label',
-								text: 'Y坐标:',
+								text: 'Y坐标(纵):',
 								x: 10,
 								y: 70,
 								width: 100
@@ -732,7 +732,7 @@ Ext.define('MyDesktop.DaPrint', {
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'ym_setup_win',
-					title: '页面设置(单位：0.1毫米。页面左上角坐标：0,0)',					
+					title: '页面设置(单位：0.1毫米；页面左上角坐标：0,0；向上移动X坐标值减，向下移动坐标值加，向左移动Y坐标值减，向右移动Y坐标值加)',					
 					width: 700,
 					height: 580,
 					minHeight: 530,
@@ -874,9 +874,9 @@ Ext.define('MyDesktop.DaPrint', {
 						layout: 'absolute',
 						items: [
 							{
-			          	      xtype: 'combobox',
-				              width: 215,
-				              fieldLabel: '打印类别',
+			          	      	xtype: 'combobox',
+				              	width: 215,
+				              	fieldLabel: '打印类别',
 								name: 'dylb',
 								store: print_lb_store,
 								emptyText:'请选择',
@@ -886,14 +886,14 @@ Ext.define('MyDesktop.DaPrint', {
 								displayField:'text',
 								triggerAction:'all',
 								id:'print_dylb',
-				              labelWidth: 65,
-				              x: 10,
-				              y: 10
+				              	labelWidth: 65,
+				              	x: 10,
+				              	y: 10
 			            	},
 							{
-			                  xtype: 'combobox',
-			                  width: 215,
-			                  fieldLabel: '全宗名称',
+			                  	xtype: 'combobox',
+			                  	width: 215,
+			                  	fieldLabel: '全宗名称',
 								store: qz_store_print,
 								emptyText:'请选择',
 								mode: 'local',
@@ -903,9 +903,9 @@ Ext.define('MyDesktop.DaPrint', {
 								triggerAction:'all',
 								name: 'qzh',
 								id:'print_qzh',
-			                  labelWidth: 65,
-			                  x: 10,
-			                  y: 40
+			                  	labelWidth: 65,
+			                  	x: 10,
+			                  	y: 40
 			              	},
 							{
 			                    xtype: 'combobox',
@@ -923,7 +923,7 @@ Ext.define('MyDesktop.DaPrint', {
 			                    x: 10,
 			                    y: 70,
 								listConfig: { loadMask: false },
-				                  listeners:{  
+				                listeners:{
 				                    select:function(combo, record,index){
 				                    	var parent=Ext.getCmp('print_model');
 									
@@ -945,7 +945,7 @@ Ext.define('MyDesktop.DaPrint', {
 						                  //var nextStoreValue = parent.getStore().getAt(1).get('id');
 						                  parent.setValue('标准'+print_model_query+'模板');
 				                    //Ext.getCmp('fj_sslc').lastQuery = null;
-				                    }
+				                  }
 								}
 			                },
 							{
@@ -1011,6 +1011,17 @@ Ext.define('MyDesktop.DaPrint', {
 			                    fieldLabel: '止案卷号',
 								name: 'zajh',
 								id:'print_zajh',
+			                    labelWidth: 65,
+			                    x: 10,
+			                    y: 250
+			                },
+							{
+			                    xtype: 'textfield',
+			                    width: 215,
+								hidden:true,
+			                    fieldLabel: '止案卷号',
+								name: 'userid',
+								id:'print_userid',
 			                    labelWidth: 65,
 			                    x: 10,
 			                    y: 250
@@ -1106,7 +1117,12 @@ Ext.define('MyDesktop.DaPrint', {
 														}
 													}
 													else{
-														cz_msg(fhz[1]);
+														if(pars.dylb=='备考表打印'){
+															cz_msg(fhz[1]);
+															//window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+														}else{
+															cz_msg(fhz[1]);
+														}
 													}
 													
 												//	window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
@@ -1136,6 +1152,7 @@ Ext.define('MyDesktop.DaPrint', {
               
           });
       }
+	  Ext.getCmp('print_userid').setValue(user_id);
       win.show();
       return win;
   }

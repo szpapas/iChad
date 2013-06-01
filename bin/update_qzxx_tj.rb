@@ -95,7 +95,7 @@ def update_qzxx(dh_cond)
     if dd.count > 0
       #$conn.exec("update q_qzxx set ajys=#{data['ajys']}, ml00=#{data['ml00']}, mlbk=#{data['mlbk']}, mljn=#{data['mljn']}, jn00=#{data['jn00']}, jnjn=#{data['jnjn']}, jnbk=#{data['jnbk']}, smyx=#{data['smyx']}, a3=#{data['a3']}, a4=#{data['a4']}, dt=#{data['dt']}, jnts=#{data['jnts']} where id=#{dd[0]['id']};")
       yxwz=dd[0]['yxwz']
-      puts 'yxwz' + dd[0]['yxwz']
+      #puts 'yxwz' + dd[0]['yxwz']
       $conn.exec("delete from q_qzxx where dh_prefix='#{data['dh_prefix']}';")
     else
       yxwz=''

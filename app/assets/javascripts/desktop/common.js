@@ -517,7 +517,8 @@ var qzdj_store = new Ext.data.SimpleStore({
 var print_lb_data = [	
 	['1','案卷目录打印'],
 	['2','卷内目录打印'],
-	['3','案卷封面打印']
+	['3','案卷封面打印'],
+	['4','备考表打印']
 ];
 var print_lb_store = new Ext.data.SimpleStore({
 	fields: ['value', 'text'],
@@ -602,7 +603,8 @@ var kg_store = new Ext.data.SimpleStore({
 
 var print_dylx_data = [
  ['0','通用打印'],
- ['1','土地登记打印']
+ ['1','土地登记打印'],
+['2','矿业权打印']
 ];
 
 
@@ -633,7 +635,9 @@ var jr_model_store = new Ext.data.SimpleStore({
 
 var print_model_data = [
  ['1','通用打印'],
- ['2','土地登记打印']
+ ['2','土地登记打印'],
+　['3','矿业权打印']
+
 ];
 
 var print_model_store = new Ext.data.SimpleStore({
@@ -935,11 +939,12 @@ var DispAj_zh = function(record,add_new,title){
 					var record = records[0];
 
 					var pars="id="+record.data.id;
+					
 					Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 										}
@@ -1371,7 +1376,7 @@ var DispAj_zh = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -1457,7 +1462,7 @@ var DispAj_zp = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 										}
@@ -1887,7 +1892,7 @@ var DispAj_zp = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -1965,7 +1970,7 @@ var DispAj_cw = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -2410,7 +2415,7 @@ var DispAj_cw = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -2484,7 +2489,7 @@ var DispAj_tddj = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -3031,7 +3036,7 @@ var DispAj_tddj = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -3108,7 +3113,7 @@ var DispAj_kyq = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -3865,7 +3870,7 @@ var DispAj_kyq = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -4596,7 +4601,7 @@ var DispAj_wsda = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -6252,7 +6257,7 @@ var DispAj_sx = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -6698,7 +6703,7 @@ var DispAj_sx = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -6772,7 +6777,7 @@ var DispAj_tjml = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -6974,13 +6979,13 @@ var DispAj_tjml = function(record,add_new,title){
 						       }
 						}
 	                },
-	                {
+					{
 	                    xtype: 'textfield',
 	                    width: 145,
-	                    fieldLabel: '序号',
+	                    fieldLabel: '分类号',
 	                    labelWidth: 60,
-						name: 'ajh',
-						id: 'zh_ajh',
+						name: 'flh',
+						id: 'zh_flh',
 	                    x: 175,
 	                    y: 10
 							                    
@@ -6988,24 +6993,54 @@ var DispAj_tjml = function(record,add_new,title){
 	                },
 	                {
 	                    xtype: 'textfield',
-	                    width: 655,
-	                    fieldLabel: '图 幅 号',
+	                    width: 145,
+	                    fieldLabel: '序号',
 	                    labelWidth: 60,
-						name: 'tfh',
-						id: 'zh_tfh',
-	                    x: 10,
-	                    y: 45
+						name: 'ajh',
+						id: 'zh_ajh',
+	                    x: 350,
+	                    y: 10
+							                    
+						
 	                },
-	                {
+					{
 	                    xtype: 'textfield',
 	                    width: 145,
 	                    fieldLabel: '年度',
 						name: 'nd',
 						id: 'zh_nd',
 	                    labelWidth: 60,
-	                    x: 350,
+	                    x: 520,
 	                    y: 10
 	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '保管期限',
+	                    labelWidth: 60,
+						name: 'bgqx',
+						store: bgqx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						id:'zh_bgqx',
+	                    x: 10,
+	                    y: 45
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 490,
+	                    fieldLabel: '图 幅 号',
+	                    labelWidth: 60,
+						name: 'tfh',
+						id: 'zh_tfh',
+	                    x: 175,
+	                    y: 45
+	                },
+	                
 	                {
 	                    xtype: 'textfield',
 	                    width: 655,
@@ -7036,23 +7071,7 @@ var DispAj_tjml = function(record,add_new,title){
 	                    x: 525,
 	                    y: 115
 	                },
-	                {
-	                    xtype: 'combobox',
-	                    width: 145,
-	                    fieldLabel: '保管期限',
-	                    labelWidth: 60,
-						name: 'bgqx',
-						store: bgqx_store,
-						emptyText:'请选择',
-						mode: 'remote',
-						minChars : 2,
-						valueField:'text',
-						displayField:'text',
-						triggerAction:'all',
-						id:'zh_bgqx',
-	                    x: 520,
-	                    y: 10
-	                },
+	                
 	                {
 	                    xtype: 'textfield',
 	                    width: 655,
@@ -7115,6 +7134,7 @@ var DispAj_tjml = function(record,add_new,title){
 		com_document_store.load();
 		
 	}else{
+		Ext.getCmp('zh_flh').setValue('C2');
 		if(add_new==true){
 			Ext.getCmp('button_aj_add').text="新增保存";
 			ss=title.split('_');
@@ -7141,7 +7161,7 @@ var DispAj_tjml = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -7214,7 +7234,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -7759,7 +7779,7 @@ var DispAj_qtda_dzda = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -7834,7 +7854,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -8309,7 +8329,7 @@ var DispAj_qtda_sbda = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -8384,7 +8404,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -8818,7 +8838,7 @@ var DispAj_qtda_jjda = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -8893,7 +8913,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -9345,7 +9365,7 @@ var DispAj_qtda_swda = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -9418,7 +9438,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -9843,7 +9863,7 @@ var DispAj_qtda_zlxx = function(record,add_new,title){
 			requestdata='';
 			new Ajax.Request("/desktop/get_archivebyid", { 
 			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id},
+			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
 			    	onComplete:	 function(request) {
 			    		requestdata=eval('(' + request.responseText + ')');						
 						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
@@ -9916,7 +9936,7 @@ var DispAj_by_tszlhj = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -10292,7 +10312,7 @@ var DispAj_by_jcszhb = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -10602,7 +10622,7 @@ var DispAj_by_zzjgyg = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -10910,7 +10930,7 @@ var DispAj_by_dsj = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -11262,7 +11282,7 @@ var DispAj_by_qzsm = function(record,add_new,title){
 								if(id=="yes"){
 									new Ajax.Request("/desktop/delete_document", { 
 										method: "POST",
-										parameters: pars,
+										parameters: {id:record.data.id,userid:currentUser.id},
 										onComplete:	 function(request) {
 											Ext.getCmp('com_document_grid').store.load();
 
@@ -11644,23 +11664,24 @@ var jytj = function(){
 					onComplete:	 function(request) {
 						fhz=request.responseText.split(":");
 						if (fhz[0]=='success'){
-							printfile=fhz[1].split(",");
-						    for (k=0;k<printfile.length;k++){
-						      	LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM')); 
-							  	image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
-						      	LODOP.PRINT_INIT(image_path);
-							  	if (zt=='4'){
-							  		LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
-							  	}else{
-									LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
-							  	}
-				              	LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-				              	LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-				              	LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-				              	//LODOP.PREVIEW();
-						      	LODOP.PRINT();
-							}
-							alert("打印成功。"+fhz[1] );												
+						   // printfile=fhz[1].split(",");
+						   // for (k=0;k<printfile.length;k++){
+						   //   	LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM')); 
+						   //   	image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
+						   //   	LODOP.PRINT_INIT(image_path);
+						   //   	if (zt=='4'){
+						   //   		LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
+						   //   	}else{
+						   // 		LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
+						   //   	}
+				           //   	LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+				           //   	LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+				           //   	LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+				           //   	//LODOP.PREVIEW();
+						   //   	LODOP.PRINT();
+						   // }
+						   // alert("打印成功。"+fhz[1] );	
+							window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');											
 						}else{
 							alert(request.responseText);
 						}						
@@ -11855,7 +11876,12 @@ var doc_jgwt_disp = function(record,add_new){
             name : 'id' ,
             id:'doc_jgwt_id'                    
           },
-
+		{
+            xtype: 'textfield',
+            hidden : true,
+            name : 'userid' ,
+            id:'userid'                    
+          },
           {
             xtype: 'textfield',
             x: 130,
@@ -12772,6 +12798,162 @@ var DispJr_zp = function(recordad,add_new,jr_aj_ownerid,jr_dh,aj_add_new){
 	win.show();
 };
 
+var DispBkb = function(id){
+	var win = Ext.getCmp('bkb_win');
+	if (win==null) {
+		win = new Ext.Window({
+			id : 'bkb_win',
+			title: '备考表',
+			//closeAction: 'hide',
+			width: 370,
+			height: 250,
+			minHeight: 300,
+			layout: 'fit',
+			modal: true,
+			plain: true,
+			items: [{
+				width: 370,
+				height: 300,
+				xtype:'form',
+				layout: 'absolute',
+				id : 'dagl_bkb_form',
+				items: [
+					{
+						xtype: 'label',
+						text: '立卷人',
+						x: 10,
+						y: 10,
+						width: 100
+					},
+					{
+						xtype: 'label',
+						text: '检查人',
+						x: 10,
+						y: 40,
+						width: 100
+					},
+					{
+						xtype: 'label',
+						text: '立卷时间',
+						x: 10,
+						y: 70,
+						width: 100
+					},
+					{
+						xtype: 'label',
+						text: '情况说明',
+						x: 10,
+						y: 100,
+						width: 100
+					},
+					
+					{
+						xtype: 'textfield',
+						hidden : true,
+						name : 'id'																							
+					},
+					{
+						xtype: 'textfield',
+						hidden : true,
+						name : 'ownerid',
+						id:'bkb_ownerid'											
+					},
+					{
+						xtype: 'textfield',
+						x: 130,
+						y: 10,
+						width: 200,
+						name: 'ljr',
+						id:'bkb_ljr',
+					},
+					{
+						xtype: 'textfield',
+						x: 130,
+						y: 40,
+						width: 200,
+						id:'bkb_jcr',
+						name: 'jcr'
+					},
+					{
+						xtype: 'datefield',
+						format: 'Y-m-d',
+						x: 130,
+						y: 70,
+						width: 200,
+						id:'bkb_ljsj',
+						name: 'ljsj'
+					},
+					{
+						xtype: 'textarea',
+						x: 130,
+						y: 100,
+						width: 200,
+						name: 'qksm',
+						id:'bkb_qksm',
+						height:130
+					},														
+					{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'userid',
+						id: 'userid',
+	                    x: 10,
+	                    y: 190
+	                }
+				],
+				buttons:[{
+						xtype: 'button',
+						cls: 'contactBtn',
+						id:'button_jr_add',
+						text:'保存',
+						handler: function() {
+							var pars=this.up('panel').getForm().getValues();
+							new Ajax.Request("/desktop/save_bkb", { 
+								method: "POST",
+								parameters: pars,
+								onComplete:	 function(request) {
+									fhz=request.responseText.split(":");
+									if (fhz[0]=='success'){
+										alert("保存成功。");	
+										Ext.getCmp('bkb_win').close();																			
+									}else{
+										if (fhz[0]=='false')
+										{
+											alert(fhz[1]);
+										}else
+										{
+											alert("保存失败，请重新保存。"+request.responseText);
+										}
+									}
+								}
+							});
+							
+						}
+					},
+					{
+						xtype: 'button',
+						cls: 'contactBtn',
+						text:'退出',
+						handler: function() {				
+							Ext.getCmp('bkb_win').close();
+						}
+					}]
+			}]
+		});
+	}
+	Ext.getCmp('userid').setValue(currentUser.id);
+	Ext.getCmp('bkb_ownerid').setValue(id);
+	new Ajax.Request("/desktop/get_bkb_byid", { 
+	    	method: "POST",
+	    	parameters: {ownerid:id,userid:currentUser.id},
+	    	onComplete:	 function(request) {
+	    		requestdata=eval('(' + request.responseText + ')');						
+				Ext.getCmp('dagl_bkb_form').getForm().setValues(requestdata[0]);
+				Ext.getCmp('bkb_ljsj').setValue( new Date(requestdata[0]['ljsj'].replace('-','/').replace('-','/')))
+	     	}
+	});
+	win.show();
+};
 
 //显示卷内模板新增窗口
 var DispJr_model = function(jr_aj_ownerid,jr_dh,aj_add_new){
@@ -12926,7 +13108,7 @@ var DispJr_model = function(jr_aj_ownerid,jr_dh,aj_add_new){
 				if(save_sql!=''){
 					new Ajax.Request("/desktop/insert_document_model", { 
 						method: "POST",
-						parameters: {dh:jr_dh,ownerid:jr_aj_ownerid,save_sql:save_sql},
+						parameters: {dh:jr_dh,ownerid:jr_aj_ownerid,save_sql:save_sql,userid:currentUser.id},
 						onComplete:	 function(request) {
 							fhz=request.responseText.split(":");
 							if (fhz[0]=='success'){
@@ -13153,7 +13335,7 @@ var show_image = function(dh) {
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
       ss=data.id.split('|');
 	  if (ss[0]!='root1'){
-      	var pars={gid:ss[0]};
+      	var pars={gid:ss[0],userid:currentUser.id};
 	      new Ajax.Request("/desktop/get_timage_from_db", {
 	        method: "POST",
 	        parameters: pars,
@@ -13163,8 +13345,9 @@ var show_image = function(dh) {
 				//set_image("/assets/dady/fm.jpg");
 				if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
 					ifx=path.split('?');
+					var number = Math.random(); 
 					imagefx=ifx[1];
-		            imageObj.src = path;
+		            imageObj.src = path +'?' + number;
 					scale=1;
 					translatePos.x = 0;
 				    translatePos.y = 0;
@@ -13254,7 +13437,7 @@ var show_image = function(dh) {
 			                get_NodesChecked(root);
 							if (print_id!=""){
 								Ext.getCmp('image_print').setVisible(false);
-								var pars={gid:print_id};
+								var pars={gid:print_id,userid:currentUser.id};
 							    new Ajax.Request("/desktop/get_timage_from_db_print", {
 							        method: "POST",
 							        parameters: pars,
@@ -13263,7 +13446,29 @@ var show_image = function(dh) {
 							          if(printfile!=''){
 										path=printfile.split(":");
 										if (path[0] == 'success'){
-											window.open(path[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+											printfile=path[1].split(",");
+										    for (k=0;k<printfile.length;k++){
+												if (printfile[k]!=""){
+													if (printfile[k].toUpperCase().include('JPG') || printfile[k].toUpperCase().include('TIF') || printfile[k].toUpperCase().include('JPEG') || printfile[k].toUpperCase().include('TIFF')) { 
+														ifx=printfile[k].split('?');
+														imagefx=ifx[1];
+														LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+												          //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+														var number = Math.random(); 
+												        image_path = window.location.href + printfile[k] +'?' + number;				
+												        LODOP.PRINT_INIT(image_path);				
+													  	LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
+												        LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+												        LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+												        LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");				
+												        //LODOP.PREVIEW();
+												        LODOP.PRINT();
+													}else{	
+														window.open(path[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+													}
+												}
+											};
+											alert('打印完成。');																						
 											Ext.getCmp('image_print').setVisible(true);
 										}else{
 											alert(printfile);
@@ -13308,7 +13513,7 @@ var show_image = function(dh) {
 			                get_NodesChecked(root);
 							if (print_id!=""){
 								Ext.getCmp('image_dc').setVisible(false);
-								var pars={gid:print_id,dylb:1};
+								var pars={gid:print_id,dylb:1,userid:currentUser.id};
 							    new Ajax.Request("/desktop/get_timage_from_db_print", {
 							        method: "POST",
 							        parameters: pars,
@@ -13436,7 +13641,7 @@ var set_image = function(photoURL) {
 
 
 //add by liujun showAdvancedSearch()
-  var showAdvancedSearch = function(fields,grid,dh,doc_dagl,jr) {
+  var showAdvancedSearch = function(fields,grid,dh,doc_dagl,jr,rz) {
     
     var panel = new Ext.Panel({  
       title : '高级查询',  
@@ -13506,10 +13711,18 @@ var set_image = function(photoURL) {
 						Ext.getCmp(grid).store.load();
 						Ext.getCmp('advanced-search-win').close();
 					}else{
-						Ext.getCmp(grid).store.proxy.url="/desktop/archive_query_sd";
-						Ext.getCmp(grid).store.proxy.extraParams=eval(cxtj);		
-						Ext.getCmp(grid).store.load();
-						Ext.getCmp('advanced-search-win').close();
+						if(rz==true){
+							Ext.getCmp(grid).store.proxy.url="/desktop/get_rz_manage_grid";
+							Ext.getCmp(grid).store.proxy.extraParams=eval(cxtj);		
+							Ext.getCmp(grid).store.load();
+							Ext.getCmp('advanced-search-win').close();
+						}
+						else{
+							Ext.getCmp(grid).store.proxy.url="/desktop/archive_query_sd";
+							Ext.getCmp(grid).store.proxy.extraParams=eval(cxtj);		
+							Ext.getCmp(grid).store.load();
+							Ext.getCmp('advanced-search-win').close();
+						}
 					}
 				}
 				docglcx=0;

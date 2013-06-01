@@ -112,7 +112,7 @@ class DesktopController < ApplicationController
         archive=User.find_by_sql("select * from archive where id = #{params['query']} ;")
         if archive.size>0
           if archive[0]['dalb']=='20'
-            user = User.find_by_sql("select document.id,document.bz,document.ownerid,document.dh,document.tm,document.yh,a_zp.id as zpid,a_zp.psrq,cast (a_zp.zph as integer),a_zp.psz,a_zp.sy,a_zp.dd,a_zp.rw,a_zp.bj from document  left join a_zp on document.id=a_zp.ownerid where document.ownerid = #{params['query']} order by zph;")
+            user = User.find_by_sql("select document.id,document.bz,document.ownerid,document.dh,document.tm,document.yh,a_zp.id as zpid,a_zp.psrq,a_zp.zph,a_zp.psz,a_zp.sy,a_zp.dd,a_zp.rw,a_zp.bj from document  left join a_zp on document.id=a_zp.ownerid where document.ownerid = #{params['query']} order by zph;")
           else
             user = User.find_by_sql("select document.*,archive.mlh,archive.ajh from document,archive where document.ownerid=archive.id and ownerid = #{params['query']} order by sxh;")
           end
@@ -191,6 +191,14 @@ class DesktopController < ApplicationController
       ydh=params['dh']
       mlh=get_da_mlh(params['qzh'],params['dalb'],params['mlh'])
       dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
+      czqnr=User.find_by_sql("select * from archive where id = #{params['id']};")
+      if czqnr.size>0
+        strczqnr=czqnr[0].as_json
+        czmlh=czqnr[0]['mlh']
+      else
+        strczqnr=''
+        czmlh=''
+      end
       case params['dalb']
       when "0"
         ydh=params['dh']
@@ -326,7 +334,7 @@ class DesktopController < ApplicationController
         size = user.size
         if size == 0
           dh=params['qzh']+ "-" + params['dalb'] +"-" + mlh.to_s+"-" + params['ajh']
-          User.find_by_sql("update archive set mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
+          User.find_by_sql("update archive set flh='#{params['flh']}', mlh='#{params['mlh']}',nd='#{params['nd']}', bgqx='#{params['bgqx']}' , bz='#{params['bz']}', tm='#{params['tm']}', ys=#{params['ys']}, dh='#{dh}', ajh='#{ajh}' where id = #{params['id']};")
           archiveid=User.find_by_sql("select id from a_tjml where  ownerid=#{params['id']};")
           size=archiveid.size
           if size==0
@@ -707,7 +715,7 @@ class DesktopController < ApplicationController
       end
       if txt=='success'
         czhnr=czhnr.gsub("'","")
-        set_rz('','','','','案卷修改',params['userid'],'',czhnr,dh)
+        set_rz(czmlh,'','','','案卷修改',params['userid'],strczqnr,czhnr,dh)
         
         txt=txt + ":" + dh 
       end
@@ -867,6 +875,8 @@ class DesktopController < ApplicationController
       else
         txt = "/assets/#{convert_filename}?2"
       end
+      archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+      set_rz(archive[0]['mlh'],'','','','影像查看',params['userid'],user[0]["yxmc"],user[0]["yxmc"],dh)
     end
     render :text => txt
   end
@@ -912,7 +922,13 @@ class DesktopController < ApplicationController
       for k in 0..user.size-1
         puts user[k]['id']
         dh,width,height = user[k]['dh'], user[k]['width'], user[k]['height']
-
+        
+        archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+        if dylb=='1'
+          set_rz(archive[0]['mlh'],'','','','影像导出',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        else
+          set_rz(archive[0]['mlh'],'','','','影像打印',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        end
         if !File.exists?("./dady/img_tmp/#{dh}/")
           system"mkdir -p ./dady/img_tmp/#{dh}/"        
         end
@@ -989,7 +1005,14 @@ class DesktopController < ApplicationController
             end
           end
         end
-        txt="success:/assets/dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+        qzh=dh.split('-')
+        qzmc=User.find_by_sql("select * from d_dwdm where id=#{qzh[0]} ;")
+        if qzmc[0]['dwdm']!='无锡市国土资源局'
+          txt="success:/assets/dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+        else
+          txt="success:" + txt
+        end
+        
       end
     end
     render :text => txt
@@ -3412,7 +3435,7 @@ class DesktopController < ApplicationController
               if size == 0
                 dw=User.find_by_sql("select * from d_dwdm where   id='#{params['qzh']}' ;")
                 dh=params['qzh']+ "-" + params['dalb'] +"-" + mlh.to_s+"-" + params['ajh']      	    
-          	    archiveid=User.find_by_sql("insert into archive(czr,czrname,rq,mlm,mlh,ajh,tm,nd,bgqx,ys,bz,qzh,dh,dalb,dwdm) values('#{params['userid']}','#{username[0]['username']}','#{rq}','#{mlh}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') RETURNING id;")                                       
+          	    archiveid=User.find_by_sql("insert into archive(flh,czr,czrname,rq,mlm,mlh,ajh,tm,nd,bgqx,ys,bz,qzh,dh,dalb,dwdm) values('#{params['flh']}','#{params['userid']}','#{username[0]['username']}','#{rq}','#{mlh}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}') RETURNING id;")                                       
                 User.find_by_sql("insert into a_tjml(tfh,tgh,ownerid) values('#{params['tfh']}','#{params['tgh']}','#{archiveid[0]['id']}') ")                        
                 czhnr="'#{mlh}','#{params['mlh']}','#{ajh}','#{params['tm']}','#{params['nd']}','#{params['bgqx']}',#{params['ys']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{dw[0]['dwdm']}','#{params['tfh']}','#{params['tgh']}','#{archiveid[0]['id']}'"
                 txt='success'              
@@ -3654,7 +3677,7 @@ class DesktopController < ApplicationController
             if txt=='success'
               #getid=User.find_by_sql("select id from archive where   dh='#{dh}' ;")
               czhnr=czhnr.gsub("'","")
-              set_rz('','','','','案卷新增',params['userid'],'',czhnr,dh)
+              set_rz(params['mlh'],'','','','案卷新增',params['userid'],'',czhnr,dh)
               txt=txt + ":" + dh + ":" + archiveid[0]['id'].to_s  
               if dw[0]['dwdm']!="无锡"   
                 if params['ys']==nil
@@ -3684,7 +3707,20 @@ class DesktopController < ApplicationController
 	  rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
 	  puts username[0]['username']
 	  if sort=='success'
-	    dh=User.find_by_sql("select * from archive  where id = #{params['id']};") 
+	    dh=User.find_by_sql("select * from archive  where id = #{params['id']};")
+	    set_rz(dh[0]['mlh'],'','','','案卷删除',params['userid'],dh[0].as_json,'',dh[0]['dh'])
+	    jr=User.find_by_sql("select * from document  where ownerid = #{params['id']};")
+	    if jr.size>0
+	      for k in 0..jr.size-1
+            set_rz(dh[0]['mlh'],'','','','卷内删除',params['userid'],jr[k].as_json,'',dh[0]['dh'])
+        end
+      end
+      yx=User.find_by_sql("select yxmc from timage  where dh = '#{dh[0]['dh']}';")
+	    if yx.size>0
+	      for k in 0..yx.size-1
+            set_rz(dh[0]['mlh'],'','','','影像删除',params['userid'],yx[k]['yxmc'],yx[k]['yxmc'],dh[0]['dh'])
+        end
+      end	    	    
   	  User.find_by_sql("delete from timage  where dh = '#{dh[0]['dh']}';") 	   
       case params['dalb']      
       when "0"
@@ -3751,7 +3787,7 @@ class DesktopController < ApplicationController
         end
       end
       #User.find_by_sql("COMMIT;")
-      set_rz('','','','','案卷删除',params['userid'],'','',dh[0]['dh'])
+      
       txt='success'
     else
       txt='您无权限删除此档案。'
@@ -4193,11 +4229,14 @@ class DesktopController < ApplicationController
       if  yxbh[0].length==4
         if yxbh[0].to_i.to_s.rjust(4,"0")==yxbh[0]
           delimage=User.find_by_sql("select id,yxbh from timage where dh = '#{params['dh']}' and yxbh>='#{params['filename']}' order by yxbh;")
+          archive= User.find_by_sql("select * from archive where dh='#{params['dh']}';")
           for k in 0..delimage.size-1
             yxbh2=delimage[k]['yxbh'].split('.')
             if yxbh2[0].to_i.to_s.rjust(4,"0")==yxbh2[0] && yxbh2[0].length==4
               yxbh1=(yxbh[0].to_i+1+k.to_i).to_s.rjust(4,"0") + "." + yxbh2[1]
               User.find_by_sql("update timage set yxbh='#{yxbh1}',yxmc='#{yxbh1}' where id = #{delimage[k]['id']} ;")
+              
+              set_rz(archive[0]['mlh'],'','','','影像改名',params['czr'],delimage[k]['yxbh'],yxbh1,params['dh']) 
             end
           end
         end
@@ -4262,30 +4301,65 @@ class DesktopController < ApplicationController
             if params['dalb']=="24"
               strwhere="where archive.qzh = '#{params['qzh']}' and dalb ='#{params['dalb']}' and a_wsda.nd='#{params['nd']}' and a_wsda.jgwth='#{params['jgwth']}' and a_wsda.bgqx='#{params['bgqx']}' and a_wsda.jh>='#{params['qajh']}' and a_wsda.jh<='#{params['zajh']}'"
             end
+            dh =params['qzh'] + "-" + params['dalb'] + "-" + params['mlh'] + "-" + params['qajh']
             case params['dylb']
             when "案卷目录打印"
               #txt=ajml_print(strwhere)
               czlist=User.find_by_sql("insert into d_cz_list(czzt,czmc) values(0,'案卷目录打印')  RETURNING id;")
               #czlist[0]['id'].to_s
-              if (params['bgqx'].nil?)
+              if (params['bgqx'].nil? || params['bgqx']=='')
                 params['bgqx']="''"
               end
               if (params['nd'].nil?)
                 params['nd']="''"
               end
-              if (params['nd']=='')
+              if (params['nd']=='' )
                 params['nd']="''"
               end
-              if (params['mlh']=='')
+              if (params['mlh']=='' || params['mlh'].nil?)
                 params['mlh']="''"
               end
-              puts "ruby ./dady/bin/print_ajml.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']}"
-              text=system("ruby ./dady/bin/print_ajml.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']} &" )
+              if (params['jgwth']=='' || params['jgwth'].nil?)
+                params['jgwth']="''"
+              end
+
+              puts "ruby ./dady/bin/print_ajml.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']}　#{czlist[0]['id']}"
+              text=system("ruby ./dady/bin/print_ajml.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']} #{czlist[0]['id']}　　&" )
               txt="success:#{czlist[0]['id']}"
+              strwhere=strwhere.gsub("'","")
+              set_rz(params['mlh'],'','','','案卷目录打印',params['userid'],strwhere,strwhere,'')
             when "卷内目录打印"
               txt=jrml_print(strwhere)
+              strwhere=strwhere.gsub("'","")
+              set_rz(params['mlh'],'','','','卷内目录打印',params['userid'],strwhere,strwhere,'')
             when "案卷封面打印"
               txt=fm_print(strwhere,params['print_model'])
+              strwhere=strwhere.gsub("'","")
+              set_rz(params['mlh'],'','','','案卷封面打印',params['userid'],strwhere,strwhere,'')
+            when "备考表打印"
+              czlist=User.find_by_sql("insert into d_cz_list(czzt,czmc) values(0,'备考表打印')  RETURNING id;")
+              #czlist[0]['id'].to_s
+              if (params['bgqx'].nil? || params['bgqx']=='')
+                params['bgqx']="''"
+              end
+              if (params['nd'].nil?)
+                params['nd']="''"
+              end
+              if (params['nd']=='' )
+                params['nd']="''"
+              end
+              if (params['mlh']=='' || params['mlh'].nil?)
+                params['mlh']="''"
+              end
+              if (params['jgwth']=='' || params['jgwth'].nil?)
+                params['jgwth']="''"
+              end
+
+              puts "ruby ./dady/bin/print_bkb.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']}　#{czlist[0]['id']}"
+              text=system("ruby ./dady/bin/print_bkb.rb #{czlist[0]['id']} #{params['dalb']} #{params['qzh']} #{params['mlh']} #{params['qajh']} #{params['zajh']} #{params['nd']} #{params['jgwth']} #{params['bgqx']} #{czlist[0]['id']}　　&" )
+              txt="success:#{czlist[0]['id']}"
+              strwhere=strwhere.gsub("'","")
+              set_rz(params['mlh'],'','','','备考表打印',params['userid'],strwhere,strwhere,'')
             end
           end
         end
@@ -4990,13 +5064,15 @@ class DesktopController < ApplicationController
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
                     end
-                    tm=split_string(user[i]['tdzl'],14)
-                    strtm=tm.split("\n")
-                    intheight=tdzl_wz[1].to_i
-                    intheight1=0
-                    for j in 0..strtm.length-1
-                      intheight1=intheight+ j*tdzl_wz[3].to_i
-                      convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzl_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                    if !user[i]['tdzl'].nil?
+                      tm=split_string(user[i]['tdzl'],14)
+                      strtm=tm.split("\n")
+                      intheight=tdzl_wz[1].to_i
+                      intheight1=0
+                      for j in 0..strtm.length-1
+                        intheight1=intheight+ j*tdzl_wz[3].to_i
+                        convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzl_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                      end
                     end
                   end
                   
@@ -5013,13 +5089,15 @@ class DesktopController < ApplicationController
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzh_wz[3]} -draw \"text #{tdzh_wz[0]},#{tdzh_wz[1]} '#{user[i]['tdzh']}'\""
                     end
-                    tm=split_string(user[i]['tdzh'],14)
-                    strtm=tm.split("\n")
-                    intheight=tdzh_wz[1].to_i
-                    intheight1=0
-                    for j in 0..strtm.length-1
-                      intheight1=intheight+ j*tdzh_wz[3].to_i
-                      convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzh_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                    if !user[i]['tdzh'].nil?
+                      tm=split_string(user[i]['tdzh'],14)
+                      strtm=tm.split("\n")
+                      intheight=tdzh_wz[1].to_i
+                      intheight1=0
+                      for j in 0..strtm.length-1
+                        intheight1=intheight+ j*tdzh_wz[3].to_i
+                        convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzh_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                      end
                     end
                   end
                   
@@ -5038,16 +5116,18 @@ class DesktopController < ApplicationController
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
                     end
-                    tm=split_string(user[i]['tdzl'],14)
-                    strtm=tm.split("\n")
-                    intheight=tdzl_wz[1].to_i
-                    intheight1=0
-                    if strtm.length>1
-                      intheight=intheight.to_i-tdzl_wz[3].to_i
-                    end
-                    for j in 0..strtm.length-1
-                      intheight1=intheight+ j*tdzl_wz[3].to_i
-                      convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzl_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                    if !user[i]['tdzl'].nil?
+                      tm=split_string(user[i]['tdzl'],14)
+                      strtm=tm.split("\n")
+                      intheight=tdzl_wz[1].to_i
+                      intheight1=0
+                      if strtm.length>1
+                        intheight=intheight.to_i-tdzl_wz[3].to_i
+                      end
+                      for j in 0..strtm.length-1
+                        intheight1=intheight+ j*tdzl_wz[3].to_i
+                        convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzl_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                      end
                     end
                   end
                   
@@ -5064,16 +5144,18 @@ class DesktopController < ApplicationController
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzh_wz[3]} -draw \"text #{tdzh_wz[0]},#{tdzh_wz[1]} '#{user[i]['tdzh']}'\""
                     end
-                    tm=split_string(user[i]['tdzh'],14)
-                    strtm=tm.split("\n")
-                    intheight=tdzh_wz[1].to_i
-                    intheight1=0
-                    if strtm.length>1
-                      intheight=intheight.to_i-tdzh_wz[3].to_i
-                    end
-                    for j in 0..strtm.length-1
-                      intheight1=intheight+ j*tdzh_wz[3].to_i
-                      convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzh_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                    if !user[i]['tdzh'].nil?
+                      tm=split_string(user[i]['tdzh'],14)
+                      strtm=tm.split("\n")
+                      intheight=tdzh_wz[1].to_i
+                      intheight1=0
+                      if strtm.length>1
+                        intheight=intheight.to_i-tdzh_wz[3].to_i
+                      end
+                      for j in 0..strtm.length-1
+                        intheight1=intheight+ j*tdzh_wz[3].to_i
+                        convertstr =convertstr + " -pointsize #{qlrmc_wz[3]}  -draw \"text #{tdzh_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
+                      end
                     end
                   end
                   
@@ -5111,12 +5193,22 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/STZHONGS.ttf"
                 else
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
-                end
+                end            
+                
                 if kyqr_wz[4]=='是'  
-                  bt=kyqr_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{kyqr_wz[3]} -draw \"text #{bt},#{kyqr_wz[1]} '矿业权人：'\" -pointsize #{kyqr_wz[3]} -draw \"text #{kyqr_wz[0]},#{kyqr_wz[1]} '#{user[i]['kyqr']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{kyqr_wz[3]} -draw \"text #{kyqr_wz[0]},#{kyqr_wz[1]} '#{user[i]['kyqr']}'\""
+                  bt=kyqr_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{kyqr_wz[3]} -draw \"text #{bt},#{kyqr_wz[1]} '矿业权人：'\" "
+                end
+                if user[i]['kyqr'].nil?
+                  user[i]['kyqr']=''
+                end
+                tm=split_string(user[i]['kyqr'],14)
+                strtm=tm.split("\n")
+                intheight=kyqr_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*kyqr_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{kyqr_wz[3]}  -draw \"text #{kyqr_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if xxkz_wz.size.to_i>0
@@ -5125,11 +5217,22 @@ class DesktopController < ApplicationController
                 else
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
+                
+                
                 if xxkz_wz[4]=='是'  
-                  bt=xxkz_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{xxkz_wz[3]} -draw \"text #{bt},#{xxkz_wz[1]} '现许可证：'\" -pointsize #{xxkz_wz[3]} -draw \"text #{xxkz_wz[0]},#{xxkz_wz[1]} '#{user[i]['xxkz']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{xxkz_wz[3]} -draw \"text #{xxkz_wz[0]},#{xxkz_wz[1]} '#{user[i]['xxkz']}'\""
+                  bt=xxkz_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{xxkz_wz[3]} -draw \"text #{bt},#{xxkz_wz[1]} '现许可证：'\" "
+                end
+                if user[i]['xxkz'].nil?
+                  user[i]['xxkz']=''
+                end
+                tm=split_string(user[i]['xxkz'],14)
+                strtm=tm.split("\n")
+                intheight=xxkz_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*xxkz_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{xxkz_wz[3]}  -draw \"text #{xxkz_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if ksmc_wz.size.to_i>0
@@ -5138,11 +5241,21 @@ class DesktopController < ApplicationController
                 else
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
+               
                 if ksmc_wz[4]=='是'  
-                  bt=ksmc_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{ksmc_wz[3]} -draw \"text #{bt},#{ksmc_wz[1]} '矿山名称：'\" -pointsize #{ksmc_wz[3]} -draw \"text #{ksmc_wz[0]},#{ksmc_wz[1]} '#{user[i]['ksmc']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{ksmc_wz[3]} -draw \"text #{ksmc_wz[0]},#{ksmc_wz[1]} '#{user[i]['ksmc']}'\""
+                  bt=ksmc_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{ksmc_wz[3]} -draw \"text #{bt},#{ksmc_wz[1]} '矿山名称：'\" "
+                end
+                if user[i]['ksmc'].nil?
+                  user[i]['ksmc']=''
+                end
+                tm=split_string(user[i]['ksmc'],14)
+                strtm=tm.split("\n")
+                intheight=ksmc_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*ksmc_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{ksmc_wz[3]}  -draw \"text #{ksmc_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if kswz_wz.size.to_i>0
@@ -5151,11 +5264,21 @@ class DesktopController < ApplicationController
                 else
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
+                
                 if kswz_wz[4]=='是'  
-                  bt=kswz_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{kswz_wz[3]} -draw \"text #{bt},#{kswz_wz[1]} '矿山位置：'\" -pointsize #{kswz_wz[3]} -draw \"text #{kswz_wz[0]},#{kswz_wz[1]} '#{user[i]['kswz']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{kswz_wz[3]} -draw \"text #{kswz_wz[0]},#{kswz_wz[1]} '#{user[i]['kswz']}'\""
+                  bt=kswz_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{kswz_wz[3]} -draw \"text #{bt},#{kswz_wz[1]} '矿山位置：'\" "
+                end
+                if user[i]['kswz'].nil?
+                  user[i]['kswz']=''
+                end
+                tm=split_string(user[i]['kswz'],14)
+                strtm=tm.split("\n")
+                intheight=kswz_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*kswz_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{kswz_wz[3]}  -draw \"text #{kswz_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if kz_wz.size.to_i>0
@@ -5165,10 +5288,19 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
                 if kz_wz[4]=='是'  
-                  bt=kz_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{kz_wz[3]} -draw \"text #{bt},#{kz_wz[1]} '矿    种：'\" -pointsize #{kz_wz[3]} -draw \"text #{kz_wz[0]},#{kz_wz[1]} '#{user[i]['kz']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{kz_wz[3]} -draw \"text #{kz_wz[0]},#{kz_wz[1]} '#{user[i]['kz']}'\""
+                  bt=kz_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{kz_wz[3]} -draw \"text #{bt},#{kz_wz[1]} '矿    种：'\" "
+                end
+                if user[i]['kz'].nil?
+                  user[i]['kz']=''
+                end
+                tm=split_string(user[i]['kz'],14)
+                strtm=tm.split("\n")
+                intheight=kz_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*kz_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{kz_wz[3]}  -draw \"text #{kz_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               
@@ -5179,10 +5311,22 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
                 if djlx_wz[4]=='是'  
-                  bt=djlx_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{djlx_wz[3]} -draw \"text #{bt},#{djlx_wz[1]} '登记类型：'\" -pointsize #{djlx_wz[3]} -draw \"text #{djlx_wz[0]},#{djlx_wz[1]} '#{user[i]['djlx']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{djlx_wz[3]} -draw \"text #{djlx_wz[0]},#{djlx_wz[1]} '#{user[i]['djlx']}'\""
+                  bt=djlx_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{djlx_wz[3]} -draw \"text #{bt},#{djlx_wz[1]} '登记类型：'\" "
+                  #convertstr=convertstr +" -pointsize #{djlx_wz[3]} -draw \"text #{bt},#{djlx_wz[1]} '登记类型：'\" -pointsize #{djlx_wz[3]} -draw \"text #{djlx_wz[0]},#{djlx_wz[1]} '#{user[i]['djlx']}'\""
+                #else
+                  #convertstr=convertstr +" -pointsize #{djlx_wz[3]} -draw \"text #{djlx_wz[0]},#{djlx_wz[1]} '#{user[i]['djlx']}'\""
+                end
+                if user[i]['djlx'].nil?
+                  user[i]['djlx']=''
+                end
+                tm=split_string(user[i]['djlx'],14)
+                strtm=tm.split("\n")
+                intheight=djlx_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*djlx_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{djlx_wz[3]}  -draw \"text #{djlx_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
               if yxqx_wz.size.to_i>0
@@ -5192,10 +5336,19 @@ class DesktopController < ApplicationController
                   convertstr=convertstr + " -font ./dady/SimHei.ttf"
                 end
                 if yxqx_wz[4]=='是'  
-                  bt=yxqx_wz[0].to_i-600       
-                  convertstr=convertstr +" -pointsize #{yxqx_wz[3]} -draw \"text #{bt},#{yxqx_wz[1]} '有效期限：'\" -pointsize #{yxqx_wz[3]} -draw \"text #{yxqx_wz[0]},#{yxqx_wz[1]} '#{user[i]['yxqx']}'\""
-                else
-                  convertstr=convertstr +" -pointsize #{yxqx_wz[3]} -draw \"text #{yxqx_wz[0]},#{yxqx_wz[1]} '#{user[i]['yxqx']}'\""
+                  bt=yxqx_wz[0].to_i-400
+                  convertstr=convertstr +" -pointsize #{yxqx_wz[3]} -draw \"text #{bt},#{yxqx_wz[1]} '有效期限：'\" "
+                end
+                if user[i]['yxqx'].nil?
+                  user[i]['yxqx']=''
+                end
+                tm=split_string(user[i]['yxqx'],14)
+                strtm=tm.split("\n")
+                intheight=yxqx_wz[1].to_i
+                intheight1=0
+                for j in 0..strtm.length-1
+                  intheight1=intheight+ j*yxqx_wz[3].to_i
+                  convertstr =convertstr + " -pointsize #{yxqx_wz[3]}  -draw \"text #{yxqx_wz[0]}, #{intheight1} '#{strtm[j]}'\" "
                 end
               end
             else
@@ -5762,6 +5915,96 @@ class DesktopController < ApplicationController
     return txt
   end
   
+  #备考表打印
+  def bkb_print(strwhere)
+    pdfsize=""
+    qksmwz=[]
+    case (params['dalb']) 
+ 		 when "24"
+ 		  #年度_机构问题号_保管期限 		             
+       user = User.find_by_sql("select ljr,ljsj,jcr,qksm,archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive , a_wsda,d_bkb    #{strwhere} and archive.id=a_wsda.ownerid and archive.id=d_bkb.ownerid        order by nd,bgqx,jgwth,jh ;")
+ 		 else
+ 			 user = User.find_by_sql("select ljr,ljsj,jcr,qksm,archive.* from archive,d_bkb  #{strwhere} and d_bkb.ownerid=archive.id order by ajh ;")
+   	end
+    filenames=""
+    intys=0
+    intts=0
+    intwidth=[]
+    size = user.size;
+    if size.to_i>0
+      for i in 0..size-1
+        strfilename=""
+        convertstr=""
+        printfilename="bkb.jpg"
+        user[i]['ajh']=user[i]['ajh'].to_i.to_s
+        puts user[i]['ajh'].to_i.to_s            
+       # if ajh_wz.size.to_i>0
+       #   if ajh_wz[2]=='宋体'
+       #     convertstr=convertstr + " -font ./dady/STZHONGS.ttf"
+       #   else
+       #     convertstr=convertstr + " -font ./dady/SimHei.ttf"
+       #   end
+       #   convertstr=convertstr +" -pointsize #{ajh_wz[3]} -draw \"text #{ajh_wz[0]},#{ajh_wz[1]} '#{user[i]['ajh']}'\""
+       # end 
+       if !(user[i]['ljsj'].nil?)
+           #rq=user[i]['ljsj'].strftime("%Y%m%d%H%M%S")
+           rq=user[i]['ljsj'].split(" ")
+           rq1=rq[0].split('-')
+           rq2=rq1[0].to_s + rq1[1].to_s + rq1[2].to_s
+       else
+         rq2=''
+       end
+         puts rq
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text 1137, 3034 '立  卷  人：#{user[i]['ljr']}'\" -pointsize 50 -draw \"text 1137, 3166 '检  查  人：#{user[i]['jcr']}'\"    -pointsize 50  -draw \"text 1137, 3306 '立卷时间：#{rq2}'\"     "       
+        puts convertstr
+        case (params['dalb']) 
+          when "24"
+            convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text 233, 507 '卷内情况说明：（年度：#{user[i]['nd']}保管期限：#{user[i]['bgqx']}机构问题号：#{user[i]['jgwth']}件号：#{user[i]['jh']}）'\" "
+          else  
+            convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text 233, 507 '卷内情况说明：（目录号：#{user[i]['mlh']}分类号：#{user[i]['flh']}案卷号：#{user[i]['ajh']}）'\" " 
+        end
+        tm=split_string(user[i]['qksm'],40)
+        qksmwz<<236
+        qksmwz<<646
+        strtm=tm.split("\n")
+        intheight=qksmwz[1].to_i
+        intheight1=0
+        for j in 0..strtm.length-1
+          intheight1=intheight+ j*50
+          convertstr =convertstr + " -pointsize 50  -draw \"text #{qksmwz[0]}, #{intheight1} '#{strtm[j]}'\" "
+        end                         
+        rq=Time.now.strftime("%Y%m%d%H%M%S")
+        sj=rand(10000)
+        strfilename="./dady/tmp1/bkb" + i.to_s + rq.to_s + sj.to_s + ".jpg"
+        puts strfilename
+        puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
+        system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")
+        
+        if filenames==""
+          filenames="bkb" + i.to_s+ rq.to_s + sj.to_s + ".jpg"
+        else
+          filenames=filenames + "," + "bkb" + i.to_s + rq.to_s + sj.to_s + ".jpg"
+        end
+      end
+      if filenames!=""        
+          files=filenames.split(',')        
+          Prawn::Document.generate("./dady/tmp1/bkb" + i.to_s + rq.to_s + sj.to_s + ".pdf",:page_size   => "A4",
+           :page_layout => :portrait) do 
+            for x in 0..files.length-1            
+              image "./dady/tmp1/" + files[x], :at => [-40,800], :width => 600, :height => 800
+              if x<files.length-1
+                start_new_page(:size => "A4", :layout => :portrait)
+              end
+            end
+          end
+      end
+      txt="success:" +"/assets/dady/tmp1/bkb" + i.to_s + rq.to_s + sj.to_s + ".pdf"
+    else            
+      txt = "无此条件的数据，请重新输入条件。"
+    end
+
+    return txt
+  end
   
   
   def split_string(text, length=16)
@@ -5805,6 +6048,8 @@ class DesktopController < ApplicationController
   #更新卷内目录
   def update_document
     dh=params['dh'].split('-')
+    strczqnr=""
+    
     if dh[1]=='20'
       if (params['psrq']=="")
         params['psrq']='null'
@@ -5812,12 +6057,19 @@ class DesktopController < ApplicationController
         params['psrq']="TIMESTAMP '#{params['psrq']}'"
       end
       if !(params['zph']=="")
+          czqnr=User.find_by_sql("select * from a_zp,document where document.id=a_zp.ownerid and  document.ownerid='#{params['ownerid']}' and a_zp.zph='#{params['zph']}';")
+          if czqnr.size>0
+            strczqnr=czqnr[0].as_json
+          else
+            strczqnr=''
+          end
           user=User.find_by_sql("select * from a_zp,document where document.id=a_zp.ownerid and  document.ownerid='#{params['ownerid']}' and a_zp.zph='#{params['zph']}' and a_zp.id<>#{params['zpid']} ;")
           size = user.size
           if size == 0
             #if params['pzrq']=='null'
               User.find_by_sql("update document set tm='#{params['tm']}',  yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq=#{params['psrq']}, dh='#{params['dh']}' where id = #{params['id']};")
               User.find_by_sql("update a_zp set zph='#{params['zph']}',bj='#{params['bj']}',  rw='#{params['rw']}', sy='#{params['sy']}', psz='#{params['psz']}', dd='#{params['dd']}', psrq=#{params['psrq']} where id = #{params['zpid']};")
+              strczhnr="'#{params['tm']}','#{params['yh']}','#{params['bz']}',#{params['psrq']},'#{params['dh']}','#{params['zph']}','#{params['psz']}','#{params['sy']}','#{params['dd']}','#{params['rw']}','#{params['bj']}',#{params['psrq']}"
            # else
            #   User.find_by_sql("update document set tm='#{params['tm']}',  yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq='#{params['psrq']}', dh='#{params['dh']}' where id = #{params['id']};")
            #   User.find_by_sql("update a_zp set zph='#{params['zph']}',bj='#{params['bj']}',  rw='#{params['rw']}', sy='#{params['sy']}', psz='#{params['psz']}', dd='#{params['dd']}', psrq='#{params['psrq']}' where id = #{params['zpid']};")
@@ -5838,11 +6090,18 @@ class DesktopController < ApplicationController
       end
       if !(params['sxh']=="")
         if (params['sxh']==params['sxh'].to_i.to_s)
+          czqnr=User.find_by_sql("select * from document where  ownerid='#{params['ownerid']}' and sxh=#{params['sxh']};")
+          if czqnr.size>0
+            strczqnr=czqnr[0].as_json
+          else
+            strczqnr=''
+          end
           user=User.find_by_sql("select * from document where  ownerid='#{params['ownerid']}' and sxh=#{params['sxh']} and id<>#{params['id']} ;")
           size = user.size
           if size == 0
             #if params['rq']=='null'
               User.find_by_sql("update document set tm='#{params['tm']}', sxh=#{params['sxh']}, yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq=#{params['rq']}, dh='#{params['dh']}' where id = #{params['id']};")
+              strczhnr="'#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}',#{params['rq']},'#{params['dh']}',#{params['ownerid']}"
            # else
            #   User.find_by_sql("update document set tm='#{params['tm']}', sxh=#{params['sxh']}, yh='#{params['yh']}', wh='#{params['wh']}', zrz='#{params['zrz']}', bz='#{params['bz']}', rq='#{params['rq']}', dh='#{params['dh']}' where id = #{params['id']};")
            # end
@@ -5857,7 +6116,11 @@ class DesktopController < ApplicationController
         txt='false:顺序号不能为空，请重新输入。'
       end
     end
-    
+    if txt == 'success'
+      archive=User.find_by_sql("select * from archive where  id='#{params['ownerid']}';")
+      strczhnr=strczhnr.gsub("'","")
+      set_rz(archive[0]['mlh'],'','','','卷内修改',params['userid'],strczqnr,strczhnr,params['dh'])
+    end
     render :text => txt
     
 
@@ -5869,6 +6132,7 @@ class DesktopController < ApplicationController
   #新增卷内目录
   def insert_document
     dh=params['dh'].split('-')
+    strczhnr=''
     if dh[1]=='20'
       if (params['psrq']=="")
         params['psrq']='null'
@@ -5883,6 +6147,7 @@ class DesktopController < ApplicationController
             #if params['psrq']=='null'
               id=User.find_by_sql("insert into document(tm,yh,bz,rq,dh,ownerid) values('#{params['tm']}','#{params['yh']}','#{params['bz']}',#{params['psrq']},'#{params['dh']}',#{params['ownerid']})  RETURNING id; ")
               User.find_by_sql("insert into a_zp(zph,psz,sy,dd,rw,bj,psrq,ownerid) values('#{params['zph']}','#{params['psz']}','#{params['sy']}','#{params['dd']}','#{params['rw']}','#{params['bj']}',#{params['psrq']},'#{id[0]['id']}') ")
+              strczhnr="'#{params['tm']}','#{params['yh']}','#{params['bz']}',#{params['psrq']},'#{params['dh']}','#{params['zph']}','#{params['psz']}','#{params['sy']}','#{params['dd']}','#{params['rw']}','#{params['bj']}',#{params['psrq']},'#{id[0]['id']}'"
            # else
            #   id=User.find_by_sql("insert into document(tm,yh,bz,rq,dh,ownerid) values('#{params['tm']}','#{params['yh']}','#{params['bz']}','#{params['psrq']}','#{params['dh']}',#{params['ownerid']})  RETURNING id; ")
            #   User.find_by_sql("insert into a_zp(zph,psz,sy,dd,rw,bj,psrq,ownerid) values('#{params['zph']}','#{params['psz']}','#{params['sy']}','#{params['dd']}','#{params['rw']}','#{params['bj']}','#{params['psrq']}','#{id[0]['id']}') ")
@@ -5909,7 +6174,8 @@ class DesktopController < ApplicationController
           if size == 0
             #if params['rq']=='null'
               User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}',#{params['rq']},'#{params['dh']}',#{params['ownerid']}) ")
-           # else
+              strczhnr="'#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}',#{params['rq']},'#{params['dh']}',#{params['ownerid']}"
+          # else
            #   User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,bz,rq,dh,ownerid) values('#{params['tm']}',#{params['sxh']},'#{params['yh']}','#{params['wh']}','#{params['zrz']}','#{params['bz']}','#{params['rq']}','#{params['dh']}',#{params['ownerid']}) ")
            # end
             txt = 'success'
@@ -5923,11 +6189,18 @@ class DesktopController < ApplicationController
         txt='false:顺序号不能为空，请重新输入。'
       end
     end
+    if txt == 'success'
+      archive=User.find_by_sql("select * from archive where  id='#{params['ownerid']}';")
+      strczhnr=strczhnr.gsub("'","")
+      set_rz(archive[0]['mlh'],'','','','卷内新增',params['userid'],"",strczhnr,params['dh'])
+    end
     render :text => txt
   end
   
   #新增卷内目录_模板方式
   def insert_document_model
+    archive=User.find_by_sql("select * from archive where  id='#{params['ownerid']}';")
+    strczhnr=""
     if !(params['dh']=="")
       if !(params['ownerid']=="")
         insert_sql=params['save_sql'].split('$')
@@ -5937,9 +6210,13 @@ class DesktopController < ApplicationController
             save_sql=insert_sql[k].split('@')
             if save_sql[3]=='null'
               User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,rq,dh,ownerid) values('#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}',#{save_sql[3]},'#{params['dh']}',#{params['ownerid']}) ")
+              strczhnr="'#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}',#{save_sql[3]},'#{params['dh']}',#{params['ownerid']}"
             else
               User.find_by_sql("insert into document(tm,sxh,yh,wh,zrz,rq,dh,ownerid) values('#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}','#{save_sql[3]}','#{params['dh']}',#{params['ownerid']}) ")
-            end
+              strczhnr="'#{save_sql[2]}',#{k+1},'#{save_sql[4]}','#{save_sql[0]}','#{save_sql[1]}','#{save_sql[3]}','#{params['dh']}',#{params['ownerid']}"
+            end            
+            strczhnr=strczhnr.gsub("'","")
+            set_rz(archive[0]['mlh'],'','','','卷内新增',params['userid'],"",strczhnr,params['dh'])
           end
           txt = 'success'
         else
@@ -5955,7 +6232,14 @@ class DesktopController < ApplicationController
   end
 
   	#删除卷内目录
-  def delete_document
+  def delete_document    
+    jr=User.find_by_sql("select * from document  where id = #{params['id']};")
+    dh=User.find_by_sql("select * from archive  where id = #{jr[0]['ownerid']};")
+    if jr.size>0
+      for k in 0..jr.size-1
+          set_rz(dh[0]['mlh'],'','','','卷内删除',params['userid'],jr[k].as_json,'',dh[0]['dh'])
+      end
+    end
     User.find_by_sql("delete from document  where id = #{params['id']};")
     render :text => 'Success'
   end
@@ -7014,6 +7298,8 @@ class DesktopController < ApplicationController
     dalb=dh[1]
     sort=get_users_sort(params['userid'],dalb.to_s + "_id",'1')
     if sort=="success"
+      archive= User.find_by_sql("select * from archive where dh='#{params['dh']}';")
+      set_rz(archive[0]['mlh'],'','','','影像删除',params['userid'],params['yxmc'],params['yxmc'],params['dh'])      
       user = User.find_by_sql("delete from timage where dh = '#{params['dh']}' and yxbh='#{params['yxmc']}';")
       yxbh=params['yxmc'].split('.')
       if  yxbh[0].length==4
@@ -7024,6 +7310,7 @@ class DesktopController < ApplicationController
             if yxbh2[0].to_i.to_s.rjust(4,"0")==yxbh2[0] && yxbh2[0].length==4
               yxbh1=(yxbh[0].to_i+k.to_i).to_s.rjust(4,"0") + "." + yxbh2[1]
               User.find_by_sql("update timage set yxbh='#{yxbh1}',yxmc='#{yxbh1}' where id = #{delimage[k]['id']} ;")
+              set_rz(archive[0]['mlh'],'','','','影像改名',params['userid'],delimage[k]['yxbh'],yxbh1,params['dh']) 
             end
           end
         end
@@ -7040,6 +7327,13 @@ class DesktopController < ApplicationController
     dalb=dh[1]
     sort=get_users_sort(params['userid'],dalb.to_s + "_id",'1')
     if sort=="success"
+      yx=User.find_by_sql("select yxmc from timage  where dh = '#{params['dh']}';")
+      archive=User.find_by_sql("select * from archive  where dh = '#{params['dh']}';")
+	    if yx.size>0
+	      for k in 0..yx.size-1
+            set_rz(archive[0]['mlh'],'','','','影像删除',params['userid'],yx[k]['yxmc'],yx[k]['yxmc'],params['dh'])
+        end
+      end
       user = User.find_by_sql("delete from timage where dh = '#{params['dh']}' ;")
       txt="success"
     else
@@ -8498,6 +8792,7 @@ class DesktopController < ApplicationController
        txt = "["
        for k in 0..user.size-1
          txt = txt + user[k].to_json + ','
+         set_rz(user[0]['mlh'],'','','','案卷查看',params['userid'],user[k].as_json,'',params['dh']) 
        end
        txt = txt[0..-2] + "]"
       else
@@ -8751,8 +9046,9 @@ class DesktopController < ApplicationController
       filenames=""
       intys=0
       intts=0
+      qzfilename=""
       intwidth=[]
-      user=User.find_by_sql("select *,jylist.daid from jylc,jylist #{strwhere} and jylc.id=jylist.jyid order by jysj;")
+      user=User.find_by_sql("select jylc.*,jylist.daid from jylc,jylist #{strwhere} and jylc.id=jylist.jyid order by jysj;")
       size = user.size;
       if size.to_i>0 
         intys=(size.to_i/6).to_i
@@ -8817,14 +9113,40 @@ class DesktopController < ApplicationController
               end                              
             end
             if !(user[i+k*6]['jyr'].nil?)  
-              tm=split_string(user[i+k*6]['jyr'],5)
-              strtm=tm.split("\n")
-              intheight1=0
-              for j in 0..strtm.length-1
-                intheight1=intheight+ j*50
-                convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight1} '#{strtm[j]}'\" "
-              end                              
+              #tm=split_string(user[i+k*6]['jyr'],5)
+              #strtm=tm.split("\n")
+              #intheight1=0
+              #for j in 0..strtm.length-1
+              #  intheight1=intheight+ j*50
+              #  convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight1} '#{strtm[j]}'\" "
+              #end 
+              
+                                          
             end  
+            if zt!='1'
+              qzimage=User.find_by_sql("select * from qz_image where jyid=#{user[i+k*6]['id']};")
+              if qzimage.size>0
+                   
+                tmpfile = rand(36**10).to_s(36)
+                rq=Time.now.strftime("%Y%m%d%H%M%S")  
+                sj=rand(10000)
+                convert_filename = "./dady/img_tmp/qz" + rq.to_s  + sj.to_s + ".jpg"
+                ff = File.open(convert_filename,'w')
+                ff.write(qzimage[0]["data"])
+                ff.close
+                if qzfilename!=""
+                  qzfilename=qzfilename + convert_filename + "," 
+                else
+                  qzfilename=convert_filename + "," 
+                end
+              else
+                if qzfilename!=""
+                  qzfilename=qzfilename + "," 
+                else
+                  qzfilename=","
+                end
+              end
+            end
             if zt=='1'
               if !(user[i+k*6]['zj'].nil?)  
                 tm=split_string(user[i+k*6]['zj'],6)
@@ -8854,7 +9176,7 @@ class DesktopController < ApplicationController
                 tm=split_string(archive[0]['tm'],14)
                 strtm=tm.split("\n")
                 intheight1=0
-                for j in 0..strtm.length-1
+                for j in 0..4
                   intheight1=intheight+ j*50
                   convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
                 end                
@@ -8881,13 +9203,49 @@ class DesktopController < ApplicationController
           puts strfilename
           puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
           system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")
+          if zt!='1'
+            puts qzfilename
+            qzfile=qzfilename.split(',')
+            x=2353
+            y=485
+            for xx in 0..5
+              if qzfile[xx]!=""
+                y1=y.to_i + xx.to_i*289   
+                puts "composite -geometry '800x150+" + x.to_s + "+" + y1.to_s + "'  #{qzfile[xx]} #{strfilename} #{strfilename}"       
+                system("composite -geometry '800x150+" + x.to_s + "+" + y1.to_s + "'  #{qzfile[xx]} #{strfilename} #{strfilename}")
+              end
+            end
+            qzfilename=''
+          end
+          
+          
           if filenames==""
             filenames="jydjb" + k.to_s + ".jpg"
           else
             filenames=filenames + "," + "jydjb" + k.to_s + ".jpg"
           end        
         end
-        txt="success:" + filenames
+        files=filenames.split(',')
+       # Prawn::Document.generate("./dady/tmp1/jydjb" + k.to_s + ".pdf") do 
+       #   for x in 0..files.length-1
+       #     #image files[x],:at => [-20,740], :width => 580, :height => 780            
+       #     image "./dady/tmp1/" + files[x], :at => [-40,770], :width => 600, :height => 800
+       #     if x<files.length-1
+       #       start_new_page
+       #     end
+       #   end
+       # end
+       Prawn::Document.generate("./dady/tmp1/jydjb" + k.to_s + ".pdf",:page_size   => "A4",
+        :page_layout => :landscape) do 
+         for x in 0..files.length-1            
+           image "./dady/tmp1/" + files[x], :at => [-40,550], :width => 850, :height => 600
+           if x<files.length-1
+             start_new_page(:size => "A4", :layout => :landscape)
+           end
+         end
+       end
+        txt="success:" + "assets/dady/tmp1/jydjb" + k.to_s + ".pdf"
+        #txt="success:" + filenames
       else
         txt="无统计结果。"
       end
@@ -8986,6 +9344,12 @@ class DesktopController < ApplicationController
         convertstr=convertstr +" -pointsize 50 -draw \"text 874,438 '#{params['nd']}'\""
         convertstr=convertstr +" -pointsize 50 -draw \"text 567,2113 '#{params['nd']}'\""
         dalb= User.find_by_sql("select * from d_dalb where not(lbdm is null) order by sx;")
+        xls='<table　border="1" cellpadding="0" bordercolorlight="#999999" bordercolordark="#FFFFFF"　cellspacing="0" align="center">'
+        xls=xls + '<tr height="40"><th style="text-align: center" colspan="9"><font size = 5>'+ dwdm[0]['dwdm'] + '</font></th></tr>'
+        xls=xls + '<tr height="28"><th style="text-align: center" colspan="9"><font size = 4>'+ params['nd'].to_s + '年度档案分类统计表</font></th></tr>'
+        xls=xls + '<tr height="28"><th style="text-align: center" colspan="5"><font size = 4>'+ params['nd'].to_s + '年国土资源档案统计</font></th><th style="text-align: center" colspan="4"><font size = 4>国土资源档案累计统计</font></th></tr>'
+        xls=xls + '<tr height="28"><td width="180" >档案类别         </td><td width="90">小计        </td><td width="90">永久      </td><td width="90">长期        </td><td width="90">短期       </td><td width="90">累计         </td><td width="90">永久           </td><td width="90">长期        </td><td width="90">短期         </td></tr>'
+        
         intwidth<<1182
         intwidth<<1410
         intwidth<<1632
@@ -9015,10 +9379,12 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
+            xls=xls + '<tr height="28"><td>'+ dalb[k]['lbdm'].to_s + '.' + dalb[k]['lbmc'].to_s + '</td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
+            
             if dalb[k]['id'].to_i==2
-              datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='25年' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and (bgqx='15年' or bgqx='5年') and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+              datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='25年' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and (bgqx='15年' or bgqx='5年') and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
             else
-              datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='长期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='短期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+              datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='长期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='短期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
             end
             hj=hj+datj[0]['count'].to_i
             yj=yj+datj[0]['yj'].to_i
@@ -9028,6 +9394,7 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "                    
+            xls=xls + '<td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td></tr>'
           else
             datj=User.find_by_sql("select count(*),(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='长期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='短期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}')  and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
             bnhj=bnhj+datj[0]['count'].to_i
@@ -9038,7 +9405,8 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
-            datj=User.find_by_sql("select count(*),(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='长期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='短期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+            xls=xls + '<tr height="28"><td>'+ dalb[k]['lbdm'].to_s + '.' + dalb[k]['lbmc'].to_s + '</td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
+            datj=User.find_by_sql("select count(*),(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='长期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and bgqx='短期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where cast(dalb as integer) in (select id from d_dalb where ownerid='#{dalb[k]['id']}') and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
             hj=hj+datj[0]['count'].to_i
             yj=yj+datj[0]['yj'].to_i
             cq=cq+datj[0]['cq'].to_i
@@ -9047,43 +9415,62 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+            xls=xls + '<td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td></tr>'
+          
           end
         end
-        intheight= 8*78+762
-        datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='20' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='20' and bgqx='长期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='20' and bgqx='短期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='20' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
-        if datj[0]['sum']==nil
-          datj[0]['sum']='0'
-        end
-        if datj[0]['yj']==nil
-          datj[0]['yj']='0'
-        end
-        if datj[0]['cq']==nil
-          datj[0]['cq']='0'
-        end
-        if datj[0]['dq']==nil
-          datj[0]['dq']='0'
-        end
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[0]}, #{intheight} '#{datj[0]['sum'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
-        datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='20' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='20' and bgqx='长期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='20' and bgqx='短期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='20' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
-        if datj[0]['sum']==nil
-          datj[0]['sum']='0'
-        end
-        if datj[0]['yj']==nil
-          datj[0]['yj']='0'
-        end
-        if datj[0]['cq']==nil
-          datj[0]['cq']='0'
-        end
-        if datj[0]['dq']==nil
-          datj[0]['dq']='0'
-        end
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight} '#{datj[0]['sum'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+       
+        convertstr =convertstr + " -pointsize 50  -draw \"text 609, 2236 '#{bnhj.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 1194, 2278 '#{bnyj.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 1384,2278 '#{bncq.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 1552, 2278 '#{bndq.to_s.center 7}'\" " 
+        xls=xls + '<tr height="28"><td><font size = 4>合计：</font></td><td>'+bnhj.to_s+'</td><td>'+bnyj.to_s+'</td><td>'+bncq.to_s+'</td><td>'+bndq.to_s+'</td>'
+
+       # hj=hj.to_i + bnhj.to_i
+       # yj=yj.to_i + bnyj.to_i
+       # cq=cq.to_i + bncq.to_i
+       # dq=dq.to_i + bndq.to_i
+        convertstr =convertstr + " -pointsize 50  -draw \"text 1836, 2236 '#{hj.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 2402, 2278 '#{yj.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 2587, 2278 '#{cq.to_s.center 7}'\" " 
+        convertstr =convertstr + " -pointsize 50  -draw \"text 2764, 2278 '#{dq.to_s.center 7}'\" "
+        xls=xls + '<td>'+hj.to_s+'</td><td>'+yj.to_s+'</td><td>'+cq.to_s+'</td><td>'+dq.to_s+'</td></tr>'
+       # intheight= 8*78+762
+       # datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='20' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='20' and bgqx='长期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='20' and bgqx='短期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='20' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
+       # if datj[0]['sum']==nil
+       #   datj[0]['sum']='0'
+       # end
+       # if datj[0]['yj']==nil
+       #   datj[0]['yj']='0'
+       # end
+       # if datj[0]['cq']==nil
+       #   datj[0]['cq']='0'
+       # end
+       # if datj[0]['dq']==nil
+       #   datj[0]['dq']='0'
+       # end
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[0]}, #{intheight} '#{datj[0]['sum'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
+       # datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='20' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='20' and bgqx='长期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='20' and bgqx='短期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='20' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+       # if datj[0]['sum']==nil
+       #   datj[0]['sum']='0'
+       # end
+       # if datj[0]['yj']==nil
+       #   datj[0]['yj']='0'
+       # end
+       # if datj[0]['cq']==nil
+       #   datj[0]['cq']='0'
+       # end
+       # if datj[0]['dq']==nil
+       #   datj[0]['dq']='0'
+       # end
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight} '#{datj[0]['sum'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+        
         intheight= 9*78+762
         datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='18' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='18' and bgqx='长期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='18' and bgqx='短期' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='18' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
         if datj[0]['sum']==nil
@@ -9102,7 +9489,9 @@ class DesktopController < ApplicationController
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
-        datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='18' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='18' and bgqx='长期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='18' and bgqx='短期' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='18' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+        xls=xls + '<tr height="28"><td>图件（张数）</td><td>'+datj[0]['sum'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
+        
+        datj=User.find_by_sql("select sum(ys),(select sum(ys) from archive where dalb='18' and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select sum(ys) from archive where dalb='18' and bgqx='长期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select sum(ys) from archive where dalb='18' and bgqx='短期' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='18' and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
         if datj[0]['sum']==nil
           datj[0]['sum']='0'
         end
@@ -9119,7 +9508,28 @@ class DesktopController < ApplicationController
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
-        intheight= 11*78+762
+        xls=xls + '<td>'+datj[0]['sum'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td></tr>'
+        
+       # intheight= 10*78+762
+       # datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb in ('21','35') and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb in ('21','35') and (bgqx='长期' or bgqx='定期-30年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb in ('21','35') and (bgqx='短期' or bgqx='定期-10年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb in ('21','35') and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
+       # bnhj=bnhj+datj[0]['count'].to_i
+       # bnyj=bnyj+datj[0]['yj'].to_i
+       # bncq=bncq+datj[0]['cq'].to_i
+       # bndq=bndq+datj[0]['dq'].to_i
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[0]}, #{intheight} '#{datj[0]['count'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
+       # datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb in ('21','35') and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb in ('21','35') and (bgqx='长期' or bgqx='定期-30年') and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb in ('21','35') and (bgqx='短期' or bgqx='定期-10年') and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb in ('21','35') and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+       # hj=hj+datj[0]['count'].to_i
+       # yj=yj+datj[0]['yj'].to_i
+       # cq=cq+datj[0]['cq'].to_i
+       # dq=dq+datj[0]['dq'].to_i
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight} '#{datj[0]['count'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
+       # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+       # intheight= 11*78+762
         datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
         bnhj=bnhj+datj[0]['count'].to_i
         bnyj=bnyj+datj[0]['yj'].to_i
@@ -9129,7 +9539,9 @@ class DesktopController < ApplicationController
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
-        datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd<'#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd<'#{params['nd']}'");
+        xls=xls + '<tr height="28"><td>文档一体化（件数）</td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
+        
+        datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
         hj=hj+datj[0]['count'].to_i
         yj=yj+datj[0]['yj'].to_i
         cq=cq+datj[0]['cq'].to_i
@@ -9138,8 +9550,9 @@ class DesktopController < ApplicationController
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+        xls=xls + '<td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td></tr>'
         
-        dalb= User.find_by_sql("select * from d_dalb where ownerid='106' ;") 
+        dalb= User.find_by_sql("select * from d_dalb where ownerid='106' and id<>26 and id<>29 ;") 
         for k in 0..dalb.size-1
           case dalb[k]['id'].to_s
           when '26'
@@ -9159,12 +9572,13 @@ class DesktopController < ApplicationController
             bnyj=bnyj+datj[0]['yj'].to_i
             bncq=bncq+datj[0]['cq'].to_i
             bndq=bndq+datj[0]['dq'].to_i
-            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[0]}, #{intheight} '#{datj[0]['count'].center 7}'\" " 
-            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
-            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
-            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+            #convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[0]}, #{intheight} '#{datj[0]['count'].center 7}'\" " 
+            #convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
+            #convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
+            #convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+            xls=xls + '<tr height="28"><td>'+dalb[k]['lbmc'].to_s + '</td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
             
-            datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久'  and nd<'#{params['nd']}'  and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='长期'  and nd<'#{params['nd']}'  and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='短期'  and nd<'#{params['nd']}'  and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and   nd<'#{params['nd']}' and   qzh='#{dwdm[0]['ssqz']}' ");
+            datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久'    and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='长期'    and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='短期'   and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}'  and   qzh='#{dwdm[0]['ssqz']}' ");
             hj=hj+datj[0]['count'].to_i
             yj=yj+datj[0]['yj'].to_i
             cq=cq+datj[0]['cq'].to_i
@@ -9173,6 +9587,8 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+            xls=xls + '<td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td></tr>'
+            
           else
             datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='永久'  and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='长期'  and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='#{dalb[k]['id']}' and bgqx='短期'  and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='#{dalb[k]['id']}' and qzh='#{dwdm[0]['ssqz']}' ");
             hj=hj+datj[0]['count'].to_i
@@ -9183,19 +9599,14 @@ class DesktopController < ApplicationController
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{datj[0]['yj'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
+            xls=xls + '<tr height="28"><td>'+dalb[k]['lbmc'].to_s + '</td><td></td><td></td><td></td><td></td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
+          
           end
         end
         
         
-        convertstr =convertstr + " -pointsize 50  -draw \"text 609, 2236 '#{bnhj.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 1174, 2278 '#{bnyj.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 1344,2278 '#{bncq.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 1512, 2278 '#{bndq.to_s.center 7}'\" " 
-
-        convertstr =convertstr + " -pointsize 50  -draw \"text 1879, 2236 '#{hj.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 2464, 2278 '#{yj.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 2633, 2278 '#{cq.to_s.center 7}'\" " 
-        convertstr =convertstr + " -pointsize 50  -draw \"text 2800, 2278 '#{dq.to_s.center 7}'\" "
+        
+        
         rq=Time.now.strftime("%Y%m%d%H%M%S")
         strfilename="./dady/tmp1/ndtj"  + rq.to_s + ".jpg"
         puts strfilename
@@ -9207,9 +9618,16 @@ class DesktopController < ApplicationController
         puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
         system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")                   
         txt= "success:" + filenames
+        
+        pr_path="./dady"
+        system("rm #{pr_path}/ndtj.xls")
+        ff = File.open(pr_path + "/ndtj.xls" ,'w+')
+        ff.write(xls)
+        ff.close
       else
         txt='登录的用户所属全宗不存在，请先设置用户的所属全宗再进行年度统计。'
       end
+      txt="success:" + "assets/dady/ndtj.xls"
       render :text => txt 
     end
    
@@ -9889,244 +10307,15 @@ class DesktopController < ApplicationController
         end
 
         if (jy_select!='')
-          #count=User.find_by_sql(" #{jy_select} ;")
-          user = User.find_by_sql(" #{jy_select}  ;")
-          filenames=""
-          intys=0
-          intts=0
-          intwidth=[]
-          size = user.size;
-          if size.to_i>0 
-            intys=(size.to_i/10).to_i
-            if intys==size.to_i/10.to_f
-              intys=intys-1
-            end
-            #pdf.save_as("./dady/tmp1/report1.pdf")
-            for k in 0..intys
-              strfilename=""
-              convertstr=""
-              if k==intys
-                intts=size.to_i-intys*10-1
-              else
-                intts=9
-              end
-
-              for i in 0..intts
-                case (ss[1])
-                  when "2"
-                    pdfsize=':at =>[-40,780], :width => 580, :height => 890'
-                    intwidth<<205
-                    intwidth<<398
-                    intwidth<<565
-                    intwidth<<897
-                    intwidth<<1175
-                    intwidth<<2187
-                    intwidth<<2376
-                    intwidth<<2539
-                    intwidth<<2833
-                    intwidth<<3108
-                    intwidth<<3110
-                    printfilename="ajml_swdjb.jpg"
-                    intheight= i*177+589
-                    puts intheight
-                    user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
-                    convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['mj'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['fs'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['swbh'].center 5}'\" "
-                    intheight=intheight-60
-                    if !(user[i+k*10]['wh'].nil?)
-                      tm=split_string(user[i+k*10]['wh'],6)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['lwjg'].nil?)
-                      tm=split_string(user[i+k*10]['lwjg'],5)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['tm'].nil?)
-                      puts tm
-                      tm=split_string(user[i+k*10]['tm'],19)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['blqk'].nil?)
-                      puts tm
-                      tm=split_string(user[i+k*10]['blqk'],5)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['szqm'].nil?)
-                     tm=split_string(user[i+k*10]['szqm'],5)
-                     strtm=tm.split("\n")
-                     intheight1=0
-                     for j in 0..2
-                       intheight1=intheight+ j*50
-                       convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight1} '#{strtm[j]}'\" "
-                     end
-                    end
-                    if !(user[i+k*10]['bz'].nil?)
-                     tm=split_string(user[i+k*10]['bz'],5)
-                     strtm=tm.split("\n")
-                     intheight1=0
-                     for j in 0..2
-                       intheight1=intheight+ j*50
-                       convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight1} '#{strtm[j]}'\" "
-                     end
-                    end
-                  when "3" 
-                    pdfsize=':at =>[-40,780], :width => 580, :height => 890'
-                    intwidth<<205
-                    intwidth<<398
-                    intwidth<<565
-                    intwidth<<897
-                    intwidth<<1175
-                    intwidth<<2071
-                    intwidth<<2225
-                    intwidth<<2365
-                    intwidth<<2610
-                    intwidth<<2855
-                    intwidth<<3098
-                    intwidth<<3110
-                    printfilename="ajml_fwdjb.jpg"
-                    intheight= i*177+589
-                    puts intheight
-                    user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
-                    convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['mj'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['dyfs'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['fwbh'].center 5}'\" "
-                    intheight=intheight-60
-                    if !(user[i+k*10]['wh'].nil?)
-                      tm=split_string(user[i+k*10]['wh'],6)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['zrz'].nil?)
-                      tm=split_string(user[i+k*10]['zrz'],5)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['tm'].nil?)
-                      puts tm
-                      tm=split_string(user[i+k*10]['tm'],17)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['zsdw'].nil?)
-                      puts tm
-                      tm=split_string(user[i+k*10]['zsdw'],5)
-                      strtm=tm.split("\n")
-                      intheight1=0
-                      for j in 0..2
-                        intheight1=intheight+ j*50
-                        convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight1} '#{strtm[j]}'\" "
-                      end
-                    end
-                    if !(user[i+k*10]['cbdw'].nil?)
-                     tm=split_string(user[i+k*10]['cbdw'],5)
-                     strtm=tm.split("\n")
-                     intheight1=0
-                     for j in 0..2
-                       intheight1=intheight+ j*50
-                       convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight1} '#{strtm[j]}'\" "
-                     end
-                    end
-                    if !(user[i+k*10]['xfdw'].nil?)
-                     tm=split_string(user[i+k*10]['xfdw'],5)
-                     strtm=tm.split("\n")
-                     intheight1=0
-                     for j in 0..2
-                       intheight1=intheight+ j*50
-                       convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight1} '#{strtm[j]}'\" "
-                     end
-                    end
-                    if !(user[i+k*10]['bz'].nil?)
-                     tm=split_string(user[i+k*10]['bz'],5)
-                     strtm=tm.split("\n")
-                     intheight1=0
-                     for j in 0..2
-                       intheight1=intheight+ j*50
-                       convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[10]}, #{intheight1} '#{strtm[j]}'\" "
-                     end
-                    end 
-                end                
-              end
-              rq=Time.now.strftime("%Y%m%d%H%M%S")
-              sj=rand(10000)       
-              strfilename="./dady/tmp1/sfbdjb" + k.to_s + rq.to_s + sj.to_s + ".jpg"
-              fn="./dady/tmp1/sfbdjb" + k.to_s + rq.to_s + sj.to_s + "1.jpg"
-              puts strfilename
-              puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
-              system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")
-              system("convert -rotate 90 #{strfilename} #{fn}")
-
-              if filenames==""
-                fns="./dady/tmp1/sfbdjb" + k.to_s + rq.to_s + sj.to_s + "1.jpg"
-                filenames="sfbdjb" + k.to_s + rq.to_s + sj.to_s + ".jpg"
-              else
-                fns=fns + "," + "./dady/tmp1/sfbdjb" + k.to_s + rq.to_s + sj.to_s + "1.jpg"
-                filenames=filenames + "," + "sfbdjb" + k.to_s + rq.to_s + sj.to_s + ".jpg"
-              end
-            end
-
-            files=fns.split(',')
-            case ss[1]
-              when "2"
-                Prawn::Document.generate("./dady/tmp1/ajml" + k.to_s + rq.to_s + sj.to_s + ".pdf") do 
-                  for x in 0..files.length-1
-                    #image files[x],:at => [-20,740], :width => 580, :height => 780            
-                    #image files[x], :at =>[-40,780], :width => 580, :height => 890
-                    image files[x], :at => [-40,750], :width => 600, :height => 800
-                    if x<files.length-1
-                      start_new_page
-                    end
-                  end
-                end
-              when "3"
-                Prawn::Document.generate("./dady/tmp1/ajml" + k.to_s + rq.to_s + sj.to_s + ".pdf") do  
-                  for x in 0..files.length-1
-                    #image files[x],:at => [-20,740], :width => 580, :height => 780            
-                    #image files[x], :at =>[-40,780], :width => 580, :height => 890
-                    image files[x], :at => [-40,750], :width => 600, :height => 800
-                    if x<files.length-1
-                      start_new_page
-                    end
-                  end
-                end             
-            end
-            
-            txt="success:" + "assets/dady/tmp1/ajml" + k.to_s + rq.to_s + sj.to_s + ".pdf"          
-          else
-            txt = "没有数据，请重新查询后再打印"
-          end
+          jy_select=jy_select.gsub("'","#")
+          czlist=User.find_by_sql("insert into d_cz_list(czzt,czmc,strwhere) values(0,'收发文登记打印','#{jy_select}')  RETURNING id;")
+          jy_select=jy_select.gsub("#","'")
+          puts "ruby ./dady/bin/print_sfwdjb.rb #{czlist[0]['id']} #{ss[1]}　　&"
+          text=system("ruby ./dady/bin/print_sfwdjb.rb #{czlist[0]['id']} #{ss[1]}　　&" )
+          txt="success:#{czlist[0]['id']}"
         else
-          txt = "没有数据，请重新查询后再打印"
+          txt=''
         end
-        
         render :text=>txt
      end
 
@@ -10251,7 +10440,8 @@ class DesktopController < ApplicationController
      def get_sfz
        
           #timeout(10) do
-            host_ip = "192.168.114.48"
+            host_ip = "192.168.114.48"   #六合身份证ip地址
+            #host_ip = "10.5.6.10"   #六合身份证ip地址
             client = TCPSocket.open host_ip, 50000
             recv_length = 1024
             ss="D&C00040101"
@@ -10393,23 +10583,23 @@ class DesktopController < ApplicationController
             end
           else
             #rsmlh=User.find_by_sql("select * from archive where dh='#{dh}'")
-            if dalb=='30' || dalb=='31' || dalb=='32' || dalb=='33' || dalb=='34'
+           # if dalb=='30' || dalb=='31' || dalb=='32' || dalb=='33' || dalb=='34'
               mlh=mlh
-            else
-              rsmlh=User.find_by_sql("select * from qzml_key where id=#{ss[2]}")
-              if rsmlh.size>0
-                mlh=rsmlh[0]['mlm'].to_s
-              else
-                mlh=ss[2]
-              end
-            end
+           # else
+           #   rsmlh=User.find_by_sql("select * from qzml_key where id=#{ss[2]}")
+           #   if rsmlh.size>0
+           #     mlh=rsmlh[0]['mlm'].to_s
+           #   else
+           #     mlh=ss[2]
+           #   end
+           # end
           end
-          ajh=ss[3]
+          ajh=ss[ss.length-1]
           qzh=ss[0]
           dalb=ss[1]
         else
-          mlh=''
-          ajh=''
+          mlh=mlh
+          ajh=ss[ss.length-1]
           qzh=ss[0]
           dalb=ss[1]
         end
@@ -10425,12 +10615,49 @@ class DesktopController < ApplicationController
         else
           dwmc=''
         end
+        if ajh.length>3
+          ajh=ajh
+        else
+          ajh=sprintf("%04d", ajh)
+        end
       end
+      
       user = User.find_by_sql("insert into d_rz(dwmc,dalbmc,rq,mlh,ajh,dalb,qzh,czlx,czr,czqnr,czhnr) values('#{dwmc}','#{dalbmc}','#{rq}','#{mlh}','#{ajh}','#{dalb}','#{qzh}','#{czlx}','#{czr}','#{czqnr}','#{czhnr}') ")
     end
 
     def tj_ysjs_grid
-      user = User.find_by_sql(" select mlh,sum(ys) as yshj,sum(js) as jshj from archive where mlh='#{params['query']}' group by mlh;")
+      if params['query']!=""
+        strwhere=" where mlh='#{params['query']}' "
+      else
+        strwhere=" where archive.nd='#{params['nd']}' "
+      end
+      if params['qajh']!=''
+        if params['qajh'].length>3
+          params['qajh']=params['qajh']
+        else
+          params['qajh']=sprintf("%04d", params['qajh'])
+        end
+        strwhere=strwhere + " and ajh>='#{params['qajh']}'"
+      end
+      if params['zajh']!=''
+        if params['zajh'].length>3
+          params['zajh']=params['zajh']
+        else
+          params['zajh']=sprintf("%04d", params['zajh'])
+        end
+        strwhere=strwhere + " and ajh<='#{params['zajh']}'"
+      end
+      if params['bgqx']!=''
+        strwhere=strwhere + " and archive.bgqx='#{params['bgqx']}'"
+      end
+      if params['jgwth']!=''
+        strwhere=strwhere + " and jgwth='#{params['jgwth']}'"
+      end
+      if params['query']!=""
+        user = User.find_by_sql(" select mlh,sum(ys) as yshj,sum(js) as jshj from archive #{strwhere} group by mlh;")
+      else
+        user = User.find_by_sql(" select archive.nd || archive.bgqx || jgwth as mlh, archive.nd,archive.bgqx,jgwth,sum(ys) as yshj,count(*) as jshj  from archive,a_wsda #{strwhere} and a_wsda.ownerid=archive.id group by archive.nd,archive.bgqx,jgwth;")
+      end
       size = user.size;
       if size > 0
         txt = "{results:#{size},rows:["
@@ -10463,11 +10690,13 @@ class DesktopController < ApplicationController
       
       tddj_cf = User.find_by_sql("select * from a_tddj where tdzh='#{params['tdzh']}' ;")
       if tddj_cf.size==0
-        user = User.find_by_sql("delete from d_tddj_tmp;")
+        user = User.find_by_sql("insert into d_tddj_tmp (djh,zl,qlr,qsxz) values ('','','','')   RETURNING id;")
         params['tdzh']=params['tdzh'].gsub('(','_').gsub(')','-')
-        system ("su - liujun -c 'ruby ~/iChad/bin/oracle.rb #{params['tdzh']}'")
-        tddj_tmp = User.find_by_sql("select * from d_tddj_tmp ;")
-        if tddj_tmp.size>0
+        puts "su - liujun -c 'ruby ~/iChad/bin/oracle.rb #{params['tdzh']} #{user[0]['id']}'"
+        system ("su - liujun -c 'ruby ~/iChad/bin/oracle.rb #{params['tdzh']} #{user[0]['id']}'")
+        $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+        tddj_tmp = $conn.exec("select * from d_tddj_tmp where id=#{user[0]['id']};")
+        if tddj_tmp.count>0
           txt="success:#{tddj_tmp[0]['djh']}:#{tddj_tmp[0]['zl']}:#{tddj_tmp[0]['qlr']}:#{tddj_tmp[0]['qsxz']}"
         else
           txt='false'
@@ -10492,4 +10721,225 @@ class DesktopController < ApplicationController
       end
       render :text => txt
     end
+
+    def get_rz_manage_grid
+      rz_cx_tj=''
+      if !(params['qrq'].nil?)
+        cx=params['qrq'].split('$')
+        rz_cx_tj=" rq >= '#{cx[2]} 00:00:00' "
+      end
+      if !(params['zrq'].nil?)
+        cx=params['zrq'].split('$')        
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + " rq <= '#{cx[2]} 23:59:59' "
+        else
+          rz_cx_tj=" rq <= '#{cx[2]} 23:59:59' "
+        end
+      end
+      if !(params['czr'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['czr'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['czr'])
+        end
+      end
+      if !(params['czlx'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['czlx'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['czlx'])
+        end
+      end
+      if !(params['dalbmc'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['dalbmc'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['dalbmc'])
+        end
+      end
+      if !(params['dwdm'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['dwdm'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['dwdm'])
+        end
+      end
+      if !(params['mlh'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['mlh'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['mlh'])
+        end
+      end
+      if !(params['ajh'].nil?)
+        tj=params['ajh'].split('$')
+        if tj[2].length<4
+          params['ajh']=tj[0].to_s + "$" + tj[1].to_s + "$" + sprintf("%04d", tj[2])
+        end
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['ajh'])
+        else
+          rz_cx_tj= get_cxtj_sd(params['ajh'])
+        end
+      end
+      if !(params['czhnr'].nil?)
+        if (rz_cx_tj!='')
+          rz_cx_tj=rz_cx_tj + " and " + get_cxtj_sd(params['czhnr'])
+        else
+          rz_cx_tj=  get_cxtj_sd(params['czhnr'])
+        end
+      end
+      if rz_cx_tj!=''
+        rzsize=User.find_by_sql(" select count(*) from d_rz where #{rz_cx_tj};")
+        user = User.find_by_sql(" select * from d_rz where #{rz_cx_tj} order by rq desc limit #{params['limit']} offset #{params['start']};")
+      else
+        rzsize=User.find_by_sql(" select count(*) from d_rz ;")
+        user = User.find_by_sql(" select * from d_rz order by rq desc limit #{params['limit']} offset #{params['start']};")
+      end
+      size = rzsize[0]['count'];
+      if size.to_i > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+      else
+        txt = "{results:0,rows:[]}"
+      end
+      render:text=>txt
+    end
+
+    def get_bkb_byid
+      user = User.find_by_sql(" select * from d_bkb where ownerid=#{params['ownerid']};")    
+      size = user.size
+      if size > 0 
+       txt = "["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]"
+      else
+       txt = "{results:0,rows:[]}"  
+      end  
+      render :text => txt
+    end
+    
+    def save_bkb
+      if (params['ljsj']=='')
+        params['ljsj']='null'
+      else
+        params['ljsj']="TIMESTAMP '#{params['ljsj']}'"
+      end
+      bkb = User.find_by_sql(" select * from d_bkb where ownerid=#{params['ownerid']};") 
+      if bkb.size>0
+        User.find_by_sql(" update d_bkb set ljr='#{params['ljr']}',jcr='#{params['jcr']}',ljsj=#{params['ljsj']},qksm='#{params['qksm']}'  where ownerid=#{params['ownerid']};") 
+      else
+        User.find_by_sql("insert into d_bkb(ljr,jcr,ljsj,qksm,ownerid) values('#{params['ljr']}','#{params['jcr']}',#{params['ljsj']},'#{params['qksm']}',#{params['ownerid']}) ;") 
+      end
+      render :text => 'success'      
+    end
+    
+    #打印收件单
+    def print_sjd
+      pdfsize=""
+      qksmwz=[]
+   	  user = User.find_by_sql("select * from doc_sw  where id=#{params['id']} ;")
+
+      filenames=""
+      intys=0
+      intts=0
+      intwidth=[]
+      size = user.size;
+      if size.to_i>0
+        for i in 0..size-1
+          strfilename=""
+          convertstr=""
+          printfilename="wjcld.jpg"           
+          if !(user[i]['swrq'].nil?)
+              rq=user[i]['swrq'].split(" ")
+              rq1=rq[0].split('-')
+              rq2=rq1[0].to_s + rq1[1].to_s + rq1[2].to_s
+          else
+              rq2=''
+          end
+          puts rq
+          convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 60 -draw \"text 516, 455 '#{user[i]['swbh']}'\" -pointsize 60 -draw \"text 1768, 455 '#{rq2}'\"   -pointsize 60 -draw \"text 2043, 587 '#{user[i]['mj']}'\"   -pointsize 60 -draw \"text 2043, 761 '#{user[i]['ys']}'\"  "       
+          puts convertstr
+          
+          tm=split_string(user[i]['lwjg'],6)
+          qksmwz<<575
+          qksmwz<<558
+          strtm=tm.split("\n")
+          intheight=qksmwz[1].to_i
+          intheight1=0
+          for j in 0..strtm.length-1
+            intheight1=intheight+ j*60
+            convertstr =convertstr + " -pointsize 60  -draw \"text #{qksmwz[0]}, #{intheight1} '#{strtm[j]}'\" "
+          end  
+          tm=split_string(user[i]['wh'],12)
+          qksmwz<<1061
+          qksmwz<<558
+          strtm=tm.split("\n")
+          intheight=qksmwz[3].to_i
+          intheight1=0
+          for j in 0..strtm.length-1
+            intheight1=intheight+ j*60
+            convertstr =convertstr + " -pointsize 60  -draw \"text #{qksmwz[2]}, #{intheight1} '#{strtm[j]}'\" "
+          end  
+          tm=split_string(user[i]['tm'],27)
+          qksmwz<<575
+          qksmwz<<883
+          strtm=tm.split("\n")
+          intheight=qksmwz[5].to_i
+          intheight1=0
+          for j in 0..strtm.length-1
+            intheight1=intheight+ j*60
+            convertstr =convertstr + " -pointsize 60  -draw \"text #{qksmwz[4]}, #{intheight1} '#{strtm[j]}'\" "
+          end                     
+          rq=Time.now.strftime("%Y%m%d%H%M%S")
+          sj=rand(10000)
+          strfilename="./dady/tmp1/wjcld" + i.to_s + rq.to_s + sj.to_s + ".jpg"
+          puts strfilename
+          puts "convert ./dady/#{printfilename} #{convertstr}  #{strfilename}"
+          system("convert ./dady/#{printfilename} #{convertstr}  #{strfilename}")
+
+          if filenames==""
+            filenames="wjcld" + i.to_s+ rq.to_s + sj.to_s + ".jpg"
+          else
+            filenames=filenames + "," + "wjcld" + i.to_s + rq.to_s + sj.to_s + ".jpg"
+          end
+        end
+        if filenames!=""        
+            files=filenames.split(',')        
+            Prawn::Document.generate("./dady/tmp1/wjcld" + i.to_s + rq.to_s + sj.to_s + ".pdf",:page_size   => "A4",
+             :page_layout => :portrait) do 
+              for x in 0..files.length-1            
+                image "./dady/tmp1/" + files[x], :at => [-40,800], :width => 600, :height => 800
+                if x<files.length-1
+                  start_new_page(:size => "A4", :layout => :portrait)
+                end
+              end
+            end
+        end
+        txt="success:" +"/assets/dady/tmp1/wjcld" + i.to_s + rq.to_s + sj.to_s + ".pdf"
+      else            
+        txt = "无此条件的数据，请重新输入条件。"
+      end
+      render :text =>   txt
+    end
+
+    def data_backup
+      czlist=User.find_by_sql("insert into d_cz_list(czzt,czmc) values(0,'数据备份')  RETURNING id;")
+      puts "ruby ./dady/bin/backup_shudang.rb #{params['bak_name']} #{czlist[0]['id']}  "
+      text=system("ruby ./dady/bin/backup_shudang.rb #{params['bak_name']} #{czlist[0]['id']} &" )
+      txt="success:#{czlist[0]['id']}"
+      render :text =>   txt
+    end
+    
+    def program_updata
+      params['filename']=params['filename'].gsub('(', '\(').gsub(')', '\)').gsub('"', '\"').gsub("'", "\'")
+      text=system ("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
+      render :text =>  text
+    end
+
 end

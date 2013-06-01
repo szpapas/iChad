@@ -199,24 +199,28 @@ Find.find(path) do |path|
 
         #C-82$C$0017$MLBK.jpg
         sp = pp[pp.size-2].split("$")
-        if (ss[2] != sp[2]) 
-          $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
-          ajh = sp[2]
-          dh = "#{dh_prefix}-#{ajh.to_i}"
-          if dh != $dh
-            $dh = dh
-            $stderr.puts "processing #{dh}... "
+        if sp.length>2
+          if (ss[2] != sp[2]) 
+            $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+            ajh = sp[2]
+            dh = "#{dh_prefix}-#{ajh.to_i}"
+            if dh != $dh
+              $dh = dh
+              $stderr.puts "processing #{dh}... "
+            end
+            yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+            save2timage(sxh, path, $dh, yxqz)
+          else
+            dh = "#{dh_prefix}-#{ajh.to_i}"
+            if dh != $dh
+              $dh = dh
+              $stderr.puts "processing #{dh}... "
+            end
+            yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+            save2timage(sxh, path, $dh, yxqz)
           end
-          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-          save2timage(sxh, path, $dh, yxqz)
         else
-          dh = "#{dh_prefix}-#{ajh.to_i}"
-          if dh != $dh
-            $dh = dh
-            $stderr.puts "processing #{dh}... "
-          end
-          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-          save2timage(sxh, path, $dh, yxqz)
+          save2timage(sxh, path, $dh, '')
         end
       elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path).nil?  #for format like  /mnt/lvm1/jm2012/89/89$C$0355/00000001.TIF
         

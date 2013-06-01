@@ -1,12 +1,13 @@
 BASE_DIR="/usr/local/lib/ruby/gems/1.8/gems"
-$: << "#{BASE_DIR}/prawn-0.12.0"   << "#{BASE_DIR}/pg-0.12.2/lib"
+$: << '/usr/local/lib/ruby/gems/1.8/gems/prawn-0.12.0'
+$:<< '/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib'
 
 require 'prawn'
 require 'pg'
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
-czid, dalb ,qzh,mlh,qajh,zajh,nd,jgwth,bgqx= ARGV[0], ARGV[1], ARGV[2],ARGV[3], ARGV[4], ARGV[5],ARGV[6], ARGV[7], ARGV[8]
+czid, dalb ,qzh,mlh,qajh,zajh,nd,jgwth,bgqx ,czlistid= ARGV[0], ARGV[1], ARGV[2],ARGV[3], ARGV[4], ARGV[5],ARGV[6], ARGV[7], ARGV[8], ARGV[9]
 #list=$conn.exec("select * from d_cz_list where id=#{czid};")
 #if list.count>0
 #  strwhere=list[0]['strwhere']
@@ -18,15 +19,15 @@ def split_string(text, length=16)
   intl=0
   t1=""
   for k in 0..char_array.length-1
-    if intl>=length*2-3
+    if intl>=length*3-4
       t1=t1 + char_array[k..k].pack("U*") +"\n"
       intl=0
     else
       t1=t1+ char_array[k..k].pack("U*")
       if char_array[k]<255
-        intl=intl+1
-      else
         intl=intl+2
+      else
+        intl=intl+3
       end
     end
   end
@@ -58,10 +59,11 @@ else
   qajh=sprintf("%04d", qajh)
 end
 strwhere=" where mlh='#{mlh}' and qzh='#{qzh}' and dalb='#{dalb}' and ajh>='#{qajh}' and ajh<='#{zajh}'"
-if (nd.nil?)
+if (nd.nil? || nd=="")
+else
   strwhere =strwhere + " and nd='#{nd}'"
 end
-if (bgqx.nil?)
+if (bgqx.nil? || bgqx=="")
 else
   strwhere =strwhere + " and bgqx='#{bgqx}'"
 end
@@ -167,8 +169,44 @@ if size.to_i>0
         if user[i+k*10]['bgqx']==''
           user[i+k*10]['bgqx']=' '
         end
+        user[i+k*10]['flh']=' ' if user[i+k*10]['flh'].nil?
+        user[i+k*10]['jnzs']=' ' if user[i+k*10]['jnzs'].nil?
+        user[i+k*10]['fjzs']=' ' if user[i+k*10]['fjzs'].nil?
+        user[i+k*10]['pzqh']=' ' if user[i+k*10]['pzqh'].nil?
+        user[i+k*10]['pzzh']=' ' if user[i+k*10]['pzzh'].nil?
+        user[i+k*10]['bgqx']=' ' if user[i+k*10]['bgqx'].nil?
+        if !(user[i+k*10]['pzqh'].nil?)
+          pzqh=user[i+k*10]['pzqh']
+        else
+          pzqh=" "
+        end
+        if !(user[i+k*10]['flh'].nil?)
+          flh=user[i+k*10]['flh']
+        else
+          flh=" "
+        end
+        if !(user[i+k*10]['jnzs'].nil?)
+          jnzs=user[i+k*10]['jnzs']
+        else
+          jnzs=" "
+        end
+        if !(user[i+k*10]['fjzs'].nil?)
+          fjzs=user[i+k*10]['fjzs']
+        else
+          fjzs=" "
+        end
+        if !(user[i+k*10]['pzzh'].nil?)
+          pzzh=user[i+k*10]['pzzh']
+        else
+          pzzh=" "
+        end
+        if !(user[i+k*10]['bgqx'].nil?)
+          bgqx=user[i+k*10]['bgqx']
+        else
+          bgqx=" "
+        end
         
-        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['jnzs'].center 4}'\" -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['fjzs'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{user[i+k*10]['pzqh'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['pzzh'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\"  "
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{flh.center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{jnzs.center 4}'\" -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{fjzs.center 4}'\"  -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{pzqh.center 4}'\"  -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{pzzh.center 4}'\"  -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight} '#{bgqx.center 4}'\"  "
         intheight1=0
         intheight1=intheight-40  
         if !(user[i+k*10]['qrq'].nil?)
@@ -302,7 +340,7 @@ if size.to_i>0
         convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[9]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
         intheight=intheight-60
         if !(user[i+k*10]['xxkz'].nil?)
-          tm=split_string(user[i+k*10]['xxkz'],6)
+          tm=split_string(user[i+k*10]['xxkz'],7)
           strtm=tm.split("\n")
           intheight1=0
           #for j in 0..strtm.length-1
@@ -395,7 +433,7 @@ if size.to_i>0
         end
         puts tm
         if !(user[i+k*10]['wh'].nil?)
-          tm=split_string(user[i+k*10]['wh'],5)
+          tm=split_string(user[i+k*10]['wh'],4)
           strtm=tm.split("\n")
           intheight1=0
           for j in 0..strtm.length-1
@@ -419,14 +457,16 @@ if size.to_i>0
       
       when "28"
         pdfsize=':at =>[-40,780], :width => 580, :height => 890'
-        intwidth<<325
-        intwidth<<464
-        intwidth<<741
-        intwidth<<1448
-        intwidth<<1870
-        intwidth<<2476
-        intwidth<<2758
-        intwidth<<3038            
+        intwidth<<439
+        intwidth<<639
+        intwidth<<836
+        intwidth<<1532
+        intwidth<<1961
+        intwidth<<2559
+        intwidth<<2838
+        intwidth<<3121
+        intwidth<<255
+              
         printfilename="ajml_sw.jpg"
         intheight= i*155+724
         puts intheight
@@ -438,7 +478,7 @@ if size.to_i>0
         else
           sjsj=''
         end
-        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['bh'].center 5}'\"   -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ztxs']}'\" -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{sjsj}'\" "
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['bh'].center 5}'\"   -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ztxs']}'\" -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{sjsj}'\" "
         intheight=intheight-60
         if !(user[i+k*10]['tm'].nil?)
           tm=split_string(user[i+k*10]['tm'],13)
@@ -500,10 +540,10 @@ if size.to_i>0
         intheight=intheight-40
         puts convertstr
         if !(user[i+k*10]['tm'].nil?)
-          tm=split_string(user[i+k*10]['tm'],27)
+          tm=split_string(user[i+k*10]['tm'],34)
           strtm=tm.split("\n")
           intheight1=0
-          for j in 0..strtm.length-1
+          for j in 0..2
             intheight1=intheight+ j*50
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
           end
@@ -604,4 +644,4 @@ if size.to_i>0
 else            
   txt = "false:无此条件的数据，请重新输入条件。"
 end
-czlist = $conn.exec("update d_cz_list set czzt=1,fhz='#{txt}' ;")
+czlist = $conn.exec("update d_cz_list set czzt=1,fhz='#{txt}' where id=#{czid};")

@@ -1,4 +1,4 @@
-/*
+/* 木 要 地村
 
 This file is part of Ext JS 4
 
@@ -353,7 +353,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -411,7 +411,7 @@ Ext.define('MyDesktop.ArchiveMan', {
 	     {
             xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
             handler: function() {
-              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","rz_manage_grid",title,"",true);
             }
          }
        
@@ -419,14 +419,13 @@ Ext.define('MyDesktop.ArchiveMan', {
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+		　　{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+	　　　　　　{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
           { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
           { text : '页号',  width : 75, sortable : true, dataIndex: 'yh'},
-
           { text : '日期',  width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
           { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
           { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'}
@@ -499,7 +498,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -568,6 +567,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -766,7 +777,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -906,7 +917,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -976,6 +987,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -1166,7 +1189,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -1318,7 +1341,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -1390,6 +1413,18 @@ Ext.define('MyDesktop.ArchiveMan', {
 			            }
 			          }    
 			        },
+					{
+		              text:'备考表',
+		              iconCls:'yl',
+		              handler : function() {
+		                var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+		                if (items.length > 0) {
+		                  var item = items[0];
+		                  var id = items[0].data.id;
+		                  DispBkb(id);
+		                }
+		              }    
+		            },
 
                         '->',
                       //  {
@@ -1586,7 +1621,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                       parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -1719,7 +1754,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               new Ext.PagingToolbar({
                 store: archive_store,
                 pageSize: 25,
-                width : 350,
+                width : 400,
                 border : false,
                 displayInfo: true,
                 displayMsg: '{0} - {1} of {2}',
@@ -1788,6 +1823,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -1971,7 +2018,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -2131,7 +2178,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               new Ext.PagingToolbar({
                 store: archive_store,
                 pageSize: 25,
-                width : 350,
+                width : 400,
                 border : false,
                 displayInfo: true,
                 displayMsg: '{0} - {1} of {2}',
@@ -2200,6 +2247,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_tddj').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -2382,7 +2441,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 if(id=="yes"){
                   new Ajax.Request("/desktop/delete_document", { 
                     method: "POST",
-                    parameters: pars,
+                    parameters: {id:record.data.id,userid:currentUser.id},
                     onComplete:  function(request) {
                       Ext.getCmp('document_grid').store.load();
 
@@ -2517,7 +2576,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -2584,6 +2643,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -2780,7 +2851,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
 
@@ -2908,7 +2979,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -2977,6 +3048,18 @@ Ext.define('MyDesktop.ArchiveMan', {
               var dh = items[0].data.dh;
               show_image(dh);                 
               set_image("/assets/dady/fm.jpg");
+            }
+          }    
+        },
+		{
+          text:'备考表',
+          iconCls:'yl',
+          handler : function() {
+            var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+            if (items.length > 0) {
+              var item = items[0];
+              var id = items[0].data.id;
+              DispBkb(id);
             }
           }    
         },
@@ -3173,7 +3256,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
 
@@ -3306,7 +3389,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -3378,6 +3461,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
+                }
+              }    
+            },
                   '->',
                 //  {
                 //    xtype: 'combo',
@@ -3414,6 +3509,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
           { text : '档号',    width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号',   width : 75, sortable : true, dataIndex: 'mlh'},
+		  { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
           { text : '序号',   width : 75, sortable : true, dataIndex: 'ajh'},
           { text : '图名',  width : 175, sortable : true, dataIndex: 'tm'},
           { text : '图幅号', width : 75, sortable : true, dataIndex: 'tfh'},
@@ -3546,7 +3642,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -3691,7 +3787,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -3759,6 +3855,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -3932,7 +4040,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -4067,7 +4175,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -4135,6 +4243,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -4313,7 +4433,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -4442,7 +4562,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -4510,6 +4630,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -4690,7 +4822,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
 
@@ -4824,7 +4956,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -4894,6 +5026,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -5073,7 +5217,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -5202,7 +5346,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -5271,6 +5415,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -5445,7 +5601,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   if(id=="yes"){
                     new Ajax.Request("/desktop/delete_document", { 
                       method: "POST",
-                      parameters: pars,
+                      parameters: {id:record.data.id,userid:currentUser.id},
                       onComplete:  function(request) {
                         Ext.getCmp('document_grid').store.load();
 
@@ -5578,7 +5734,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -5646,6 +5802,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -5821,7 +5989,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -5950,7 +6118,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -6018,6 +6186,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -6182,7 +6362,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -6311,7 +6491,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -6380,6 +6560,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -6546,7 +6738,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_document", { 
                         method: "POST",
-                        parameters: pars,
+                        parameters: {id:record.data.id,userid:currentUser.id},
                         onComplete:  function(request) {
                           Ext.getCmp('document_grid').store.load();
                         }
@@ -6680,7 +6872,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -6748,6 +6940,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -6917,7 +7121,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   if(id=="yes"){
                     new Ajax.Request("/desktop/delete_document", { 
                       method: "POST",
-                      parameters: pars,
+                      parameters: {id:record.data.id,userid:currentUser.id},
                       onComplete:  function(request) {
                         Ext.getCmp('document_grid').store.load();
 
@@ -7047,7 +7251,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           new Ext.PagingToolbar({
             store: archive_store,
             pageSize: 25,
-            width : 350,
+            width : 400,
             border : false,
             displayInfo: true,
             displayMsg: '{0} - {1} of {2}',
@@ -7116,6 +7320,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var dh = items[0].data.dh;
                   show_image(dh);                 
                   set_image("/assets/dady/fm.jpg");
+                }
+              }    
+            },
+			{
+              text:'备考表',
+              iconCls:'yl',
+              handler : function() {
+                var items = Ext.getCmp('archive_grid').getSelectionModel().selected.items;
+                if (items.length > 0) {
+                  var item = items[0];
+                  var id = items[0].data.id;
+                  DispBkb(id);
                 }
               }    
             },
@@ -7371,7 +7587,7 @@ Ext.define('MyDesktop.ArchiveMan', {
     if(!win){
       win = desktop.createWindow({
         id: 'archiveman',
-        title:'档案管理',        
+        title:'档案管理——国土',        
         width:1000,
         height:600,
         x:0,
@@ -7436,7 +7652,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 triggerAction:'all',
                 listeners:{
                   select:function(combo, record, index) {
-                  	var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type};
+                  	var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
 				      new Ajax.Request("/desktop/get_timage_from_db", {
 				        method: "POST",
 				        parameters: pars,
@@ -7470,7 +7686,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id');
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
 				  new Ajax.Request("/desktop/get_timage_from_db", {
 			        method: "POST",
 			        parameters: pars,
@@ -7506,7 +7722,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id');
                   combo.setValue(nextStoreValue);
-                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
                   new Ajax.Request("/desktop/get_timage_from_db", {
 			        method: "POST",
 			        parameters: pars,

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby  xxxxxxx
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
@@ -125,8 +125,54 @@ def save2timage(filename,dh,dh_prefix,czr,czrname)
   puts "delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';"  
   $conn.exec("delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';")
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
+
   puts "insert into timage (rq,czr,czrname,width, height,dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel,dh_prefix,sfzs) values ('#{rq}','#{czr}', '#{czrname}',#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels}, '#{dh_prefix}',1);"
-  $conn.exec("insert into timage (rq,czr,czrname,width, height,dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel,dh_prefix,sfzs) values ('#{rq}','#{czr}', '#{czrname}','#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, '#{dh_prefix}',1);")
+  #if meta!=''
+  #  meta=meta.gsub('"','')
+  #end
+  $conn.exec("insert into timage (rq,czr,czrname,width, height,dh, yxmc, yxbh, yxdx, data, meta_tz, pixel,dh_prefix,sfzs) values ('#{rq}','#{czr}', '#{czrname}','#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , #{meta_tz}, #{pixels}, '#{dh_prefix}',1);")
+  
+  ss=dh.split('-')
+  archive=$conn.exec("select * from archive where dh='#{dh}'")
+  if ss.length==4
+    qzh=ss[0]
+    dalb=ss[1]
+    
+    if dalb=='24'
+      rsmlh=$conn.exec("select * from a_wsda_key where id=#{ss[2]}")
+      if rsmlh.count>0
+        mlh=rsmlh[0]['bgqx'].to_s + rsmlh[0]['nd'].to_s + rsmlh[0]['jgwth'].to_s
+      else
+        mlh=archive[0]['mlh']
+      end
+    else
+      mlh=archive[0]['mlh']
+    end    
+    ajh=ss[ss.length-1]
+  else
+    mlh=archive[0]['mlh']
+    ajh=ss[ss.length-1]
+    qzh=ss[0]
+    dalb=ss[1]
+  end
+  rsdalbmc=$conn.exec("select * from d_dalb where id=#{dalb}")
+  if rsdalbmc.count>0 
+    dalbmc=rsdalbmc[0]['lbmc']
+  else
+    dalbmc=''
+  end
+  rsdwmc=$conn.exec("select * from d_dwdm where id=#{qzh}")
+  if rsdwmc.count>0 
+    dwmc=rsdwmc[0]['dwdm']
+  else
+    dwmc=''
+  end
+  if ajh.length>3
+    ajh=ajh
+  else
+    ajh=sprintf("%04d", ajh)
+  end
+  $conn.exec("insert into d_rz(dwmc,dalbmc,rq,mlh,ajh,dalb,qzh,czlx,czr,czqnr,czhnr) values('#{dwmc}','#{dalbmc}','#{rq}','#{mlh}','#{ajh}','#{dalb}','#{qzh}','影像新增','#{czrname}','#{yxmc}','#{yxmc}') ")
 end
 
 #filename.downcase 转成小写

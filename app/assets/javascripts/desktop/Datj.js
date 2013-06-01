@@ -170,20 +170,21 @@ Ext.define('MyDesktop.Datj', {
               parameters: eval("({userid:'" + currentUser.id + "',nd:'" + Ext.getCmp('datj_nd').rawValue + "'})"),
               onComplete:  function(request) {
                 fhz=request.responseText.split(":");
-                if (fhz[0]=='success'){                 
-                  printfile=fhz[1].split(",");
-                  for (k=0;k<printfile.length;k++){
-                    LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                
-                    image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
-                    LODOP.PRINT_INIT(image_path);
-                    LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
-                    LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-                    LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-                    LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-                    //LODOP.PREVIEW();
-                    LODOP.PRINT();
-                  }
-                  alert("打印成功。"+fhz[1] );                   
+                if (fhz[0]=='success'){  
+					window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');               
+                 // printfile=fhz[1].split(",");
+                 // for (k=0;k<printfile.length;k++){
+                 //   LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                
+                 //   image_path = window.location.href + "assets/dady/tmp1/" + printfile[k];
+                 //   LODOP.PRINT_INIT(image_path);
+                 //   LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");
+                 //   LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+                 //   LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+                 //   LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+                 //   //LODOP.PREVIEW();
+                 //   LODOP.PRINT();
+                 // }
+                 // alert("打印成功。"+fhz[1] );                   
                 }else{
                   alert(request.responseText);
                 }

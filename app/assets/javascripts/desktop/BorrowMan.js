@@ -44,10 +44,24 @@ Ext.define('MyDesktop.BorrowMan', {
 	//Ext.QuickTips.init();
 	
 	  createWindow : function(){
+		
 		var jyqq_add_change='1';
 		var jydj_jyzt='2';
 		insert_qx="";
 		zxjyid="";
+		function Run(strPath){        
+		   //try        
+		   {        
+		    var objShell = new ActiveXObject("wscript.shell");        
+		    objShell.Run(strPath);        
+		    objShell = null;    
+		    //alert("ok");  
+		   }        
+		   //catch(e)     
+		   //{     
+		   //     alert('找不到文件"'+strPath+'"(或它的组件之一)。请确定路径和文件名是否正确.')        
+		   //}        
+		}
 		var DispAj = function(record,add_new){
 			var win = Ext.getCmp('archive_detail_win');
 			if (win==null) {
@@ -487,7 +501,9 @@ Ext.define('MyDesktop.BorrowMan', {
 					},
 					{	
 						xtype:'button',text:'读取身份证',tooltip:'读取身份证',id:'jydj_sfz',iconCls:'option',
-						handler: function() {									
+						handler: function() {	
+									//Run("e:\\sfz.exe");
+									//window.open('dacx/test.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 									new Ajax.Request("/desktop/get_sfz", { 
 										method: "POST",
 										//parameters: eval(insert_qx),
@@ -1608,7 +1624,7 @@ Ext.define('MyDesktop.BorrowMan', {
 	                      	if (path != '') { 
 	                        	Ext.getCmp('preview_img_qz').getEl().dom.src = path;
 	                      	}else{
-								Ext.getCmp('preview_img_qz').getEl().dom.src = "./dady/fm.jpg";
+								Ext.getCmp('preview_img_qz').getEl().dom.src = "assets/dady/fm.jpg";
 							}
 	                    }
 	                  });

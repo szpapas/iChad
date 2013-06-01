@@ -227,7 +227,7 @@ every_n_seconds(1) do
       if fhz1.length==8
         fhz2jz=fhz1[5].to_i(16).to_s(2).rjust(8,"0") #把返回值中的开关量状态数据　变成　８位的２进制数组，然后用来判断各个开关量的状态
       #  puts fhz2jz[8-1..-1]
-        if fhz2jz[8-1..-1]=='1'  #37开关量的第１位是红外，如果红外的开关量状态为１的话就开灯
+        if fhz2jz[8-1..-1]=='0'  #37开关量的第１位是红外，如果红外的开关量状态为１的话就开灯
           puts "insert into zn_cz_rz(dlz,czid, userid, sbid, rq,czsm) values ('10.5.6.24:50001,1,库房二',0, 0, 0, '#{rq}', '开');"
           $conn.exec("insert into zn_cz_rz(dlz,czid, userid, sbid, rq,czsm) values ('10.5.6.24:50001,1,库房二',0, 0, 0, '#{rq}', '开');")
           jg38=0  

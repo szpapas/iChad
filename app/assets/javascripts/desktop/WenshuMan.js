@@ -441,6 +441,18 @@ Ext.define('MyDesktop.WenshuMan', {
 		            }
 		          }    
 		        },
+				{
+	              text:'备考表',
+	              iconCls:'yl',
+	              handler : function() {
+	                var items = Ext.getCmp('archive_grid_wsda').getSelectionModel().selected.items;
+	                if (items.length > 0) {
+	                  var item = items[0];
+	                  var id = items[0].data.id;
+	                  DispBkb(id);
+	                }
+	              }    
+	            },
 		            '->',
 		          //  {
 		          //    xtype: 'combo',
@@ -733,6 +745,28 @@ Ext.define('MyDesktop.WenshuMan', {
 								onComplete:	 function(request) {
 									fhz=request.responseText.split(":");
 									if (fhz[0]=='success'){
+										cz_msg(fhz[1]);
+										//window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+									}else{
+										alert("打印失败。"+request.responseText);
+									}
+								}
+							})
+					    }
+			    },
+				{
+					xtype:'button',text:'打印收件单',tooltip:'打印收件单',id:'print_sjd',iconCls:'print',
+			      		handler: function() {
+							var grid = Ext.getCmp('archive_grid_wsda');
+					        var records = grid.getSelectionModel().getSelection();
+					        var record = records[0];
+					        var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "'})";
+							new Ajax.Request("/desktop/print_sjd", { 
+								method: "POST",
+								parameters: eval(pars),
+								onComplete:	 function(request) {
+									fhz=request.responseText.split(":");
+									if (fhz[0]=='success'){
 										window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 									}else{
 										alert("打印失败。"+request.responseText);
@@ -982,7 +1016,7 @@ Ext.define('MyDesktop.WenshuMan', {
 			      }    
 			    },
 				{
-					xtype:'button',text:'打印',tooltip:'打印收文登记簿',id:'print',iconCls:'print',
+					xtype:'button',text:'打印',tooltip:'打印发文登记簿',id:'print',iconCls:'print',
 			      		handler: function() {
 							var grid = Ext.getCmp('archive_grid_wsda');
 			        		var pars=grid.store.proxy.extraParams;
@@ -992,7 +1026,8 @@ Ext.define('MyDesktop.WenshuMan', {
 								onComplete:	 function(request) {
 									fhz=request.responseText.split(":");
 									if (fhz[0]=='success'){
-										window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+										cz_msg(fhz[1]);
+										//window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 									}else{
 										alert("打印失败。"+request.responseText);
 									}
@@ -1453,7 +1488,7 @@ Ext.define('MyDesktop.WenshuMan', {
 	                triggerAction:'all',
 	                listeners:{
 	                  select:function(combo, record, index) {
-	                    var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type};
+	                    var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
 	                    new Ajax.Request("/desktop/get_timage_from_db", {
 	                      method: "POST",
 	                      parameters: pars,
@@ -1481,7 +1516,7 @@ Ext.define('MyDesktop.WenshuMan', {
 	                  var currentStoreIndex = combo.getStore().indexOf(currentImage);
 	                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id');
 	                  combo.setValue(nextStoreValue);
-	                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+	                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
 	                  new Ajax.Request("/desktop/get_timage_from_db", {
 	                    method: "POST",
 	                    parameters: pars,
@@ -1508,7 +1543,7 @@ Ext.define('MyDesktop.WenshuMan', {
 	                  var currentStoreIndex = combo.getStore().indexOf(currentImage);
 	                  var nextStoreValue = combo.getStore().getAt(currentStoreIndex + 1).get('id');
 	                  combo.setValue(nextStoreValue);
-	                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
+	                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
 	                  new Ajax.Request("/desktop/get_timage_from_db", {
 	                    method: "POST",
 	                    parameters: pars,
