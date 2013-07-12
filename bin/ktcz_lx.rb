@@ -6,6 +6,12 @@ require 'socket'
 require 'timeout'
 require 'pg'
 
+<<<<<<< HEAD
+if !File.exists?('/tmp/sxh')
+  system 'cp /home/liujun/iChad/bin/sxh /tmp/sxh'
+end
+=======
+>>>>>>> 47c02519d45cf239f86f363d3fa584da473a5f20
 
 def set_k(cmd)
   ss="\n\r\00645678901234567890"
@@ -41,6 +47,20 @@ def scan_host(sbh, zt, sbid)  #cmd = "80 40"
   host_ip, port = sbh.split(',')
   
   if zt == 0 || zt == 1
+<<<<<<< HEAD
+    #这里的　００　０１　或０１　００看空调情况
+    cmd = "F2 #{sbid} 00 01"
+    cmd = "F2 #{sbid} 01 00"
+  elsif zt == 2 
+    cmd = "F2 #{sbid} 00 02"
+  elsif zt == 3
+    cmd = "F2 #{sbid} 00 04"
+  elsif zt == 4
+    cmd = "F2 #{sbid} 00 08"  
+  end
+  
+  puts cmd
+=======
     cmd = "F2 #{sbid} 01 00"
   elsif zt == 2 
     cmd = "F2 #{sbid} 02 00"
@@ -49,6 +69,7 @@ def scan_host(sbh, zt, sbid)  #cmd = "80 40"
   elsif zt == 4
     cmd = "F2 #{sbid} 08 00"  
   end
+>>>>>>> 47c02519d45cf239f86f363d3fa584da473a5f20
     
   begin 
     timeout(5) do

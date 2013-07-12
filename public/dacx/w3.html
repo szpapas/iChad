@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta charset="UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; " />
+	<meta http-equiv="refresh" content="300;URL=w4.html">
+  <title>欢迎使用激扬智慧档案查询系统</title>
+  <link rel="stylesheet" href="css/jive.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="prototype.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts.js" type="text/javascript" charset="utf-8"></script>
+	<script language="javascript">
+	  	var a ="rwdat";
+		var ajjs=0;
+		var pars="";
+		new Ajax.Request('/map/get_bqs',{
+	    	method: "POST",
+		    parameters: pars,
+		    onSuccess: function(transport){
+				ajjs = eval(transport.responseText);
+				xslr1="<table><tr><td><font size = 8>三、可感知的档案</font></td></tr>";
+				xslr1=xslr1+ "<tr><td><font size = 6>1.一是采用了精确定位子系统，可以全国唯一定位的“盒卷”，明确目前电子标签管理的各类情况。</font></td></tr>";
+				xslr1=xslr1+ "<tr><td><font size = 6>2.全国唯一的防错漏卷的上架盘库子系统，库房档案不缺不漏。</font></td></tr>";
+				//document.getElementById("xx").initialConfig.html
+				var x=0;
+				var jbp=0;
+				var hbp=0;
+				xslr="";
+				for(var i=0; i < ajjs.length; i ++){
+					x=i+1;
+					//zjs=zjs+parseInt(ajjs[i]['ys'],10);
+					jbp=jbp+parseInt(ajjs[i]['jbq'],10);
+					hbp=hbp+parseInt(ajjs[i]['hbq'],10);
+					xslr=xslr + "<tr><td><font size = 6>(" + x + ")、" + ajjs[i]['lbmc'] + "档案有：" + ajjs[i]['jbq'] + "卷档案贴有卷标签,"  + ajjs[i]['hbq'] +"个盒标签</font></td></tr>"
+				}	
+				xslr=xslr1 + "<tr><td><font size = 6>3" + "、本档案馆共有" + jbp + "卷档案贴有卷标签，"+ hbp +"个盒标签，其中：</font></td></tr>" + xslr + "</table>";
+				document.getElementById("xx").innerHTML= xslr;
+		    }
+		})
+	  </script>
+</head>
+<body class="jive-body-formpage jive-body-formpage-login">
+	<table cellpadding=8>
+		<div id="xx">正在检索数据，请稍候。。。。。。</div>	
+	</table>
+</body>

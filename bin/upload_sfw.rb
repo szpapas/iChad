@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.11.0/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-2.3.5/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib'
-
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
+#服务器
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.0.4/lib'
 require 'pg'
 require 'active_support'
 
@@ -20,6 +20,7 @@ def decode_file (infile, outfile, path)
 end
 
 def set_sfw(tt, qzh, sfw_tbl)
+  intcr=0
   if sfw_tbl=='doc_fw'
     for k in 0..tt.size-1 
       user = tt[k]['Table']
@@ -59,13 +60,20 @@ def set_sfw(tt, qzh, sfw_tbl)
       zwrq = (zwrq.nil? || zwrq=="") ? 'NULL' : "TIMESTAMP '#{zwrq}'" 
       fwrq = (fwrq.nil? || fwrq=="") ? 'NULL' : "TIMESTAMP '#{fwrq}'" 
 
-      
-      insert_str = " INSERT INTO doc_fw(ajh,bgqx,bz,cbdw,csdw,dyfs,fwbh,fwrq,jgwt,mj,mlh,qfr,qzh,sfyglsk,tm,wh,xfdw,ys,zdnd,zrz,zsdw,ztc1,ztc2,ztc3,zwrq,sfygd)  VALUES ('#{ajh}','#{bgqx}','#{bz}','#{cbdw}','#{csdw}',#{dyfs},#{fwbh},#{fwrq},'#{jgwt}','#{mj}','#{mlh}','#{qfr}','#{qzh}','#{sfyglsk}','#{tm}','#{wh}','#{xfdw}',#{ys},'#{zdnd}','#{zrz}','#{zsdw}','#{ztc1}','#{ztc2}','#{ztc3}',#{zwrq},'#{sfygd}');"
+      cf=$conn.exec("select * from doc_fw where wh='#{wh}';")
+      if cf.count==1
+        insert_str = "update doc_fw set zwrq=#{fwrq} where id=#{cf[0]['id']};" 
+      else
+      #puts insert_str
+        if cf.count==0
+          insert_str = " INSERT INTO doc_fw(ajh,bgqx,bz,cbdw,csdw,dyfs,fwbh,fwrq,jgwt,mj,mlh,qfr,qzh,sfyglsk,tm,wh,xfdw,ys,zdnd,zrz,zsdw,ztc1,ztc2,ztc3,zwrq,sfygd)  VALUES ('#{ajh}','#{bgqx}','#{bz}','#{cbdw}','#{csdw}',#{dyfs},#{fwbh},#{fwrq},'#{jgwt}','#{mj}','#{mlh}','#{qfr}','#{qzh}','#{sfyglsk}','#{tm}','#{wh}','#{xfdw}',#{ys},'#{zdnd}','#{zrz}','#{zsdw}','#{ztc1}','#{ztc2}','#{ztc3}',#{fwrq},'#{sfygd}');"    
+          intcr=intcr.to_i+1
+        end
+      end
       puts insert_str
-      
-      #$conn.exec(insert_str)
+      $conn.exec(insert_str)
     end
-    
+    puts intcr
   else
     for k in 0..tt.size-1 
       user = tt[k]['Table']
@@ -112,13 +120,20 @@ def set_sfw(tt, qzh, sfw_tbl)
       zwrq = (zwrq.nil? || zwrq=="") ? 'NULL' : "TIMESTAMP '#{zwrq}'" 
       yfrq = (yfrq.nil? || yfrq=="") ? 'NULL' : "TIMESTAMP '#{yfrq}'"
       
-      
-
-       
-      insert_str = " INSERT INTO doc_sw(bgqx,blqk,bz,fs,jgwt,lwjg,mj,qtfs,qzh,sfyglsk,swbh,swrq,szqm,tm,wh,xhfs,yfrq,ys,zcfs,zdnd,zrz,zwdw,zwrq,sfygd)  VALUES ('#{bgqx}','#{blqk}','#{bz}',#{fs},'#{jgwt}','#{lwjg}','#{mj}',#{qtfs},'#{qzh}','#{sfyglsk}',#{swbh},#{swrq},'#{szqm}','#{tm}','#{wh}',#{xhfs},#{yfrq},#{ys},#{zcfs},'#{zdnd}','#{zrz}','#{zwdw}',#{zwrq}, '#{sfygd}');"
-      puts insert_str
-      
-      #$conn.exec(insert_str)
+      insert_str=''
+      cf=$conn.exec("select * from doc_sw where wh='#{wh}';")
+      if cf.count==1
+        insert_str = "update doc_sw set zwrq=#{swrq}  where id=#{cf[0]['id']};" 
+      else
+        if cf.count==0
+          insert_str =insert_str = " INSERT INTO doc_sw(bgqx,blqk,bz,fs,jgwt,lwjg,mj,qtfs,qzh,sfyglsk,swbh,swrq,szqm,tm,wh,xhfs,yfrq,ys,zcfs,zdnd,zrz,zwdw,zwrq,sfygd)  VALUES ('#{bgqx}','#{blqk}','#{bz}',#{fs},'#{jgwt}','#{lwjg}','#{mj}',#{qtfs},'#{qzh}','#{sfyglsk}',#{swbh},#{swrq},'#{szqm}','#{tm}','#{wh}',#{xhfs},#{yfrq},#{ys},#{zcfs},'#{zdnd}','#{zrz}','#{zwdw}',#{swrq}, '#{sfygd}');"    
+          intcr=intcr.to_i+1
+        end
+      end
+      if insert_str!=''
+        puts insert_str      
+        $conn.exec(insert_str)
+      end
     end
   end    
 end
@@ -156,7 +171,7 @@ path = "./dady/tmp1/#{pp}"
 $stderr.puts "processing #{ifname} ..."
 
 sfw_tbl = (ss[1]=="发文")?  'doc_fw' : 'doc_sw'
-$conn.exec("delete from #{sfw_tbl} where qzh='#{qzh}';")
+#$conn.exec("delete from #{sfw_tbl} where qzh='#{qzh}';")
 
 outfile = rand(36**8).to_s(36)
 decode_file("#{ifname}", "#{outfile}", path)

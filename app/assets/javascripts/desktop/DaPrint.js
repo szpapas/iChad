@@ -151,7 +151,7 @@ Ext.define('MyDesktop.DaPrint', {
 							},
 							{
 								xtype: 'label',
-								text: 'X坐标:',
+								text: 'X坐标(横):',
 								x: 10,
 								y: 40,
 								width: 100
@@ -159,7 +159,7 @@ Ext.define('MyDesktop.DaPrint', {
 							,
 							{
 								xtype: 'label',
-								text: 'Y坐标:',
+								text: 'Y坐标(纵):',
 								x: 10,
 								y: 70,
 								width: 100
@@ -397,6 +397,62 @@ Ext.define('MyDesktop.DaPrint', {
 						Ext.getCmp('ym_sfdybt').x=130;
 						Ext.getCmp('ym_sfdybt').y=190;
 						break;
+					case '矿业权人': 
+						Ext.getCmp('sfdybt').hidden=false;
+						Ext.getCmp('ym_sfkg').hidden=true;
+						Ext.getCmp('ym_sfdybt').hidden=false;
+						Ext.getCmp('ym_sfdybt').x=130;
+						Ext.getCmp('ym_sfdybt').y=190;
+						break;
+						case '矿业权人': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '现许可证': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿山名称': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿山位置': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '矿种': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
+						case '登记类型': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;		
+						case '有效期限': 
+							Ext.getCmp('sfdybt').hidden=false;
+							Ext.getCmp('ym_sfkg').hidden=true;
+							Ext.getCmp('ym_sfdybt').hidden=false;
+							Ext.getCmp('ym_sfdybt').x=130;
+							Ext.getCmp('ym_sfdybt').y=190;
+							break;
 					default:
 						Ext.getCmp('sfdybt').hidden=true;
 						Ext.getCmp('ym_sfdybt').hidden=true;
@@ -676,7 +732,7 @@ Ext.define('MyDesktop.DaPrint', {
 			if (win==null) {
 				win = new Ext.Window({
 					id : 'ym_setup_win',
-					title: '页面设置(单位：0.1毫米。页面左上角坐标：0,0)',					
+					title: '页面设置(单位：0.1毫米；页面左上角坐标：0,0；向上移动X坐标值减，向下移动坐标值加，向左移动Y坐标值减，向右移动Y坐标值加)',					
 					width: 700,
 					height: 580,
 					minHeight: 530,
@@ -818,9 +874,9 @@ Ext.define('MyDesktop.DaPrint', {
 						layout: 'absolute',
 						items: [
 							{
-			          	      xtype: 'combobox',
-				              width: 215,
-				              fieldLabel: '打印类别',
+			          	      	xtype: 'combobox',
+				              	width: 215,
+				              	fieldLabel: '打印类别',
 								name: 'dylb',
 								store: print_lb_store,
 								emptyText:'请选择',
@@ -830,14 +886,14 @@ Ext.define('MyDesktop.DaPrint', {
 								displayField:'text',
 								triggerAction:'all',
 								id:'print_dylb',
-				              labelWidth: 65,
-				              x: 10,
-				              y: 10
+				              	labelWidth: 65,
+				              	x: 10,
+				              	y: 10
 			            	},
 							{
-			                  xtype: 'combobox',
-			                  width: 215,
-			                  fieldLabel: '全宗名称',
+			                  	xtype: 'combobox',
+			                  	width: 215,
+			                  	fieldLabel: '全宗名称',
 								store: qz_store_print,
 								emptyText:'请选择',
 								mode: 'local',
@@ -846,9 +902,10 @@ Ext.define('MyDesktop.DaPrint', {
 								displayField:'dwdm',
 								triggerAction:'all',
 								name: 'qzh',
-			                  labelWidth: 65,
-			                  x: 10,
-			                  y: 40
+								id:'print_qzh',
+			                  	labelWidth: 65,
+			                  	x: 10,
+			                  	y: 40
 			              	},
 							{
 			                    xtype: 'combobox',
@@ -866,7 +923,7 @@ Ext.define('MyDesktop.DaPrint', {
 			                    x: 10,
 			                    y: 70,
 								listConfig: { loadMask: false },
-				                  listeners:{  
+				                listeners:{
 				                    select:function(combo, record,index){
 				                    	var parent=Ext.getCmp('print_model');
 									
@@ -875,15 +932,20 @@ Ext.define('MyDesktop.DaPrint', {
 					                    	parent.store.load({params:{param:'土地登记打印'}});
 											print_model_query='土地登记打印';
 										}else{
-											parent.store.load({params:{param:'通用打印'}});
-											print_model_query='通用打印';
+											if(this.value=='35'){
+												parent.store.load({params:{param:'矿业权打印'}});
+												print_model_query='矿业权打印';
+											}else{
+												parent.store.load({params:{param:'通用打印'}});
+												print_model_query='通用打印';
+											}
 										}
 						                  //var currentImage = combo.getStore().getById(parent.getValue());
 						                  //var currentStoreIndex = parent.getStore().indexOf(currentImage);
 						                  //var nextStoreValue = parent.getStore().getAt(1).get('id');
 						                  parent.setValue('标准'+print_model_query+'模板');
 				                    //Ext.getCmp('fj_sslc').lastQuery = null;
-				                    }
+				                  }
 								}
 			                },
 							{
@@ -954,6 +1016,17 @@ Ext.define('MyDesktop.DaPrint', {
 			                    y: 250
 			                },
 							{
+			                    xtype: 'textfield',
+			                    width: 215,
+								hidden:true,
+			                    fieldLabel: '止案卷号',
+								name: 'userid',
+								id:'print_userid',
+			                    labelWidth: 65,
+			                    x: 10,
+			                    y: 250
+			                },
+							{
 			                    xtype: 'combobox',
 			                    width: 215,
 			                    fieldLabel: '打印模板',
@@ -997,7 +1070,7 @@ Ext.define('MyDesktop.DaPrint', {
 										onComplete:	 function(request) {
 											fhz=request.responseText.split(":");
 											if (fhz[0]=='success'){	
-												if (pars.dylb=='案卷封面打印' || pars.dylb=='卷内目录打印'){									
+												if (pars.dylb=='卷内目录打印'){									
 											    	printfile=fhz[1].split(",");
 												    for (k=0;k<printfile.length;k++){
 												      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));   				             
@@ -1018,14 +1091,41 @@ Ext.define('MyDesktop.DaPrint', {
 										              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
 										              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
 										              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-										              LODOP.PREVIEW();
-												      //LODOP.PRINT();
+										              //LODOP.PREVIEW();
+												      LODOP.PRINT();
 													  
 													}
 													alert("打印成功。" );
 												}else{
-													//location.href= fhz[1];
-													window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+													if(pars.dylb=='案卷封面打印'){
+														if(Ext.getCmp('print_qzh').rawValue!='无锡市国土资源局'){
+															window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+														}else{
+															printfile=fhz[1].split(",");
+														    for (k=0;k<printfile.length;k++){
+														      LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));
+															  var number = Math.random(); 
+															  image_path = window.location.href + "assets/dady/tmp1/" + printfile[k] +'?' + number;
+															  LODOP.PRINT_INIT(image_path);  															  								      
+												              LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+												              LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+												              LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+												              //LODOP.PREVIEW();
+														      LODOP.PRINT();
+															}
+															alert("打印成功。" );
+														}
+													}
+													else{
+														if(pars.dylb=='备考表打印'){
+															cz_msg(fhz[1]);
+															//window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+														}else{
+															cz_msg(fhz[1]);
+														}
+													}
+													
+												//	window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 												}
 													//alert("打印成功。"+fhz[1] );	
 													//alert("打印成功。" );								
@@ -1052,6 +1152,7 @@ Ext.define('MyDesktop.DaPrint', {
               
           });
       }
+	  Ext.getCmp('print_userid').setValue(user_id);
       win.show();
       return win;
   }

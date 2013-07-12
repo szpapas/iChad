@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby  xxxxxxx
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
@@ -17,7 +17,7 @@ require 'find'
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = off")
 
-dh_prefix, filename, dh = ARGV[2], ARGV[0], ARGV[1]
+dh_prefix, filename, dh ,czr ,czrname= ARGV[2], ARGV[0], ARGV[1], ARGV[3], ARGV[4]
 ss = dh_prefix.split('-')
 qzh,dalb,mlh = ss[0],ss[1],ss[2]
 
@@ -40,7 +40,7 @@ def getimgsize(fname)
   ss
 end
 
-def save2timage(filename,dh,dh_prefix)
+def save2timage(filename,dh,dh_prefix,czr,czrname)
   fo = File.open(filename).read
   if fo.size == 0
     $stderr.puts(" *** Import Image: #{path}  file size is zero.")
@@ -121,18 +121,65 @@ def save2timage(filename,dh,dh_prefix)
   file_title = pp[pp.size-1]
   yxmc=pp[pp.size-1]
   yxbh=pp[pp.size-1]
+  rq=Time.now.strftime("%Y-%m-%d %H:%M:%S") 
   puts "delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';"  
   $conn.exec("delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';")
   #puts "insert file: #{path}  size: #{width}, #{height}  meta: #{meta_tz}   ... "
-  puts "insert into timage (width, height,dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel,dh_prefix,sfzs) values ('#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels}, '#{dh_prefix}',1);"
-  $conn.exec("insert into timage (width, height,dh, yxmc, yxbh, yxdx, data, meta, meta_tz, pixel,dh_prefix,sfzs) values ('#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , '#{meta}', #{meta_tz}, #{pixels}, '#{dh_prefix}',1);")
+
+  puts "insert into timage (rq,czr,czrname,width, height,dh, yxmc, yxbh, yxdx, meta, meta_tz, pixel,dh_prefix,sfzs) values ('#{rq}','#{czr}', '#{czrname}',#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx},  '#{meta}', #{meta_tz}, #{pixels}, '#{dh_prefix}',1);"
+  #if meta!=''
+  #  meta=meta.gsub('"','')
+  #end
+  $conn.exec("insert into timage (rq,czr,czrname,width, height,dh, yxmc, yxbh, yxdx, data, meta_tz, pixel,dh_prefix,sfzs) values ('#{rq}','#{czr}', '#{czrname}','#{width}', '#{height}','#{dh}', '#{yxmc}', '#{yxbh}', #{yxdx}, E'#{edata}' , #{meta_tz}, #{pixels}, '#{dh_prefix}',1);")
+  
+  ss=dh.split('-')
+  archive=$conn.exec("select * from archive where dh='#{dh}'")
+  if ss.length==4
+    qzh=ss[0]
+    dalb=ss[1]
+    
+    if dalb=='24'
+      rsmlh=$conn.exec("select * from a_wsda_key where id=#{ss[2]}")
+      if rsmlh.count>0
+        mlh=rsmlh[0]['bgqx'].to_s + rsmlh[0]['nd'].to_s + rsmlh[0]['jgwth'].to_s
+      else
+        mlh=archive[0]['mlh']
+      end
+    else
+      mlh=archive[0]['mlh']
+    end    
+    ajh=ss[ss.length-1]
+  else
+    mlh=archive[0]['mlh']
+    ajh=ss[ss.length-1]
+    qzh=ss[0]
+    dalb=ss[1]
+  end
+  rsdalbmc=$conn.exec("select * from d_dalb where id=#{dalb}")
+  if rsdalbmc.count>0 
+    dalbmc=rsdalbmc[0]['lbmc']
+  else
+    dalbmc=''
+  end
+  rsdwmc=$conn.exec("select * from d_dwdm where id=#{qzh}")
+  if rsdwmc.count>0 
+    dwmc=rsdwmc[0]['dwdm']
+  else
+    dwmc=''
+  end
+  if ajh.length>3
+    ajh=ajh
+  else
+    ajh=sprintf("%04d", ajh)
+  end
+  $conn.exec("insert into d_rz(dwmc,dalbmc,rq,mlh,ajh,dalb,qzh,czlx,czr,czqnr,czhnr) values('#{dwmc}','#{dalbmc}','#{rq}','#{mlh}','#{ajh}','#{dalb}','#{qzh}','影像新增','#{czrname}','#{yxmc}','#{yxmc}') ")
 end
 
 #filename.downcase 转成小写
 puts filename.upcase
-if (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG') || (filename.upcase.include?'XLS') || (filename.upcase.include?'XLSX') || (filename.upcase.include?'DOC') || (filename.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+if (filename.upcase.include?'AVI') || (filename.upcase.include?'MOV') || (filename.upcase.include?'WMV') || (filename.upcase.include?'MP4') || (filename.upcase.include?'RMVB') || (filename.upcase.include?'PPT') || (filename.upcase.include?'JPG') || (filename.upcase.include?'TIF') || (filename.upcase.include?'TIFF') || (filename.upcase.include?'JPEG') || (filename.upcase.include?'XLS') || (filename.upcase.include?'XLSX') || (filename.upcase.include?'DOC') || (filename.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
   puts (filename.upcase.include?'JPG')
-  save2timage(filename,dh,dh_prefix)
+  save2timage(filename,dh,dh_prefix,czr,czrname)
 else
   if (filename.upcase.include?'RAR') || (filename.upcase.include?'ZIP')
     file=filename.split('/')
@@ -159,12 +206,13 @@ else
       else
         puts filename
         puts (filename.upcase.include?'JPEG')
-        if (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+        if (filename.upcase.include?'AVI') || (filename.upcase.include?'MOV') || (filename.upcase.include?'WMV') || (filename.upcase.include?'MP4') || (filename.upcase.include?'RMVB') || (filename.upcase.include?'PPT') || (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
           puts path
-          save2timage(path,dh,dh_prefix)
+          save2timage(path,dh,dh_prefix,czr,czrname)
         end
       end
     end
+
   end
 end
 

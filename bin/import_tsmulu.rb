@@ -2,12 +2,20 @@
 #$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/' << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
 #$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-2.3.5/lib' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.3.6/lib'
 #这个是服务器上的文件夹
-#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
 require 'pg'
 require 'active_support'
 
-
+#*********************************************************************************************
+#
+#
+#
+#   2012-12-25 wny修改 在导入输档数据时，删除一个案卷再导一个案卷，而不是先删除整个目录号再导入。
+#
+#
+#
+#*********************************************************************************************
 
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $conn.exec("set standard_conforming_strings = on")
@@ -126,22 +134,38 @@ def update_owner
 end 
 
 def set_documents(tt, dwdm, qzh, dalb, mlh)
-  for k in 0..tt.size-1 
-    
+  
+  for k in 0..tt.size-1    
       user = tt[k]['Table']
+      mlm  = user['目录号'] 
       tm      = user['题名'] 
       ajh     = user['案卷号'].rjust(4,"0")
       if dalb!=20
         sxh     = user['顺序号']
       else
         #sxh     = user['照片号']
-        sxh     = 0
+        if user['照片号']==''
+          sxh=0
+        else
+          sxh     = user['照片号']
+        end
       end
       yh      = user['页号']
       wh      = user['文号']
       zrz     = user['责任者']
       rq      = user['日期']
       bz      = user['备注']
+      flh= user['分类号']
+      
+      if dalb.to_i==27
+        rsmlh=$conn.exec("select * FROM qzml_key where mlm='#{mlm}' and qzh='#{qzh}' and dalb='#{dalb}' and nd='#{flh}';")
+        if rsmlh.count>0
+          mlh=rsmlh[0]['id']
+        else
+          insertmlh=$conn.exec("INSERT INTO qzml_key(mlm,qzh,nd,dalb) VALUES ('#{mlm}','#{qzh}','#{flh}','#{dalb}') returning id;")
+          mlh=insertmlh[0]['id']
+        end
+      end
     
       dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
       if rq.nil?
@@ -156,7 +180,8 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
       else    
         rq = "TIMESTAMP '#{rq}'"
       end
-      tm=tm.gsub(' ','')
+      tm=tm.gsub(' ','')   
+      $conn.exec(" DELETE FROM document where dh='#{dh}' and sxh='#{sxh}';")   
       insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}')  RETURNING id;"
       puts insert_str
       document=$conn.exec(insert_str)
@@ -190,7 +215,7 @@ def set_documents(tt, dwdm, qzh, dalb, mlh)
       $conn.exec(" DELETE FROM a_zp where dh='#{dh}' and zph='#{zph}';")
       insert_str =  " INSERT INTO a_zp (dh, psrq, zph,  psz, cfwz, sy, dd, rw, bj,ownerid) values ('#{dh}',   #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}',#{document[0]['id']});"
       
-      #puts insert_str
+      puts insert_str
       #$conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
       $conn.exec(insert_str)
     end
@@ -218,6 +243,8 @@ end
 def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
   for k in 0..tt.size-1 
     user = tt[k]['Table']
+    qrq=''
+    zrq=''
     ajh     = user['案卷号']
     tm      = user['案卷标题']
     flh     = user['分类号']
@@ -242,10 +269,16 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     tm  = user['案卷题名'] if tm.nil?
     tm  = user['题名'] if tm.nil?
     tm  = user['图名'] if tm.nil?
+    tm  = user['名称'] if tm.nil?
+    tm  = user['标题'] if tm.nil?
     ajh = user['件号'] if ajh.nil?
     ajh = user['序号'] if ajh.nil?
+    nd  = user['出版年度'] if nd.nil?
     if dalb==25
       ajh     = user['顺序号']
+    end
+    if dalb==26
+      nd     = user['建设年代']
     end
     ajh = ajh.rjust(4,"0")
     
@@ -259,66 +292,137 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
     end
     
     if nd.nil? || nd==''
-      $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh}"
+      $stderr.puts "错误： 年度为空了： #{dh}, 档案类别： #{dalb}, 目录号：#{mlh}, 案卷号： #{ajh} 起日期:#{qrq}"
       $stderr.puts 
-      nd='1900'
-    end  
-    
+      nd=''
+    end 
     if qrq.nil?
-      if qny.nil? || qny == ''
-        qrq = "#{nd}-01-01"
-        zrq = "#{nd}-12-31"
-        qny = "#{nd}01"
-        zny = "#{nd}12"
-      else
-        qyy,qmm = qny[0..3], qny[4..5]
-        if qmm.to_i == 0
-          qmm = '01'
-          qny = qyy+'01'
-        end
-        if qmm.to_i>12
-          qmm = '12'
-          qny = qyy+'12'
-        end
-        qrq = "#{qyy}-#{qmm}-01"
-
-        zyy = zny[0..3]
-        zmm = zny[4..5]
-        if zmm.to_i ==0
-          zmm = '01'
-          zny = zyy + '01'
-        end  
-        if zmm.to_i>=12
-          t1 = Time.mktime(zyy, 12, 31)
-          zny = zyy+'12'
-        else
-          t1 = Time.mktime(zyy, (zmm.to_i+1).to_s)-86400
-        end
-        zrq = t1.strftime("%Y-%m-%d")
-      end
-    else
-      if qrq.size == 6 
-        qyy,qmm,qdd = qrq[0..3], qrq[4..5],qrq[6..7]
-        zyy,zmm,zdd = zrq[0..3], zrq[4..5],zrq[6..7]
-
-        qrq = "#{qyy}-#{qmm}-#{qdd}"
-        zrq = "#{zyy}-#{zmm}-#{zdd}"
-
-        qny = "#{qyy}#{qmm}"
-        zny = "#{zyy}#{zmm}"
-      end
-
+      qrq=''
     end
+    if zrq.nil?
+      zrq=''
+    end 
+    if qrq.nil? || qrq==''
+      qrq = 'null' 
+    elsif qrq.length==4
+      qrq = "TIMESTAMP '#{qrq}0101'"
+    elsif qrq.length==6
+      qrq = "TIMESTAMP '#{qrq}01'"
+    else    
+      qrq = "TIMESTAMP '#{qrq}'"
+    end
+    if zrq.nil? || zrq==''
+      zrq = 'null' 
+    elsif zrq.length==4
+      zrq = "TIMESTAMP '#{zrq}0101'"
+    elsif zrq.length==6
+      zrq = "TIMESTAMP '#{zrq}01'"
+    else    
+      zrq = "TIMESTAMP '#{zrq}'"
+    end
+   # if qrq.nil?
+   #   if qny.nil? || qny == ''
+   #     qrq = "#{nd}-01-01"
+   #     zrq = "#{nd}-12-31"
+   #     qny = "#{nd}01"
+   #     zny = "#{nd}12"
+   #   else
+   #     qyy,qmm = qny[0..3], qny[4..5]
+   #     if qmm.to_i == 0
+   #       qmm = '01'
+   #       qny = qyy+'01'
+   #     end
+   #     if qmm.to_i>12
+   #       qmm = '12'
+   #       qny = qyy+'12'
+   #     end
+   #     qrq = "#{qyy}-#{qmm}-01"
+   #
+   #     zyy = zny[0..3]
+   #     zmm = zny[4..5]
+   #     if zmm.to_i ==0
+   #       zmm = '01'
+   #       zny = zyy + '01'
+   #     end  
+   #     if zmm.to_i>=12
+   #       t1 = Time.mktime(zyy, 12, 31)
+   #       zny = zyy+'12'
+   #     else
+   #       t1 = Time.mktime(zyy, (zmm.to_i+1).to_s)-86400
+   #     end
+   #     zrq = t1.strftime("%Y-%m-%d")
+   #   end
+   # else
+   #   if qrq.size == 6 
+   #     qyy,qmm,qdd = qrq[0..3], qrq[4..5],qrq[6..7]
+   #     zyy,zmm,zdd = zrq[0..3], zrq[4..5],zrq[6..7]
+   #
+   #     qrq = "#{qyy}-#{qmm}-#{qdd}"
+   #     zrq = "#{zyy}-#{zmm}-#{zdd}"
+   #
+   #     qny = "#{qyy}#{qmm}"
+   #     zny = "#{zyy}#{zmm}"
+   #   end
+   #
+   # end
+    #$conn.exec(" DELETE FROM archive where dh='#{dh}';")
+    if dalb.to_i!=2 && dalb.to_i!=27 &&  dalb.to_i!=29
+      rid=$conn.exec("select * FROM archive where dh='#{dh}';")
+      if rid.count>0
+        if rfidstr==''
+          update_str="update archive set mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        else
+          update_str="update archive set boxstr='#{boxstr}',rfidstr='#{rfidstr}',boxrfid='#{boxrfid}',mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        end
+        puts update_str
+        ownerid = rid[0]['id']
+      else
+        insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', #{qrq}, #{zrq}, '#{dalb}','0') returning id;"
+        rid1 = $conn.exec(insert_str)
+        ownerid = rid1[0]['id']
+        puts insert_str
+      end 
+    end     
 
-    insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', TIMESTAMP '#{qrq}', TIMESTAMP '#{zrq}', '#{dalb}','0') returning id;"
+    
     
     #puts insert_str
-    rid = $conn.exec(insert_str)
-    ownerid = rid[0]['id']
+    
     
     case dalb
     when 0  #综合档案 
     when 2  #财务档案
+      
+      sfxls=$conn.exec("select * FROM s_setup where dwid=#{qzh} and cwsfxls='是';")
+      if sfxls.count>0
+        rsmlh=$conn.exec("select * FROM qzml_key where mlm='#{mlm}' and qzh='#{qzh}' and dalb='#{dalb}' and nd='#{nd}';")
+        if rsmlh.count>0
+          mlh=rsmlh[0]['id']
+        else
+          insertmlh=$conn.exec("INSERT INTO qzml_key(mlm,qzh,nd,dalb) VALUES ('#{mlm}','#{qzh}','#{nd}','#{dalb}') returning id;")
+          mlh=insertmlh[0]['id']
+        end
+      end
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+      rid=$conn.exec("select * FROM archive where dh='#{dh}';")
+      if rid.count>0
+        if rfidstr==''
+          update_str="update archive set mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        else
+          update_str="update archive set boxstr='#{boxstr}',rfidstr='#{rfidstr}',boxrfid='#{boxrfid}',mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        end
+        puts update_str
+        ownerid = rid[0]['id']
+      else
+        insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', #{qrq}, #{zrq}, '#{dalb}','0') returning id;"
+        rid1 = $conn.exec(insert_str)
+        ownerid = rid1[0]['id']
+        puts insert_str
+      end
       jnzs  = user['卷内张数']
       pzqh  = user['凭证起号']
       pzzh  = user['凭证止号']
@@ -328,15 +432,57 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       $conn.exec(" DELETE FROM a_jhcw where dh='#{dh}';")
       $conn.exec(insert_str)
       
-    when 3  #土地登记
+    when 3,36,37,38,39  #土地登记
       djh   = user['地籍号']
-      qlrmc = user['权利人名称'].gsub("\\",'').gsub("、", " ")
-      tdzl  = user['土地座落'].gsub("\\","~")
-      qsxz  = user['权属性质']
-      ydjh  = user['原地籍号']
+      xmmc  = ''
+      txqz=''
+      dyrmc=''
+      dyqrmc=''
+      txqrrmc=''
+      cjfr=''
+      case dalb
+        when 3
+          qlrmc = user['权利人名称'].gsub("\\",'').gsub("、", " ")
+          tdzl  = user['土地座落'].gsub("\\","~")
+          qsxz  = user['权属性质']
+          ydjh  = user['原地籍号']
+          tdzh  = user['土地证号']
+        when 36
+          qlrmc = user['权利人名称'].gsub("\\",'').gsub("、", " ")  + ';' + user['查解封人'].gsub("\\",'').gsub("、", " ")
+          tdzl  = user['土地座落'].gsub("\\","~")
+          qsxz  = user['权属性质']
+          ydjh  = user['原地籍号']
+          tdzh  = user['土地证号']
+          cjfr = user['查解封人']
+        when 37  
+          qlrmc = user['抵押权人名称'].gsub("\\",'').gsub("、", " ") + ';' + user['抵押人名称'].gsub("\\",'').gsub("、", " ")
+          tdzl  = user['土地座落'].gsub("\\","~")
+          qsxz  = user['权属性质']
+          ydjh  = user['原地籍号']
+          tdzh  = user['土地证号'] 
+          txqz =  user['他项权证号'] 
+          dyrmc = user['抵押人名称'].gsub("\\",'').gsub("、", " ")
+          dyqrmc = user['抵押权人名称'].gsub("\\",'').gsub("、", " ")
+        when 38
+          qlrmc = user['义务人名称'].gsub("\\",'').gsub("、", " ")  + ';' + user['他项权人名称'].gsub("\\",'').gsub("、", " ")
+          tdzl  = user['土地座落'].gsub("\\","~")
+          qsxz  = user['权属性质']
+          ydjh  = user['原地籍号']
+          tdzh  = user['土地证号'] 
+          txqz =  user['他项权证号'] 
+          txqrrmc = user['他项权人名称'].gsub("\\",'').gsub("、", " ")          
+        when 39
+          qlrmc = user['用地单位'].gsub("\\",'').gsub("、", " ") + ';' + user['项目名称'].gsub("\\",'').gsub("、", " ")
+          tdzl  = user['项目座落'].gsub("\\","~")
+          qsxz  = user['权属性质']
+          ydjh  = user['原地籍号']
+          tdzh  = user['土地证号']
+          xmmc  = user['项目名称']
+      end
+      
 
-      insert_str = " INSERT INTO a_tddj(ownerid,dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES (#{ownerid},'#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
-      #puts insert_str
+      insert_str = " INSERT INTO a_tddj(cjfr,txqrrmc,dyrmc,dyqrmc,txqz,xmmc,tdzh,ownerid,dh,djh,qlrmc,tdzl,qsxz,ydjh)  VALUES ('#{cjfr}','#{txqrrmc}','#{dyrmc}','#{dyqrmc}','#{txqz}','#{xmmc}','#{tdzh}',#{ownerid},'#{dh}','#{djh}','#{qlrmc}','#{tdzl}','#{qsxz}','#{ydjh}');"
+      puts insert_str
       $conn.exec(" DELETE FROM a_tddj where dh='#{dh}';")
       $conn.exec(insert_str)
       
@@ -453,6 +599,32 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
       $conn.exec(insert_str)
       
     when 27 #设备档案
+      
+      rsmlh=$conn.exec("select * FROM qzml_key where mlm='#{mlm}' and qzh='#{qzh}' and dalb='#{dalb}' and nd='#{flh}';")
+      if rsmlh.count>0
+        mlh=rsmlh[0]['id']
+      else
+        insertmlh=$conn.exec("INSERT INTO qzml_key(mlm,qzh,nd,dalb) VALUES ('#{mlm}','#{qzh}','#{flh}','#{dalb}') returning id;")
+        mlh=insertmlh[0]['id']
+      end
+      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+      rid=$conn.exec("select * FROM archive where dh='#{dh}';")
+      if rid.count>0
+        if rfidstr==''
+          update_str="update archive set mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        else
+          update_str="update archive set boxstr='#{boxstr}',rfidstr='#{rfidstr}',boxrfid='#{boxrfid}',mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+          $conn.exec(update_str)
+        end
+        puts update_str
+        ownerid = rid[0]['id']
+      else
+        insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', #{qrq}, #{zrq}, '#{dalb}','0') returning id;"
+        rid1 = $conn.exec(insert_str)
+        ownerid = rid1[0]['id']
+        puts insert_str
+      end
       zcmc   = user['资产名称']
       rq     = user['购置时间']
       dw     = user['单位']
@@ -515,7 +687,36 @@ def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
 
       #puts insert_str
       $conn.exec("DELETE from a_swda where dh like '#{dh}';")
-      $conn.exec(insert_str)      
+      $conn.exec(insert_str) 
+      when 29 #资料信息
+        bh   = user['编号']
+        lb   = user['类别']
+        bzdw  = user['编制单位']
+        
+        dh = "#{qzh}-#{dalb}-#{mlh}-#{bh}"
+        rid=$conn.exec("select * FROM archive where dh='#{dh}';")
+        if rid.count>0
+          if rfidstr==''
+            update_str="update archive set mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+            $conn.exec(update_str)
+          else
+            update_str="update archive set boxstr='#{boxstr}',rfidstr='#{rfidstr}',boxrfid='#{boxrfid}',mlm='#{mlh}', mlh='#{mlm}',nd='#{nd}', bgqx='#{bgqx}', xh='#{xh}', cfwz='#{cfwz}', bz='#{bz}', flh='#{flh}', tm='#{tm}', ys=#{ys}, dh='#{dh}', zny='#{zny}', qny='#{qny}', js=#{js}, ajh='#{ajh}' where id = #{rid[0]['id']};"
+            $conn.exec(update_str)
+          end
+          puts update_str
+          ownerid = rid[0]['id']
+        else
+          insert_str = " INSERT INTO archive(dh,dwdm,qzh,mlh,mlm,ajh,tm,flh,nd,zny,qny,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qrq,zrq,dalb,dyzt)  VALUES ('#{dh}','#{dwdm}','#{qzh}','#{mlm}','#{mlh}','#{ajh}','#{tm}','#{flh}','#{nd}','#{zny}','#{qny}',#{js},#{ys},'#{bgqx}','#{mj}','#{xh}','#{cfwz}','#{bz}','#{boxstr}','#{rfidstr}','#{boxrfid}', #{qrq}, #{zrq}, '#{dalb}','0') returning id;"
+          rid1 = $conn.exec(insert_str)
+          ownerid = rid1[0]['id']
+          puts insert_str
+        end
+
+        insert_str = "INSERT INTO a_zlxx (dh,ownerid, bh,lb,bzdm) values ('#{dh}','#{ownerid}', '#{bh}','#{lb}','#{bzdw}');"
+
+        #puts insert_str
+        $conn.exec("DELETE from a_zlxx where dh like '#{dh}';")
+        $conn.exec(insert_str)     
     when 35 #矿业权
       
        xxkz  = user['现许可证号']
@@ -596,10 +797,21 @@ else
     mm = /(\w+-\d+)(.*)aj/.match(ifname)
     dalb = get_dalb(mm[2])
     mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  elsif 
+    !/(\d+\w+)(.*)aj/.match(ifname).nil?
+      mm = /(\d+\w+)(.*)aj/.match(ifname)
+      dalb = get_dalb(mm[2])
+      mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+  elsif 
+    !/(\d+-\w+)(.*)aj/.match(ifname).nil?
+      mm = /(\d+-\w+)(.*)aj/.match(ifname)
+      dalb = get_dalb(mm[2])
+      mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
   elsif !/(\d+)(.*)aj/.match(ifname).nil?
     mm = /(\d+)(.*)aj/.match(ifname)
     dalb = get_dalb(mm[2])
     mlm, mlh = mm[1], get_qzml(qzh, dalb, mm[1])
+      
   else
     puts "error: **** Unknow File  #{ifname} to process *****"
     exit
@@ -616,7 +828,7 @@ if ifname.include?('aj')
   
   #delete any document connected to dh
   #puts "delete from archive where dh like '#{dh}'; "
-  $conn.exec("delete from archive where dh like '#{dh}'; ")
+  #$conn.exec("delete from archive where dh like '#{dh}'; ")
   
   outfile = rand(36**8).to_s(36)
   #puts "#{ifname}\t#{outfile}\t#{path}"
@@ -626,9 +838,9 @@ if ifname.include?('aj')
   set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
   system ("rm #{path}/#{outfile}")
   
-  if dalb != 24 && dalb!=25  && dalb!=27 && dalb!=28  && dalb!=29 && dalb!=18
+  if dalb != 24 && dalb!=25   && dalb!=28  && dalb!=29 && dalb!=18
     #puts "delete from document where dh like '#{dh}'; "
-    $conn.exec("delete from document where dh like '#{dh}'; ")
+    #$conn.exec("delete from document where dh like '#{dh}'; ")
   
     outfile = rand(36**8).to_s(36)
     decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
@@ -650,11 +862,12 @@ if ifname.include?('aj')
   $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}-%') where dh_prefix='#{dh_prefix}';")
     
   #生成timage_tj
-  $conn.exec("delete from timage_tj where dh like '#{dh_prefix}-%';")
+  #$conn.exec("delete from timage_tj where dh like '#{dh_prefix}-%';")
   archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}-#{dalb}-#{mlh}-%' order by ajh;")
   puts "generating timage_tj files ..."
   for k in 0..archives.count-1
     ar = archives[k]
+    $conn.exec("delete from timage_tj where dh = '#{ar['dh']}';")
     $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{mlm}');")
   end
   #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');

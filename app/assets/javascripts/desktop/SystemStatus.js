@@ -988,34 +988,133 @@ Ext.define('MyDesktop.SystemStatus', {
               displayField:'text',
               triggerAction:'all',
           }, '-', {
-             text : '更新',
-             iconCls : 'x-tbar-loading',
-             handler : function() {
-               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-               id_str = '';
-               for (var i=0; i < items.length; i ++) {
-                 if (i==0) {
-                   id_str = id_str+items[i].data.id ;
-                 } else {
-                   id_str = id_str + ',' +items[i].data.id ;
-                 }
-               };
+			 text : '系统工具',
+             iconCls : '',
+             split:true,
+             menu: {
+	            width:100,
+	            items:[{
+             		text : '重新统计',
+	            	iconCls : 'x-tbar-loading',
+	            	handler : function() {
+	               	items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+		               id_str = '';
+		               for (var i=0; i < items.length; i ++) {
+		                 if (i==0) {
+		                   id_str = id_str+items[i].data.id ;
+		                 } else {
+		                   id_str = id_str + ',' +items[i].data.id ;
+		                 }
+		               };
                
-               if (items.length > 0) {
-                 pars = {id:id_str};
-                 new Ajax.Request("/desktop/update_qzxx_selected", { 
-                   method: "POST",
-                   parameters: pars,
-                   onComplete:  function(request) {
-                     qzgl_store.load();
-                   }
-                 });
-               } else {
-                 qzgl_store.load();
-               }
+		               if (items.length > 0) {
+		                 pars = {id:id_str};
+		                 new Ajax.Request("/desktop/update_qzxx_selected", { 
+		                   method: "POST",
+		                   parameters: pars,
+		                   onComplete:  function(request) {
+		                     qzgl_store.load();
+		                   }
+		                 });
+		               } else {
+		                 qzgl_store.load();
+		               }
                  
-             }
-           },'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
+		            }
+				},{
+		             text : '删除',
+		             iconCls : '',
+		             handler : function() {
+		               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
+		               id_str = '';
+		               for (var i=0; i < items.length; i ++) {
+		                 if (i==0) {
+		                   id_str = id_str+items[i].data.id ;
+		                 } else {
+		                   id_str = id_str + ',' +items[i].data.id ;
+		                 }
+		               };
+
+		               if (items.length > 0) {
+		                 pars = {id:id_str};
+		                 new Ajax.Request("/desktop/delete_qzxx_selected", { 
+		                   method: "POST",
+		                   parameters: pars,
+		                   onComplete:  function(request) {
+		                     qzgl_store.load();
+		                   }
+		                 });
+		               } else {
+		                 qzgl_store.load();
+		               }
+
+		             }
+				},{
+			         text : '生成缺重卷',
+		             iconCls : '',
+		             handler : function() {
+
+		                 pars = {id:''};
+		                 new Ajax.Request("/desktop/print_tj_qcj", { 
+		                   method: "POST",
+		                   parameters: pars,
+		                   onComplete:  function(request) {
+
+						    	if(request.responseText=='Success'){
+									qzzt_store.load();
+									alert('命令发送成功');
+			                     	//window.open('assets/dady/tj_qcj.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+							    }else{
+							    	alert('生成失败' +request.responseText);
+							    }
+		                   }
+		                 });
+
+		         	 }    
+				},{
+			         text : '生成全宗表',
+		             iconCls : '',
+		             handler : function() {
+		                 pars = {id:''};
+		                 new Ajax.Request("/desktop/print_qz_jsys", { 
+		                   method: "POST",
+		                   parameters: pars,
+		                   onComplete:  function(request) {
+								if(request.responseText=='Success'){
+									qzzt_store.load();
+									alert('命令发送成功');
+			                     	//window.open('assets/dady/qztj.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+								}else{
+									alert('生成失败' +request.responseText);
+								}
+		                   }
+		                 });
+
+		         	 }
+				},{
+			         text : '生成备份报表',
+		             iconCls : '',
+		             handler : function() {
+		                 pars = {id:''};
+		                 new Ajax.Request("/desktop/print_tj_back", { 
+		                   method: "POST",
+		                   parameters: pars,
+		                   onComplete:  function(request) {
+								if(request.responseText=='Success'){
+									qzzt_store.load();
+									alert('命令发送成功');
+			                     	//window.open('assets/dady/tj_back.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+								}else{
+									alert('生成失败' +request.responseText);
+								}
+			               }
+			
+		                 });
+
+		         	 }    
+				}]
+           }
+		},'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
            xtype:"textfield",
            id : 'lb_field',
            width: 40,
@@ -1319,7 +1418,37 @@ Ext.define('MyDesktop.SystemStatus', {
              handler : function() {
                qzzt_store.load();
              }                                 
-         }]
+         }	,{
+		         text : '提取缺重卷表',
+	             iconCls : '',
+	             handler : function() {
+
+	                
+	                     	window.open('assets/dady/tj_qcj.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+					    
+
+	         	}    
+			},{
+		         text : '提取全宗表',
+	             iconCls : '',
+	             handler : function() {
+
+	                 
+	                     	window.open('assets/dady/qztj.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+						
+
+	         	}    
+			},{
+		         text : '提取备份报表',
+	             iconCls : '',
+	             handler : function() {
+
+	                 
+	                     	window.open('assets/dady/tj_back.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+						
+
+	         	}    
+			}]
     }); 
     
     Ext.regModel('mulu_qz_model', {
@@ -1549,7 +1678,7 @@ Ext.define('MyDesktop.SystemStatus', {
           text:'平衡',
           iconCls:'',
           handler : function() {
-            Ext.Msg.confirm("确认", "用影像的数据修改输档的数据？", 
+            Ext.Msg.confirm("确认", "用影像的数据修改输档的数据（除空卷外）？", 
               function(btn){
                 if (btn=='yes') {
                   pars = {dh:mulu_qz_store.proxy.extraParams.dh};

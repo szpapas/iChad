@@ -1,4 +1,4 @@
-/*
+/* xxxx
 
 This file is part of Ext JS 4
 
@@ -246,9 +246,10 @@ Ext.define('MyDesktop.SystemMan', {
                               Ext.getCmp('user_disp_win').close();
                               
                               Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+							  Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                               Ext.getCmp('user_setup_grid').store.load();
                             }else{
-                              alert("修改失败，请重新修改。");
+                              alert("修改失败，请重新修改。" + request.responseText);
                             }
                           
                           }
@@ -263,9 +264,10 @@ Ext.define('MyDesktop.SystemMan', {
                                 alert("新增成功。");
                                 Ext.getCmp('user_disp_win').close();
                                 Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+								Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                                 Ext.getCmp('user_setup_grid').store.load();
                               }else{
-                                alert("新增失败，请重新新增。");
+                                alert("新增失败，请重新新增。" + request.responseText);
                               }
                             }
                           });
@@ -555,7 +557,7 @@ Ext.define('MyDesktop.SystemMan', {
           title: '用户设置',
           x : 300,
           y : 50,
-          width: 670,
+          width: 720,
           height: 500,
           minHeight: 500,
           layout: 'border',
@@ -635,6 +637,7 @@ Ext.define('MyDesktop.SystemMan', {
                           onComplete:  function(request) {
                             if (request.responseText=='success'){
                               Ext.getCmp('user_setup_grid').store.url='/desktop/get_user_grid';
+							  Ext.getCmp('user_setup_grid').store.proxy.extraParams.username='all';
                               Ext.getCmp('user_setup_grid').store.load();
                             }else{
                               alert("删除失败，请重新删除。");
@@ -710,6 +713,20 @@ Ext.define('MyDesktop.SystemMan', {
               }
             }
           },
+			'<span style=" font-size:12px;font-weight:600;color:#3366FF;">用户名称查询</span>:&nbsp;&nbsp;',
+            {
+              xtype:'textfield',id:'query_username_text'
+            },          
+            {xtype:'button',text:'查询',tooltip:'用户名称',iconCls:'accordion',
+                handler: function() {
+					Ext.getCmp('user_setup_grid').store.proxy.url='/desktop/get_user_grid';
+					Ext.getCmp('user_setup_grid').store.proxy.extraParams.username=Ext.getCmp('query_username_text').value;
+                	Ext.getCmp('user_setup_grid').store.load();
+                  	//store3.proxy.url="/desktop/get_document_where";
+                  	//store3.proxy.extraParams.query=Ext.getCmp('query_jr_text').value;
+                  	//store3.load();
+                }
+            },
           {
             xtype: 'button',
             iconCls: 'exit',
@@ -2672,6 +2689,438 @@ Ext.define('MyDesktop.SystemMan', {
       win.show();
     };
 
+    var tj_ysjs_setup = function(){
+	//缺重卷检验
+      var win = Ext.getCmp('tj_ysjs_win');
+
+      Ext.regModel('tj_ysjs_model', {
+        fields: [
+          {name: 'xh',    type: 'integer'},
+          {name: 'mlh',    type: 'string'},
+          {name: 'jshj',    type: 'string'},
+          {name: 'yshj',    type: 'string'}
+        ]
+      });
+
+      var tj_ysjs_store = Ext.create('Ext.data.Store', {
+        id:'tj_ysjs_store',
+        model : 'tj_ysjs_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/tj_ysjs_grid',
+          //extraParams: cx_tj,
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+      var tj_ysjs_grid = new Ext.grid.GridPanel({
+        id : 'tj_ysjs_grid',
+        store: tj_ysjs_store,        
+        columns: [
+          { text : '目录号',  width : 100, sortable : true, dataIndex: 'mlh'},
+          { text : '页数合计',  width : 100, sortable : true, dataIndex: 'yshj'},
+          { text : '件数合计',  width : 100, sortable : true, dataIndex: 'jshj'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            
+          },
+        
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'tj_ysjs_win',
+          title: '档案页数件数统计',
+          //closeAction: 'hide',
+          width: 770,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:tj_ysjs_grid,          
+          tbar:[
+          	'<span style=" font-size:12px;font-weight:500;color:#3366FF;">目录号</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_mlh',
+			},
+			'<span style=" font-size:12px;font-weight:500;color:#3366FF;">年度</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_nd',
+			},
+			'<span style=" font-size:12px;font-weight:500;color:#3366FF;">保管期限</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_bgqx',
+			},
+			'<span style=" font-size:12px;font-weight:500;color:#3366FF;">机构问题号</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_jgwth',
+			},
+			'<span style=" font-size:12px;font-weight:500;color:#3366FF;">起案卷号</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_qajh',
+			},
+			'<span style=" font-size:12px;font-weight:500;color:#3366FF;">止案卷号</span>',
+			{
+				xtype:'textfield',
+				width: 50,
+				id:'tj_ysjs_zajh',
+			},				  
+			{	
+				xtype:'button',text:'检索',tooltip:'检索',id:'tj_ysjs_query',iconCls:'search',
+				handler: function() {
+					console.log(Ext.getCmp('tj_ysjs_mlh').value);
+					if (Ext.getCmp('tj_ysjs_mlh').rawValue!="" || Ext.getCmp('tj_ysjs_nd').rawValue!=""){
+						var grid = Ext.getCmp('tj_ysjs_grid');
+						grid.store.proxy.url="/desktop/tj_ysjs_grid";
+						grid.store.proxy.extraParams.query=Ext.getCmp('tj_ysjs_mlh').rawValue;	
+						grid.store.proxy.extraParams.userid=currentUser.id; 
+						grid.store.proxy.extraParams.qajh=Ext.getCmp('tj_ysjs_qajh').rawValue; 
+						grid.store.proxy.extraParams.nd=Ext.getCmp('tj_ysjs_nd').rawValue; 
+						grid.store.proxy.extraParams.bgqx=Ext.getCmp('tj_ysjs_bgqx').rawValue; 
+						grid.store.proxy.extraParams.jgwth=Ext.getCmp('tj_ysjs_jgwth').rawValue; 
+						grid.store.proxy.extraParams.zajh=Ext.getCmp('tj_ysjs_zajh').rawValue; 							
+						grid.store.load();
+					}
+				}
+			},
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('tj_ysjs_win').close();
+            }
+          }]
+          
+        });
+      }
+      
+
+      win.show();
+    };
+
+    var rz_manage = function(){
+	//缺重卷检验
+      var win = Ext.getCmp('rz_manage_win');
+
+      Ext.regModel('rz_manage_model', {
+        fields: [
+		  {name: 'rq',    type: 'date', dateFormat: 'Y-m-d H:i:s'},
+          {name: 'czr',    type: 'string'},
+          {name: 'czlx',    type: 'string'},
+          {name: 'mlh',    type: 'string'},
+          {name: 'ajh',    type: 'string'},
+		  {name: 'dalbmc',    type: 'string'},
+		　　{name: 'czhnr',    type: 'string'},
+		  {name: 'czqnr',    type: 'string'},
+		  {name: 'dwmc',    type: 'string'},
+		　　{name: 'qzh',    type: 'string'},
+        ]
+      });
+
+      var rz_manage_store = Ext.create('Ext.data.Store', {
+        id:'rz_manage_store',
+        model : 'rz_manage_model',
+        autoLoad: true,
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_rz_manage_grid',
+          //extraParams: cx_tj,
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+        //sortInfo:{field: 'level4', direction: "ASC"},
+        //baseParams: {start:0, limit:25, query:""}
+      });
+      var rz_manage_grid = new Ext.grid.GridPanel({
+        id : 'rz_manage_grid',
+        store: rz_manage_store,  
+		bbar:[
+	          new Ext.PagingToolbar({
+	            store: rz_manage_store,
+	            pageSize: 25,
+	            width : 350,
+	            border : false,
+	            displayInfo: true,
+	            displayMsg: '{0} - {1} of {2}',
+	            emptyMsg: "没有找到！",
+	            prependButtons: true
+	          })
+	    ],      
+        columns: [
+          { text : '操作日期',  width : 75, sortable : true, dataIndex: 'rq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+          { text : '操作人',  width : 75, sortable : true, dataIndex: 'czr'},
+		  { text : '操作类型',  width : 75, sortable : true, dataIndex: 'czlx'},
+		  { text : '目录号',  width : 75, sortable : true, dataIndex: 'mlh'},
+          { text : '案卷号',  width : 75, sortable : true, dataIndex: 'ajh'},
+          { text : '操作后案卷内容',  width : 100, sortable : true, dataIndex: 'czhnr'},
+		  { text : '档案类别',  width : 75, sortable : true, dataIndex: 'dalbmc'},
+          { text : '单位名称',  width : 75, sortable : true, dataIndex: 'dwmc'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            
+          },
+        
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'rz_manage_win',
+          title: '日志管理',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:rz_manage_grid,          
+          tbar:[
+          	{
+	            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+	            handler: function() {	              
+				  showAdvancedSearch("操作起日期;qrq,操作止日期;zrq,操作人;czr,操作类型;czlx,档案类别;dalbmc,目录号;mlh,案卷号;ajh,操作内容;czhnr,单位名称;dwmc","rz_manage_grid","","","",true);
+	            }
+	         },
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('rz_manage_win').close();
+            }
+          }]
+          
+        });
+      }
+      
+
+      win.show();
+    };
+
+  var data_bak = function(){
+    var win = Ext.getCmp('dandtj_win');    
+    if (win==null) {
+    win = new Ext.Window({
+      id : 'data_bak',
+      title: '数据备份',
+      //closeAction: 'hide',
+      width: 370,
+      height: 110,      
+      //minHeight: 200,
+      layout: 'fit',
+      modal: true,
+      plain: true,
+      //items:user_setup_grid,      
+      items: [{
+      width: 370,
+      height: 110,
+      xtype:'form',
+      layout: 'absolute',
+      id : 'data_bak_form',
+      items: [
+        {
+        xtype: 'label',
+        text: '备份文件名:',
+        x: 10,
+        y: 10,
+        width: 100
+        },        
+        {
+        xtype: 'textfield',
+        x: 130,
+        y: 10,
+        width: 200,
+        name: 'bak_name',
+        id:'bak_name'
+        }
+      ],
+      buttons:[{
+        xtype: 'button',
+        iconCls: 'print',
+        id:'datj_print',
+        text:'备份',
+        handler: function() {			
+          	var pars=this.up('panel').getForm().getValues();
+			if(pars['bak_name']!=''){ 			
+          		new Ajax.Request("/desktop/data_backup", { 
+					method: "POST",
+					parameters: pars,
+					onComplete:	 function(request) {
+						fhz=request.responseText.split(":");
+						if (fhz[0]=='success'){
+							cz_msg(fhz[1]);
+						}else{
+							alert(request.responseText);
+						}
+					}
+				});
+			}else
+			{
+				alert("请输入备份文件名。");
+			}
+
+          }
+        
+        },
+        {
+        xtype: 'button',
+        iconCls: 'exit',
+        text:'退出',
+        handler: function() {
+          //this.up('window').hide();
+          Ext.getCmp('data_bak').close();
+        }
+        }]
+      }]
+
+    });
+    }    
+    win.show();
+  };
+
+
+	var myuploadform= new Ext.FormPanel({
+	  id : 'my_upload_form',
+	  fileUpload: true,
+	  width: 300,
+	  height : 110,
+	  autoHeight: true,
+	  bodyStyle: 'padding: 5px 5px 5px 5px;',
+	  labelWidth: 0,
+	  defaults: {
+	    anchor: '95%',
+	    allowBlank: false,
+	    msgTarget: 'side'
+	  },
+	  layout : 'absolute',
+	  items:[	{
+		    xtype: 'label',
+		    text: '请选择程序更新包文件：',
+		    x: 10,
+		    y: 10,
+		    width: 100
+		  },
+	  {
+	    xtype: 'fileuploadfield',
+	    id: 'filedata',
+	    x: 10,
+	    y: 45,
+	    emptyText: '选择一个文件...',
+	    buttonText: '浏览'
+	  }],
+	  buttons: [
+	  {
+	    text: '上传',
+	    handler: function(){
+	        myForm = Ext.getCmp('my_upload_form').getForm();
+			filename=myForm._fields.items[0].lastValue.split('\\');
+          	file=filename[filename.length-1];
+			file=file.gsub("'","\'")		
+	        if(myForm.isValid())
+	        {
+	            form_action=1;
+	            myForm.submit({
+	              url: '/desktop/upload_file',
+	              waitMsg: '文件上传中...',
+	              success: function(form, action){
+	                var isSuc = action.result.success; 				                
+	                if (isSuc) {
+	                  new Ajax.Request("/desktop/program_updata", { 
+	                    method: "POST",
+						parameters: eval("({filename:'" + file + "'})"),
+	                    onComplete:  function(request) {
+	                      if (request.responseText=='true'){
+							msg('成功', '程序更新成功.');                                             
+	                      }else{
+	                        alert("程序更新失败，请重新更新。" + request.responseText);
+	                      }
+	                    }
+	                  }); //save_image_db
+	                } else { 
+	                  msg('失败', '程序更新失败.');
+	                }
+	              }, 
+	              failure: function(){
+	                msg('失败', '程序更新失败.');
+	              }
+	            });
+			}
+
+	    } //handler
+	  },	{
+        xtype: 'button',
+        iconCls: 'exit',
+        text:'退出',
+        handler: function() {
+          //this.up('window').hide();
+          Ext.getCmp('program_updata').close();
+        }
+        }] //buttons
+	});
+  var program_updata = function(){
+    var win = Ext.getCmp('program_updata_win');    
+    if (win==null) {
+    win = new Ext.Window({
+      id : 'program_updata',
+      title: '软件更新',
+      //closeAction: 'hide',
+      width: 310,
+      height: 150,      
+      //minHeight: 200,
+      layout: 'fit',
+      modal: true,
+      plain: true,
+      //items:user_setup_grid,      
+      items: [{
+      width: 310,
+      height: 150,
+      xtype:'form',
+      layout: 'absolute',
+      id : 'program_updata_form',
+      items: myuploadform,
+      }]
+
+    });
+    }    
+    win.show();
+  };
+
 
     var sys_cd_tree_store = Ext.create('Ext.data.TreeStore', {
       autoLoad: true,
@@ -2703,6 +3152,12 @@ Ext.define('MyDesktop.SystemMan', {
             if (Ext.getCmp('user_setup_win')!=undefined){Ext.getCmp('user_setup_win').close();}           
             if (Ext.getCmp('jr_model_setup_win')!=undefined){Ext.getCmp('jr_model_setup_win').close();}
 			if (Ext.getCmp('qcj_setup_win')!=undefined){Ext.getCmp('qcj_setup_win').close();}
+			if (Ext.getCmp('tj_ysjs_win')!=undefined){Ext.getCmp('tj_ysjs_win').close();}
+			if (Ext.getCmp('rz_manage_win')!=undefined){Ext.getCmp('rz_manage_win').close();}
+			if (Ext.getCmp('data_bak')!=undefined){Ext.getCmp('data_bak').close();}
+			if (Ext.getCmp('data_bak')!=undefined){Ext.getCmp('data_bak').close();}
+			if (Ext.getCmp('program_updata')!=undefined){Ext.getCmp('program_updata').close();}
+			
             switch (node.data.id) { 
               case "11": 
                 qz_setup();
@@ -2729,7 +3184,18 @@ Ext.define('MyDesktop.SystemMan', {
 			　　case "17": 
 	            jr_model_setup();
                 break;
-              
+			　　case "19": 
+	            tj_ysjs_setup();
+                break;
+			  case "20": 
+	            rz_manage();
+                break;
+        	  case "21": 
+	            data_bak();
+	            break;
+			  case "22": 
+	            program_updata();
+	            break;
             }
           }
           

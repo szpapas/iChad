@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+  <meta charset="UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; " />
+	<meta http-equiv="refresh" content="300;URL=w5.html">
+  <title>欢迎使用激扬智慧档案查询系统</title>
+  <link rel="stylesheet" href="css/jive.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="prototype.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts.js" type="text/javascript" charset="utf-8"></script>
+	<script language="javascript">
+	  	var a ="rwdat";
+		var ajjs=0;
+		var pars="";
+		new Ajax.Request('/map/get_dajytj',{
+	    	method: "POST",
+		    parameters: pars,
+		    onSuccess: function(transport){
+				ajjs = eval(transport.responseText);
+				xslr1="<table><tr><td><font size = 8>四、有生命的档案</font></td></tr>";
+				//document.getElementById("xx").initialConfig.html
+				var x=0;
+				xslr="<tr><td><font size = 6>1、本档案馆共进行了" + ajjs[0]['jyrc'] + "次借阅，借出档案" + ajjs[0]['jyjc'] + "卷次。";	
+				xslr=xslr + "<tr><td><font size = 6>2、本档案馆今天借阅了" + ajjs[0]['jtjyrc'] + "人次，借出档案" + ajjs[0]['jtjyjc'] + "卷次。";
+				xslr=xslr + "<tr><td><font size = 6>3、本档案馆今天新增了" + ajjs[0]['ajs'] + "卷档案。";
+				xslr=xslr1 + xslr + "</table>";
+				document.getElementById("xx").innerHTML= xslr;
+		    }
+		});				
+	</script>
+</head>
+<body class="jive-body-formpage jive-body-formpage-login">
+	<table cellpadding=8>
+		<div id="xx">正在检索数据，请稍候。。。。。。</div>		
+	</table>
+</body>

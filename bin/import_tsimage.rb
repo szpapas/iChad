@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
-$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
-$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
-
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
+#$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
+#这个是服务器上的文件夹
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
 require 'pg'
 require 'find'
 
@@ -10,6 +11,9 @@ require 'find'
 #   main fucntions 
 #
 #    @ARGV[0] --- 
+#
+#    2012-12-25 wny修改 在导入扫描文件时，删除一个页再导一个页，而不是先删除整个目录号再导入。
+#
 #   
 #    ruby import_iamge.rb 11-10-3 /share/1/1_1/ 15 
 #*********************************************************************************************
@@ -29,8 +33,8 @@ if !ajh.nil?
   puts "delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';"  
   $conn.exec("delete from timage where dh like '#{dh_prefix}-#{ajh}' and yxbh not like 'ML%';")
 else 
-  puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
-  $conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
+  #puts "delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';"  
+  #$conn.exec("delete from timage where dh like '#{dh_prefix}-%' and yxbh not like 'ML%';")
 end
 
 def getimgsize(fname)
@@ -195,24 +199,28 @@ Find.find(path) do |path|
 
         #C-82$C$0017$MLBK.jpg
         sp = pp[pp.size-2].split("$")
-        if (ss[2] != sp[2]) 
-          $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
-          ajh = sp[2]
-          dh = "#{dh_prefix}-#{ajh.to_i}"
-          if dh != $dh
-            $dh = dh
-            $stderr.puts "processing #{dh}... "
+        if sp.length>2
+          if (ss[2] != sp[2]) 
+            $stderr.puts(" *** Import Image: #{path} Wrong file on different 目录.")
+            ajh = sp[2]
+            dh = "#{dh_prefix}-#{ajh.to_i}"
+            if dh != $dh
+              $dh = dh
+              $stderr.puts "processing #{dh}... "
+            end
+            yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+            save2timage(sxh, path, $dh, yxqz)
+          else
+            dh = "#{dh_prefix}-#{ajh.to_i}"
+            if dh != $dh
+              $dh = dh
+              $stderr.puts "processing #{dh}... "
+            end
+            yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
+            save2timage(sxh, path, $dh, yxqz)
           end
-          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-          save2timage(sxh, path, $dh, yxqz)
         else
-          dh = "#{dh_prefix}-#{ajh.to_i}"
-          if dh != $dh
-            $dh = dh
-            $stderr.puts "processing #{dh}... "
-          end
-          yxqz = "#{mlm}\$#{flh}\$#{ajh}"  #ying xiang qian zui
-          save2timage(sxh, path, $dh, yxqz)
+          save2timage(sxh, path, $dh, '')
         end
       elsif !/(\w+-\d+|\d+)\$(\w+)\$(\d+)\/(.*)/.match(path).nil?  #for format like  /mnt/lvm1/jm2012/89/89$C$0355/00000001.TIF
         

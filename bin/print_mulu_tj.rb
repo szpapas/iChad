@@ -10,8 +10,8 @@ def save2timage(yxbh, path, dh, yx_prefix)
   yxdx=File.open(path).read.size
   edata=PGconn.escape_bytea(File.open(path).read) 
   yxmc="#{yx_prefix}_#{yxbh}"
-  $conn.exec("delete from timage_tjtx where dh='#{dh}' and yxbh='#{yxbh}';")
-  $conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
+  #$conn.exec("delete from timage_tjtx where dh='#{dh}' and yxbh='#{yxbh}';")
+  #$conn.exec("insert into timage_tjtx (dh, yxmc, yxbh, yxdx, data) values ('#{dh}', '#{yxmc}', '#{yxbh}.jpg', #{yxdx}, E'#{edata}' );")
 end
 
 
@@ -80,25 +80,30 @@ def print_timage(dh_prefix)
 
   user = $conn.exec("select dh, mlh, mlm from archive where dh like '#{dh}-%' limit 1; ")
   mlh = user[0]['mlh']
-  
+  dd = $conn.exec("select * from q_qzxx where dh_prefix='#{dh}';")[0]
+  mlh = dd['mlm']
   titleStr = "#{dwdm} 目录 #{mlh} 统计表".center(60)
   
   convert_str =  "convert ./dady/timage_tj.png -font ./dady/SimHei.ttf  -pointsize 44 -draw \"text 150, 208 '#{titleStr}' \"  -font ./dady/STZHONGS.ttf  -pointsize 26 -draw \"text 690, 260 '#{dateStr}'\" " 
 
   puts "select * from timage_tj where dh like '#{dh}-%' order by ajh;"
   user = $conn.exec("select * from timage_tj where dh like '#{dh}-%' order by ajh;")
-
+  #user = $conn.exec("select * from timage_tj where dh like '#{dh}-%' limit 1 ;")
   if user.count == 0 
     exit 1
   end
   
   pr_path="/share/tjsj"
+  #pr_path='./dady/tjsj'
   if !File.exists?(pr_path)
     system("mkdir -p #{pr_path}")
   end  
-    
+  puts user.count
   #xj, tj, xj_2, tj_2 = [], [], [], []
   for k in 0..user.count-1 do
+  #for k in 0..0 do
+  
+    #puts k
     dd = user[k]
     ajh, ajys, jnts, ml00, mljn, smyx, mlbk, jn00, jnjn, jnbk, a3, a4, dt, zt = dd['ajh'], dd['ajys'], dd['jnts'], dd['ml00'], dd['mljn'], dd['smyx'], dd['mlbk'], dd['jn00'], dd['jnjn'], dd['jnbk'], dd['a3'], dd['a4'], dd['dt'], dd['zt']
   
@@ -119,6 +124,7 @@ def print_timage(dh_prefix)
       for kk in 0..xj.size-1
         xj[kk] = xj[kk].to_i
       end
+      #puts xj
     else 
       xj_2 =[ajh, ajys, jnts, ml00, mljn, smyx, mlbk, jn00, jnjn, jnbk, a3, a4, dt]
       for kk in 0..xj_2.size-1
@@ -142,7 +148,7 @@ def print_timage(dh_prefix)
     else 
       convert_str =  convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill black -draw \"text 110, #{y_pos} '#{os}' \" "
     end 
-     
+     #puts convert_str
     if ((k % 50) == 49)
       
       for kk in 0..xj.size-1 
@@ -162,47 +168,48 @@ def print_timage(dh_prefix)
         end
 
         tj[0] = '合计'
+        puts tj
         os_tj = tj[1].rjust(7," ") + tj[2].rjust(6," ") + tj[3].rjust(6," ")  +  tj[4].rjust(6," ") + tj[5].rjust(6," ") + tj[6].rjust(6," ") + tj[7].rjust(6," ")   + tj[8].rjust(6," ") + tj[9].rjust(6," ") + tj[11].rjust(6," ") + tj[10].rjust(6," ") + tj[12].rjust(6," ")
         
         if tj[1] != tj[5]
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os_tj}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-          convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
+          convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.png"
           system convert_str
 
-          puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
-          save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+          puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.png"
+          save2timage("#{sxh}.png", "#{pr_path}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
         else
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os_tj}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-          convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+          convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.jpg"
           system convert_str
 
-          puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
-          save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+          puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.jpg"
+          save2timage("#{sxh}.jpg", "#{pr_path}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
         end
         
       else
       
         if xj[1] != xj[5]
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-          convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
+          convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.png"
           puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.png"
           system convert_str
 
-          puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
-          save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+          puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.png"
+          save2timage("#{sxh}.png", "#{pr_path}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
 
         else
           convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 110, #{y_pos+34.2} '#{os}' \"  " 
-          convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+          convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.jpg"
 
           puts "generate file  for #{k+1} : timage_#{dh}_#{sxh}.jpg"
         
           system convert_str
 
-          puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
-          save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+          puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.jpg"
+          save2timage("#{sxh}.jpg", "#{pr_path}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
 
         end
       
@@ -213,7 +220,7 @@ def print_timage(dh_prefix)
   
   end
 
-  if ( (k % 50) > 0 &&  (k % 50) != 49 ) || (user.count == 1) 
+  if ( (k % 50) > 0 &&  (k % 50) != 49 ) || (user.count == 1) ||  (k==user.count-1 && k % 50 ==0) 
     
     sxh = (k/50+1).to_s.rjust(2,'0')
     
@@ -238,18 +245,18 @@ def print_timage(dh_prefix)
  
     if tj[1] != tj[5]
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill red -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.png"
+      convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.png"
       system convert_str
 
-      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.png"
-      save2timage("#{sxh}.png", "/share/tjsj/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
+      puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.png"
+      save2timage("#{sxh}.png", "#{pr_path}/timage_#{dh}_#{sxh}.png", dh, "timage_#{dh}")
     else
       convert_str = convert_str + " -font ./dady/TextMate.ttf  -pointsize 23.5 -fill blue -draw \"text 194, 2140 '#{os}' \" -font ./dady/SimHei.ttf  -pointsize 24 -draw  \"text 150, 2140 '#{tj[0]}' \" "
-      convert_str = convert_str + " /share/tjsj/timage_#{dh}_#{sxh}.jpg"
+      convert_str = convert_str + " #{pr_path}/timage_#{dh}_#{sxh}.jpg"
       system convert_str
 
-      puts " save to file  /share/tjsj/timage_#{dh}_#{sxh}.jpg"
-      save2timage("#{sxh}.jpg", "/share/tjsj/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
+      puts " save to file  #{pr_path}/timage_#{dh}_#{sxh}.jpg"
+      save2timage("#{sxh}.jpg", "#{pr_path}/timage_#{dh}_#{sxh}.jpg", dh, "timage_#{dh}")
     end
     
 
@@ -261,6 +268,7 @@ def print_qzxx(dh_prefix)
   $stderr.puts" output 目录统计 #{dh_prefix}..."
   
   pr_path="/share/tjsj"
+  pr_path='./dady/tjsj'
   if !File.exists?(pr_path)
     system("mkdir -p #{pr_path}")
   end
@@ -274,7 +282,7 @@ def print_qzxx(dh_prefix)
   puts mlh  
   
   dd = $conn.exec("select * from q_qzxx where dh_prefix='#{dh_prefix}';")[0]
-  
+  mlh=dd['mlm']
   ajs = dd['zajh'].to_i - dd['qajh'].to_i + 1
   
   ml = dd['ml00'].to_i + dd['mlbk'].to_i + dd['mljn'].to_i + dd['jn00'].to_i + dd['jnbk'].to_i + dd['jnjn'].to_i
@@ -283,10 +291,10 @@ def print_qzxx(dh_prefix)
   zys = a3 * 2 + a4
   
   
-  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 290, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 500, 750 '#{a3+a4+dt}' \"  -draw \"text 830, 750 '#{a3}' \" -draw \"text 250, 810 '#{a4}' \"  -draw \"text 485, 810 '#{dt}' \"  -draw \"text 845, 810 '#{zys}' \"  /share/tjsj/tj_#{dh_prefix}_01.jpg  "
+  convert_str =  "convert ./dady/timage_t2.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 600, 620 '#{mlh}' \" -draw \"text 290, 685 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 500, 685 '#{ajs}' \"  -draw \"text 880, 685 '#{dd['zt']}' \"  -draw \"text 500, 750 '#{a3+a4+dt}' \"  -draw \"text 830, 750 '#{a3}' \" -draw \"text 250, 810 '#{a4}' \"  -draw \"text 485, 810 '#{dt}' \"  -draw \"text 845, 810 '#{zys}' \"  #{pr_path}/tj_#{dh_prefix}_01.jpg  "
   system convert_str
   
-  #convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" /share/tjsj/tj_#{dh_prefix}_02.jpg  "
+  #convert_str =  "convert ./dady/timage_t3.png -font ./dady/STZHONGS.ttf  -pointsize 24 -draw \"text 610, 560 '#{mlh}' \" -draw \"text 290, 620 '#{dd['qajh']} ~ #{dd['zajh']}' \"  -draw \"text 590, 620 '#{ajs}' \" #{pr_path}/tj_#{dh_prefix}_02.jpg  "
   #system convert_str
     
     
@@ -306,7 +314,7 @@ end
 
 dh = ARGV[0]
 
-update_timage(dh)
+#update_timage(dh)
 print_timage(dh)
 
 $conn.close
