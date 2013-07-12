@@ -12131,7 +12131,7 @@ var show_image = function(dh) {
 	var path='';
 	var print_id=''
   	var canvas_string =
-    '<div id="wrapper">'
+    '<div id="wrapper" oncontextmenu="return false">'
     +' <canvas id="myCanvas" width="600" height="800">'
     +' </canvas>'
     +'</div>';
@@ -12457,7 +12457,7 @@ var set_image = function(photoURL) {
      draw(scale, translatePos, imageObj);
    }
  });
-
+ 
  draw(scale, translatePos,imageObj);
 };
 

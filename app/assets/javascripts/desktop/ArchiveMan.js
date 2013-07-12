@@ -84,94 +84,94 @@ Ext.define('MyDesktop.ArchiveMan', {
           } 
           else
           {
-			myForm = Ext.getCmp('my_upload_form').getForm();
-			filename=myForm._fields.items[0].lastValue.split('\\');
+            myForm = Ext.getCmp('my_upload_form').getForm();
+            filename=myForm._fields.items[0].lastValue.split('\\');
             file=filename[filename.length-1];
-			new Ajax.Request("/desktop/get_image_sfcf", { 
-				method: "POST",
+            new Ajax.Request("/desktop/get_image_sfcf", { 
+                method: "POST",
                 parameters: eval("({filename:'" + file + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
                 onComplete:  function(request) {
-					if (request.responseText=='notsort'){
-						alert("您无此类档案影像文件上传的权限。");
-					}else{
-						sfsc=false;
-						if (request.responseText=='true'){
-							Ext.Msg.confirm("提示信息","此卷中文件名为："+file+"的已经存在，是否插入？",function callback(id){
-		                    	if(id=="yes"){
-									if(myForm.isValid())
-						            {
-						                form_action=1;
-						                myForm.submit({
-						                  url: '/desktop/upload_file',
-						                  waitMsg: '文件上传中...',
-						                  success: function(form, action){
-						                    var isSuc = action.result.success; 
+                    if (request.responseText=='notsort'){
+                        alert("您无此类档案影像文件上传的权限。");
+                    }else{
+                        sfsc=false;
+                        if (request.responseText=='true'){
+                            Ext.Msg.confirm("提示信息","此卷中文件名为："+file+"的已经存在，是否插入？",function callback(id){
+                                if(id=="yes"){
+                                    if(myForm.isValid())
+                                    {
+                                        form_action=1;
+                                        myForm.submit({
+                                          url: '/desktop/upload_file',
+                                          waitMsg: '文件上传中...',
+                                          success: function(form, action){
+                                            var isSuc = action.result.success; 
 
-						                    if (isSuc) {
-						                      new Ajax.Request("/desktop/save_image_db", { 
-						                        method: "POST",
-						                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-						                        onComplete:  function(request) {
-						                          if (request.responseText=='true'){
-						                            timage_store.load();
-						                            Ext.getCmp('timage_combo').lastQuery = null;
-						                            msg('成功', '文件上传成功.');                       
-						                          }else{
-						                            alert("文件上传失败，请重新上传。" + request.responseText);
-						                          }
-						                        }
-						                      }); //save_image_db
-						                    } else { 
-						                      msg('失败', '文件上传失败.');
-						                    }
-						                  }, 
-						                  failure: function(){
-						                    msg('失败', '文件上传失败.');
-						                  }
-						                });
-						            }
-								}
-							})
-						}
-						else {
-						
-							if(myForm.isValid())
-				            {
-				                form_action=1;
-				                myForm.submit({
-				                  url: '/desktop/upload_file',
-				                  waitMsg: '文件上传中...',
-				                  success: function(form, action){
-				                    var isSuc = action.result.success; 
-		                    
-				                    if (isSuc) {
-				                      new Ajax.Request("/desktop/save_image_db", { 
-				                        method: "POST",
-				                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
-				                        onComplete:  function(request) {
-				                          if (request.responseText=='true'){
-				                            timage_store.load();
-				                            Ext.getCmp('timage_combo').lastQuery = null;
-				                            msg('成功', '文件上传成功.');                       
-				                          }else{
-				                            alert("文件上传失败，请重新上传。" + request.responseText);
-				                          }
-				                        }
-				                      }); //save_image_db
-				                    } else { 
-				                      msg('失败', '文件上传失败.');
-				                    }
-				                  }, 
-				                  failure: function(){
-				                    msg('失败', '文件上传失败.');
-				                  }
-				                });
-				            }
-						}
-					}					
-                  	
-			  	}
-			});
+                                            if (isSuc) {
+                                              new Ajax.Request("/desktop/save_image_db", { 
+                                                method: "POST",
+                                                parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+                                                onComplete:  function(request) {
+                                                  if (request.responseText=='true'){
+                                                    timage_store.load();
+                                                    Ext.getCmp('timage_combo').lastQuery = null;
+                                                    msg('成功', '文件上传成功.');                       
+                                                  }else{
+                                                    alert("文件上传失败，请重新上传。" + request.responseText);
+                                                  }
+                                                }
+                                              }); //save_image_db
+                                            } else { 
+                                              msg('失败', '文件上传失败.');
+                                            }
+                                          }, 
+                                          failure: function(){
+                                            msg('失败', '文件上传失败.');
+                                          }
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                        else {
+                        
+                            if(myForm.isValid())
+                            {
+                                form_action=1;
+                                myForm.submit({
+                                  url: '/desktop/upload_file',
+                                  waitMsg: '文件上传中...',
+                                  success: function(form, action){
+                                    var isSuc = action.result.success; 
+                            
+                                    if (isSuc) {
+                                      new Ajax.Request("/desktop/save_image_db", { 
+                                        method: "POST",
+                                        parameters: eval("({filename:'" + file + "',dh:'" + dh +"'})"),
+                                        onComplete:  function(request) {
+                                          if (request.responseText=='true'){
+                                            timage_store.load();
+                                            Ext.getCmp('timage_combo').lastQuery = null;
+                                            msg('成功', '文件上传成功.');                       
+                                          }else{
+                                            alert("文件上传失败，请重新上传。" + request.responseText);
+                                          }
+                                        }
+                                      }); //save_image_db
+                                    } else { 
+                                      msg('失败', '文件上传失败.');
+                                    }
+                                  }, 
+                                  failure: function(){
+                                    msg('失败', '文件上传失败.');
+                                  }
+                                });
+                            }
+                        }
+                    }                   
+                    
+                }
+            });
           } //else
         } //handler
       }] //buttonsj
@@ -437,11 +437,11 @@ Ext.define('MyDesktop.ArchiveMan', {
                           method: "POST",
                           parameters: eval(pars),
                           onComplete:  function(request) {
-							if (request.responseText=='success'){
-                            	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
                           }
                         });
                       }
@@ -525,7 +525,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '起年月',  width : 75, sortable : true, dataIndex: 'qny'},
           { text : '止年月',  width : 75, sortable : true, dataIndex: 'zny'},
           { text : '单位代码',  width : 75, sortable : true, dataIndex: 'dwdm'},
-		  { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
+          { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
         ],
         selType:'checkboxmodel',
@@ -618,12 +618,12 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'psrq',    type: 'string',  type: 'date',  dateFormat: 'Y-m-d H:i:s'},
             {name: 'bz',    type: 'string'},
             {name: 'dh',    type: 'string'},
-			{name: 'zph',    type: 'string'},
-			{name: 'psz',    type: 'string'},
+            {name: 'zph',    type: 'string'},
+            {name: 'psz',    type: 'string'},
             {name: 'sy',    type: 'string'},
-			{name: 'dd',    type: 'string'},
-			{name: 'rw',    type: 'string'},
-			{name: 'bj',    type: 'string'},
+            {name: 'dd',    type: 'string'},
+            {name: 'rw',    type: 'string'},
+            {name: 'bj',    type: 'string'},
             {name: 'ownerid',   type: 'integer'}
         ]
       });
@@ -719,9 +719,9 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
           { text : '拍摄者',  width : 105, sortable : true, dataIndex: 'psz'},
 
-		  { text : '事由',  width : 105, sortable : true, dataIndex: 'sy'},
+          { text : '事由',  width : 105, sortable : true, dataIndex: 'sy'},
           { text : '地点',  width : 75, sortable : true, dataIndex: 'dd'},
-		　　{ text : '人物',  width : 105, sortable : true, dataIndex: 'rw'},
+        　　{ text : '人物',  width : 105, sortable : true, dataIndex: 'rw'},
           { text : '背景',  width : 75, sortable : true, dataIndex: 'bj'},
 
 
@@ -825,18 +825,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var records = grid.getSelectionModel().getSelection();
                 var record = records[0];
 
-				var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+                var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
                 Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
                       if(id=="yes"){
                         new Ajax.Request("/desktop/delete_archive", { 
                           method: "POST",
                           parameters: eval(pars),
                           onComplete:  function(request) {
-							if (request.responseText=='success'){
-                            	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
                           }
                         });
                       }
@@ -1225,22 +1225,22 @@ Ext.define('MyDesktop.ArchiveMan', {
                         var grid = Ext.getCmp('archive_grid_cw');
                         var records = grid.getSelectionModel().getSelection();
                         var record = records[0];
-						var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-		                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-		                      if(id=="yes"){
-		                        new Ajax.Request("/desktop/delete_archive", { 
-		                          method: "POST",
-		                          parameters: eval(pars),
-		                          onComplete:  function(request) {
-									if (request.responseText=='success'){
-		                            	Ext.getCmp('archive_grid_cw').store.load();
-									}else{
-										alert(request.responseText);
-									}
-		                          }
-		                        });
-		                      }
-		                  });
+                        var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+                        Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                              if(id=="yes"){
+                                new Ajax.Request("/desktop/delete_archive", { 
+                                  method: "POST",
+                                  parameters: eval(pars),
+                                  onComplete:  function(request) {
+                                    if (request.responseText=='success'){
+                                        Ext.getCmp('archive_grid_cw').store.load();
+                                    }else{
+                                        alert(request.responseText);
+                                    }
+                                  }
+                                });
+                              }
+                          });
                         
 
                       }
@@ -1253,25 +1253,25 @@ Ext.define('MyDesktop.ArchiveMan', {
                         DispAj_cw(record,false,title);
                       }
                     }   , 
-					{
-		              xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
-		              handler: function() {
-		                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
-		              }
-		            }, 
-					{
-			          text:'查看图像或附件',
-			          iconCls:'',
-			          handler : function() {
-			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
-			            if (items.length > 0) {
-			              var item = items[0];
-			              var dh = items[0].data.dh;
-			              show_image(dh);	              
-			              set_image("/assets/dady/fm.jpg");
-			            }
-			          }    
-			        },
+                    {
+                      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
+                      handler: function() {
+                        showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
+                      }
+                    }, 
+                    {
+                      text:'查看图像或附件',
+                      iconCls:'',
+                      handler : function() {
+                        var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+                        if (items.length > 0) {
+                          var item = items[0];
+                          var dh = items[0].data.dh;
+                          show_image(dh);                 
+                          set_image("/assets/dady/fm.jpg");
+                        }
+                      }    
+                    },
 
                         '->',
                       //  {
@@ -1616,18 +1616,18 @@ Ext.define('MyDesktop.ArchiveMan', {
               var grid = Ext.getCmp('archive_grid_tddj');
               var records = grid.getSelectionModel().getSelection();
               var record = records[0];
-				var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+                var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
               Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_archive", { 
                         method: "POST",
                         parameters: eval(pars),
                         onComplete:  function(request) {
-							if (request.responseText=='success'){
-                          	Ext.getCmp('archive_grid_tddj').store.load();
-							}else{
-								alert(request.responseText);
-							}
+                            if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid_tddj').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
                         }
                       });
                     }
@@ -1690,8 +1690,8 @@ Ext.define('MyDesktop.ArchiveMan', {
          //       archive_store.load();
          //     }
          //   }
-        //	}
-		],
+        //  }
+        ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
@@ -1950,7 +1950,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           {name: 'kz',    type: 'string'},
           {name: 'djlx',   type: 'string'},
 
-		  {name: 'kqfw',    type: 'string'},
+          {name: 'kqfw',    type: 'string'},
           {name: 'ksmj',    type: 'string'},
           {name: 'cl',   type: 'string'},
           {name: 'sjncl',    type: 'string'},
@@ -1958,7 +1958,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           {name: 'yxqq',    type: 'string'},
           {name: 'yxqz',   type: 'string'},
 
-		{name: 'yxqx',    type: 'string'},
+        {name: 'yxqx',    type: 'string'},
           {name: 'fzjg',    type: 'string'},
           {name: 'mjdw',   type: 'string'},
           {name: 'cldw',    type: 'string'},
@@ -2017,18 +2017,18 @@ Ext.define('MyDesktop.ArchiveMan', {
               var grid = Ext.getCmp('archive_grid_tddj');
               var records = grid.getSelectionModel().getSelection();
               var record = records[0];
-				var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+                var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
               Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
                     if(id=="yes"){
                       new Ajax.Request("/desktop/delete_archive", { 
                         method: "POST",
                         parameters: eval(pars),
                         onComplete:  function(request) {
-							if (request.responseText=='success'){
-                          	Ext.getCmp('archive_grid_tddj').store.load();
-							}else{
-								alert(request.responseText);
-							}
+                            if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid_tddj').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
                         }
                       });
                     }
@@ -2091,8 +2091,8 @@ Ext.define('MyDesktop.ArchiveMan', {
          //       archive_store.load();
          //     }
          //   }
-        //	}
-		],
+        //  }
+        ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
@@ -2396,18 +2396,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var grid = Ext.getCmp('archive_grid_wsda');
                 var records = grid.getSelectionModel().getSelection();
                 var record = records[0];
-				var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+                var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
                 Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
                       if(id=="yes"){
                         new Ajax.Request("/desktop/delete_archive", { 
                           method: "POST",
                           parameters: eval(pars),
                           onComplete:  function(request) {
-							if (request.responseText=='success'){
-                            	Ext.getCmp('archive_grid_wsda').store.load();
-							}else{
-								alert(request.responseText);
-							}
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid_wsda').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
                           }
                         });
                       }
@@ -2777,18 +2777,18 @@ Ext.define('MyDesktop.ArchiveMan', {
             var grid = Ext.getCmp('archive_grid');
             var records = grid.getSelectionModel().getSelection();
             var record = records[0];
-			var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+            var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
             Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
                   if(id=="yes"){
                     new Ajax.Request("/desktop/delete_archive", { 
                       method: "POST",
                       parameters: eval(pars),
                       onComplete:  function(request) {
-						if (request.responseText=='success'){
-                        	Ext.getCmp('archive_grid').store.load();
-						}else{
-							alert(request.responseText);
-						}
+                        if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid').store.load();
+                        }else{
+                            alert(request.responseText);
+                        }
                       }
                     });
                   }
@@ -2926,7 +2926,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-		Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -3166,21 +3166,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var record = records[0];
 
                   var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
                 }
               },
               {
@@ -3287,8 +3287,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
-	  });
+        Ext.getCmp('preview_img').getEl().dom.src="";
+      });
       
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -3539,21 +3539,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
               }
             },
             {
@@ -3665,7 +3665,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -3910,11 +3910,11 @@ Ext.define('MyDesktop.ArchiveMan', {
                       method: "POST",
                       parameters: eval(pars),
                       onComplete:  function(request) {
-						if (request.responseText=='success'){
-                        	Ext.getCmp('archive_grid').store.load();
-						}else{
-							alert(request.responseText);
-						}
+                        if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid').store.load();
+                        }else{
+                            alert(request.responseText);
+                        }
                       }
                     });
                   }
@@ -4033,7 +4033,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
 
       var tab = tabPanel.getActiveTab();
@@ -4268,21 +4268,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -4396,7 +4396,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -4640,21 +4640,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -4769,7 +4769,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -5013,11 +5013,11 @@ Ext.define('MyDesktop.ArchiveMan', {
                       method: "POST",
                       parameters: eval(pars),
                       onComplete:  function(request) {
-						if (request.responseText=='success'){
-                        	Ext.getCmp('archive_grid').store.load();
-						}else{
-							alert(request.responseText);
-						}
+                        if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid').store.load();
+                        }else{
+                            alert(request.responseText);
+                        }
                       }
                     });
                   }
@@ -5129,7 +5129,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -5371,21 +5371,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -5488,13 +5488,12 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-            
 
-            timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-            timage_store.load();
+        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        timage_store.load();
 
-            Ext.getCmp('timage_combo').lastQuery = null;
-	      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('timage_combo').lastQuery = null;
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -5732,21 +5731,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -5848,7 +5847,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -6089,11 +6088,11 @@ Ext.define('MyDesktop.ArchiveMan', {
                       method: "POST",
                       parameters: eval(pars),
                       onComplete:  function(request) {
-						if (request.responseText=='success'){
-                        	Ext.getCmp('archive_grid').store.load();
-						}else{
-							alert(request.responseText);
-						}
+                        if (request.responseText=='success'){
+                            Ext.getCmp('archive_grid').store.load();
+                        }else{
+                            alert(request.responseText);
+                        }
                       }
                     });
                   }
@@ -6199,7 +6198,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
 
       var tab = tabPanel.getActiveTab();
@@ -6440,21 +6439,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -6561,7 +6560,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
       var tab = tabPanel.getActiveTab();
@@ -6797,21 +6796,21 @@ Ext.define('MyDesktop.ArchiveMan', {
                 var record = records[0];
 
                 var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	            Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
-	                  if(id=="yes"){
-	                    new Ajax.Request("/desktop/delete_archive", { 
-	                      method: "POST",
-	                      parameters: eval(pars),
-	                      onComplete:  function(request) {
-							if (request.responseText=='success'){
-	                        	Ext.getCmp('archive_grid').store.load();
-							}else{
-								alert(request.responseText);
-							}
-	                      }
-	                    });
-	                  }
-	              });
+                Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+"的案卷？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_archive", { 
+                          method: "POST",
+                          parameters: eval(pars),
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                Ext.getCmp('archive_grid').store.load();
+                            }else{
+                                alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                  });
 
               }
             },
@@ -6913,7 +6912,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-      	Ext.getCmp('preview_img').getEl().dom.src="";
+        Ext.getCmp('preview_img').getEl().dom.src="";
       });
       
     
@@ -6985,8 +6984,8 @@ Ext.define('MyDesktop.ArchiveMan', {
       ss=data.id.split('_');
       if (ss.length>1){
         if (ss[1]<100){
-			Ext.getCmp('timage_combo').lastQuery = null;
-	        Ext.getCmp('preview_img').getEl().dom.src="";
+            Ext.getCmp('timage_combo').lastQuery = null;
+            Ext.getCmp('preview_img').getEl().dom.src="";
             switch (ss[1]) { 
               case "0": 
                 AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
@@ -7045,12 +7044,12 @@ Ext.define('MyDesktop.ArchiveMan', {
             case "18":
               AjListFn_tjml(data.id,node.selected.items[0].parentNode.data.text+data.text);
                   break;
-	        case "20":
-	              AjListFn_zp(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	              break;
-			case "35":
-	              AjListFn_kyq(data.id,node.selected.items[0].parentNode.data.text+data.text);
-	              break;
+            case "20":
+                  AjListFn_zp(data.id,node.selected.items[0].parentNode.data.text+data.text);
+                  break;
+            case "35":
+                  AjListFn_kyq(data.id,node.selected.items[0].parentNode.data.text+data.text);
+                  break;
             default:
                 AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
                 break;
@@ -7069,7 +7068,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         y:0,
         iconCls: 'archiveman',
         animCollapse:false,
-		maximized:true,
+        maximized:true,
         border: false,
         hideMode: 'offsets',
         layout: 'border',
@@ -7137,16 +7136,16 @@ Ext.define('MyDesktop.ArchiveMan', {
                         if (path != '') { 
                             ifx=path.split('?');
                             imagefx=ifx[1];
-							
+                            
 
                             var number = Math.random(); 
                             if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-						 		var number = Math.random(); 								
-                          		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-							}else{
-						  		location.href= path;
-								Ext.getCmp('preview_img').getEl().dom.src ='';
-                        	}
+                                var number = Math.random();                                 
+                                Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                            }else{
+                                location.href= path;
+                                Ext.getCmp('preview_img').getEl().dom.src ='';
+                            }
                         }
                       }
                     });
@@ -7172,12 +7171,12 @@ Ext.define('MyDesktop.ArchiveMan', {
                         imagefx=ifx[1];
                         var number = Math.random(); 
                         if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-					 		var number = Math.random(); 								
-                      		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-						}else{
-					  		location.href= path;
-							Ext.getCmp('preview_img').getEl().dom.src ='';
-                    	}
+                            var number = Math.random();                                 
+                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                        }else{
+                            location.href= path;
+                            Ext.getCmp('preview_img').getEl().dom.src ='';
+                        }
                       }
                     }
                   });
@@ -7201,13 +7200,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                         ifx=path.split('?');
                         imagefx=ifx[1];
                         var number = Math.random(); 
-						if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-					 		var number = Math.random(); 								
-                      		Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-						}else{
-					  		location.href= path;
-							Ext.getCmp('preview_img').getEl().dom.src ='';
-                    	}
+                        if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+                            var number = Math.random();                                 
+                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
+                        }else{
+                            location.href= path;
+                            Ext.getCmp('preview_img').getEl().dom.src ='';
+                        }
                       }
                     }
                   });             
@@ -7216,27 +7215,27 @@ Ext.define('MyDesktop.ArchiveMan', {
               {
                 text: '打印图像',
                 handler : function() {
-					new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
-				        method: "POST",
-				        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
-				        onComplete:  function(request) {
-				        	if (request.responseText=='success'){
-                  				LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
-				                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-				                  //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
-				                  image_path = Ext.getCmp('preview_img').getEl().dom.src;
-				                  LODOP.PRINT_INIT(image_path);
-				                  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
-				                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-				                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-				                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-				                  LODOP.PREVIEW();
-				                  //LODOP.PRINT();
-							}else{
-					            alert('您无此类档案的打印影像文件的权限。');
-					          }
-					        }
-					});
+                    new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+                        method: "POST",
+                        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
+                        onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                                LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+                                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+                                  //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+                                  image_path = Ext.getCmp('preview_img').getEl().dom.src;
+                                  LODOP.PRINT_INIT(image_path);
+                                  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
+                                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+                                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+                                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+                                  LODOP.PREVIEW();
+                                  //LODOP.PRINT();
+                            }else{
+                                alert('您无此类档案的打印影像文件的权限。');
+                              }
+                            }
+                    });
                 }
               },
               {
@@ -7247,23 +7246,23 @@ Ext.define('MyDesktop.ArchiveMan', {
                     if (combo!=''){
                       Ext.Msg.confirm("提示信息","是否要删除："+combo+" 图像？",function callback(id){
                         if(id=="yes"){
-                          var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";						  
+                          var pars="{yxmc:'"+combo+"',dh:'"+dh + "'}";                        
                           new Ajax.Request("/desktop/delete_timage", {
                               method: "POST",
                               //parameters: {yxmc:combo,dh:dh},
-							  parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
+                              parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
                               onComplete:  function(request) {
                                 var path = request.responseText;
-								if (path == 'notsort'){
-									alert("您无删除此类档案影像文件的权限。")
-								}else{
-                                	if (path == 'success') { 
-	                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
-	                                  timage_store.load();
-	                                  Ext.getCmp('timage_combo').lastQuery = null;
-	                                  Ext.getCmp('preview_img').getEl().dom.src = '';
-	                                }
-								}
+                                if (path == 'notsort'){
+                                    alert("您无删除此类档案影像文件的权限。")
+                                }else{
+                                    if (path == 'success') { 
+                                      timage_store.proxy.extraParams = {dh:dh, type:'0'};
+                                      timage_store.load();
+                                      Ext.getCmp('timage_combo').lastQuery = null;
+                                      Ext.getCmp('preview_img').getEl().dom.src = '';
+                                    }
+                                }
                               }
                           });
                         }
@@ -7282,19 +7281,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                           new Ajax.Request("/desktop/delete_all_timage", {
                               method: "POST",
                               //parameters: {dh:dh},
-							  parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
+                              parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
                               onComplete:  function(request) {
                                 var path = request.responseText;
-								if (path == 'notsort'){
-									alert("您无删除此类档案影像文件的权限。")
-								}else{
-                                	if (path == 'success') { 
-	                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
-	                                  timage_store.load();
-	                                  Ext.getCmp('timage_combo').lastQuery = null;
-	                                  Ext.getCmp('preview_img').getEl().dom.src = '';
-	                                }
-								}
+                                if (path == 'notsort'){
+                                    alert("您无删除此类档案影像文件的权限。")
+                                }else{
+                                    if (path == 'success') { 
+                                      timage_store.proxy.extraParams = {dh:dh, type:'0'};
+                                      timage_store.load();
+                                      Ext.getCmp('timage_combo').lastQuery = null;
+                                      Ext.getCmp('preview_img').getEl().dom.src = '';
+                                    }
+                                }
                               }
                           });
                         }
@@ -7304,18 +7303,24 @@ Ext.define('MyDesktop.ArchiveMan', {
             }
             ],     //bbar
             items:[{
-              xtype: 'box',    //或者xtype: 'component',
+              //xtype: 'box',    //或者xtype: 'component',
+              xtype: 'component',
               id: 'preview_img',
               width: 350,      //图片宽度
               autoEl: {
                 tag: 'img',    //指定为img标签
                 alt: ''        //指定url路径
-              }
+              },
+              onContextMenu: function(e) {
+                alert('here');
+              }         
             }]
-            }
+          }
         ]
       });
-    }
+    };
+    
+    
     new Ajax.Request("/desktop/get_sort", { 
         method: "POST",
         parameters: eval("({userid:" + currentUser.id + ",qxid:2})"),
