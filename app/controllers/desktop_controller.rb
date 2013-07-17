@@ -10938,8 +10938,123 @@ class DesktopController < ApplicationController
     
     def program_updata
       params['filename']=params['filename'].gsub('(', '\(').gsub(')', '\)').gsub('"', '\"').gsub("'", "\'")
-      text=system ("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
+      text=system("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
       render :text =>  text
     end
+    
+  
+  def get_bfzt_store
+    if params['qzh'].nil?
+      user = User.find_by_sql("select * from b_status order by dhp;")
+    else 
+      user = User.find_by_sql("select * from b_status where qzh = #{params['qzh']} order by dhp;")
+    end
+      
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt
+  end
+  
+  def init_b_status
+    qzh = params['qzh']
+    datas = User.find_by_sql("select distinct dh_prefix, mlh from q_qzxx where qzh = #{qzh};")
+    for k in 0..datas.size-1 
+      data = datas[k]
+      count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
+      if count == 0
+        puts "insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlh}, '未备份');"
+        User.find_by_sql("insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlh}, '未备份');")
+      end
+    end  
+  end
+  
+  #backup_folder, /share/qzh/
+  def backup_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      f_name = dd.dhp + Time.now.strftime(".%y%m%d")
+      User.find_by_sql("update b_status set cmd = '==> ruby ./dady/bin/export_dhp.rb #{dd.dhp} #{f_name}', f_name='#{f_name}', zt='准备备份' where id = #{dd.id};")
+    end  
+    render :text => 'Success'
+  end
 
+  def find_timage(dhp)
+    time = 0
+    Dir["/share/#{dhp}*.backup"].each  do |ff|
+      if (ff.split(".")[1].to_i) > time
+        time = ff.split(".")[1].to_i
+      end  
+    end
+    time.to_s
+  end  
+
+  def restore_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      time_part = find_timage(dd.dhp)
+      if time_part.to_i == 0
+        User.find_by_sql("upate b_status set cmd ='', zt = '没有备份文件' where id = #{dd.id};")
+      else
+        f_name = dd.dhp + Time.now.strftime(".#{time_part}")
+        User.find_by_sql("update b_status set cmd = '<== ruby ./dady/bin/import_dhp.rb #{dd.dhp} #{f_name}', f_name='#{f_name}', zt='准备恢复' where id = #{dd.id};")
+      end  
+    end  
+    render :text => 'Success'
+  end
+  
+  
+  def cancel_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      time_part = find_timage(dd.dhp)
+      User.find_by_sql("update b_status set cmd ='', zt = '状态重设' where id = #{dd.id};")
+    end  
+    render :text => 'Success'
+  end  
+  
+  def check_disk_space
+    system('df -H | grep -v none > ff')
+    txt = ''
+    File.open('ff').each do |line|
+      ss = line.split(/\s+/)
+      if ss[0] == ""
+        txt = ss[3] 
+        break
+      end  
+    end  
+    system('rm ff')
+    txt     
+  end  
+  
+  def get_share_space
+    space = check_disk_space()
+    render :text => "剩余空间：#{space}"
+  end  
+  
+  def start_backup_task
+    ff = File.open('/tmp/start_or_stop.tagfile', 'w')
+    ff.write("start")
+    ff.close
+    system("ruby ./dady/bin/start_backup_task.rb &")
+    render :text => "Success"
+  end  
+  
+  def stop_backup_task
+    ff = File.open('/tmp/start_or_stop.tagfile', 'w')
+    ff.write("stop")
+    ff.close
+    render :text => "Success"
+  end  
+      
 end

@@ -44,91 +44,91 @@ Ext.define('MyDesktop.ArchiveMan', {
     var dh='';
     var imagefx=1; //1代表纵向，２代表横向
     var desktop = this.app.getDesktop();
-	var scale1 = 1;
-	var scaleMultiplier1 = 0.8;
-	var translatePos1 =  { x: 0,y: 0};
-	var imageObj1 = new Image();
-	
+  var scale1 = 1;
+  var scaleMultiplier1 = 0.8;
+  var translatePos1 =  { x: 0,y: 0};
+  var imageObj1 = new Image();
+  
     var canvas_string =
-	    '<div id="wrapper1" oncontextmenu="return false">'
-	    +' <canvas id="myCanvas1" width="900" height="1200">'
-	    +' </canvas>'
-	    +'</div>';
+      '<div id="wrapper1" oncontextmenu="return false">'
+      +' <canvas id="myCanvas1" width="900" height="1200">'
+      +' </canvas>'
+      +'</div>';
     var win = desktop.getWindow('archiveman');
-	var drawarchive = function(scale, translatePos, imageObj){
+  var drawarchive = function(scale, translatePos, imageObj){
 
-	 var canvas = document.getElementById("myCanvas1");
-	 var context = canvas.getContext("2d");
+   var canvas = document.getElementById("myCanvas1");
+   var context = canvas.getContext("2d");
      scale=1
-	 // clear canvas
-	
-	 context.clearRect(0, 0, canvas.width, canvas.height);
-	 context.save();
+   // clear canvas
+  
+   context.clearRect(0, 0, canvas.width, canvas.height);
+   context.save();
 
-	 //context.translate(translatePos.x, translatePos.y);
-	 //context.scale(scale, scale);
+   //context.translate(translatePos.x, translatePos.y);
+   //context.scale(scale, scale);
 
-	 imageObj.onload = function(){
-	   //imgW = imageObj.width;
-		imgW =Ext.getCmp('imagelist').width;
-		
-		imgH=imgW*(imageObj.height/imageObj.width);
-	   //imgH = imageObj.height;
-	   context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
-	 };
+   imageObj.onload = function(){
+     //imgW = imageObj.width;
+    imgW =Ext.getCmp('imagelist').width;
+    
+    imgH=imgW*(imageObj.height/imageObj.width);
+     //imgH = imageObj.height;
+     context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+   };
 
-	 //imgW = imageObj.width;
-	 //imgH = imageObj.height;
-		imgW =Ext.getCmp('imagelist').width;
-		
-		imgH=imgW*(imageObj.height/imageObj.width);
-	 context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
+   //imgW = imageObj.width;
+   //imgH = imageObj.height;
+    imgW =Ext.getCmp('imagelist').width;
+    
+    imgH=imgW*(imageObj.height/imageObj.width);
+   context.drawImage(imageObj, translatePos.x , translatePos.y , imgW * scale, imgH * scale );
 
-	 context.restore();
-	}
+   context.restore();
+  }
 
-	var set_imagearchive = function(photoURL) {
-	 var canvas = document.getElementById("myCanvas1");
-	 var context = canvas.getContext("2d");
-	 var startDragOffset = {};
-	 var mouseDown = false;
+  var set_imagearchive = function(photoURL) {
+   var canvas = document.getElementById("myCanvas1");
+   var context = canvas.getContext("2d");
+   var startDragOffset = {};
+   var mouseDown = false;
 
-	 //scale = 1.0;
-	 translatePos1 =  { x: 0,y: 0};
-	 imageObj1.src = photoURL;
+   //scale = 1.0;
+   translatePos1 =  { x: 0,y: 0};
+   imageObj1.src = photoURL;
 
 
-	 // add event listeners to handle screen drag
-	 canvas.addEventListener("mousedown", function(evt){
-	   mouseDown = true;
-	   startDragOffset.x = evt.clientX - translatePos1.x;
-	   startDragOffset.y = evt.clientY - translatePos1.y;
-	 });
+   // add event listeners to handle screen drag
+   canvas.addEventListener("mousedown", function(evt){
+     mouseDown = true;
+     startDragOffset.x = evt.clientX - translatePos1.x;
+     startDragOffset.y = evt.clientY - translatePos1.y;
+   });
 
-	 canvas.addEventListener("mouseup", function(evt){
-	   mouseDown = false;
-	 });
+   canvas.addEventListener("mouseup", function(evt){
+     mouseDown = false;
+   });
 
-	 canvas.addEventListener("mouseover", function(evt){
-	   mouseDown = false;
-	 });
+   canvas.addEventListener("mouseover", function(evt){
+     mouseDown = false;
+   });
 
-	 canvas.addEventListener("mouseout", function(evt){
-	   mouseDown = false;
-	 });
+   canvas.addEventListener("mouseout", function(evt){
+     mouseDown = false;
+   });
 
-	 canvas.addEventListener("mousemove", function(evt){
-	   if (mouseDown) {
-	     translatePos1.x = evt.clientX - startDragOffset.x;
-	     translatePos1.y = evt.clientY - startDragOffset.y;
-	     drawarchive(scale, translatePos1, imageObj1);
-	   }
-	 });
-	 // add event listeners to handle screen drag
-	 
+   canvas.addEventListener("mousemove", function(evt){
+     if (mouseDown) {
+       translatePos1.x = evt.clientX - startDragOffset.x;
+       translatePos1.y = evt.clientY - startDragOffset.y;
+       drawarchive(scale, translatePos1, imageObj1);
+     }
+   });
+   // add event listeners to handle screen drag
+   
 
-	 drawarchive(scale, translatePos1,imageObj1);
-	};
+   drawarchive(scale, translatePos1,imageObj1);
+  };
 
     var myuploadform= new Ext.FormPanel({
       id : 'my_upload_form',
@@ -302,7 +302,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       Ext.regModel('document_model', {
         fields: [
             {name: 'id',    type: 'integer'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
@@ -409,7 +409,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   }
                 }
          }, 
-	     {
+       {
             xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
             handler: function() {
               showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","rz_manage_grid",title,"",true);
@@ -420,8 +420,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-		　　{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-	　　　　　　{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+    　　{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+  　　　　　　{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -571,7 +571,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -672,7 +672,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -680,7 +680,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
         //set_imagearchive("/assets/dady/fm.jpg");
-		set_imagearchive("/assets/dady/fm.jpg");
+    set_imagearchive("/assets/dady/fm.jpg");
       });
       
       var tab = tabPanel.getActiveTab();
@@ -720,7 +720,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         fields: [
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'sxh',   type: 'string'},
             {name: 'yh',    type: 'string'},
@@ -732,18 +732,11 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'zph',    type: 'string'},
             {name: 'psz',    type: 'string'},
             {name: 'sy',    type: 'string'},
-<<<<<<< HEAD
             {name: 'dd',    type: 'string'},
             {name: 'rw',    type: 'string'},
             {name: 'bj',    type: 'string'},
-            {name: 'ownerid',   type: 'integer'}
-=======
-			{name: 'dd',    type: 'string'},
-			{name: 'rw',    type: 'string'},
-			{name: 'bj',    type: 'string'},
             {name: 'ownerid',   type: 'integer'},
-			{name: 'zpid',   type: 'integer'}
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+            {name: 'zpid',   type: 'integer'}
         ]
       });
       
@@ -827,13 +820,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                     alert("请先选择一个案卷目录。");
                   }
                 }
-         }		, 
-			     {
-		            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-		            handler: function() {
-		              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-		            }
-		         }
+         }    , 
+           {
+                xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                handler: function() {
+                  showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                }
+             }
           
         ],
         columns: [
@@ -855,7 +848,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '日期',  width : 75, sortable : true, dataIndex: 'psrq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
           { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
           { text : 'ownerid',  flex : 1, sortable : true, dataIndex: 'ownerid'},
-		  { text : 'zpid',  flex : 1, sortable : true, dataIndex: 'zpid'}
+      { text : 'zpid',  flex : 1, sortable : true, dataIndex: 'zpid'}
           ],
         listeners:{
             itemdblclick:{
@@ -998,7 +991,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -1098,7 +1091,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -1147,7 +1140,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -1237,13 +1230,13 @@ Ext.define('MyDesktop.ArchiveMan', {
                     alert("请先选择一个案卷目录。");
                   }
                 }
-         }		, 
-			     {
-		            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-		            handler: function() {
-		              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-		            }
-		         }
+         }    , 
+           {
+                xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                handler: function() {
+                  showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                }
+             }
 
         //  },'->',
         //  {
@@ -1269,8 +1262,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -1402,13 +1395,12 @@ Ext.define('MyDesktop.ArchiveMan', {
                         DispAj_cw(record,false,title);
                       }
                     }   , 
-<<<<<<< HEAD
                     {
-                      xtype:'button',text:'高级查询',tooltip:'查询条件祝贺',id:'advance-search',iconCls:'search',
-                      handler: function() {
-                        showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
-                      }
-                    }, 
+                        xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                        handler: function() {
+                          showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
+                        }
+                      }, 
                     {
                       text:'查看图像或附件',
                       iconCls:'',
@@ -1417,45 +1409,23 @@ Ext.define('MyDesktop.ArchiveMan', {
                         if (items.length > 0) {
                           var item = items[0];
                           var dh = items[0].data.dh;
-                          show_image(dh);                 
+                          show_image(dh);               
                           set_image("/assets/dady/fm.jpg");
                         }
                       }    
                     },
-=======
-					{
-		              xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-		              handler: function() {
-		                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,案卷标题;ajtm,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_cw",title);
-		              }
-		            }, 
-					{
-			          text:'查看图像或附件',
-			          iconCls:'',
-			          handler : function() {
-			            var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
-			            if (items.length > 0) {
-			              var item = items[0];
-			              var dh = items[0].data.dh;
-			              show_image(dh);	              
-			              set_image("/assets/dady/fm.jpg");
-			            }
-			          }    
-			        },
-					{
-		              text:'备考表',
-		              iconCls:'yl',
-		              handler : function() {
-		                var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
-		                if (items.length > 0) {
-		                  var item = items[0];
-		                  var id = items[0].data.id;
-		                  DispBkb(id);
-		                }
-		              }    
-		            },
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
-
+                    {
+                  text:'备考表',
+                  iconCls:'yl',
+                  handler : function() {
+                    var items = Ext.getCmp('archive_grid_cw').getSelectionModel().selected.items;
+                    if (items.length > 0) {
+                      var item = items[0];
+                      var id = items[0].data.id;
+                      DispBkb(id);
+                    }
+                  }    
+                },
                         '->',
                       //  {
                       //    xtype: 'combo',
@@ -1551,7 +1521,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -1600,7 +1570,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -1690,19 +1660,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                     alert("请先选择一个案卷目录。");
                   }
                 }
-         }		, 
-			     {
-		            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-		            handler: function() {
-		              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-		            }
-		         }
+         }    , 
+           {
+                xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                handler: function() {
+                  showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -1856,7 +1826,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -1949,7 +1919,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -1997,7 +1967,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -2087,19 +2057,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                     alert("请先选择一个案卷目录。");
                   }
                 }
-         }		, 
-			     {
-		            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-		            handler: function() {
-		              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-		            }
-		         }
+         }    , 
+           {
+                xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                handler: function() {
+                  showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                }
+             }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -2280,7 +2250,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -2373,7 +2343,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -2420,7 +2390,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -2509,8 +2479,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -2676,7 +2646,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -2783,7 +2753,7 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id;
- 		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
@@ -2830,7 +2800,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -2920,19 +2890,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3081,7 +3051,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             }
           }    
         },
-		{
+    {
           text:'备考表',
           iconCls:'yl',
           handler : function() {
@@ -3189,18 +3159,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-		set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
       var tab = tabPanel.getActiveTab();
@@ -3239,7 +3205,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -3330,20 +3296,20 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
           
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3495,7 +3461,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -3543,7 +3509,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
           { text : '档号',    width : 0, sortable : true, dataIndex: 'dh'},
           { text : '目录号',   width : 75, sortable : true, dataIndex: 'mlh'},
-		  { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
+      { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
           { text : '序号',   width : 75, sortable : true, dataIndex: 'ajh'},
           { text : '图名',  width : 175, sortable : true, dataIndex: 'tm'},
           { text : '图幅号', width : 75, sortable : true, dataIndex: 'tfh'},
@@ -3578,20 +3544,15 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-      });
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
-	  });
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
+    });
       
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -3630,7 +3591,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -3720,19 +3681,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -3897,7 +3858,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -3984,18 +3945,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id;
- 		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
       var tab = tabPanel.getActiveTab();
@@ -4035,7 +3992,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -4121,19 +4078,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -4289,7 +4246,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -4379,18 +4336,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
 
       var tab = tabPanel.getActiveTab();
@@ -4430,7 +4383,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -4518,20 +4471,20 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
           
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -4680,7 +4633,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -4769,18 +4722,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
     
@@ -4822,7 +4771,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -4912,19 +4861,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5080,7 +5029,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -5169,18 +5118,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
     
@@ -5222,7 +5167,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -5310,20 +5255,20 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
           
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5473,7 +5418,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -5556,18 +5501,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id;
- 		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
       var tab = tabPanel.getActiveTab();
@@ -5607,7 +5548,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -5700,19 +5641,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -5864,7 +5805,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -5945,21 +5886,15 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
 
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
-
-<<<<<<< HEAD
         Ext.getCmp('timage_combo').lastQuery = null;
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-            Ext.getCmp('timage_combo').lastQuery = null;
-	      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
     
@@ -6001,7 +5936,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -6090,19 +6025,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 75, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -6252,7 +6187,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -6329,18 +6264,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       var tab = tabPanel.getActiveTab();
       tabPanel.remove(tab);   
@@ -6379,7 +6310,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -6467,19 +6398,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -6630,7 +6561,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -6707,18 +6638,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
 
       var tab = tabPanel.getActiveTab();
@@ -6759,7 +6686,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -6847,19 +6774,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -7014,7 +6941,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -7096,18 +7023,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
       var tab = tabPanel.getActiveTab();
@@ -7146,7 +7069,7 @@ Ext.define('MyDesktop.ArchiveMan', {
             {name: 'id',    type: 'integer'},
             {name: 'tm',    type: 'string'},
             {name: 'sxh',   type: 'string'},
-			{name: 'mlh',    type: 'string'},
+      {name: 'mlh',    type: 'string'},
             {name: 'ajh',   type: 'string'},
             {name: 'yh',    type: 'string'},
             {name: 'wh',    type: 'string'},
@@ -7235,19 +7158,19 @@ Ext.define('MyDesktop.ArchiveMan', {
                         alert("请先选择一个案卷目录。");
                       }
                     }
-             }		, 
-				     {
-			            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
-			            handler: function() {
-			              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
-			            }
-			         }
+             }    , 
+             {
+                  xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+                  handler: function() {
+                    showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
+                  }
+               }
         ],
         columns: [
           { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
-			{ text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
-			{ text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
+      { text : '目录号',  width : 40, sortable : true, dataIndex: 'mlh'},
+      { text : '案卷号',  width : 40, sortable : true, dataIndex: 'ajh'},
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
@@ -7398,7 +7321,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
-			{
+      {
               text:'备考表',
               iconCls:'yl',
               handler : function() {
@@ -7475,18 +7398,14 @@ Ext.define('MyDesktop.ArchiveMan', {
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
         archive_id = data.id; 
-		store3.proxy.url="/desktop/get_document";
+    store3.proxy.url="/desktop/get_document";
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
         timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
         timage_store.load();
         Ext.getCmp('timage_combo').lastQuery = null;
-<<<<<<< HEAD
-        Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-      	set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        set_imagearchive("/assets/dady/fm.jpg");
       });
       
     
@@ -7547,34 +7466,34 @@ Ext.define('MyDesktop.ArchiveMan', {
           Ext.getCmp('archive_tree').store.load();
         }
       },'->',
-	 // {
+   // {
      //   xtype:'button',text:'删除目录',tooltip:'删除目录',iconCls:'delete',
      //   handler: function() {
      //     //Ext.getCmp('archive_tree').store.load();
-	 //     var tree = Ext.getCmp('archive_tree');
+   //     var tree = Ext.getCmp('archive_tree');
      //     var records = tree.getSelectionModel().getSelection();
      //     var record = records[0];
-	 //     //data = node.selected.items[0].data;
-	 //     ss=record.data.id.split('_');
-	 //     if (ss.length=3 && ss[1]!=24){
-     //     	  var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
-	 //         Ext.Msg.confirm("提示信息","是否要删除："+record.data.text+"的整个目录号数据？",function callback(id){
-	 //               if(id=="yes"){
-	 //                 new Ajax.Request("/desktop/delete_all_archive", { 
-	 //                   method: "POST",
-	 //                   parameters: eval(pars),
-	 //                   onComplete:  function(request) {
-	 //   	    			if (request.responseText=='success'){
-	 //                     		Ext.getCmp('archive_grid').store.load();
-	 //   	    			}else{
-	 //   	    				alert(request.responseText);
-	 //   	    			}
-	 //                   }
-	 //                 });
-	 //               }
-	 //          });
-	 //   	}
-	 //   	
+   //     //data = node.selected.items[0].data;
+   //     ss=record.data.id.split('_');
+   //     if (ss.length=3 && ss[1]!=24){
+     //         var pars="({id:'"+record.data.id+"',dalb:'"+record.data.dalb + "',userid:'" + currentUser.id +"'})";
+   //         Ext.Msg.confirm("提示信息","是否要删除："+record.data.text+"的整个目录号数据？",function callback(id){
+   //               if(id=="yes"){
+   //                 new Ajax.Request("/desktop/delete_all_archive", { 
+   //                   method: "POST",
+   //                   parameters: eval(pars),
+   //                   onComplete:  function(request) {
+   //               if (request.responseText=='success'){
+   //                         Ext.getCmp('archive_grid').store.load();
+   //               }else{
+   //                 alert(request.responseText);
+   //               }
+   //                   }
+   //                 });
+   //               }
+   //          });
+   //     }
+   //     
      //   }
      // }
       ],
@@ -7588,14 +7507,8 @@ Ext.define('MyDesktop.ArchiveMan', {
       ss=data.id.split('_');
       if (ss.length>1){
         if (ss[1]<100){
-<<<<<<< HEAD
             Ext.getCmp('timage_combo').lastQuery = null;
-            Ext.getCmp('preview_img').getEl().dom.src="";
-=======
-			Ext.getCmp('timage_combo').lastQuery = null;
-	        //set_imagearchive("/assets/dady/fm.jpg");
-			set_imagearchive("/assets/dady/fm.jpg");
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+            set_imagearchive("/assets/dady/fm.jpg");
             switch (ss[1]) { 
               case "0": 
                 AjListFn_zh(data.id,node.selected.items[0].parentNode.data.text+data.text);
@@ -7717,7 +7630,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               width: 300,
               minSize: 100,
               maxSize: 250,
-			  id:'imagelist',
+        id:'imagelist',
               layout:'fit',
               tbar:myuploadform,
               bbar:[{
@@ -7736,54 +7649,28 @@ Ext.define('MyDesktop.ArchiveMan', {
                 triggerAction:'all',
                 listeners:{
                   select:function(combo, record, index) {
-<<<<<<< HEAD
-                    var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type};
-                    new Ajax.Request("/desktop/get_timage_from_db", {
-                      method: "POST",
-                      parameters: pars,
-                      onComplete:  function(request) {
-                        var path = request.responseText;
-                        if (path != '') { 
-                            ifx=path.split('?');
-                            imagefx=ifx[1];
-                            
-
-                            var number = Math.random(); 
-                            if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-                                var number = Math.random();                                 
-                                Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-                            }else{
-                                location.href= path;
-                                Ext.getCmp('preview_img').getEl().dom.src ='';
-                            }
+                  var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
+                  new Ajax.Request("/desktop/get_timage_from_db", {
+                    method: "POST",
+                    parameters: pars,
+                    onComplete:  function(request) {
+                      path = request.responseText;
+                      if (path != '') { 
+                        set_imagearchive("/assets/dady/fm.jpg");
+                        if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+                          ifx=path.split('?');
+                          imagefx=ifx[1];
+                          imageObj1.src = path;
+                          drawarchive(scale, translatePos1,imageObj1);
+                        }else{        
+                          //location.href= path;
+                          window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+                          imageObj1.src = '';
+                          drawchive(scale, translatePos1,imageObj1);
                         }
                       }
-                    });
-=======
-                  	var pars={gid:record[0].data.id, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
-				      new Ajax.Request("/desktop/get_timage_from_db", {
-				        method: "POST",
-				        parameters: pars,
-				        onComplete:  function(request) {
-				          path = request.responseText;
-				          if (path != '') { 
-							//set_image("/assets/dady/fm.jpg");
-							set_imagearchive("/assets/dady/fm.jpg");
-							if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-								ifx=path.split('?');
-								imagefx=ifx[1];
-					            imageObj1.src = path;
-					            drawarchive(scale, translatePos1,imageObj1);
-							}else{				
-								//location.href= path;
-								window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-								imageObj1.src = '';
-					            drawchive(scale, translatePos1,imageObj1);
-							}
-				          }
-				        }
-				      });
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+                    }
+                  });
                   }
                 }
               },
@@ -7795,57 +7682,34 @@ Ext.define('MyDesktop.ArchiveMan', {
                   var currentStoreIndex = combo.getStore().indexOf(currentImage);
                   var nextStoreValue = combo.getStore().getAt(currentStoreIndex - 1).get('id');
                   combo.setValue(nextStoreValue);
-<<<<<<< HEAD
-                  var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type};
-                  new Ajax.Request("/desktop/get_timage_from_db", {
-                    method: "POST",
-                    parameters: pars,
-                    onComplete:  function(request) {
-                      var path = request.responseText;
-                      if (path != '') { 
-                        ifx=path.split('?');
-                        imagefx=ifx[1];
-                        var number = Math.random(); 
-                        if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-                            var number = Math.random();                                 
-                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-                        }else{
-                            location.href= path;
-                            Ext.getCmp('preview_img').getEl().dom.src ='';
-                        }
-                      }
-                    }
-                  });
-                }
-=======
                   var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
-				  new Ajax.Request("/desktop/get_timage_from_db", {
-			        method: "POST",
-			        parameters: pars,
-			        onComplete:  function(request) {
-			          path = request.responseText;
-			          if (path != '') { 
-						//set_image("/assets/dady/fm.jpg");
-						set_imagearchive("/assets/dady/fm.jpg");
-						if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-							ifx=path.split('?');
-							imagefx=ifx[1];
-				            imageObj1.src = path;
-				            drawarchive(scale, translatePos1,imageObj1);
-						}else{				
-							//location.href= path;
-							window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-							imageObj1.src = '';
-				            drawchive(scale, translatePos1,imageObj1);
-						}
-			          }
-			        }
-			      });
+          new Ajax.Request("/desktop/get_timage_from_db", {
+              method: "POST",
+              parameters: pars,
+              onComplete:  function(request) {
+                path = request.responseText;
+                if (path != '') { 
+            //set_image("/assets/dady/fm.jpg");
+            set_imagearchive("/assets/dady/fm.jpg");
+            if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+              ifx=path.split('?');
+              imagefx=ifx[1];
+                    imageObj1.src = path;
+                    drawarchive(scale, translatePos1,imageObj1);
+            }else{        
+              //location.href= path;
+              window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+              imageObj1.src = '';
+                    drawchive(scale, translatePos1,imageObj1);
+            }
+                }
+              }
+            });
 
 
                 
-				}
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+        }
+
               },
               {
                 text: '下一个',
@@ -7857,102 +7721,58 @@ Ext.define('MyDesktop.ArchiveMan', {
                   combo.setValue(nextStoreValue);
                   var pars={gid:nextStoreValue, type:timage_store.proxy.extraParams.type,userid:currentUser.id};
                   new Ajax.Request("/desktop/get_timage_from_db", {
-<<<<<<< HEAD
-                    method: "POST",
-                    parameters: pars,
-                    onComplete:  function(request) {
-                      var path = request.responseText;
-                      if (path != '') { 
-                        ifx=path.split('?');
-                        imagefx=ifx[1];
-                        var number = Math.random(); 
-                        if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-                            var number = Math.random();                                 
-                            Ext.getCmp('preview_img').getEl().dom.src = path +'?' + number;
-                        }else{
-                            location.href= path;
-                            Ext.getCmp('preview_img').getEl().dom.src ='';
-                        }
-                      }
-                    }
-                  });             
-=======
-			        method: "POST",
-			        parameters: pars,
-			        onComplete:  function(request) {
-			          path = request.responseText;
-			          if (path != '') { 
-						//set_image("/assets/dady/fm.jpg");
-						set_imagearchive("/assets/dady/fm.jpg");
-						if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
-							ifx=path.split('?');
-							imagefx=ifx[1];
-				            imageObj1.src = path;
-				            drawarchive(scale, translatePos1,imageObj1);
-						}else{				
-							//location.href= path;
-							window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-							imageObj1.src = '';
-				            drawchive(scale, translatePos1,imageObj1);
-						}
-			          }
-			        }
-			      });     
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+              method: "POST",
+              parameters: pars,
+              onComplete:  function(request) {
+                path = request.responseText;
+                if (path != '') { 
+            //set_image("/assets/dady/fm.jpg");
+            set_imagearchive("/assets/dady/fm.jpg");
+            if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+              ifx=path.split('?');
+              imagefx=ifx[1];
+                    imageObj1.src = path;
+                    drawarchive(scale, translatePos1,imageObj1);
+            }else{        
+              //location.href= path;
+              window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+              imageObj1.src = '';
+                    drawchive(scale, translatePos1,imageObj1);
+            }
+                }
+              }
+            });     
+
                 }
               },
               {
                 text: '打印图像',
                 handler : function() {
-<<<<<<< HEAD
-                    new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
-                        method: "POST",
-                        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
-                        onComplete:  function(request) {
-                            if (request.responseText=='success'){
-                                LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
-                                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-                                  //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
-                                  image_path = Ext.getCmp('preview_img').getEl().dom.src;
-                                  LODOP.PRINT_INIT(image_path);
-                                  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
-                                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-                                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-                                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-                                  LODOP.PREVIEW();
-                                  //LODOP.PRINT();
-                            }else{
-                                alert('您无此类档案的打印影像文件的权限。');
-                              }
-                            }
-                    });
-=======
-					combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc;
-					if(combo!=''){
-						new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
-					        method: "POST",
-					        parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
-					        onComplete:  function(request) {
-					        	if (request.responseText=='success'){
-	                  				LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
-					                  //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
-					                  //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
-					                  //image_path = Ext.getCmp('preview_img').getEl().dom.src;
-									  image_path = window.location.href + "/assets/dady/img_tmp/" + dh + "/" + combo;
-					                  LODOP.PRINT_INIT(image_path);
-					                  LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
-					                  LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
-					                  LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
-					                  LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
-					                  LODOP.PREVIEW();
-					                  //LODOP.PRINT();
-								}else{
-						            alert('您无此类档案的打印影像文件的权限。');
-						          }
-						        }
-						});
-					}
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+          combo = Ext.getCmp('timage_combo').displayTplData[0].yxmc;
+          if(combo!=''){
+            new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+                  method: "POST",
+                  parameters: eval("({userid:" + currentUser.id + ",qxdm:'ip',qxlb:1,dh:'" + dh + "'})"),
+                  onComplete:  function(request) {
+                    if (request.responseText=='success'){
+                            LODOP=getLodop(document.getElementById('LODOP'),document.getElementById('LODOP_EM'));                        
+                            //LODOP.ADD_PRINT_BARCODE(0,0,200,100,"Code39","*123ABC4567890*");
+                            //image_path = Ext.getCmp('preview_img').getEl().dom.src.replace(/-/ig, "_");
+                            //image_path = Ext.getCmp('preview_img').getEl().dom.src;
+                    image_path = window.location.href + "/assets/dady/img_tmp/" + dh + "/" + combo;
+                            LODOP.PRINT_INIT(image_path);
+                            LODOP.SET_PRINT_PAGESIZE(imagefx,0,0,"A4");
+                            LODOP.ADD_PRINT_IMAGE(0,0,1000,1410,"<img border='0' src='"+image_path+"' width='100%' height='100%'/>");
+                            LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//(可变形)扩展缩放模式
+                            LODOP.SET_PRINT_MODE("PRINT_PAGE_PERCENT","Full-Page");
+                            LODOP.PREVIEW();
+                            //LODOP.PRINT();
+                }else{
+                        alert('您无此类档案的打印影像文件的权限。');
+                      }
+                    }
+            });
+          }
                 }
               },
               {
@@ -7970,30 +7790,18 @@ Ext.define('MyDesktop.ArchiveMan', {
                               parameters: eval("({yxmc:'" + combo + "',dh:'" + dh +"',userid:" + currentUser.id + "})"),
                               onComplete:  function(request) {
                                 var path = request.responseText;
-<<<<<<< HEAD
-                                if (path == 'notsort'){
-                                    alert("您无删除此类档案影像文件的权限。")
-                                }else{
-                                    if (path == 'success') { 
-                                      timage_store.proxy.extraParams = {dh:dh, type:'0'};
-                                      timage_store.load();
-                                      Ext.getCmp('timage_combo').lastQuery = null;
-                                      Ext.getCmp('preview_img').getEl().dom.src = '';
-                                    }
-                                }
-=======
-								if (path == 'notsort'){
-									alert("您无删除此类档案影像文件的权限。")
-								}else{
-                                	if (path == 'success') { 
-	                                  timage_store.proxy.extraParams = {dh:dh, type:'0'};
-	                                  timage_store.load();
-	                                  Ext.getCmp('timage_combo').lastQuery = null;
-	                                  //Ext.getCmp('preview_img').getEl().dom.src = '';
-									  set_imagearchive("/assets/dady/fm.jpg");
-	                                }
-								}
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+
+                if (path == 'notsort'){
+                  alert("您无删除此类档案影像文件的权限。")
+                }else{
+                                  if (path == 'success') { 
+                                    timage_store.proxy.extraParams = {dh:dh, type:'0'};
+                                    timage_store.load();
+                                    Ext.getCmp('timage_combo').lastQuery = null;
+                                    //Ext.getCmp('preview_img').getEl().dom.src = '';
+                    set_imagearchive("/assets/dady/fm.jpg");
+                                  }
+                }
                               }
                           });
                         }
@@ -8006,7 +7814,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                   text: '删除整卷图像',
                   handler : function() {
                   if (dh!=''){
-					combo = Ext.getCmp('timage_combo').displayTplData[0].yxbh;
+          combo = Ext.getCmp('timage_combo').displayTplData[0].yxbh;
                       Ext.Msg.confirm("提示信息","是否要整卷删除图像？",function callback(id){
                         if(id=="yes"){
                           var pars="{dh:'"+dh + "'}";
@@ -8031,37 +7839,16 @@ Ext.define('MyDesktop.ArchiveMan', {
                         }
                       });                    
                   }
-<<<<<<< HEAD
-                }   // handler
-            }
-            ],     //bbar
-            items:[{
-              //xtype: 'box',    //或者xtype: 'component',
-              xtype: 'component',
-              id: 'preview_img',
-              width: 350,      //图片宽度
-              autoEl: {
-                tag: 'img',    //指定为img标签
-                alt: ''        //指定url路径
-              },
-              onContextMenu: function(e) {
-                alert('here');
-              }         
-            }]
-          }
-        ]
-=======
                   }   // handler
               }],     //bbar
-              items:[			   
-				{
-					xtype: 'panel', //或者xtype: 'component',
-					layout:'fit',
-		        	html:canvas_string
-				}
-        	  ]}
-		]
->>>>>>> d94f191af8f416010139cc915218cf183ec0a327
+              items:[        
+        {
+          xtype: 'panel', //或者xtype: 'component',
+          layout:'fit',
+              html:canvas_string
+        }
+            ]}
+    ]
       });
     };
     
