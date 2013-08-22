@@ -20,7 +20,8 @@ class DesktopController < ApplicationController
   end
   
   def check_sql_table
-    
+
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_rz';")[0]['count'].to_i
     sql_cmd = "
     CREATE TABLE d_rz  --日志表
     (
@@ -38,11 +39,10 @@ class DesktopController < ApplicationController
       dalbmc character varying(100),--档案类别名称
       CONSTRAINT d_rz_pkey PRIMARY KEY (id)
     );"
-
-    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_rz';")[0]['count'].to_i
     User.find_by_sql("#{sql_cmd}") if count == 0
     
     #for columns
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='czr';")[0]['count'].to_i
     sql_cmd = "
     ALTER TABLE archive ADD COLUMN rq timestamp without time zone;  --增加操作日期
     ALTER TABLE archive ADD COLUMN czr character varying(100);  --增加操作人
@@ -52,7 +52,6 @@ class DesktopController < ApplicationController
     ALTER TABLE timage ADD COLUMN czr character varying(100);--增加操作人
     ALTER TABLE timage ADD COLUMN czrname character varying(100);  --增加操作人
     
-    
     insert into d_cd(id, cdmc,owner_id,sfcd) values (17, '卷内输档模板设置',0,1);
     insert into d_cd(id, cdmc,owner_id,sfcd) values (18, '档案缺重卷检验',0,1);
     insert into d_cd(id, cdmc,owner_id,sfcd) values (19, '档案页数件数统计',0,1);
@@ -60,13 +59,10 @@ class DesktopController < ApplicationController
     insert into d_cd(id, cdmc,owner_id,sfcd) values (21, '数据备份',0,1);
     insert into d_cd(id, cdmc,owner_id,sfcd) values (22, '程序更新',0,1);
     "
-    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='czr';")[0]['count'].to_i
     User.find_by_sql("#{sql_cmd}") if count == 0
     
-    
-    
-    sql_cmd =
-    "
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_cz_list';")[0]['count'].to_i
+    sql_cmd ="
     CREATE TABLE d_cz_list  --状态操作表
     (
       id serial NOT NULL,
@@ -76,16 +72,26 @@ class DesktopController < ApplicationController
       strwhere character varying(100),--查询条件
       CONSTRAINT d_cz_list_pkey PRIMARY KEY (id)
     );
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
 
+
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='mlm';")[0]['count'].to_i
+    sql_cmd ="
+    ALTER TABLE archive ADD COLUMN mlm character varying(100);
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
+    
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='q_status' and column_name='dh';")[0]['count'].to_i
+    sql_cmd ="
     ALTER TABLE q_status ADD COLUMN dh character varying(100);
     ALTER TABLE q_status ADD COLUMN aj_zt character varying(100);
     ALTER TABLE q_status ADD COLUMN aj_path character varying(100);
     ALTER TABLE q_status ADD COLUMN ajh character varying(100);
     ALTER TABLE q_status ADD COLUMN tag character varying(100);
     "
-
-    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_cz_list';")[0]['count'].to_i
     User.find_by_sql("#{sql_cmd}") if count == 0
+
     
   end  
   
