@@ -2027,6 +2027,189 @@ Ext.define('MyDesktop.SystemStatus', {
       }]
     }); 
     
+    //===== begin of muhf ===
+    Ext.regModel('mlwj_model',{
+      fields: [
+        {name: 'id', type: 'integer'},
+        {name: 'f_name', type: 'string'}
+        //{name: 'f_size', type: 'string'}
+      ]
+    });
+    
+    var mlwj_store =  Ext.create('Ext.data.Store', {
+      model : 'mlwj_model',
+      proxy: {
+        type: 'ajax',
+        url : '/desktop/get_mlwj',
+        extraParams: {dh:""},
+        reader: {
+          type: 'json',
+          root: 'rows',
+          totalProperty: 'results'
+        }
+      }
+    });
+    
+    mlwj_store.proxy.extraParams.dh='9';
+    mlwj_store.load();
+    
+    Ext.regModel('mlhf_model', {
+      fields: [
+        {name: 'id',     type: 'integer'},
+        {name: 'dh',     type: 'string'},
+        {name: 'yxmc',     type: 'string'},
+        {name: 'yxdx',     type: 'string'},
+        {name: 'yxbh',     type: 'string'}
+      ]
+    });
+
+    var mlhf_store1 =  Ext.create('Ext.data.Store', {
+      model : 'mlhf_model',
+      proxy: {
+        type: 'ajax',
+        url : '/desktop/get_muhf_data_1',
+        extraParams: {dh:""},
+        reader: {
+          type: 'json',
+          root: 'rows',
+          totalProperty: 'results'
+        }
+      }
+    });
+    
+    var hf_grid1 = new Ext.grid.GridPanel({
+      title: '原始信息',
+      //store: muhf_store1,
+      id : 'mlhf_grid1_id',
+      layout : 'fit',
+      columns: [
+        { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+        { text : '档号',    align:"left",   width : 100, sortable : true, dataIndex: 'dhp'},
+        { text : '目录号',   align:"left",   width : 50, sortable : true, dataIndex: 'mlh'},
+        { text : '任务命令',  align:"left",   width : 150, sortable : true, dataIndex: 'cmd'},
+        { text : '文件名',   align:"left",   width : 100,  sortable : true, dataIndex: 'f_name'},
+        { text : '文件大小',  align:"center", width : 80, sortable : true, dataIndex: 'f_size'},
+        { text : '当前状态',  align:"center", flex : 1, sortable : true, dataIndex:   'zt', renderer:ztRenderer}
+      ],
+      selType:'checkboxmodel',
+      multiSelect:true,
+      viewConfig: {
+        stripeRows:true
+      },
+      tbar :[]
+    });
+    
+    
+    var mlhf_store2 =  Ext.create('Ext.data.Store', {
+      model : 'mlhf_model',
+      proxy: {
+        type: 'ajax',
+        url : '/desktop/get_muhf_data_2',
+        extraParams: {dh:""},
+        reader: {
+          type: 'json',
+          root: 'rows',
+          totalProperty: 'results'
+        }
+      }
+    });
+    
+    var hf_grid2 = new Ext.grid.GridPanel({
+      title: '更新信息',
+      //store: muhf_store1,
+      id : 'mlhf_grid2_id',
+      layout : 'fit',
+      columns: [
+        { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+        { text : '档号',    align:"left",   width : 100, sortable : true, dataIndex: 'dhp'},
+        { text : '目录号',   align:"left",   width : 50, sortable : true, dataIndex: 'mlh'},
+        { text : '任务命令',  align:"left",   width : 150, sortable : true, dataIndex: 'cmd'},
+        { text : '文件名',   align:"left",   width : 100,  sortable : true, dataIndex: 'f_name'},
+        { text : '文件大小',  align:"center", width : 80, sortable : true, dataIndex: 'f_size'},
+        { text : '当前状态',  align:"center", flex : 1, sortable : true, dataIndex:   'zt', renderer:ztRenderer}
+      ],
+      selType:'checkboxmodel',
+      multiSelect:true,
+      viewConfig: {
+        stripeRows:true
+      },
+      tbar :[]
+    });
+    
+    
+    var hfPanel = new Ext.form.FormPanel({
+      id: 'mfhf_panel_id',
+      title:'目录恢复',
+      labelWidth:40,
+      bodyPadding: 3,
+      layout: 'fit',      
+      items:[{
+        layout:"border",
+        items:[{
+            region:"center",
+            items:[hf_grid1]
+          },{
+            region:"west",
+            split:true,
+            width:400,
+            items:[hf_grid2]
+        }]
+      }],
+      tbar :[{
+        xtype: 'combo',
+        //x: 130,
+        //y: 190,
+        width: 150,
+        name: 'mlwj_combo',
+        id: 'mlwj_combo_id',
+        store: mlwj_store,
+        emptyText:'请选择',
+        mode: 'local',
+        minChars : 2,
+        value:'',
+        valueField:'f_name',
+        displayField:'f_name',
+        triggerAction:'all'
+        /*
+        listeners:{
+          select:function(combo, record, index) {
+          var pars={f_name:record[0].data.f_name};
+          new Ajax.Request("/desktop/get_mlwj_info", {
+            method: "POST",
+            parameters: pars,
+            onComplete:  function(request) {
+              path = request.responseText;
+              if (path != '') 
+            }
+          });
+          }
+        }
+        */
+      },{
+        text : '恢复到临时表',
+        handler : function(){
+          var pars={f_name:Ext.getCmp('mlwj_combo_id').getValue()};
+          new Ajax.Request("/desktop/mlhf_to_temp", {
+            method: "POST",
+            parameters: pars,
+            onComplete:  function(request) {
+              message = request.responseText;
+              alert ("命令提交成功，请耐心等候执行结果.");
+            }
+          });
+        }
+      },{
+        text : '刷新',
+        handler : function() {
+          f_name = Ext.getCmp('mlwj_combo_id').getValue();
+          ss = f_name.split('.');
+          mlhf_store2.proxy.dh=ss[0];
+          mlhf_store2.load();
+        }
+      }]
+    });
+    
+    
     
     
     var qzglPanel = new Ext.form.FormPanel({
@@ -2039,7 +2222,7 @@ Ext.define('MyDesktop.SystemStatus', {
           id : 'qzgl_tabpanel_id',
           layout: 'fit',
           activeTab: 0,
-          items: [qzgl_grid,mulu_qz_grid,qzzt_grid,mlbf_grid]
+          items: [qzgl_grid,mulu_qz_grid,qzzt_grid,mlbf_grid,hfPanel]
       }]        
     });
 

@@ -4,6 +4,11 @@ $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 
 require 'pg'
 
+if !system("ps -ef  | grep -v grep | grep start_backup_task")
+  puts "exit"
+  exit
+end
+
 $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
 while true do 

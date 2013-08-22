@@ -6,6 +6,8 @@ require 'timeout'
 require 'iconv'
 #require "prawn"
 
+BLOCK_SIZE = 10
+
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images, :add_new_wsda,:get_jytj]
@@ -833,6 +835,67 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   
+  #tid, v_hash, #yd_id  
+  def get_image_by_gid(gid)
+    #v_hash = User.find_by_sql("select v_hash from timage where id = #{gid};")[0].v_hash
+    #yd_id = User.find_by_sql("select id from yd_index where v_hash = '#{v_hash}'; ")[0].id
+    yd_id = User.find_by_sql("select yd_id from timage where id = #{gid};")[0].yd_id.to_i
+    tbl_id = (yd_id-1)/BLOCK_SIZE
+    ydd_id = (yd_id-1) % BLOCK_SIZE + 1
+    puts "===yd_id: #{yd_id}, #{tbl_id}, #{ydd_id}"
+    data = User.find_by_sql("select data from yd_#{tbl_id} where id = #{ydd_id};")[0]['data']
+  end
+  
+  #get timage from yd_data
+  def get_timage_from_yd
+    if (params['gid'].nil?)
+      txt = ""
+    else
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
+
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
+      end
+      
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, jm_tag from timage where id=#{params['gid']};")
+        im_data = get_image_by_gid(params['gid'])
+
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(im_data)
+        ff.close
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end 
+        system("rm ./tmp/#{tmpfile}")
+      end
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
+      if (convert_filename.upcase.include?'JPG') || (convert_filename.upcase.include?'TIF') || (convert_filename.upcase.include?'TIFF') || (convert_filename.upcase.include?'JPEG') 
+        imagesize=FastImage.size convert_filename
+      
+        if imagesize[0].to_i > imagesize[1].to_i
+          txt = "/assets/#{convert_filename}?2"
+        else
+          txt = "/assets/#{convert_filename}?1"
+        end
+      else
+        txt = "/assets/#{convert_filename}?2"
+      end
+      archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+      set_rz(archive[0]['mlh'],'','','','影像查看',params['userid'],user[0]["yxmc"],user[0]["yxmc"],dh)
+    end
+    render :text => txt
+  end
+  
   def get_timage_from_db
     if (params['gid'].nil?)
       txt = ""
@@ -886,7 +949,6 @@ class DesktopController < ApplicationController
       txt = ""
     else   
       user = User.find_by_sql("select * from qz_image where jyid=#{params['qzid']};")
-      #user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=8;")
       if user.size>0    
         convert_filename = "./dady/img_tmp/qz.jpg"
         system("rm ./dady/img_tmp/qz.jpg")       
@@ -1018,6 +1080,123 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   
+
+  def get_timage_from_yd_print
+    text=""
+    fns=""
+    i=1
+    if (params['gid'].nil?)
+      txt = ""
+    else            
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id in (#{params['gid']}) order by yxbh;")
+      if (params['dylb'].nil?)
+        dylb='0'
+      else
+        dylb=params['dylb']
+        system"rm  ./dady/img_tmp/#{user[0]['dh']}/#{user[0]['dh']}.zip" 
+        system"rm  ./dady/img_tmp/#{user[0]['dh']}/*.*" 
+      end
+      puts "user" + user.size.to_s
+      for k in 0..user.size-1
+        puts user[k]['id']
+        dh,width,height = user[k]['dh'], user[k]['width'], user[k]['height']
+        
+        archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+        if dylb=='1'
+          set_rz(archive[0]['mlh'],'','','','影像导出',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        else
+          set_rz(archive[0]['mlh'],'','','','影像打印',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        end
+        if !File.exists?("./dady/img_tmp/#{dh}/")
+          system"mkdir -p ./dady/img_tmp/#{dh}/"        
+        end
+      
+        convert_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+        local_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-')
+
+        if !File.exists?(local_filename)
+          user1 = User.find_by_sql("select id, dh, yxmc, jm_tag from timage where id=#{user[k]['id']};")
+          im_data = get_image_by_gid(params['gid'])
+          
+          tmpfile = rand(36**10).to_s(36)
+          ff = File.open("./tmp/#{tmpfile}",'w')
+          ff.write(im_data)
+          ff.close
+          puts "./tmp/#{tmpfile} #{local_filename}"
+          if (user[k]['jm_tag'].to_i == 1)
+            system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+          else
+            system("scp ./tmp/#{tmpfile} #{local_filename}")
+          end 
+          system("rm ./tmp/#{tmpfile}")
+        end
+      
+        system("convert '#{local_filename}' '#{convert_filename}'")
+        rq=Time.now.strftime("%Y%m%d%H%M%S")
+        sj=rand(10000)
+        fn="./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".jpg"
+        if (convert_filename.upcase.include?'JPG') || (convert_filename.upcase.include?'TIF') || (convert_filename.upcase.include?'TIFF') || (convert_filename.upcase.include?'JPEG') 
+          imagesize=FastImage.size convert_filename      
+          if imagesize[0].to_i > imagesize[1].to_i
+            text = "/assets/#{convert_filename}?2"
+            system("cp #{convert_filename} #{fn}")
+            system("convert -rotate 90 #{fn} #{fn}")
+          else
+            text = "/assets/#{convert_filename}?1"
+            system("cp #{convert_filename} #{fn}")
+          end  
+                  
+        else
+          text = "/assets/#{convert_filename}?2"
+        end
+        if dylb=='1'  #导出影像文件
+          system("zip -j -m ./dady/img_tmp/#{dh}/#{dh}.zip #{convert_filename}")
+          txt="success,./dady/img_tmp/#{dh}/#{dh}.zip"          
+        else
+          if txt==""
+            txt=text
+            fns=fn
+          else
+            txt= txt.to_s + "," + text.to_s
+            if fns==""
+              fns=fn.to_s
+            else
+              fns=fns.to_s + "," + fn.to_s
+            end
+          end
+        end       
+      end
+      if dylb!='1'
+        if fns!=""
+          files=fns.split(',')
+          puts files
+          puts "ddd" + files.length.to_s
+          puts "./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+          Prawn::Document.generate("./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf") do 
+            for x in 0..files.length-1
+              #image files[x],:at => [-20,740], :width => 580, :height => 780            
+              #image files[x], :at =>[-40,780], :width => 580, :height => 890
+              puts "sss" + files[x]
+              image files[x], :at => [-40,750], :width => 600, :height => 800
+              if x<files.length-1
+                start_new_page
+              end
+            end
+          end
+        end
+        qzh=dh.split('-')
+        qzmc=User.find_by_sql("select * from d_dwdm where id=#{qzh[0]} ;")
+        if qzmc[0]['dwdm']!='无锡市国土资源局'
+          txt="success:/assets/dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+        else
+          txt="success:" + txt
+        end
+        
+      end
+    end
+    render :text => txt
+  end
+
   
   def get_d_dalb
     user = User.find_by_sql("select count(*) from d_dalb;")
@@ -3064,10 +3243,10 @@ class DesktopController < ApplicationController
     end
   end
 
-  def get_mlh
+  def get_mlhs
     ss = params['dalb']
        txt=""
-       dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss}';")
+       dalb = User.find_by_sql("select * from d_dw_lb_ml where id = '#{ss}';")
        size = dalb.size;
        if size>0
          txt=dalb[0]['mlh']
@@ -10945,9 +11124,9 @@ class DesktopController < ApplicationController
   
   def get_bfzt_store
     if params['qzh'].nil?
-      user = User.find_by_sql("select * from b_status order by dhp;")
+      user = User.find_by_sql("select * from b_status order by id;")
     else 
-      user = User.find_by_sql("select * from b_status where qzh = #{params['qzh']} order by dhp;")
+      user = User.find_by_sql("select * from b_status where qzh = #{params['qzh']} order by id;")
     end
       
     size = user.size;
@@ -10965,12 +11144,12 @@ class DesktopController < ApplicationController
   
   def init_b_status
     qzh = params['qzh']
-    datas = User.find_by_sql("select distinct dh_prefix, mlh from q_qzxx where qzh = #{qzh};")
+    datas = User.find_by_sql("select distinct dh_prefix,mlm from q_qzxx where qzh = #{qzh};")
     for k in 0..datas.size-1 
       data = datas[k]
       count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
       if count == 0
-        puts "insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlh}, '未备份');"
+        puts "insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlm}, '未备份');"
         User.find_by_sql("insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlh}, '未备份');")
       end
     end  
@@ -11011,7 +11190,6 @@ class DesktopController < ApplicationController
     end  
     render :text => 'Success'
   end
-  
   
   def cancel_selected_dhp
     user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
@@ -11056,5 +11234,29 @@ class DesktopController < ApplicationController
     ff.close
     render :text => "Success"
   end  
-      
+  
+  def get_mlwj
+    dh = params['dh']
+    dirs = Dir["/share/#{dh}-*.archive.backup"]
+    size = dirs.size;
+    if size > 0
+      txt = "{results:#{size},rows:["
+      k = 0
+      dirs.each do |f|
+        k = k+1
+        txt = txt + {"f_name" => f.split('/')[2].split('.')[0..1].join('.'), "id" => "#{k}"}.to_json + ','
+      end
+      txt = txt[0..-2] + "]}"
+    else    
+      txt = "{results:0,rows:[]}"
+    end
+    render :text => txt  
+  end
+    
+  def mlhf_to_temp
+    f_name = params['f_name']
+    system("ruby ./dady/bin/import_dhp_temp.rb #{f_name} &")
+    render :text => 'Success'
+  end    
+    
 end

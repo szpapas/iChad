@@ -1,115 +1,125 @@
 #!/usr/bin/ruby
 $:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/'
 $:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'
-require 'pg'
-$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 
-if ARGV.count < 1
-  puts "Usage: ruby import_dhp.rb dh_prefix infilename" 
-  puts "       ruby import_dhp.rb 9-24-1.130714 "
-  exit
-end  
-dhp, f_name = ARGV[0], ARGV[1]
-dhp_u  = dhp.gsub('-','_')
+require 'pg'
 
 def check_disk_space
-  system('df -H | grep debug > ff')
+  system('df | grep debug > ff')
   ss = File.open('ff').read.split(/\s+/)
   system('rm ff')
   "#{ss[3]}"
   "10"
 end
 
-
-def get_table_name(dhp)
-  t_name = ''
-  dalb = dhp.split('-')[1]
-  case dalb.to_i
-  when 0  #综合档案 
-  when 2  #财务档案
-  when 3,36,37,38,39  #土地登记
-    t_name = "a_tddj"
-  when 4  #地籍管理
-  when 10 #用地档案
-  when 14 #监查案件
-  when 15 #Image
-  when 17 #土地规划
-  when 18 #图件目录
-    t_name = "a_tjml" 
-  when 19 #科技信息
-  when 20 #Image
-    t_name = "a_zp"
-  when 21 #地址矿产
-  when 24 #文书档案
-    t_name = "a_wsda"
-  when 25 #电子档案
-    t_name = "a_dzda"
-  when 26 #基建档案
-    t_name = "a_jjda"  
-  when 27 #设备档案
-    t_name = "a_sbda"
-  when 28 #实物档案
-    t_name = "a_swda"
-  when 29 #资料信息
-    t_name = "a_zlxx"
-  when 35 #矿业权
-    t_name = "a_kyq"
-  else
-    t_name = ""
-  end
-  t_name
+def setStatus4(prompt, cur_pos, total, dhp)
+  percent = sprintf("%0.2f%",cur_pos*100.0/(total/BLOCK_SIZE))
+  puts "#{Time.now.strftime("%D %T")}: #{prompt} #{percent}"
+  $conn.exec("update b_status set zt='#{prompt} #{percent}' where dhp = '#{dhp}';")
 end
 
+def setStatus2(prompt, dhp)
+  puts "#{Time.now.strftime("%D %T")}: #{prompt}"
+  $conn.exec("update b_status set zt='#{prompt}' where dhp = '#{dhp}';")
+end  
 
+fields = {}
+fields["a_by_dsj"] = "dd,jlr,clly,fsrq,jlrq,rw,sy,yg,ownerid,dh"
+fields["a_by_jcszhb"] = "zt,qy,tjsj,sm,ownerid,dh"
+fields["a_by_qzsm"] = "qzgczjj,sj,ownerid,dh"
+fields["a_by_tszlhj"] = "djh,kq,mc,fs,yfdm,cbrq,dj,ownerid,dh"
+fields["a_by_zzjgyg"] = "jgmc,zzzc,qzny,ownerid,dh"
+fields["a_dzda"] = "tjr,rjhj,czxt,sl,bfs,ztbhdwjgs,yyrjpt,tjdw,wjzt,dzwjm,ztbh,xcbm,xcrq,jsr,jsdw,yjhj,ownerid,dh"
+fields["a_jhcw"] = "jnzs,fjzs,pzqh,ownerid,dh,pzzh"
+fields["a_jjda"] = "jsnd,ownerid,dh,xmmc,jsdw"
+fields["a_kyq"] = "xxkz,yxkz,kyqr,ksmc,ksbh,ksgm,xzqdm,kz,djlx,kswz,kqfw,mj,cl,sjncl,clgm,yxqq,yxqz,yxqx,fzjg,mjdw,cldw,scgm,scldw,jjlx,ownerid,dh"
+fields["a_sbda"] = "zcmc,gzsj,dw,sl,cfdd,sybgdw,sybgr,jh,zcbh,dj,ownerid,dh,je"
+fields["a_swda"] = "jh,bh,lb,hjz,sjsj,sjdw,ownerid,dh,mc,ztxs"
+fields["a_sx"] = "zl,ownerid"
+fields["a_tddj"] = "djh,qlrmc,qsxz,ydjh,ownerid,dh,tdzh,tfh,cjfr,dyrmc,dyqrmc,txqz,ywrmc,txqrrmc,xmmc,tdzl"
+fields["a_tjda"] = "sxh,tfh,tgh,tmc,ownerid,dh"
+fields["a_tjml"] = "tfh,tgh,ownerid,dh"
+fields["a_wsda"] = "jh,zwrq,wh,zrr,gb,wz,ztgg,ztlx,ztdw,dagdh,dzwdh,swh,qwbs,ztc,zbbm,ownerid,dh,ztsl,hh,nd,bgqx,jgwth,gbjh,xbbm"
+fields["a_zlxx"] = "bh,lb,bzdw,ownerid,dh"
+fields["a_zp"] = "psrq,zph,dh,psz,cfwz,ownerid,sy,dd,rw,bj"
+fields["archive"] = "dh,dwdm,qzh,mlh,ajh,tm,flh,nd,zrq,qrq,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qny,zny,dalb,dyzt,mlm"
+fields["document"] = "tm,sxh,yh,wh,zrz,rq,bz,dh,ownerid"
+fields["timage"] = "dh,yxmc,yxbh,yxdx,data,meta,meta_tz,pixel,dh_prefix,height,width,sfzs,tag,jm_tag,md5,v_hash"
+
+
+#check arguments parameters
+if ARGV.count < 1
+  puts "Usage: ruby import_dhp_temp.rb dh_prefix.timestamp" 
+  puts "       ruby import_dhp_temp.rb 9-24-1.130714 "
+  exit
+end  
+
+#check info file
+f_name = ARGV[0]
+if !File.exists?("/share/#{f_name}.info.txt") || !File.exists?("/share/#{f_name}.archive.backup")
+  puts "Error: Files do not exists"
+  exit
+end  
+
+#check tables
+tables = []
+ff = File.open("/share/#{f_name}.info.txt").each_line do |line|
+  if line.include?"tables"
+    tables = line.chomp!.split(":")[1].split('|')
+  end
+end
+
+if tables.size == 0
+  puts "Error: Tables do not exists"
+  exit
+end  
+
+
+$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
 $b_running = true
+
+dhp    = f_name.split('.')[0]
+dhp_u  = dhp.gsub('-','_')
+
 
 thr = Thread.new {
 
-  puts "#{Time.now.strftime("%D %T")}: 准备数据库... "
-  $conn.exec("update b_status set zt='准备数据库' where dhp = '#{dhp}';")
-  system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS timage_#{dhp_u}; \"")
-
-  puts "#{Time.now.strftime("%D %T")}: 删除原来数据库中影像... "
-  $conn.exec("update b_status set zt='删除数据库中影像' where dhp = '#{dhp}';")
-  system ("sudo -u postgres psql -d JY1017 -c \"delete from timage where dh like'#{dhp}-%';\"")
+  #drop temp tables if exists
   
-  puts "#{Time.now.strftime("%D %T")}: 恢复到临时表... "
-  $conn.exec("update b_status set zt='恢复到临时表' where dhp = '#{dhp}';")
-  system ("sudo -u postgres pg_restore -d JY1017 '/share/#{f_name}.timage.backup' ")
-
-
-  puts "#{Time.now.strftime("%D %T")}: 恢复到影像表... "
-  $conn.exec("update b_status set zt='恢复到影像表' where dhp = '#{dhp}';")
-  system ("sudo -u postgres psql -d JY1017 -c \"insert into timage select * from timage_#{dhp_u}; \"")
-
-  puts "#{Time.now.strftime("%D %T")}: 删除临时影像表... "
-  $conn.exec("update b_status set zt='删除临时影像表' where dhp = '#{dhp}';")
-  
-  system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS timage_#{dhp_u} \"")
-  
-  puts "#{Time.now.strftime("%D %T")}: '选择输档数据...' "
-  $conn.exec("update b_status set zt='选择输档数据' where dhp = '#{dhp}';")
-  
-  #Restore Archive/Documents and other table
-
-  t_name = get_table_name(dhp)
-  system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS document_#{dhp_u}; \"")
-  system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS archive_#{dhp_u}; \"")
-  if t_name != ""
-    system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS #{t_name}_#{dhp_u}; \"")
+  tables.each do |table|
+    system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS #{table}; \"")
   end
-
+  
+  #restore all files
   system ("sudo -u postgres pg_restore -d JY1017 '/share/#{f_name}.archive.backup' ")
 
-  system ("sudo -u postgres psql -d JY1017 -c \"delete from archive where dh like'#{dhp}-%';\"")
-  system ("sudo -u postgres psql -d JY1017 -c \"insert into archive select * from archive_#{dhp_u}; \"")
-
-  system ("sudo -u postgres psql -d JY1017 -c \"delete from document where dh like'#{dhp}-%';\"")
-  system ("sudo -u postgres psql -d JY1017 -c \"insert into document select * from document_#{dhp_u}; \"")
-
-  if t_name != ""
-    system ("sudo -u postgres psql -d JY1017 -c \"delete from #{t_name} where dh like'#{dhp}-%';\"")
-    system ("sudo -u postgres psql -d JY1017 -c \"insert into #{t_name} select * from #{t_name}_#{dhp_u}; \"")    
+  #delete original files and insert new files
+  
+  bDeleted = false
+  tables.each do |table|
+     t_name = table.gsub("_#{dhp_u}",'')
+     setStatus2("恢复#{t_name}", dhp)
+      
+     #delete files   
+     if t_name.include?'timage' 
+       if bDeleted == false
+         system "sudo -u postgres psql -d JY1017 -c \"delete from timage where dh like'#{dhp}-%';\""
+         bDeleted = true
+       end   
+     else
+       system "sudo -u postgres psql -d JY1017 -c \"delete from #{t_name} where dh like'#{dhp}-%';\""   
+     end
+     
+     #restore tables
+     if t_name.include?'timage'
+       system "sudo -u postgres psql -d JY1017 -c \"insert into timage (#{fields['timage']}) select #{fields['timage']} from #{table}; \"" 
+     else    
+       system "sudo -u postgres psql -d JY1017 -c \"insert into #{t_name} (#{fields[t_name]}) select #{fields[t_name]} from #{table}; \"" 
+     end         
+  end  
+  
+  tables.each do |table|
+    system ("sudo -u postgres psql -d JY1017 -c \"drop table IF EXISTS #{table}; \"")
   end
 
   puts "#{Time.now.strftime("%D %T")}:All work done "
