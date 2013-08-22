@@ -1861,8 +1861,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
     
-    
-    bfzt_store.proxy.extraParams={qzh:'10'};
+    bfzt_store.proxy.extraParams={qzh:Ext.getCmp('qzh_field').getValue();};
     bfzt_store.load();
 
     var mlbf_grid = new Ext.grid.GridPanel({
@@ -2050,7 +2049,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
     
-    mlwj_store.proxy.extraParams.dh='9';
+    mlwj_store.proxy.extraParams.dh=Ext.getCmp('qzh_field').getValue();
     mlwj_store.load();
     
     Ext.regModel('mlhf_model', {
@@ -2201,6 +2200,9 @@ Ext.define('MyDesktop.SystemStatus', {
       },{
         text : '刷新',
         handler : function() {
+          var qzh   = Ext.getCmp('qzh_field').getValue();
+          mlwj_store.proxy.extraParams.dh=qzh;
+          mlwj_store.load();
           f_name = Ext.getCmp('mlwj_combo_id').getValue();
           ss = f_name.split('.');
           mlhf_store2.proxy.dh=ss[0];

@@ -85,6 +85,19 @@ thr = Thread.new {
 
   #output images information
   ff = File.open("/share/#{f_name}.info.txt", 'w+')
+  
+  #select info from q_qzxx
+  qzxx = $conn.exec("select dh_prefix, mlm, qajh, zajh, ajys, jnts, smyx, zt from q_qzxx where dh_prefix = '#{dhp}';")[0]
+  ff.puts("dh_prefix, mlm, qajh, zajh, ajys, jnts, smyx, zt")
+  ff.puts("#{qzxx['dh_prefix']}, #{qzxx['mlm']}, #{qzxx['qajh']}, #{qzxx['zajh']}, #{qzxx['ajys']}, #{qzxx['jnts']}, #{qzxx['smyx']}, #{qzxx['zt']}")
+  
+  #q_qzxx
+  tables << "q_qzxx_#{dhp_u}" 
+  $conn.exec("drop table IF EXISTS q_qzxx_#{dhp_u};")
+  exec_str = "select * into q_qzxx_#{dhp_u} from q_qzxx where dh_prefix = '#{dhp}';"
+  system ("sudo -u postgres psql -d JY1017 -c \" #{exec_str} \" ")
+  
+  #begin dump images
   info = $conn.exec("select count(*), sum(yxdx) from timage where dh like '#{dhp}-%';")[0]
   ff.puts("图像总数:#{info['count']},图像大小:#{info['sum']}")
 
@@ -95,7 +108,7 @@ thr = Thread.new {
       setStatus4('选择影像数据',kk*BLOCK_SIZE, total_image, dhp)
       tables << "timage_#{dhp_u}_#{kk}" 
       $conn.exec("drop table IF EXISTS timage_#{dhp_u}_#{kk};")
-      $conn.exec("select * into timage_#{dhp_u}_#{kk} from timage where dh like '#{dhp}-%' offset #{BLOCK_SIZE*kk} limit #{BLOCK_SIZE};") 
+      $conn.exec("select * into timage_#{dhp_u}_#{kk} from timage where dh like '#{dhp}-%' offset #{BLOCK_SIZE*kk} order by id limit #{BLOCK_SIZE};") 
       info = $conn.exec("select count(*), sum(yxdx) from timage_#{dhp_u}_#{kk};")[0]
       ff.puts("timage_#{dhp_u}_#{kk}:图像数量:#{info['count']},图像大小:#{info['sum']}")
     end    

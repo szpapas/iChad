@@ -45,7 +45,7 @@ fields["a_zp"] = "psrq,zph,dh,psz,cfwz,ownerid,sy,dd,rw,bj"
 fields["archive"] = "dh,dwdm,qzh,mlh,ajh,tm,flh,nd,zrq,qrq,js,ys,bgqx,mj,xh,cfwz,bz,boxstr,rfidstr,boxrfid,qny,zny,dalb,dyzt,mlm"
 fields["document"] = "tm,sxh,yh,wh,zrz,rq,bz,dh,ownerid"
 fields["timage"] = "dh,yxmc,yxbh,yxdx,data,meta,meta_tz,pixel,dh_prefix,height,width,sfzs,tag,jm_tag,md5,v_hash"
-
+fields["q_qzxx"] = "zt,jmcr,qzh,mlbk,lbmc,dtxs,jnbk,zajh,ml00,dwdm,a4,a3,qajh,smyx,mlh,mlm,dt,lijr,jnjn,jnts,json,ajys,mljn,dh_prefix,dalb,dtbl,jn00,yxwz"
 
 #check arguments parameters
 if ARGV.count < 1
@@ -103,11 +103,13 @@ thr = Thread.new {
      #delete files   
      if t_name.include?'timage' 
        if bDeleted == false
-         system "sudo -u postgres psql -d JY1017 -c \"delete from timage where dh like'#{dhp}-%';\""
+         system "sudo -u postgres psql -d JY1017 -c \"delete from timage where dh like '#{dhp}-%';\""
          bDeleted = true
        end   
-     else
-       system "sudo -u postgres psql -d JY1017 -c \"delete from #{t_name} where dh like'#{dhp}-%';\""   
+     else t_name.include?'q_qzxx'
+       system "sudo -u postgres psql -d JY1017 -c \"delete from #{t_name} where dh_prefix = '#{dhp}-%';\""  
+     else   
+       system "sudo -u postgres psql -d JY1017 -c \"delete from #{t_name} where dh like '#{dhp}-%';\""   
      end
      
      #restore tables
