@@ -11144,7 +11144,7 @@ class DesktopController < ApplicationController
   
   def init_b_status
     qzh = params['qzh']
-    datas = User.find_by_sql("select distinct dh_prefix,mlm from q_qzxx where qzh = #{qzh};")
+    datas = User.find_by_sql("select distinct dh_prefix, mlm from q_qzxx where qzh = #{qzh};")
     
     
     sql_cmd = "CREATE TABLE b_status
@@ -11170,7 +11170,7 @@ class DesktopController < ApplicationController
       count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
       if count == 0
         puts "insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlm}, '未备份');"
-        User.find_by_sql("insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlh}, '未备份');")
+        User.find_by_sql("insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlm}, '未备份');")
       end
     end  
   end
