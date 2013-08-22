@@ -19,7 +19,7 @@ dhp, f_name = ARGV[0], ARGV[1]
 dhp_u  = dhp.gsub('-','_')
 
 def check_disk_space
-  system('df | grep debug > ff')
+  system(' df --total | grep total > ff')
   ss = File.open('ff').read.split(/\s+/)
   system('rm ff')
   "#{ss[3]}"
@@ -171,8 +171,8 @@ while $b_running do
     $conn.exec("update b_status set f_size = #{f_size} where dhp = '#{dhp}';")
 
     ss = check_disk_space
-    #if diskspace less than 5G
-    if ss.to_i < 5
+    
+    if ss.to_i < 5000000
       puts "low disk space exit..."
       $conn.exec("update b_status set zt='硬盘空间不足...' where dhp = '#{dhp}';")
       ff.close
