@@ -11147,8 +11147,7 @@ class DesktopController < ApplicationController
     datas = User.find_by_sql("select distinct dh_prefix, mlm from q_qzxx where qzh = #{qzh};")
     
     
-    sql_cmd = "DROP TABLE IF Exists b_status;
-    CREATE TABLE b_status
+    sql_cmd = "CREATE TABLE b_status
     (
       id serial NOT NULL,
       dhp character varying(100),
@@ -11165,6 +11164,7 @@ class DesktopController < ApplicationController
 
     count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'b_status';")[0]['count'].to_i
     User.find_by_sql("#{sql_cmd}") if count == 0 
+    system("chmod 777 /share")
     
     for k in 0..datas.size-1 
       data = datas[k]
@@ -11174,6 +11174,8 @@ class DesktopController < ApplicationController
         User.find_by_sql("insert into b_status(dhp, qzh, mlm, zt) values ('#{data.dh_prefix}',#{qzh}, '#{data.mlm}', '未备份');")
       end
     end  
+    
+    render :text => 'Success'
   end
   
   #backup_folder, /share/qzh/
