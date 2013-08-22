@@ -11147,7 +11147,8 @@ class DesktopController < ApplicationController
     datas = User.find_by_sql("select distinct dh_prefix, mlm from q_qzxx where qzh = #{qzh};")
     
     
-    sql_cmd = "CREATE TABLE b_status
+    sql_cmd = "DROP TABLE IF Exists b_status;
+    CREATE TABLE b_status
     (
       id serial NOT NULL,
       dhp character varying(100),

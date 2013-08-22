@@ -1838,7 +1838,7 @@ Ext.define('MyDesktop.SystemStatus', {
       fields: [
         {name: 'id',       type: 'integer'},
         {name: 'dhp',      type: 'string'},
-        {name: 'mlh',      type: 'integer'},
+        {name: 'mlm',      type: 'string'},
         {name: 'cmd',      type: 'string'},
         {name: 'f_name',   type: 'string'},
         {name: 'f_size',   type: 'string'},
@@ -1874,7 +1874,7 @@ Ext.define('MyDesktop.SystemStatus', {
       columns: [
         { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
         { text : '档号',    align:"left",   width : 100, sortable : true, dataIndex: 'dhp'},
-        { text : '目录号',   align:"left",   width : 50, sortable : true, dataIndex: 'mlh'},
+        { text : '目录名',   align:"left",   width : 50, sortable : true, dataIndex: 'mlm'},
         { text : '任务命令',  align:"left",   width : 150, sortable : true, dataIndex: 'cmd'},
         { text : '文件名',   align:"left",   width : 100,  sortable : true, dataIndex: 'f_name'},
         { text : '文件大小',  align:"center", width : 80, sortable : true, dataIndex: 'f_size'},
