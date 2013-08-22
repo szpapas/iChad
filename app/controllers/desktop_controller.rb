@@ -11145,6 +11145,26 @@ class DesktopController < ApplicationController
   def init_b_status
     qzh = params['qzh']
     datas = User.find_by_sql("select distinct dh_prefix,mlm from q_qzxx where qzh = #{qzh};")
+    
+    
+    sql_cmd = "CREATE TABLE b_status
+    (
+      id serial NOT NULL,
+      dhp character varying(100),
+      mlh integer,
+      qzh integer,
+      cmd character varying(100),
+      f_name character varying(100),
+      f_size character varying(100),
+      zt character varying(100),
+      CONSTRAINT b_status_pkey PRIMARY KEY (id)
+    );
+    ALTER TABLE b_status OWNER TO postgres;"
+    
+
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'b_status';")[0]['count'].to_i
+    User.find_by_sql("#{sql_cmd}") if count == 0 
+    
     for k in 0..datas.size-1 
       data = datas[k]
       count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
