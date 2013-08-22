@@ -11151,7 +11151,7 @@ class DesktopController < ApplicationController
     (
       id serial NOT NULL,
       dhp character varying(100),
-      mlh integer,
+      mlm character varying(100),
       qzh integer,
       cmd character varying(100),
       f_name character varying(100),
@@ -11169,8 +11169,8 @@ class DesktopController < ApplicationController
       data = datas[k]
       count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
       if count == 0
-        puts "insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlm}, '未备份');"
-        User.find_by_sql("insert into b_status(dhp, qzh, mlh, zt) values ('#{data.dh_prefix}',#{qzh}, #{data.mlm}, '未备份');")
+        puts "insert into b_status(dhp, qzh, mlm, zt) values ('#{data.dh_prefix}',#{qzh}, '#{data.mlm}', '未备份');"
+        User.find_by_sql("insert into b_status(dhp, qzh, mlm, zt) values ('#{data.dh_prefix}',#{qzh}, '#{data.mlm}', '未备份');")
       end
     end  
   end
