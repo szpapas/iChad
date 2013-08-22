@@ -59,80 +59,32 @@ class DesktopController < ApplicationController
     insert into d_cd(id, cdmc,owner_id,sfcd) values (20, '日志管理',0,1);
     insert into d_cd(id, cdmc,owner_id,sfcd) values (21, '数据备份',0,1);
     insert into d_cd(id, cdmc,owner_id,sfcd) values (22, '程序更新',0,1);
-
-    drop table d_cz_list;
+    "
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='czr';")[0]['count'].to_i
+    User.find_by_sql("#{sql_cmd}") if count == 0
+    
+    
+    
+    sql_cmd =
+    "
     CREATE TABLE d_cz_list  --状态操作表
     (
       id serial NOT NULL,
       czmc character varying(100),--操作名称
-     czzt integer,--操作状态
+      czzt integer,--操作状态
       fhz character varying(100),--返回值
-    strwhere character varying(100),--查询条件
-
+      strwhere character varying(100),--查询条件
       CONSTRAINT d_cz_list_pkey PRIMARY KEY (id)
     );
 
-    ALTER TABLE archive ADD COLUMN mlm character varying(100);
     ALTER TABLE q_status ADD COLUMN dh character varying(100);
     ALTER TABLE q_status ADD COLUMN aj_zt character varying(100);
     ALTER TABLE q_status ADD COLUMN aj_path character varying(100);
     ALTER TABLE q_status ADD COLUMN ajh character varying(100);
     ALTER TABLE q_status ADD COLUMN tag character varying(100);
-
-    CREATE TABLE d_tddj_tmp  --土地登记临时表
-    (
-      id serial NOT NULL,
-      djh character varying(100),--地籍号
-     zl character varying(100),--土地座落
-      qlr character varying(100),--权利人名称
-    qsxz character varying(100),--权属性质
-
-      CONSTRAINT d_tddj_tmp_pkey PRIMARY KEY (id)
-    );
-
-    CREATE TABLE jy_zxjylist_htts  --档案员在后面推送到ipad端的影像文件
-    (
-      id serial NOT NULL,
-      zxjyid integer,
-      dh character varying(100),
-      image_id integer,
-      CONSTRAINT jjy_zxjylist_htts_pkey PRIMARY KEY (id)
-    );
-
-    CREATE TABLE qz_image  --借阅签字表
-    (
-      id serial NOT NULL,
-      jyid integer,
-      data bytea,
-      CONSTRAINT qz_image_pkey PRIMARY KEY (id)
-    );
-
-    CREATE TABLE d_bkb --备考表
-    (
-      id serial NOT NULL,
-      ljr character varying(200),
-     jcr character varying(200),
-     qksm character varying(1000),
-     ljsj timestamp without time zone,
-    ownerid integer,
-      CONSTRAINT d_bkb_pkey PRIMARY KEY (id)
-    );
-
-    ALTER TABLE qzml_key ADD COLUMN nd character varying(100); --在会计档案是小流水号时，要用到
-
-    CREATE TABLE s_setup --系统设置表
-    (
-      id serial NOT NULL,
-      dwid integer,
-      cwsfxls character varying(200),--会计档案是否是小流水
-      CONSTRAINT s_setup_pkey PRIMARY KEY (id)
-    );
-
-    insert into s_setup(dwid,cwsfxls) values (8, '是');
-    ALTER TABLE q_status ADD COLUMN err character varying(3000);
     "
-    
-    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='czr';")[0]['count'].to_i
+
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_cz_list';")[0]['count'].to_i
     User.find_by_sql("#{sql_cmd}") if count == 0
     
   end  
