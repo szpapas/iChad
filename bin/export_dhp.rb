@@ -66,10 +66,10 @@ end
 
 
 $b_running = true
-BLOCK_SIZE = 10000   #100M per block
 
-def setStatus4(prompt, cur_pos, total, dhp)
-  percent = sprintf("%0.2f%",cur_pos*100.0/(total/BLOCK_SIZE))
+def setStatus4(prompt, cur_pos, total_image, dhp)
+  puts "===>#{prompt}, #{cur_pos}, #{total_image}, #{dhp}"
+  percent = sprintf("%0.2f%",cur_pos*100.0/(total_image.to_f/BLOCK_SIZE))
   puts "#{Time.now.strftime("%D %T")}: #{prompt} #{percent}"
   $conn.exec("update b_status set zt='#{prompt} #{percent}' where dhp = '#{dhp}';")
 end
