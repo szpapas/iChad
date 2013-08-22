@@ -1861,7 +1861,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
     });
     
-    bfzt_store.proxy.extraParams={qzh:Ext.getCmp('qzh_field').getValue();};
+    bfzt_store.proxy.extraParams={qzh:Ext.getCmp('qzh_field').getValue()};
     bfzt_store.load();
 
     var mlbf_grid = new Ext.grid.GridPanel({
