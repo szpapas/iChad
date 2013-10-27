@@ -8,6 +8,8 @@ require "open-uri"
 require 'uri'
 #require "prawn"
 
+BLOCK_SIZE = 10
+
 class DesktopController < ApplicationController
   skip_before_filter :verify_authenticity_token
   before_filter :authenticate_user!, :except => [:upload_images, :add_new_wsda,:get_jytj]
@@ -19,7 +21,86 @@ class DesktopController < ApplicationController
   def search
   end
   
+  def check_sql_table
+
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_rz';")[0]['count'].to_i
+    sql_cmd = "
+    CREATE TABLE d_rz  --日志表
+    (
+      id serial NOT NULL,
+      mlh character varying(100),--目录号
+      ajh character varying(100),--案卷 号
+      dalb character varying(100),--档案类别
+      qzh character varying(100),--全宗号
+      dwmc character varying(100),--全宗名称
+      rq timestamp without time zone,--日期
+      czlx character varying(100),--操作类型
+      czr character varying(100),--操作人
+      czqnr character varying(1000),--修改前内容
+      czhnr character varying(1000),--修改后内容
+      dalbmc character varying(100),--档案类别名称
+      CONSTRAINT d_rz_pkey PRIMARY KEY (id)
+    );"
+    User.find_by_sql("#{sql_cmd}") if count == 0
+    
+    #for columns
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='czr';")[0]['count'].to_i
+    sql_cmd = "
+    ALTER TABLE archive ADD COLUMN rq timestamp without time zone;  --增加操作日期
+    ALTER TABLE archive ADD COLUMN czr character varying(100);  --增加操作人
+    ALTER TABLE archive ADD COLUMN czrname character varying(100);  --增加操作人
+
+    ALTER TABLE timage ADD COLUMN rq timestamp without time zone; --增加操作日期
+    ALTER TABLE timage ADD COLUMN czr character varying(100);--增加操作人
+    ALTER TABLE timage ADD COLUMN czrname character varying(100);  --增加操作人
+    
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (17, '卷内输档模板设置',0,1);
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (18, '档案缺重卷检验',0,1);
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (19, '档案页数件数统计',0,1);
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (20, '日志管理',0,1);
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (21, '数据备份',0,1);
+    insert into d_cd(id, cdmc,owner_id,sfcd) values (22, '程序更新',0,1);
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
+    
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'd_cz_list';")[0]['count'].to_i
+    sql_cmd ="
+    CREATE TABLE d_cz_list  --状态操作表
+    (
+      id serial NOT NULL,
+      czmc character varying(100),--操作名称
+      czzt integer,--操作状态
+      fhz character varying(100),--返回值
+      strwhere character varying(100),--查询条件
+      CONSTRAINT d_cz_list_pkey PRIMARY KEY (id)
+    );
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
+
+
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='archive' and column_name='mlm';")[0]['count'].to_i
+    sql_cmd ="
+    ALTER TABLE archive ADD COLUMN mlm character varying(100);
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
+    
+    count = User.find_by_sql("SELECT count(*) FROM information_schema.columns WHERE table_name='q_status' and column_name='dh';")[0]['count'].to_i
+    sql_cmd ="
+    ALTER TABLE q_status ADD COLUMN dh character varying(100);
+    ALTER TABLE q_status ADD COLUMN aj_zt character varying(100);
+    ALTER TABLE q_status ADD COLUMN aj_path character varying(100);
+    ALTER TABLE q_status ADD COLUMN ajh character varying(100);
+    ALTER TABLE q_status ADD COLUMN tag character varying(100);
+    "
+    User.find_by_sql("#{sql_cmd}") if count == 0
+
+    
+  end  
+  
   def get_user   
+     
+    check_sql_table
+    
     #puts User.current
     czr=User.current.id.to_s
     #puts czr
@@ -835,6 +916,67 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   
+  #tid, v_hash, #yd_id  
+  def get_image_by_gid(gid)
+    #v_hash = User.find_by_sql("select v_hash from timage where id = #{gid};")[0].v_hash
+    #yd_id = User.find_by_sql("select id from yd_index where v_hash = '#{v_hash}'; ")[0].id
+    yd_id = User.find_by_sql("select yd_id from timage where id = #{gid};")[0].yd_id.to_i
+    tbl_id = (yd_id-1)/BLOCK_SIZE
+    ydd_id = (yd_id-1) % BLOCK_SIZE + 1
+    puts "===yd_id: #{yd_id}, #{tbl_id}, #{ydd_id}"
+    data = User.find_by_sql("select data from yd_#{tbl_id} where id = #{ydd_id};")[0]['data']
+  end
+  
+  #get timage from yd_data
+  def get_timage_from_yd
+    if (params['gid'].nil?)
+      txt = ""
+    else
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
+
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
+      end
+      
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, jm_tag from timage where id=#{params['gid']};")
+        im_data = get_image_by_gid(params['gid'])
+
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(im_data)
+        ff.close
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end 
+        system("rm ./tmp/#{tmpfile}")
+      end
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
+      if (convert_filename.upcase.include?'JPG') || (convert_filename.upcase.include?'TIF') || (convert_filename.upcase.include?'TIFF') || (convert_filename.upcase.include?'JPEG') 
+        imagesize=FastImage.size convert_filename
+      
+        if imagesize[0].to_i > imagesize[1].to_i
+          txt = "/assets/#{convert_filename}?2"
+        else
+          txt = "/assets/#{convert_filename}?1"
+        end
+      else
+        txt = "/assets/#{convert_filename}?2"
+      end
+      archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+      set_rz(archive[0]['mlh'],'','','','影像查看',params['userid'],user[0]["yxmc"],user[0]["yxmc"],dh)
+    end
+    render :text => txt
+  end
+  
   def get_timage_from_db
     if (params['gid'].nil?)
       txt = ""
@@ -888,7 +1030,6 @@ class DesktopController < ApplicationController
       txt = ""
     else   
       user = User.find_by_sql("select * from qz_image where jyid=#{params['qzid']};")
-      #user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=8;")
       if user.size>0    
         convert_filename = "./dady/img_tmp/qz.jpg"
         system("rm ./dady/img_tmp/qz.jpg")       
@@ -1020,6 +1161,123 @@ class DesktopController < ApplicationController
     render :text => txt
   end
   
+
+  def get_timage_from_yd_print
+    text=""
+    fns=""
+    i=1
+    if (params['gid'].nil?)
+      txt = ""
+    else            
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id in (#{params['gid']}) order by yxbh;")
+      if (params['dylb'].nil?)
+        dylb='0'
+      else
+        dylb=params['dylb']
+        system"rm  ./dady/img_tmp/#{user[0]['dh']}/#{user[0]['dh']}.zip" 
+        system"rm  ./dady/img_tmp/#{user[0]['dh']}/*.*" 
+      end
+      puts "user" + user.size.to_s
+      for k in 0..user.size-1
+        puts user[k]['id']
+        dh,width,height = user[k]['dh'], user[k]['width'], user[k]['height']
+        
+        archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+        if dylb=='1'
+          set_rz(archive[0]['mlh'],'','','','影像导出',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        else
+          set_rz(archive[0]['mlh'],'','','','影像打印',params['userid'],user[k]["yxmc"],user[k]["yxmc"],dh)
+        end
+        if !File.exists?("./dady/img_tmp/#{dh}/")
+          system"mkdir -p ./dady/img_tmp/#{dh}/"        
+        end
+      
+        convert_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+        local_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-')
+
+        if !File.exists?(local_filename)
+          user1 = User.find_by_sql("select id, dh, yxmc, jm_tag from timage where id=#{user[k]['id']};")
+          im_data = get_image_by_gid(params['gid'])
+          
+          tmpfile = rand(36**10).to_s(36)
+          ff = File.open("./tmp/#{tmpfile}",'w')
+          ff.write(im_data)
+          ff.close
+          puts "./tmp/#{tmpfile} #{local_filename}"
+          if (user[k]['jm_tag'].to_i == 1)
+            system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+          else
+            system("scp ./tmp/#{tmpfile} #{local_filename}")
+          end 
+          system("rm ./tmp/#{tmpfile}")
+        end
+      
+        system("convert '#{local_filename}' '#{convert_filename}'")
+        rq=Time.now.strftime("%Y%m%d%H%M%S")
+        sj=rand(10000)
+        fn="./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".jpg"
+        if (convert_filename.upcase.include?'JPG') || (convert_filename.upcase.include?'TIF') || (convert_filename.upcase.include?'TIFF') || (convert_filename.upcase.include?'JPEG') 
+          imagesize=FastImage.size convert_filename      
+          if imagesize[0].to_i > imagesize[1].to_i
+            text = "/assets/#{convert_filename}?2"
+            system("cp #{convert_filename} #{fn}")
+            system("convert -rotate 90 #{fn} #{fn}")
+          else
+            text = "/assets/#{convert_filename}?1"
+            system("cp #{convert_filename} #{fn}")
+          end  
+                  
+        else
+          text = "/assets/#{convert_filename}?2"
+        end
+        if dylb=='1'  #导出影像文件
+          system("zip -j -m ./dady/img_tmp/#{dh}/#{dh}.zip #{convert_filename}")
+          txt="success,./dady/img_tmp/#{dh}/#{dh}.zip"          
+        else
+          if txt==""
+            txt=text
+            fns=fn
+          else
+            txt= txt.to_s + "," + text.to_s
+            if fns==""
+              fns=fn.to_s
+            else
+              fns=fns.to_s + "," + fn.to_s
+            end
+          end
+        end       
+      end
+      if dylb!='1'
+        if fns!=""
+          files=fns.split(',')
+          puts files
+          puts "ddd" + files.length.to_s
+          puts "./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+          Prawn::Document.generate("./dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf") do 
+            for x in 0..files.length-1
+              #image files[x],:at => [-20,740], :width => 580, :height => 780            
+              #image files[x], :at =>[-40,780], :width => 580, :height => 890
+              puts "sss" + files[x]
+              image files[x], :at => [-40,750], :width => 600, :height => 800
+              if x<files.length-1
+                start_new_page
+              end
+            end
+          end
+        end
+        qzh=dh.split('-')
+        qzmc=User.find_by_sql("select * from d_dwdm where id=#{qzh[0]} ;")
+        if qzmc[0]['dwdm']!='无锡市国土资源局'
+          txt="success:/assets/dady/img_tmp/#{dh}/" + k.to_s + rq.to_s + sj.to_s + ".pdf"
+        else
+          txt="success:" + txt
+        end
+        
+      end
+    end
+    render :text => txt
+  end
+
   
   def get_d_dalb
     user = User.find_by_sql("select count(*) from d_dalb;")
@@ -3080,10 +3338,10 @@ class DesktopController < ApplicationController
     end
   end
 
-  def get_mlh
+  def get_mlhs
     ss = params['dalb']
        txt=""
-       dalb = User.find_by_sql("select * from d_dw_lb_ml where id =  '#{ss}';")
+       dalb = User.find_by_sql("select * from d_dw_lb_ml where id = '#{ss}';")
        size = dalb.size;
        if size>0
          txt=dalb[0]['mlh']
@@ -11022,10 +11280,11 @@ class DesktopController < ApplicationController
     
     def program_updata
       params['filename']=params['filename'].gsub('(', '\(').gsub(')', '\)').gsub('"', '\"').gsub("'", "\'")
-      text=system ("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
+      text=system("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
       render :text =>  text
     end
     
+<<<<<<< HEAD
     def get_qzmlh_store  
        
       user = User.find_by_sql(" select distinct qzh, dwdm,dalb, mlh from archive where  dalb<>'24' order by qzh,dalb,mlh;")    
@@ -11395,5 +11654,167 @@ class DesktopController < ApplicationController
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('生成新增全宗表','', 'ruby ./dady/bin/add_qz_jsys.rb', '', '', '未开始');")
       render :text => 'Success'
     end
+=======
+  
+  def get_bfzt_store
+    if params['qzh'].nil?
+      user = User.find_by_sql("select * from b_status order by id;")
+    else 
+      user = User.find_by_sql("select * from b_status where qzh = #{params['qzh']} order by id;")
+    end
+      
+    size = user.size;
+    if size > 0
+        txt = "{results:#{size},rows:["
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json + ','
+        end
+        txt = txt[0..-2] + "]}"
+    else
+        txt = "{results:0,rows:[]}"
+    end
+    render :text => txt
+  end
+  
+  def init_b_status
+    qzh = params['qzh']
+    datas = User.find_by_sql("select distinct dh_prefix, mlm from q_qzxx where qzh = #{qzh};")
+    
+    
+    sql_cmd = "CREATE TABLE b_status
+    (
+      id serial NOT NULL,
+      dhp character varying(100),
+      mlm character varying(100),
+      qzh integer,
+      cmd character varying(100),
+      f_name character varying(100),
+      f_size character varying(100),
+      zt character varying(100),
+      CONSTRAINT b_status_pkey PRIMARY KEY (id)
+    );
+    ALTER TABLE b_status OWNER TO postgres;"
+    
+
+    count = User.find_by_sql("select count(*) from pg_catalog.pg_tables where tablename = 'b_status';")[0]['count'].to_i
+    User.find_by_sql("#{sql_cmd}") if count == 0 
+    system("chmod 777 /share")
+    
+    for k in 0..datas.size-1 
+      data = datas[k]
+      count = User.find_by_sql("select count(*) from b_status where dhp = '#{data['dh_prefix']}';")[0]['count'].to_i
+      if count == 0
+        puts "insert into b_status(dhp, qzh, mlm, zt) values ('#{data.dh_prefix}',#{qzh}, '#{data.mlm}', '未备份');"
+        User.find_by_sql("insert into b_status(dhp, qzh, mlm, zt) values ('#{data.dh_prefix}',#{qzh}, '#{data.mlm}', '未备份');")
+      end
+    end  
+    
+    render :text => 'Success'
+  end
+  
+  #backup_folder, /share/qzh/
+  def backup_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      f_name = dd.dhp + Time.now.strftime(".%y%m%d")
+      User.find_by_sql("update b_status set cmd = '==> ruby ./dady/bin/export_dhp.rb #{dd.dhp} #{f_name}', f_name='#{f_name}', zt='准备备份' where id = #{dd.id};")
+    end  
+    render :text => 'Success'
+  end
+
+  def find_timage(dhp)
+    time = 0
+    Dir["/share/#{dhp}*.backup"].each  do |ff|
+      if (ff.split(".")[1].to_i) > time
+        time = ff.split(".")[1].to_i
+      end  
+    end
+    time.to_s
+  end  
+
+  def restore_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      time_part = find_timage(dd.dhp)
+      if time_part.to_i == 0
+        User.find_by_sql("upate b_status set cmd ='', zt = '没有备份文件' where id = #{dd.id};")
+      else
+        f_name = dd.dhp + Time.now.strftime(".#{time_part}")
+        User.find_by_sql("update b_status set cmd = '<== ruby ./dady/bin/import_dhp.rb #{dd.dhp} #{f_name}', f_name='#{f_name}', zt='准备恢复' where id = #{dd.id};")
+      end  
+    end  
+    render :text => 'Success'
+  end
+  
+  def cancel_selected_dhp
+    user = User.find_by_sql("select * from b_status where id in (#{params['id']});")
+    for k in 0..user.size-1
+      dd = user[k]
+      time_part = find_timage(dd.dhp)
+      User.find_by_sql("update b_status set cmd ='', zt = '状态重设' where id = #{dd.id};")
+    end  
+    render :text => 'Success'
+  end  
+  
+  def check_disk_space
+    system('df -H | grep -v none > ff')
+    txt = ''
+    File.open('ff').each do |line|
+      ss = line.split(/\s+/)
+      if ss[0] == ""
+        txt = ss[3] 
+        break
+      end  
+    end  
+    system('rm ff')
+    txt     
+  end  
+  
+  def get_share_space
+    space = check_disk_space()
+    render :text => "剩余空间：#{space}"
+  end  
+  
+  def start_backup_task
+    ff = File.open('/tmp/start_or_stop.tagfile', 'w')
+    ff.write("start")
+    ff.close
+    system("ruby ./dady/bin/start_backup_task.rb &")
+    render :text => "Success"
+  end  
+  
+  def stop_backup_task
+    ff = File.open('/tmp/start_or_stop.tagfile', 'w')
+    ff.write("stop")
+    ff.close
+    render :text => "Success"
+  end  
+  
+  def get_mlwj
+    dh = params['dh']
+    dirs = Dir["/share/#{dh}-*.archive.backup"]
+    size = dirs.size;
+    if size > 0
+      txt = "{results:#{size},rows:["
+      k = 0
+      dirs.each do |f|
+        k = k+1
+        txt = txt + {"f_name" => f.split('/')[2].split('.')[0..1].join('.'), "id" => "#{k}"}.to_json + ','
+      end
+      txt = txt[0..-2] + "]}"
+    else    
+      txt = "{results:0,rows:[]}"
+    end
+    render :text => txt  
+  end
+    
+  def mlhf_to_temp
+    f_name = params['f_name']
+    system("ruby ./dady/bin/import_dhp_temp.rb #{f_name} &")
+    render :text => 'Success'
+  end    
+>>>>>>> eebc0d3f4e698270d817825725a506dffe18f4e3
     
 end

@@ -1,0 +1,31 @@
+$:<<'/usr/local/lib/ruby/gems/1.8/gems/pg-0.12.2/lib/' << '/usr/local/lib/ruby/gems/1.8/gems/activesupport-3.1.3/lib' << '/usr/local/lib/ruby/gems/1.8/gems/multi_json-1.3.6/lib'
+#$:<<'/Library/Ruby/Gems/1.8/gems/pg-0.12.2/lib/'  << '/Library/Ruby/Gems/1.8/gems/activesupport-3.1.3/lib/' << '/Library/Ruby/Gems/1.8/gems/multi_json-1.0.4/lib'
+require 'pg'
+require 'active_support'
+$conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
+$conn.exec("set standard_conforming_strings = on")
+doc = $conn.exec("select yxbh,id from timage where yxbh like '%.doc%' or yxbh like '%.DOC%' or yxbh like '%.docx%' or yxbh like '%.DOCX%' or yxbh like '%.Doc%' or yxbh like '%.xls%' or yxbh like '%.XLS%' or yxbh like '%.Xls%' or yxbh like '%.xlsx%';")
+#doc = $conn.exec("select yxbh,id from timage ;")
+puts doc.count
+if !File.exists?("/share/doc/")
+	system"mkdir -p /share/doc/"        
+end
+for k in 0..doc.count - 1 
+	docfile = $conn.exec("select id, dh, yxmc, data, jm_tag from timage where id=#{doc[k]['id']};")
+	local_filename ="/share/doc/" + docfile[0]["dh"] + "$" + docfile[0]["yxmc"]
+	puts local_filename
+
+	#tmpfile = rand(36**10).to_s(36)
+  ff = File.open("#{local_filename}",'w')
+  ff.write(PGconn.unescape_bytea( docfile[0]["data"]))
+  ff.close
+  #if (docfile[0]['jm_tag'].to_i == 1)
+  #  system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+  #else
+  #  system("scp ./tmp/#{tmpfile} #{local_filename}")
+  #end 
+  #system("rm ./tmp/#{tmpfile}")
+end
+	
+	
+

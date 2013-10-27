@@ -1,1 +1,287 @@
-﻿eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)d[e(c)]=k[c]||e(c);k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1;};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p;}('7.28(\'3.1m\',{27:\'7.T.9.1m\',26:[\'7.1w.2b\',\'7.T.9.1d\',\'3.16\',\'3.17\',\'3.1b\',\'3.13\',\'3.12\',\'3.14\',\'3.1u\',\'3.15\'],2a:6(){l.B();l.9.29();i c=l;i f=6(){4 s.v("/9/25",{u:"z",D:H("({Q:"+q.r+",19:23})"),A:6(d){G=d.J.20(\':\');k(G[0]==\'18\'){7.1s.1r("1Z",G[2],6 1Y(e){k(e=="1A"){4 s.v("/9/24",{u:"z",D:H("({Q:"+q.r+",22:"+G[1]+"})"),A:6(h){}});i g=c.21("1n");I=g&&g.2c();k(I.2m()){2l.2k("2p 2o... 2n I");c.9.2j(I);2f=1j}}})}}});1a(f,1c)};4 s.v("/9/2e",{u:"z",A:6(d){q=H("("+d.J+")");7.W(\'1e\').2d(q.1f);4 s.v("/9/2i",{u:"z",D:H("({Q:"+q.r+",19:23})"),A:6(e){k(e.J==\'18\'){1a(f,1c)}}})}})},1X:6(){F[4 3.1b(),4 3.1F(),4 3.1D(),4 3.17(),4 3.13(),4 3.12(),4 3.14(),4 3.16(),4 3.15()]},1B:6(){i c=l,d=c.B();F 7.U(d,{1C:[{o:\'1S\',C:c.1z,P:c}],1R:7.1Q(\'7.1l.1T\',{1W:\'7.T.9.1d\',1l:[{b:\'1P\',8:\'L-n\',j:\'L\'},{b:\'1K\',8:\'1k-n\',j:\'1k\'},{b:\'1p\',8:\'E-n\',j:\'E\'},{b:\'1I\',8:\'1L-n\',j:\'1O\'},{b:\'1N\',8:\'1M-n\',j:\'2q\'},{b:\'36\',8:\'1o-n\',j:\'1o\'},{b:\'2X\',8:\'2S-n\',j:\'1n\'}]}),32:\'31/2Z-34.33\',2Y:1j})},2T:6(){i c=l,d=c.B();F 7.U(d,{Z:q.1f,8:\'2V\',r:\'1e\',R:3d,3c:{w:38,S:[{o:\'Y\',8:\'10\',P:l,C:6(){i e=4 7.37.3b({r:\'1y\',3a:m,w:39,R:O,11:\'2R\',S:[{t:\'1g\',o:\'2A：\',x:30,y:30},{t:\'1i\',x:1h,y:30,w:O,b:\'K\',X:\'K\'},{t:\'1g\',o:\'2y：\',x:30,y:V},{t:\'1i\',x:1h,y:V,w:O,b:\'M\',X:\'K\'}]});i f=4 7.2s({r:\'2w\',8:\'10\',Z:\'Y\',2N:m,2M:m,2L:m,2Q:m,2P:m,w:2O,R:2G,11:\'2E\',2J:m,S:e,2H:[{o:\'2D\',C:6(){i g=7.W(\'1y\').2I();p=g.2F();k(p[\'M\']!=\'\'&&p[\'M\'].2K>5){k(p[\'M\']==p[\'K\']){4 s.v("/9/2u",{u:"z",D:p,A:6(h){k(h.J==\'2v\'){1q(\'2r\',\'2t.\');f.2x()}N{1q(\'2B\',\'2C.\')}}})}N{1t("2z，3e。")}}N{1t("2W。")}}}]});f.1x()}},\'-\',{o:\'35\',8:\'2U\',C:c.1v,P:c}]}})},3f:6(){i c=l.B();F 7.U(c,{1J:[{b:\'1p\',8:\'E\',j:\'E\'},{b:\'1U\',8:\'L\',j:\'L\'}],1V:[{t:\'1E\',1H:1}]})},1v:6(){7.1s.1r(\'1G\',\'2g?\',6(c){k(c==\'1A\'){1w.a="/2h"}})},1z:6(){i c=4 3.1u({9:l.9});c.1x()}});',62,202,'|||MyDesktop|new||function|Ext|iconCls|desktop||name|||||||var|module|if|this|true|shortcut|text|pars|currentUser|id|Ajax|xtype|method|Request|width|||POST|onComplete|callParent|handler|parameters|borrowman|return|responseT|eval|win|responseText|password|archiveman|password_confirmation|else|150|scope|userid|height|items|ux|apply|70|getCmp|inputType|修改密码|title|key|layout|DaPrint|SystemMan|Datj|YunDangAn|SystemStatus|PrintData|success|qxid|setTimeout|ArchiveMan|20000|ShortcutModel|start_memu_id|username|label|130|textfield|false|wenshuman|data|App|yundangan|systemman|借阅管理|msg|confirm|Msg|alert|Settings|onLogout|window|show|password_panel_id|onSettings|yes|getDesktopConfig|contextMenuItems|BorrowMan|trayclock|WenshuMan|退出|flex|档案打印|quickStart|文书处理|printdata|cpu|档案统计|daprint|国土档案|create|shortcuts|修改设置|Store|档案管理|trayItems|model|getModules|callback|提示信息|split|getModule|cllb||set_yun_title|get_yun_title|requires|extend|define|initShortcut|init|MessageBox|createWindow|setTitle|get_user|bDblClick|确定要退出登录|sign_out|get_sort|restoreWindow|log|console|isVisible|restore|clicked|item|datj|成功|Window|密码修改成功|change_password|Success|change_password_win|close|请再次输入密码|两次输入的密码不相同|请输入新密码|失败|密码修改失败|确定|fit|getFieldValues|200|buttons|getForm|plain|length|draggable|shadow|floating|330|modal|closable|absolute|zhwl|getStartConfig|exit|user|密码不能为空或长度必须大于等于6位|云查询|wallpaperStretch|Blue||assets|wallpaper|jpg|Sencha|退出系统|系统设置|form|100|320|autoScroll|FormPanel|toolConfig|300|请重新输入|getTaskbarConfig'.split('|'),0,{}))
+/*
+
+This file is part of Ext JS 4
+
+Copyright (c) 2011 Sencha Inc
+
+Contact: http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE included in the packaging of this file. Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department at http://www.sencha.com/contact.
+
+*/
+/*!
+* Ext JS Library 4.0
+* Copyright(c) 2006-2011 Sencha Inc.
+* licensing@sencha.com
+* http://www.sencha.com/license
+*/
+
+Ext.define('MyDesktop.App', {
+
+
+  extend: 'Ext.ux.desktop.App',
+
+  requires: [
+    'Ext.window.MessageBox',
+    'Ext.ux.desktop.ShortcutModel',
+    'MyDesktop.SystemStatus',
+    'MyDesktop.PrintData',
+    'MyDesktop.ArchiveMan',
+    'MyDesktop.SystemMan',
+    'MyDesktop.DaPrint',
+    'MyDesktop.Datj',
+    'MyDesktop.Settings',
+	'MyDesktop.YunDangAn'
+  ],
+
+  
+
+  init: function() {
+    this.callParent();
+	this.desktop.initShortcut();
+	var me = this;	
+ 	var f = function() { 
+			new Ajax.Request("/desktop/get_yun_title", { 
+		  		method: "POST",
+		      	parameters: eval("({userid:" + currentUser.id + ",qxid:23})"),
+		      	onComplete:	 function(request) {
+		      		responseT=request.responseText.split(':');
+					if (responseT[0]=='success'){
+						Ext.Msg.confirm("提示信息",responseT[2],function callback(id){
+							if(id=="yes"){
+								new Ajax.Request("/desktop/set_yun_title", { 
+							  		method: "POST",
+							      	parameters: eval("({userid:" + currentUser.id + ",cllb:" + responseT[1] + "})"),
+							      	onComplete:	 function(request) {
+									}
+								});							
+							    var module = me.getModule("yundangan");
+							   	win = module && module.createWindow();		
+							    if (win.isVisible()) {
+							       console.log("item clicked... restore win");
+							       me.desktop.restoreWindow(win);
+							       bDblClick = false;
+							    }
+							}
+						});
+					}
+		        }
+		    });
+		    setTimeout(f,20000);
+		
+	};
+	
+    new Ajax.Request("/desktop/get_user", {
+      method: "POST",
+      onComplete: function(request) {
+      	currentUser = eval("("+request.responseText+")");
+      	Ext.getCmp('start_memu_id').setTitle(currentUser.username);
+		new Ajax.Request("/desktop/get_sort", { 
+	  		method: "POST",
+	      	parameters: eval("({userid:" + currentUser.id + ",qxid:23})"),
+	      	onComplete:	 function(request) {
+	      		if (request.responseText=='success'){
+					setTimeout(f,20000);
+				}
+			}
+		});
+      }
+    });
+	
+	
+	
+  },
+
+  getModules : function(){
+    return [
+      new MyDesktop.ArchiveMan(),
+      new MyDesktop.WenshuMan(),
+      new MyDesktop.BorrowMan(),
+      new MyDesktop.PrintData(),
+      new MyDesktop.SystemMan(),
+      new MyDesktop.DaPrint(),
+      new MyDesktop.Datj(),
+      new MyDesktop.SystemStatus(),
+	  new MyDesktop.YunDangAn()
+      //,new MyDesktop.Notepad()
+    ];
+  },
+	
+  getDesktopConfig: function () {
+    var me = this, ret = me.callParent();
+
+    return Ext.apply(ret, {
+      //cls: 'ux-desktop-black',
+
+      contextMenuItems: [
+        { text: '修改设置', handler: me.onSettings, scope: me }
+      ],
+
+      shortcuts: Ext.create('Ext.data.Store', {
+        model: 'Ext.ux.desktop.ShortcutModel',
+        data: [
+          { name: '国土档案', iconCls: 'archiveman-shortcut', module: 'archiveman' },
+          { name: '文书处理', iconCls: 'wenshuman-shortcut', module: 'wenshuman' },
+          { name: '借阅管理', iconCls: 'borrowman-shortcut', module: 'borrowman' },          
+          { name: '档案打印', iconCls: 'printdata-shortcut', module: 'daprint' },
+          { name: '档案统计', iconCls: 'cpu-shortcut', module: 'datj'},
+		  //{ name: '档案统计', iconCls: 'cpu-shortcut', module: 'systemstatus'},
+          { name: '系统设置', iconCls: 'systemman-shortcut', module: 'systemman' }
+          //,{ name: '智慧物联', iconCls: 'zhwl-shortcut', module: 'notepad' }
+		  ,{ name: '云查询', iconCls: 'zhwl-shortcut', module: 'yundangan' }
+        ]
+      }),
+      wallpaper: 'assets/Blue-Sencha.jpg',
+      wallpaperStretch: false
+    });
+  },
+
+  // config for the start menu
+  getStartConfig : function() {
+    var me = this, ret = me.callParent();
+    return Ext.apply(ret, {
+      title: currentUser.username,
+      iconCls: 'user',
+      id : 'start_memu_id',
+      height: 300,
+      toolConfig: {
+        width: 100,
+        items: [
+          //{
+          //  text:'设置',
+          //  iconCls:'settings',
+          //  handler: me.onSettings,
+          //  scope: me
+          //},
+          {  
+            text:'修改密码',
+            iconCls:'key',
+            scope:this,
+            handler:function(){
+
+             var passPanel = new Ext.form.FormPanel({
+               id : 'password_panel_id',
+               autoScroll : true,
+               width:320,
+               height:150,
+               layout:'absolute',
+               items: [{ 
+                 xtype: 'label',
+                 text: '请输入新密码：',
+                 x: 30,
+                 y: 30
+               },{
+                 xtype: 'textfield',
+                 x: 130,
+                 y: 30,
+                 width: 150,
+                 name: 'password',
+                 inputType : 'password'
+               },{
+                 xtype: 'label',
+                 text: '请再次输入密码：',
+                 x: 30,
+                 y: 70
+               },{
+                 xtype: 'textfield',
+                 x: 130,
+                 y: 70,
+                 width: 150,
+                 name: 'password_confirmation',
+                 inputType : 'password'
+               }]
+             });
+
+             var passwdWin = new Ext.Window({
+               id : 'change_password_win',
+               iconCls : 'key',
+               title: '修改密码',
+               floating: true,
+               shadow: true,
+               draggable: true,
+               closable: true,
+               modal: true,
+               width: 330,
+               height: 200,
+               layout: 'fit',
+               plain: true,
+               items: passPanel,
+               buttons: [{
+               text: '确定',
+               handler: function() {
+                 var myForm = Ext.getCmp('password_panel_id').getForm();
+                 pars = myForm.getFieldValues();
+              　　　if(pars['password_confirmation']!='' && pars['password_confirmation'].length>5){
+                  if(pars['password_confirmation']==pars['password']){
+                    new Ajax.Request("/desktop/change_password", { 
+                       method: "POST",
+                       parameters: pars,
+                       onComplete:  function(request) {
+                         if (request.responseText == 'Success') {
+                         msg('成功', '密码修改成功.');
+                         passwdWin.close();
+                         } else {
+                         msg('失败', '密码修改失败.');
+                         }
+                       }
+                       });
+                  }else{
+                    alert("两次输入的密码不相同，请重新输入。");
+                  }                 
+                }else{
+                  alert("密码不能为空或长度必须大于等于6位。");
+                }
+               }
+               }]
+
+             });
+
+             passwdWin.show();
+            }       
+          },'-',
+          {
+            text:'退出系统',
+            iconCls:'exit',
+            handler: me.onLogout,
+            scope: me
+          }
+        ]
+      }
+    });
+  },
+
+  getTaskbarConfig: function () {
+    var ret = this.callParent();
+
+    return Ext.apply(ret, {
+      quickStart: [
+        { name: '借阅管理', iconCls: 'borrowman', module: 'borrowman' },
+        { name: '档案管理', iconCls: 'archiveman', module: 'archiveman' }
+      ],
+      trayItems: [
+        { xtype: 'trayclock', flex: 1 }
+      ]
+    });
+  },
+
+  onLogout: function () {
+    Ext.Msg.confirm('退出', '确定要退出登录?', function(btn){
+      if (btn == 'yes') {
+       window.location = "/sign_out";
+      }
+    });
+  },
+
+  onSettings: function () {
+    var dlg = new MyDesktop.Settings({
+      desktop: this.desktop
+    });
+    dlg.show();
+  }
+	
+
+});
+
