@@ -154,7 +154,7 @@ Ext.define('MyDesktop.Settings', {
         var me = this;
 
         if (record.data.img) {
-            me.selected = '/assets/wallpapers/' + record.data.img;
+            me.selected = '/assets/' + record.data.img;
         } else {
             me.selected = Ext.BLANK_IMAGE_URL;
         }
@@ -165,7 +165,7 @@ Ext.define('MyDesktop.Settings', {
     setInitialSelection: function () {
         var s = this.desktop.getWallpaper();
         if (s) {
-            var path = '/assets/Wallpaper/' + this.getTextOfWallpaper(s);
+            var path = '/assets/' + this.getTextOfWallpaper(s);
             this.tree.selectPath(path, 'text');
         }
     }

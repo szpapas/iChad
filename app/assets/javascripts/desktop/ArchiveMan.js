@@ -44,6 +44,7 @@ Ext.define('MyDesktop.ArchiveMan', {
     var dh='';
     var imagefx=1; //1代表纵向，２代表横向
     var desktop = this.app.getDesktop();
+	Ext.QuickTips.init();
 	var scale1 = 1;
 	var scaleMultiplier1 = 0.8;
 	var translatePos1 =  { x: 0,y: 0};
@@ -406,12 +407,12 @@ Ext.define('MyDesktop.ArchiveMan', {
                   }else{
                     alert("请先选择一个案卷目录。");
                   }
-                }
+              }
          }, 
 	     {
-            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+            xtype:'button',text:'高级查询',tooltip:'',id:'jr_advance-search',iconCls:'search',
             handler: function() {
-              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","rz_manage_grid",title,"",true);
+              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
             }
          }
        
@@ -424,7 +425,12 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '顺序号',  width : 30, sortable : true, dataIndex: 'sxh'},
           { text : '文号',  width : 105, sortable : true, dataIndex: 'wh'},
           { text : '责任者',  width : 75, sortable : true, dataIndex: 'zrz'},
-          { text : '题名',  width : 175, sortable : true, dataIndex: 'tm'},
+          { text : '题名',  width : 175, sortable : true,flex: 1, dataIndex: 'tm',
+		  	renderer: function(value,metaData,record,colIndex,store,view) {
+						metaData.tdAttr = 'data-qtip="' + value + '"';
+			            return value;		
+			}
+		  },
           { text : '页号',  width : 75, sortable : true, dataIndex: 'yh'},
           { text : '日期',  width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
           { text : '备注',  width : 75, sortable : true, dataIndex: 'bz'},
@@ -508,6 +514,7 @@ Ext.define('MyDesktop.ArchiveMan', {
         ],
 
         tbar:[
+		  
           {
             xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
             handler: function() {
@@ -621,7 +628,12 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '目录号', width : 75, sortable : true, dataIndex: 'mlh'},
           { text : '分类号',  width : 75, sortable : true, dataIndex: 'flh'},
           { text : '案卷号',  width : 75, sortable : true, dataIndex: 'ajh'},
-          { text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm'},
+          { text : '标题名称',  width : 175, sortable : true, dataIndex: 'tm',
+		  	renderer: function(value,metaData,record,colIndex,store,view) {
+						metaData.tdAttr = 'data-qtip="' + value + '"';
+			            return value;		
+			}
+		  },
           { text : '年度',  width : 75, sortable : true, dataIndex: 'nd'},
           { text : '件数',  width : 75, sortable : true, dataIndex: 'js'},
           { text : '页数',  width : 75, sortable : true, dataIndex: 'ys'},
@@ -666,7 +678,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           data = node.selected.items[0].data;
           timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
           timage_store.load();
-        });
+      });
         
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
@@ -675,9 +687,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+		new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         //set_imagearchive("/assets/dady/fm.jpg");
 		set_imagearchive("/assets/dady/fm.jpg");
       });
@@ -1094,9 +1114,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -1525,9 +1553,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -1662,7 +1698,7 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
          }		, 
 			     {
-		            xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
+		            xtype:'button',text:'高级查询',tooltip:'',id:'jr_advance-search',iconCls:'search',
 		            handler: function() {
 		              showAdvancedSearch("文号;wh,责任者;zrz,卷内题名;tm","document_grid",title,"",true);
 		            }
@@ -1763,6 +1799,7 @@ Ext.define('MyDesktop.ArchiveMan', {
               })
             ],
         tbar:[
+		  
           {
             xtype:'button',text:'添加',tooltip:'添加案卷信息',id:'add',iconCls:'add',
             handler: function() {
@@ -1810,7 +1847,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           },{
               xtype:'button',text:'高级查询',tooltip:'',id:'advance-search',iconCls:'search',
               handler: function() {
-                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,地籍号;djh,土地座落;tdzl,权利人名称;qlrmc,土地证号;tdzh,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_tddj",title);
+                showAdvancedSearch("目录号;mlh,案卷号;ajh,年度;nd,保管期限;bgqx,地籍号;djh,土地坐落;tdzl,权利人名称;qlrmc,土地证号;tdzh,文号;wh,责任者;zrz,卷内题名;tm,备注;bz","archive_grid_tddj",title);
               }
             }, 
             {
@@ -1880,7 +1917,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : '地籍号',  width : 175, sortable : true, dataIndex: 'djh'},
           
           { text : '权利人名称',  width : 175, sortable : true, dataIndex: 'qlrmc'},
-          { text : '土地座落',  width : 175, sortable : true, dataIndex: 'tdzl'},
+          { text : '土地坐落',  width : 175, sortable : true, dataIndex: 'tdzl'},
           { text : '权属性质',  width : 175, sortable : true, dataIndex: 'qsxz'},
           { text : '土地证号',  width : 175, sortable : true, dataIndex: 'tdzh'},
           { text : '图幅号',  width : 75, sortable : true, dataIndex: 'tfh'},
@@ -1914,7 +1951,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           data = node.selected.items[0].data;
           timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
           timage_store.load();
-        });
+      });
         
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
@@ -1923,9 +1960,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -2347,9 +2392,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -2757,9 +2810,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
         set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -3163,9 +3224,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
 		set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -3539,7 +3608,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           data = node.selected.items[0].data;
           timage_store.proxy.extraParams = {dh:data.dh, type:'1'};
           timage_store.load();
-        });
+      });
         
       archiveGrid.on("select",function(node){
         data = node.selected.items[0].data;    // data.id, data.parent, data.text, data.leaf
@@ -3548,9 +3617,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
 	  });
       
@@ -3949,9 +4026,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -4340,9 +4425,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
 
@@ -4726,9 +4819,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -5122,9 +5223,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -5505,9 +5614,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -5817,6 +5934,24 @@ Ext.define('MyDesktop.ArchiveMan', {
                 }
               }    
             },
+			{
+              text:'导出Excel',
+              iconCls:'save',
+              handler : function() {				
+                new Ajax.Request("/desktop/print_byml", { 
+				  method: "POST",
+                  parameters: {query:title},
+                  onComplete:  function(request) {
+					fhz=request.responseText.split(":");
+	                if (fhz[0]=='success'){
+                    	window.open(fhz[1],'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+					}else{
+						alert(request.responseText);
+					}
+                  }
+                });
+              }    
+            },
             '->',
            // {
            //   xtype: 'combo',
@@ -5853,7 +5988,7 @@ Ext.define('MyDesktop.ArchiveMan', {
           { text : 'dalb',  width : 0, sortable : true, dataIndex: 'dalb'},
           { text : '档号',  width : 0, sortable : true, dataIndex: 'dh'},
           { text : '登记号', width : 75, sortable : true, dataIndex: 'djh'},
-          { text : '刑期',   width : 75, sortable : true, dataIndex: 'kq'},
+          { text : '刊期',   width : 75, sortable : true, dataIndex: 'kq'},
           { text : '名称',  width : 175, sortable : true, dataIndex: 'mc'},
           { text : '邮发代码',  width : 75, sortable : true, dataIndex: 'yfdm'},
           { text : '出版日期',  width : 75, sortable : true, dataIndex: 'cbrq', renderer: Ext.util.Format.dateRenderer('Y-m-d')},
@@ -5892,10 +6027,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         dh=data.dh;
             
 
-            timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-            timage_store.load();
-
-            Ext.getCmp('timage_combo').lastQuery = null;
+            new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+		        method: "POST",
+		        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+		        onComplete:  function(request) {
+		          if (request.responseText=='success'){
+	        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+	        		timage_store.load();
+	        		Ext.getCmp('timage_combo').lastQuery = null;
+				  }
+				}
+			})
 	      	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -6270,9 +6412,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       var tab = tabPanel.getActiveTab();
@@ -6644,9 +6794,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
 
@@ -7029,9 +7187,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -7404,9 +7570,17 @@ Ext.define('MyDesktop.ArchiveMan', {
         store3.proxy.extraParams.query=data.id;
         store3.load();
         dh=data.dh;
-        timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
-        timage_store.load();
-        Ext.getCmp('timage_combo').lastQuery = null;
+        new Ajax.Request("/desktop/get_users_sort_forqxdm", { 
+	        method: "POST",
+	        parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
+	        onComplete:  function(request) {
+	          if (request.responseText=='success'){
+        		timage_store.proxy.extraParams = {dh:data.dh, type:'0'};
+        		timage_store.load();
+        		Ext.getCmp('timage_combo').lastQuery = null;
+			  }
+			}
+		})
       	set_imagearchive("/assets/dady/fm.jpg");
       });
       
@@ -7599,7 +7773,8 @@ Ext.define('MyDesktop.ArchiveMan', {
         hideMode: 'offsets',
         layout: 'border',
         split:true,
-        items: [{ 
+        items: [
+		  { 
             title:'档案类别',
             region:'west',
             iconCls:'dept_tree',
@@ -7612,7 +7787,8 @@ Ext.define('MyDesktop.ArchiveMan', {
             split:true,
             items:treePanel
           },
-          { title:'档案数据',
+          { 
+			title:'档案数据',
             iconCls:'icon-grid',
             region:'center',
             xtype:'panel',
@@ -7622,7 +7798,8 @@ Ext.define('MyDesktop.ArchiveMan', {
             split:true,
             items:tabPanel,
             collapsible:true
-          },{
+          },
+		  {
               title: '影像图列表',
               collapsible: true,
               iconCls:'dept_tree',
@@ -7636,7 +7813,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 			  id:'imagelist',
               layout:'fit',
               tbar:myuploadform,
-              bbar:[{
+              bbar:[
+			  {
                 xtype: 'combo',
                 x: 130,
                 y: 190,
@@ -7848,7 +8026,8 @@ Ext.define('MyDesktop.ArchiveMan', {
 					layout:'fit',
 		        	html:canvas_string
 				}
-        	  ]}
+        	  ]
+		  }
 		]
       });
     }

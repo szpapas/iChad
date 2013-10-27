@@ -4,6 +4,8 @@ require 'socket'
 require 'find'
 require 'timeout'
 require 'iconv'
+require "open-uri"  
+require 'uri'
 #require "prawn"
 
 class DesktopController < ApplicationController
@@ -767,7 +769,7 @@ class DesktopController < ApplicationController
    
   def save2timage(id, yxbh, path)
     #if $conn.nil?
-      $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+      $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
     #end
     
     user=User.find_by_sql("select mlh,flh,ajh,dh from archive where id=#{id};")
@@ -837,18 +839,18 @@ class DesktopController < ApplicationController
     if (params['gid'].nil?)
       txt = ""
     else
-      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      user = User.find_by_sql("select id, dh, yxmc, yxbh,jm_tag,width,height from timage where id=#{params['gid']};")
       dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
 
       if !File.exists?("./dady/img_tmp/#{dh}/")
         system"mkdir -p ./dady/img_tmp/#{dh}/"        
       end
       
-      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
-      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxbh"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxbh"].gsub('$', '-')
 
       if !File.exists?(local_filename)
-        user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{params['gid']};")
+        user = User.find_by_sql("select id, dh, yxmc,yxbh, data, jm_tag from timage where id=#{params['gid']};")
         
         tmpfile = rand(36**10).to_s(36)
         ff = File.open("./tmp/#{tmpfile}",'w')
@@ -910,7 +912,7 @@ class DesktopController < ApplicationController
     if (params['gid'].nil?)
       txt = ""
     else            
-      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id in (#{params['gid']}) order by yxbh;")
+      user = User.find_by_sql("select id, dh, yxmc,yxbh, jm_tag,width,height from timage where id in (#{params['gid']}) order by yxbh;")
       if (params['dylb'].nil?)
         dylb='0'
       else
@@ -933,11 +935,11 @@ class DesktopController < ApplicationController
           system"mkdir -p ./dady/img_tmp/#{dh}/"        
         end
       
-        convert_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
-        local_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxmc"].gsub('$', '-')
+        convert_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxbh"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+        local_filename = "./dady/img_tmp/#{dh}/"+user[k]["yxbh"].gsub('$', '-')
 
         if !File.exists?(local_filename)
-          user1 = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{user[k]['id']};")
+          user1 = User.find_by_sql("select id, dh, yxmc,yxbh, data, jm_tag from timage where id=#{user[k]['id']};")
           
           tmpfile = rand(36**10).to_s(36)
           ff = File.open("./tmp/#{tmpfile}",'w')
@@ -1132,7 +1134,7 @@ class DesktopController < ApplicationController
         size = user.count.to_i;
         if size > 0
           txt = "{results:#{size},rows:["
-          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%'  and dh like '#{params['dh']}-%' order by cast (qzh as integer),mlh,ajh limit #{params['limit']};")
+          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%'  and dh like '#{params['dh']}-%' order by cast (qzh as integer),mlh,ajh limit #{params['limit']} offset #{params['start']};")
           for k in 0..user.size-1
             txt = txt + user[k].to_json + ','
           end
@@ -1145,11 +1147,12 @@ class DesktopController < ApplicationController
         if sqlwhere==""
           txt = "{results:0,rows:[]}"
         else
-          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' and #{sqlwhere}    order by cast (qzh as integer),mlh,ajh limit #{params['limit']};")
+          count = User.find_by_sql("select count(*) from archive where tm like '%#{params['query']}%' and #{sqlwhere}   ;")
+          user = User.find_by_sql("select * from archive where tm like '%#{params['query']}%' and #{sqlwhere}    order by cast (qzh as integer),mlh,ajh limit #{params['limit']} offset #{params['start']};")
         end
         size=user.size
         if size>0
-          txt = "{results:#{size},rows:["
+          txt = "{results:#{count[0]['count']},rows:["
           for k in 0..user.size-1
             txt = txt + user[k].to_json + ','
           end
@@ -1641,11 +1644,16 @@ class DesktopController < ApplicationController
     end
     
     if !(params['ajh'].nil?)
-
-      if (cx_tj!='')
-        cx_tj=cx_tj + " and archive.ajh like '%#{params['ajh']}%'"
+      if params['ajh'].length>3
+        params['ajh']=params['ajh']
       else
-        cx_tj=" archive.ajh like '%#{params['ajh']}%'"
+        params['ajh']=sprintf("%04d", params['ajh'])
+      end
+      
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.ajh = '#{params['ajh']}'"
+      else
+        cx_tj=" archive.ajh = '#{params['ajh']}'"
       end
     end
     
@@ -1655,6 +1663,14 @@ class DesktopController < ApplicationController
         cx_tj=cx_tj + " and archive.dalb = '#{params['dalb']}'"
       else
         cx_tj=" archive.dalb = '#{params['dalb']}'"
+      end
+    end
+    if !(params['bz'].nil?)
+
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.bz like '%#{params['bz']}%'"
+      else
+        cx_tj=" archive.bz like '%#{params['bz']}%'"
       end
     end
         
@@ -3142,7 +3158,7 @@ class DesktopController < ApplicationController
 										user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}' order by ajh limit #{params['limit']} offset #{params['start']};")
 									 
 									when "2"
-										user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
+										user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh =  '#{ss[2]}'  order by mlh,nd,ajh limit #{params['limit']} offset #{params['start']};")
 										
 									when "3","5","6","7"
 										user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}' and mlh = '#{ss[2]}'  order by ajh limit #{params['limit']} offset #{params['start']};")
@@ -3217,7 +3233,7 @@ class DesktopController < ApplicationController
 									user = User.find_by_sql("select * from archive where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "2"
-									user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from  archive left join a_jhcw on archive.id=a_jhcw.ownerid  where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
+									user = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from  archive left join a_jhcw on archive.id=a_jhcw.ownerid  where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'  order by mlh,nd,ajh limit #{params['limit']} offset #{params['start']};")
 									
 								when "3" ,"5","6","7"
 									user = User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh  from archive left join a_tddj on archive.id=a_tddj.ownerid where qzh = '#{ss[0]}' and dalb ='#{ss[1]}'   order by mlh,ajh limit #{params['limit']} offset #{params['start']};")
@@ -3397,7 +3413,11 @@ class DesktopController < ApplicationController
                 dh=params['qzh']+ "-" + params['dalb'] +"-" + mlh.to_s+"-" + params['ajh']
           	    archiveid=User.find_by_sql("insert into archive(czr,czrname,rq,mlm,mlh,flh,ajh,tm,nd,bgqx,qny,zny,ys,js,bz,qzh,dh,dalb,mj,xh,cfwz,dwdm) values('#{params['userid']}','#{username[0]['username']}','#{rq}','#{mlh}','#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['qlrmc']};#{params['djh']};#{params['tdzl']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}')  RETURNING id;")              
                 User.find_by_sql("insert into a_tddj(djh,qlrmc,ownerid,tdzl,tdzh,dh,qsxz,tfh,ydjh) values('#{params['djh']}','#{params['qlrmc']}','#{archiveid[0]['id']}','#{params['tdzl']}','#{params['tdzh']}','#{dh}','#{params['qsxz']}','#{params['ydjh']}','#{params['ydjh']}') ")  
+                if params['sfdrjr']=='on'
+                  save_jrml_id(params['preajid'],archiveid[0]['id'],dh)
+                end
                 czhnr="'#{mlh}','#{params['mlh']}','#{params['flh']}','#{ajh}','#{params['qlrmc']};#{params['djh']};#{params['tdzl']}','#{params['nd']}','#{params['bgqx']}','#{params['qny']}','#{params['zny']}',#{params['ys']},#{params['js']},'#{params['bz']}','#{params['qzh']}','#{dh}','#{params['dalb']}','#{params['mj']}','#{params['xh']}','#{params['cfwz']}','#{dw[0]['dwdm']}','#{params['djh']}','#{params['qlrmc']}','#{archiveid[0]['id']}','#{params['tdzl']}','#{params['tdzh']}','#{dh}','#{params['qsxz']}','#{params['ydjh']}','#{params['ydjh']}'"
+                
                 txt='success'
               else
                 txt= '目录号为'+params['mlh']+'；档案号为'+params['ajh']+'已经存在，请重新输入目录号或案卷号。'
@@ -3697,6 +3717,26 @@ class DesktopController < ApplicationController
       	  render :text => txt
       	end
 
+  #把相应ID案卷的卷内目录拷贝一份保存到当前ID的案卷上
+  def save_jrml_id(preajid,ajid,dh)
+    preaj= User.find_by_sql("select * from document where ownerid=#{preajid};")
+    if preaj.size>0
+      for k in 0..preaj.size-1
+        if (preaj[k]['rq']=='')
+          #params['cbrq']=Time.now.strftime("%Y-%m-%d")
+          rq='null'
+        else
+          if preaj[k]['rq'].nil?
+            rq='null'
+          else           
+            rq="TIMESTAMP '#{preaj[k]['rq']}'"
+          end
+        end
+        User.find_by_sql("insert into document(sxh,wh,zrz,tm,yh,bz,rq,dh,ownerid) values('#{preaj[k]['sxh']}','#{preaj[k]['wh']}','#{preaj[k]['zrz']}','#{preaj[k]['tm']}','#{preaj[k]['yh']}','#{preaj[k]['bz']}',#{rq},'#{dh}',#{ajid})  RETURNING id; ")  
+      end
+    end
+  end
+
 	#删除案卷
 	def delete_archive
 	  #User.find_by_sql("BEGIN;")
@@ -3870,7 +3910,7 @@ class DesktopController < ApplicationController
   end
   
   def get_qzzt_store
-    user = User.find_by_sql("select * from q_status order by mlh limit 100;")
+    user = User.find_by_sql("select id,dhp,mlh,cmd,zt,fjcs,dqwz from q_status order by mlh limit 100;")
     size = user.size;
     if size > 0
         txt = "{results:#{size},rows:["
@@ -4882,7 +4922,11 @@ class DesktopController < ApplicationController
       for i in 0..size.to_i-1
         strfilename=""
         convertstr=""
-            printfilename="fm.jpg"
+            if params['a4print']=='on'
+              printfilename="fm_a4.jpg"
+            else
+              printfilename="fm.jpg"
+            end
             user[i]['ajh']=user[i]['ajh'].to_i.to_s
             puts user[i]['ajh'].to_i.to_s
             if dalb_wz.size.to_i>0
@@ -5059,7 +5103,7 @@ class DesktopController < ApplicationController
                     end
                     if tdzl_wz[4]=='是'  
                       bt=tdzl_wz[0].to_i-600     
-                      convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" "  
+                      convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土 地 坐 落：'\" "  
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
@@ -5111,7 +5155,7 @@ class DesktopController < ApplicationController
                     end
                     if tdzl_wz[4]=='是'  
                       bt=tdzl_wz[0].to_i-600     
-                      convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" "  
+                      convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土 地 坐 落：'\" "  
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{bt},#{tdzl_wz[1]} '土地　座落：'\" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
                     #else
                       #convertstr=convertstr +" -pointsize #{tdzl_wz[3]} -draw \"text #{tdzl_wz[0]},#{tdzl_wz[1]} '#{user[i]['tdzl']}'\""
@@ -5392,18 +5436,33 @@ class DesktopController < ApplicationController
           filenames=filenames + "," + "fm" + i.to_s + rq.to_s + sj.to_s + ".jpg"
         end
       end
+
       if filenames!=""        
-          files=filenames.split(',')        
-          Prawn::Document.generate("./dady/tmp1/" + i.to_s + rq.to_s + sj.to_s + ".pdf",:page_size   => "A3",
-           :page_layout => :landscape) do 
-            #start_new_page(:size => "A3", :layout => :landscape)
-            for x in 0..files.length-1
-              #image files[x],:at => [-20,740], :width => 580, :height => 780            
-              #image files[x], :at =>[-40,780], :width => 580, :height => 890
-            
-              image "./dady/tmp1/" + files[x], :at => [-40,750], :width => 1150, :height => 800
-              if x<files.length-1
-                start_new_page(:size => "A3", :layout => :landscape)
+          files=filenames.split(',')
+          if params['a4print']=='on' 
+            Prawn::Document.generate("./dady/tmp1/" + i.to_s + rq.to_s + sj.to_s + ".pdf",:page_size   => "A4",
+             :page_layout => :portrait) do 
+              #start_new_page(:size => "A3", :layout => :landscape)
+              for x in 0..files.length-1
+                #image files[x],:at => [-20,740], :width => 580, :height => 780            
+                #image files[x], :at =>[-40,780], :width => 580, :height => 890            
+                image "./dady/tmp1/" + files[x], :at => [-40,800], :width => 600, :height => 800
+                if x<files.length-1
+                  start_new_page(:size => "A4", :layout => :portrait)
+                end
+              end
+            end 
+          else    
+            Prawn::Document.generate("./dady/tmp1/" + i.to_s + rq.to_s + sj.to_s + ".pdf",:page_size   => "A3",
+             :page_layout => :landscape) do 
+              #start_new_page(:size => "A3", :layout => :landscape)
+              for x in 0..files.length-1
+                #image files[x],:at => [-20,740], :width => 580, :height => 780            
+                #image files[x], :at =>[-40,780], :width => 580, :height => 890            
+                image "./dady/tmp1/" + files[x], :at => [-40,750], :width => 1150, :height => 800
+                if x<files.length-1
+                  start_new_page(:size => "A3", :layout => :landscape)
+                end
               end
             end
           end
@@ -6843,7 +6902,7 @@ class DesktopController < ApplicationController
     else
     end
     sblx=User.find_by_sql("select * from zn_sb where id =#{params['sbid']};")
-    $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+    $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
       rq=Time.now.strftime("%Y-%m-%d %H:%M:%S")
       if params['sbh'].nil?   
         params['sbh']=""             
@@ -7929,9 +7988,26 @@ class DesktopController < ApplicationController
     #add by liujun on July 14
     def get_q_status_tree
       text = []
-      node = params["node"]
-      
+      node = params["node"]      
       if node == "root"
+        archive=User.find_by_sql("select distinct qzh,cast(dalb as integer),mlh from archive  order by qzh,dalb,mlh;")
+        archive.each do |dagl|
+          if dagl['mlh'].to_s!=''
+            if dagl['dalb']=='24'
+              strmlm=User.find_by_sql("select * from a_wsda_key where nd || bgqx || jgwth ='#{dagl['mlh']}' and qzh='#{dagl['qzh']}';")
+            else
+              strmlm=User.find_by_sql("select * from qzml_key where qzh='#{dagl['qzh']}' and mlm='#{dagl['mlh']}' and dalb='#{dagl['dalb']}';")
+            end
+            if strmlm.size>0
+              
+              qzxx=User.find_by_sql("select * from q_qzxx where qzh='#{dagl['qzh']}' and mlh='#{strmlm[0]['id']}' and dalb='#{dagl['dalb']}';")
+              if qzxx.size==0
+                #qzxxinsert=User.find_by_sql("insert into q_qzxx ;")
+                User.find_by_sql("insert into q_qzxx (qzh,mlh,dalb,mlm,dh_prefix) values ('#{dagl['qzh']}', '#{strmlm[0]['id']}','#{dagl['dalb']}','#{dagl['mlh']}','#{dagl['qzh']}-#{dagl['dalb']}-#{strmlm[0]['id']}');")
+              end
+            end
+          end         
+        end
         data = User.find_by_sql("select distinct qzh from q_qzxx order by qzh;")
         data.each do |dd|
           text << {:text => "全宗 #{dd['qzh']}", :id => dd["qzh"], :cls => "folder"}
@@ -8000,8 +8076,7 @@ class DesktopController < ApplicationController
       dh = params['dh']
       text = []
       node = params["node"]
-      if dh!=""
-        
+      if dh!=""       
         if node == "root"
           #system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
           data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' and (yxbh like 'ML%') and not (yxbh like 'MLBK%') order by tag, yxbh;")
@@ -8664,7 +8739,7 @@ class DesktopController < ApplicationController
       else
         User.find_by_sql("insert into a_wsda_key(qzh,nd,bgqx,jgwth) values('#{qzh}','#{nd}','#{bgqx}','#{jgwth}') ")
         #if $conn.nil?
-             $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+             $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
         #end
         wsml = $conn.exec("select id from a_wsda_key where qzh='#{qzh}' and  nd='#{nd}' and bgqx='#{bgqx}' and jgwth='#{jgwth}';")
         txt=wsml[0]['id']
@@ -8675,7 +8750,7 @@ class DesktopController < ApplicationController
     
     def get_doc_maxjh(qzh,nd,bgqx,jgwth)
       #if $conn.nil?
-           $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+           $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
       #end
       ajh= $conn.exec("select max(jh) from a_wsda,archive where a_wsda.ownerid=archive.id and archive.dalb='24' and archive.qzh='#{qzh}' and  a_wsda.nd='#{nd}' and a_wsda.bgqx='#{bgqx}' and a_wsda.jgwth='#{jgwth}';")
       txt=ajh[0]["max"].to_i+1;
@@ -8881,7 +8956,7 @@ class DesktopController < ApplicationController
          #end
 
          #插入附件
-         $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+         $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
          $conn.exec("set standard_conforming_strings = off")
          if !params["DocumentContentFileType"].nil?
            #str=params['DocumentContent']
@@ -9530,7 +9605,9 @@ class DesktopController < ApplicationController
        # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{datj[0]['cq'].center 7}'\" " 
        # convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{datj[0]['dq'].center 7}'\" "
        # intheight= 11*78+762
-        datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
+        #datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd='#{params['nd']}'");
+        datj=User.find_by_sql("select count(*),(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and a_wsda.bgqx='永久' and a_wsda.nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and (a_wsda.bgqx='长期' or a_wsda.bgqx='定期-30年') and a_wsda.nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and (a_wsda.bgqx='短期' or a_wsda.bgqx='定期-10年') and a_wsda.nd='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and a_wsda.nd='#{params['nd']}'");
+        
         bnhj=bnhj+datj[0]['count'].to_i
         bnyj=bnyj+datj[0]['yj'].to_i
         bncq=bncq+datj[0]['cq'].to_i
@@ -9541,7 +9618,7 @@ class DesktopController < ApplicationController
         convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight} '#{datj[0]['dq'].center 7}'\" " 
         xls=xls + '<tr height="28"><td>文档一体化（件数）</td><td>'+datj[0]['count'].to_s+'</td><td>'+datj[0]['yj'].to_s+'</td><td>'+datj[0]['cq'].to_s+'</td><td>'+datj[0]['dq'].to_s+'</td>'
         
-        datj=User.find_by_sql("select count(*),(select count(*) from archive where dalb='24' and bgqx='永久' and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive where dalb='24' and (bgqx='长期' or bgqx='定期-30年') and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive where dalb='24' and (bgqx='短期' or bgqx='定期-10年') and nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and nd<='#{params['nd']}'");
+        datj=User.find_by_sql("select count(*),(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and a_wsda.bgqx='永久' and a_wsda.nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as yj,(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and (a_wsda.bgqx='长期' or a_wsda.bgqx='定期-30年') and a_wsda.nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as cq,(select count(*) from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and (a_wsda.bgqx='短期' or a_wsda.bgqx='定期-10年') and a_wsda.nd<='#{params['nd']}' and qzh='#{dwdm[0]['ssqz']}') as dq from archive left join a_wsda on archive.id=a_wsda.ownerid where dalb='24' and qzh='#{dwdm[0]['ssqz']}' and a_wsda.nd<='#{params['nd']}'");
         hj=hj+datj[0]['count'].to_i
         yj=yj+datj[0]['yj'].to_i
         cq=cq+datj[0]['cq'].to_i
@@ -9644,7 +9721,7 @@ class DesktopController < ApplicationController
         cx[0]='wh'
       end
       if cx[0]=='doczrz'
-        cx[0]='zrz'
+        cx[0]='zrr'
       end
       if cx[0]=='nd'
         cx[0]='archive.nd'
@@ -9688,6 +9765,13 @@ class DesktopController < ApplicationController
           cx_tj=cx_tj + " and " + get_cxtj_sd(params['ajtm'])
         else
           cx_tj= get_cxtj_sd(params['ajtm'])
+        end
+      end
+      if !(params['bz'].nil?)
+        if (cx_tj!='')
+          cx_tj=cx_tj + " and " + get_cxtj_sd(params['bz'])
+        else
+          cx_tj= get_cxtj_sd(params['bz'])
         end
       end
       if !(params['nd'].nil?)
@@ -10615,11 +10699,12 @@ class DesktopController < ApplicationController
         else
           dwmc=''
         end
-        if ajh.length>3
-          ajh=ajh
-        else
-          ajh=sprintf("%04d", ajh)
-        end
+        
+       # if ajh.length>3
+       #   ajh=ajh
+       # else
+       #   ajh=sprintf("%04d", ajh)
+       # end
       end
       
       user = User.find_by_sql("insert into d_rz(dwmc,dalbmc,rq,mlh,ajh,dalb,qzh,czlx,czr,czqnr,czhnr) values('#{dwmc}','#{dalbmc}','#{rq}','#{mlh}','#{ajh}','#{dalb}','#{qzh}','#{czlx}','#{czr}','#{czqnr}','#{czhnr}') ")
@@ -10656,7 +10741,7 @@ class DesktopController < ApplicationController
       if params['query']!=""
         user = User.find_by_sql(" select mlh,sum(ys) as yshj,sum(js) as jshj from archive #{strwhere} group by mlh;")
       else
-        user = User.find_by_sql(" select archive.nd || archive.bgqx || jgwth as mlh, archive.nd,archive.bgqx,jgwth,sum(ys) as yshj,count(*) as jshj  from archive,a_wsda #{strwhere} and a_wsda.ownerid=archive.id group by archive.nd,archive.bgqx,jgwth;")
+        user = User.find_by_sql(" select archive.nd || archive.bgqx || jgwth as mlh, archive.nd,archive.bgqx,jgwth,sum(ys) as yshj,count(*) as jshj  from archive,a_wsda #{strwhere} and a_wsda.ownerid=archive.id and dalb='24' group by archive.nd,archive.bgqx,jgwth;")
       end
       size = user.size;
       if size > 0
@@ -10686,15 +10771,14 @@ class DesktopController < ApplicationController
     
     
     #获取oracle上的土地登记数据，常熟
-    def get_oracle_tddj
-      
+    def get_oracle_tddj      
       tddj_cf = User.find_by_sql("select * from a_tddj where tdzh='#{params['tdzh']}' ;")
       if tddj_cf.size==0
         user = User.find_by_sql("insert into d_tddj_tmp (djh,zl,qlr,qsxz) values ('','','','')   RETURNING id;")
         params['tdzh']=params['tdzh'].gsub('(','_').gsub(')','-')
         puts "su - liujun -c 'ruby ~/iChad/bin/oracle.rb #{params['tdzh']} #{user[0]['id']}'"
         system ("su - liujun -c 'ruby ~/iChad/bin/oracle.rb #{params['tdzh']} #{user[0]['id']}'")
-        $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+        $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
         tddj_tmp = $conn.exec("select * from d_tddj_tmp where id=#{user[0]['id']};")
         if tddj_tmp.count>0
           txt="success:#{tddj_tmp[0]['djh']}:#{tddj_tmp[0]['zl']}:#{tddj_tmp[0]['qlr']}:#{tddj_tmp[0]['qsxz']}"
@@ -10709,7 +10793,7 @@ class DesktopController < ApplicationController
     
     
     #删除整目录案卷及卷内
-    def delete_all_archive     
+    def delete_all_archive
       ss=params['id'].split('_')
       if ss.length>2
         #mlh=get_da_mlh(ss[0],ss[1],ss[2])
@@ -10941,5 +11025,375 @@ class DesktopController < ApplicationController
       text=system ("ruby ./dady/bin/program_updata.rb ./dady/sc/#{params['filename']} ")
       render :text =>  text
     end
+    
+    def get_qzmlh_store  
+       
+      user = User.find_by_sql(" select distinct qzh, dwdm,dalb, mlh from archive where  dalb<>'24' order by qzh,dalb,mlh;")    
+      size = user.size
+      if size > 0 
+       txt = "["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]"
+      else
+       txt = "{results:0,rows:[]}"  
+      end  
+      render :text => txt
+    end
+    
+    def bak_selected_image
+      qzh=params['id'].split(',')
+      for ii in 0..qzh.length-1
+        mlh=qzh[ii].split('$')
+        user = User.find_by_sql(" select * from qzml_key where mlm='#{mlh[1]}' and qzh='#{mlh[0]}' and dalb='#{mlh[2]}';")
+        dh=user[0]['qzh'].to_s + '-' + user[0]['dalb'].to_s + '-' + user[0]['id'].to_s
+        User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('数据备份','#{mlh[1]}', 'ruby ./dady/bin/export_backup.rb #{dh}', '', '', '未开始');")
+      end  
+      render :text => 'Success'
+    end
+    
+    
+    def get_yundangan_tree
+        text="["
+        text=text+"{'text':'云查询单位设置','id' :'1','checked':false,'leaf':true,'cls':'folder'},"
+        text=text+"{'text':'云查询权限设置','id' :'2','checked':false,'leaf':true,'cls':'folder'},"
+        text=text+"{'text':'申请查询','id' :'3','checked':false,'leaf':true,'cls':'folder'},"
+        text=text+"{'text':'审批查询申请','id' :'4','checked':false,'leaf':true,'cls':'folder'},"
+        text=text+"{'text':'查看查询结果','id' :'5','checked':false,'leaf':true,'cls':'folder'},"
+        text=text+"{'text':'云查询统计','id' :'6','checked':false,'leaf':true,'cls':'folder'},"
+        text=text + "]"
+        render :text => text
+    end
+    
+    def get_danwei_grid
+      user = User.find_by_sql("select * from yun_danwei;")
+      size = user.size;
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end  
+      render :text => txt
+    end
+    
+    
+    def get_yun_qx_grideg
+      user = User.find_by_sql("select * from yun_qx;")
+      size = user.size;
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end  
+      render :text => txt
+    end
+    
+    def print_byml
+    #编研类档案导出Excel
+      dalb=params['query'].split('_')
+      txt=''
+      case dalb[1]
+      when "30"
+        xls='<table　border="1" cellpadding="0" bordercolorlight="#999999" bordercolordark="#FFFFFF"　cellspacing="0" align="center">'
+        xls=xls + '<tr height="40"><th style="text-align: center" colspan="5"><font size = 5>图 书 资 料 目 录</font></th></tr>'
+        xls=xls + '<tr height="28" style="text-align: center"><td>登记号</td><td>刊期</td><td>名称</td><td>出版日期</td><td>存放位置</td></tr>'
+        archive= User.find_by_sql(" select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdm, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid  where qzh='#{dalb[0]}' and dalb='30' order by djh;")
+        for k in 0..archive.size-1
+          xls=xls + '<tr height="28"><td>'+ archive[k]['djh'].to_s + '</td><td>'+ archive[k]['kq'].to_s + '</td><td>'+ archive[k]['mc'].to_s + '</td><td>'+ archive[k]['cbrq'].to_s + '</td><td>'+ archive[k]['cfwz'].to_s + '</td></tr>'
+        end
+        pr_path="./dady/by_tszl.xls"        
+      end
+      system("rm #{pr_path}")
+      ff = File.open(pr_path,'w+')
+      ff.write(xls)
+      ff.close
+      txt="success:" + "assets/#{pr_path}"
+      render :text => txt
+    end
 
+    def get_yun_jydjlc_jyzt
+      useridwhere=""
+      if (params['jyzt'].nil?)
+        txt = "{results:0,rows:[]}"
+      else
+        jyzt=params['jyzt']
+        if (jyzt=='')
+          txt = "{results:0,rows:[]}"
+        else
+              user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+              main=User.find_by_sql("select * from yun_main;")
+              #token=token.gsub('+','%2b').gsub('=','%3d')
+              uri = "http://#{main[0]['ip']}/map/get_yun_jydjlc_jyzt?dwdm=#{user[0]['dwdm']}&jyzt=#{jyzt}"
+              txt=get_response_uri(uri)   
+        end
+      end
+      render :text => txt
+    end
+
+    def get_null
+      txt = "{results:0,rows:[]}"
+      render :text => txt
+    end
+
+    def get_yun_dw_tree
+      node, style = params["node"], params['style']
+      if node == "root"
+        main=User.find_by_sql("select * from yun_main;")
+        uri = "http://#{main[0]['ip']}/map/get_yun_dw_tree"
+        txt=get_response_uri(uri)
+      end
+      render :text => txt
+    end
+
+
+    def yun_insert_jylc
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['czrid']};")
+      #token=token.gsub('+','%2b').gsub('=','%3d')
+      json=JSON.parse(params['jytj'])
+      strinsert="jyr=#{params['jyr']}&jydw=#{user[0]['dwdm']}&jylx=#{params['jylx']}&zj=#{params['zj']}&lymd=#{params['lymd']}&lyxg=#{params['lyxg']}&fyys=#{params['fyys']}&zcys=#{params['zcys']}&cdlr=#{params['cdlr']}&bz=#{params['bz']}&jytj=#{params['jytj']}&bjydw=#{params['bjydw']}&jyid=#{params['jyid']}"
+      if   !(json['mlh'].nil?)
+        strinsert=strinsert+ "&mlh=" +  json['mlh']
+      end
+      if   !(json['ajh'].nil?)
+        strinsert=strinsert+ "&ajh=" +  json['ajh']
+      end
+      if   !(json['tm'].nil?)
+        strinsert=strinsert+ "&tm=" +  json['tm']
+      end
+      if   !(json['djh'].nil?)
+        strinsert=strinsert+ "&djh=" +  json['djh']
+      end
+      if   !(json['qlr'].nil?)
+        strinsert=strinsert+ "&qlr=" +  json['qlr']
+      end
+      if   !(json['tdzl'].nil?)
+        strinsert=strinsert+ "&tdzl=" +  json['tdzl']
+      end
+      if   !(json['zrz'].nil?)
+        strinsert=strinsert+ "&zrz=" +  json['zrz']
+      end
+      if   !(json['wh'].nil?)
+        strinsert=strinsert+ "&wh=" +  json['wh']
+      end
+      if   !(json['ajtm'].nil?)
+        strinsert=strinsert+ "&ajtm=" +  json['ajtm']
+      end
+      
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_insert_jylc?#{strinsert}"
+      txt=get_response_uri(uri)
+      
+      render :text => txt
+    end
+    
+    def yun_update_jylc
+     user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['czrid']};")
+      strinsert="ids=#{params['ids']}&jyid=#{params['jyid']}&jyr=#{params['jyr']}&jydw=#{user[0]['dwdm']}&jylx=#{params['jylx']}&zj=#{params['zj']}&lymd=#{params['lymd']}&lyxg=#{params['lyxg']}&fyys=#{params['fyys']}&zcys=#{params['zcys']}&cdlr=#{params['cdlr']}&bz=#{params['bz']}&jytj=#{params['jytj']}&bjydw=#{params['bjydw']}"
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_update_jylc?#{strinsert}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_clqq_jylc
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['czrid']};")
+
+              strinsert="ids=#{params['jy_aj_list']}&jyid=#{params['id']}&spr=#{params['czrname']}&jy_aj_list=#{params['jy_aj_list']}&jyr=#{params['jyr']}&jydw=#{user[0]['dwdm']}&jylx=#{params['jylx']}&zj=#{params['zj']}&lymd=#{params['lymd']}&lyxg=#{params['lyxg']}&fyys=#{params['fyys']}&zcys=#{params['zcys']}&cdlr=#{params['cdlr']}&bz=#{params['bz']}&jytj=#{params['jytj']}&bjydw=#{user[0]['dwdm']}"
+      
+      
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_clqq_jylc?#{strinsert}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+
+    def get_yun_jydjlist
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+      #token=token.gsub('+','%2b').gsub('=','%3d')
+      strinsert="jyid=#{params['jyid']}&jyzt=#{params['jyzt']}&dwmc=#{user[0]['dwdm']}"
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/get_yun_jydjlist?#{strinsert}"
+      txt=get_response_uri(uri)
+      render :text => txt
+
+    end
+
+    def yun_get_archivebyid
+      uri = "http://#{params['ip']}:3000/map/get_archivebyid?dh=#{params['dh']}&id=#{params['id']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_get_documentbyajid
+      uri = "http://#{params['ip']}:3000/map/get_documentbyajid?dh=#{params['dh']}&id=#{params['id']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_get_yx_tree
+      uri = "http://#{params['ip']}:3000/map/get_yx_tree?dh=#{params['dh']}&node=root"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_get_timage_from_db
+      uri = "http://#{params['ip']}:3000/map/yun_get_timage_from_db?gid=#{params['gid']}"      
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+
+    def get_response_uri(uri)
+      uri=URI.escape(uri)
+      html_response = nil 
+      puts uri 
+      open(uri) do |http|  
+        html_response = http.read  
+      end
+      return  html_response
+    end
+
+    def yun_delete_jylc
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_del_jylc?id=#{params['id']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_qbhd_jylc
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_qbhd_jylc?jyzt=#{params['jyzt']}&dwmc=#{user[0]['dwdm']}&id=#{params['id']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_get_cz_zt
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_get_cz_zt?czid=#{params['czid']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    
+    def get_yun_jylistbyjyid
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/get_yun_jylistbyjyid?jyid=#{params['jyid']}&jyzt=#{params['jyzt']}&jydw=#{user[0]["dwdm"]}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+
+    def yun_save_image_db
+      params['filename']=params['filename'].gsub('(', '\(').gsub(')', '\)').gsub('"', '\"').gsub("'", "\'")
+      text=system("ruby ./dady/bin/yun_import_image_db.rb ./dady/sc/#{params['filename']} #{params['id']} #{params['id']} #{params['czr']} #{params['czrname']}")
+      render :text =>text
+    end
+    
+    
+    def yun_get_timage
+      if params['id']==""
+        params['id']=0
+      end
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_get_timage?jyid=#{params['id']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+    
+    def yun_get_timage_gid
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/yun_get_timage_from_db?gid=#{params['gid']}"
+      txt=get_response_uri(uri)
+      render :text => "http://#{main[0]['ip']}/" + txt
+    end
+
+    def get_yun_title
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/get_yun_title?jydw=#{user[0]["dwdm"]}"
+      txt=get_response_uri(uri)
+      render :text => txt
+      #txt="successs:有一个借阅，是否去处理？"
+      #render :text => txt
+    end
+    
+    def set_yun_title
+      user= User.find_by_sql("select d_dwdm.* from users,d_dwdm where users.ssqz=d_dwdm.id and users.id=#{params['userid']};")
+      main=User.find_by_sql("select * from yun_main;")
+      uri = "http://#{main[0]['ip']}/map/set_yun_title?jydw=#{user[0]["dwdm"]}&cllb=#{params['cllb']}"
+      txt=get_response_uri(uri)
+      render :text => txt
+    end
+   
+    def get_add_mlh_grid
+      user = User.find_by_sql("SELECT  add_mlh.*,d_dwdm.dwdm as ssss from add_mlh,d_dwdm where add_mlh.szdw=d_dwdm.id order by add_mlh.id;")
+      #user = User.find_by_sql("SELECT  * from d_dwdm order by id;")
+      size = user.size;
+      if size > 0 
+       txt = "{results:#{size},rows:["
+       for k in 0..user.size-1
+         txt = txt + user[k].to_json + ','
+       end
+       txt = txt[0..-2] + "]}"
+      else
+       txt = "{results:0,rows:[]}"  
+      end  
+      logger.debug txt
+      render :text => txt
+
+    end
+    
+    
+    def delete_add_mlh
+      user=User.find_by_sql("delete from add_mlh where  id=#{params['id']};")
+      render :text => 'success'
+    end
+    
+    def insert_add_mlh
+      if params['ssss'].nil? || params['ssss']==""
+        txt= '必须要选择所属全宗。'
+      else
+        user=User.find_by_sql("select * from add_mlh where  mlh='#{params['mlh']}' and szdw=#{params['ssss']};")
+        size = user.size
+        if size == 0
+          User.find_by_sql("insert into add_mlh(mlh, qajh,zajh,szdw) values ('#{params['mlh']}', #{params['qajh']}, #{params['zajh']}, '#{params['ssss']}');")
+          txt='success'
+        else
+          txt= '目录号已经存在，请重新输入目录号。'
+        end
+      end
+      render :text => txt
+    end
+    
+    def update_add_mlh
+      if params['ssss'].nil? || params['ssss']==""
+        txt= '必须要选择所属全宗。'
+      else
+        user=User.find_by_sql("select * from add_mlh where id <> #{params['id']} and mlh='#{params['mlh']}' and szdw=#{params['ssss']};")
+        size = user.size
+        if size == 0
+          User.find_by_sql("update add_mlh set szdw='#{params['ssss']}',qajh='#{params['qajh']}',zajh='#{params['zajh']}', mlh='#{params['mlh']}' where id = #{params['id']};")
+          txt='success'
+        else
+          txt= '目录号已经存在，请重新输入目录号。'
+        end
+      end
+      render :text => txt
+    end
+    
+    def print_add_qz_jsys
+      #生成全宗表
+      User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('生成新增全宗表','', 'ruby ./dady/bin/add_qz_jsys.rb', '', '', '未开始');")
+      render :text => 'Success'
+    end
+    
 end

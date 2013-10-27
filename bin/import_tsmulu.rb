@@ -134,110 +134,110 @@ def update_owner
 end 
 
 def set_documents(tt, dwdm, qzh, dalb, mlh)
-  
-  for k in 0..tt.size-1    
-      user = tt[k]['Table']
-      mlm  = user['目录号'] 
-      tm      = user['题名'] 
-      ajh     = user['案卷号'].rjust(4,"0")
-      if dalb!=20
-        sxh     = user['顺序号']
-      else
-        #sxh     = user['照片号']
-        if user['照片号']==''
-          sxh=0
+    for k in 0..tt.size-1    
+        user = tt[k]['Table']
+        mlm  = user['目录号'] 
+        tm      = user['题名'] 
+        ajh     = user['案卷号'].rjust(4,"0")
+        if dalb!=20
+          sxh     = user['顺序号']
         else
-          sxh     = user['照片号']
+          #sxh     = user['照片号']
+          if user['照片号']==''
+            sxh=0
+          else
+            sxh     = user['照片号']
+          end
         end
-      end
-      yh      = user['页号']
-      wh      = user['文号']
-      zrz     = user['责任者']
-      rq      = user['日期']
-      bz      = user['备注']
-      flh= user['分类号']
+        yh      = user['页号']
+        wh      = user['文号']
+        zrz     = user['责任者']
+        rq      = user['日期']
+        bz      = user['备注']
+        flh= user['分类号']
       
-      if dalb.to_i==27
-        rsmlh=$conn.exec("select * FROM qzml_key where mlm='#{mlm}' and qzh='#{qzh}' and dalb='#{dalb}' and nd='#{flh}';")
-        if rsmlh.count>0
-          mlh=rsmlh[0]['id']
-        else
-          insertmlh=$conn.exec("INSERT INTO qzml_key(mlm,qzh,nd,dalb) VALUES ('#{mlm}','#{qzh}','#{flh}','#{dalb}') returning id;")
-          mlh=insertmlh[0]['id']
+        if dalb.to_i==27
+          rsmlh=$conn.exec("select * FROM qzml_key where mlm='#{mlm}' and qzh='#{qzh}' and dalb='#{dalb}' and nd='#{flh}';")
+          if rsmlh.count>0
+            mlh=rsmlh[0]['id']
+          else
+            insertmlh=$conn.exec("INSERT INTO qzml_key(mlm,qzh,nd,dalb) VALUES ('#{mlm}','#{qzh}','#{flh}','#{dalb}') returning id;")
+            mlh=insertmlh[0]['id']
+          end
         end
+    
+        dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+        if rq.nil?
+          rq=""
+        end
+        if rq.length==0
+          rq = 'null' 
+        elsif rq.length==4
+          rq = "TIMESTAMP '#{rq}0101'"
+        elsif rq.length==6
+          rq = "TIMESTAMP '#{rq}01'"
+        else    
+          rq = "TIMESTAMP '#{rq}'"
+        end
+        tm=tm.gsub(' ','')   
+        $conn.exec(" DELETE FROM document where dh='#{dh}' and sxh='#{sxh}';")   
+        insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}')  RETURNING id;"
+        puts insert_str
+        document=$conn.exec(insert_str)
+      if dalb==20
+        user = tt[k]['Table']
+        puts user
+        rq=user['拍摄日期']
+        if rq.nil?
+          rq=""
+        else
+          rq  =  user['拍摄日期']
+        end
+        zph   =  user['照片号']
+        psz   =  user['拍摄者']
+        cfwz  =  user['存放位置']
+        sy    =  user['事由']
+        dd    =  user['地点']
+        rw    =  user['人物']
+        bj    =  user['背景']
+      
+        dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
+        if rq.length==0
+          psrq = 'null' 
+        elsif rq.length==4
+          psrq = "TIMESTAMP '#{rq}0101'"
+        elsif rq.length==6
+          psrq = "TIMESTAMP '#{rq}01'"
+        else    
+          psrq = "TIMESTAMP '#{rq}'"
+        end
+        $conn.exec(" DELETE FROM a_zp where dh='#{dh}' and zph='#{zph}';")
+        insert_str =  " INSERT INTO a_zp (dh, psrq, zph,  psz, cfwz, sy, dd, rw, bj,ownerid) values ('#{dh}',   #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}',#{document[0]['id']});"
+      
+        puts insert_str
+        #$conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
+        $conn.exec(insert_str)
       end
     
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-      if rq.nil?
-        rq=""
-      end
-      if rq.length==0
-        rq = 'null' 
-      elsif rq.length==4
-        rq = "TIMESTAMP '#{rq}0101'"
-      elsif rq.length==6
-        rq = "TIMESTAMP '#{rq}01'"
-      else    
-        rq = "TIMESTAMP '#{rq}'"
-      end
-      tm=tm.gsub(' ','')   
-      $conn.exec(" DELETE FROM document where dh='#{dh}' and sxh='#{sxh}';")   
-      insert_str =  " INSERT INTO document(dh,tm,sxh,yh,wh,zrz,rq,bz) VALUES ('#{dh}','#{tm}','#{sxh}','#{yh}','#{wh}','#{zrz}',#{rq},'#{bz}')  RETURNING id;"
-      puts insert_str
-      document=$conn.exec(insert_str)
-    if dalb==20
-      user = tt[k]['Table']
-      puts user
-      rq=user['拍摄日期']
-      if rq.nil?
-        rq=""
+      case dalb
+      when 0  #综合档案 
+      when 2  #财务档案
+      when 3  #土地登记
+      when 4  #地籍管理
+      when 10 #用地档案
+      when 14 #监查案件
+      when 15 #Image
+      when 17 #土地规划
+      when 19 #科技信息
+      when 20 #Image
+      when 21 #地址矿产
+      when 24 #文书档案
       else
-        rq  =  user['拍摄日期']
+        #puts "#{dalb}"  
       end
-      zph   =  user['照片号']
-      psz   =  user['拍摄者']
-      cfwz  =  user['存放位置']
-      sy    =  user['事由']
-      dd    =  user['地点']
-      rw    =  user['人物']
-      bj    =  user['背景']
-      
-      dh = "#{qzh}-#{dalb}-#{mlh}-#{ajh.to_i}"
-      if rq.length==0
-        psrq = 'null' 
-      elsif rq.length==4
-        psrq = "TIMESTAMP '#{rq}0101'"
-      elsif rq.length==6
-        psrq = "TIMESTAMP '#{rq}01'"
-      else    
-        psrq = "TIMESTAMP '#{rq}'"
-      end
-      $conn.exec(" DELETE FROM a_zp where dh='#{dh}' and zph='#{zph}';")
-      insert_str =  " INSERT INTO a_zp (dh, psrq, zph,  psz, cfwz, sy, dd, rw, bj,ownerid) values ('#{dh}',   #{psrq}, '#{zph}',  '#{psz}', '#{cfwz}', '#{sy}', '#{dd}', '#{rw}', '#{bj}',#{document[0]['id']});"
-      
-      puts insert_str
-      #$conn.exec(" DELETE FROM a_zp where dh='#{dh}';")
-      $conn.exec(insert_str)
-    end
-    
-    case dalb
-    when 0  #综合档案 
-    when 2  #财务档案
-    when 3  #土地登记
-    when 4  #地籍管理
-    when 10 #用地档案
-    when 14 #监查案件
-    when 15 #Image
-    when 17 #土地规划
-    when 19 #科技信息
-    when 20 #Image
-    when 21 #地址矿产
-    when 24 #文书档案
-    else
-      #puts "#{dalb}"  
+
     end
 
-  end
 end
 
 def set_archive(tt, dwdm, qzh, dalb, mlh, mlm)
@@ -774,6 +774,12 @@ if ARGV.count < 4
 end
 
 ifname, dwdm, qzh, pp = ARGV[0], ARGV[1], ARGV[2], ARGV[3]
+statusid=[]
+statusid<<0
+statusid<<0
+if !ARGV[4].nil?
+  statusid=ARGV[4].split('-')
+end
 
 #puts "#{ifname}\t#{dwdm}\t#{qzh}\t#{pp}"
 
@@ -821,56 +827,64 @@ end
 path = "./dady/tmp1/#{pp}"
 
 if ifname.include?('aj')
+  begin
+    dh = "#{qzh}-#{dalb}-#{mlh}-%"
   
-  dh = "#{qzh}-#{dalb}-#{mlh}-%"
+    $stderr.puts "processing #{ifname}, #{dh} ..."
   
-  $stderr.puts "processing #{ifname}, #{dh} ..."
-  
-  #delete any document connected to dh
-  #puts "delete from archive where dh like '#{dh}'; "
-  #$conn.exec("delete from archive where dh like '#{dh}'; ")
-  
-  outfile = rand(36**8).to_s(36)
-  #puts "#{ifname}\t#{outfile}\t#{path}"
-  decode_file("#{ifname}", "#{outfile}", path)
-  data = File.open("#{path}/#{outfile}").read.gsub("\000","")
-  #puts ActiveSupport::JSON.decode(data)
-  set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
-  system ("rm #{path}/#{outfile}")
-  
-  if dalb != 24 && dalb!=25   && dalb!=28  && dalb!=29 && dalb!=18
-    #puts "delete from document where dh like '#{dh}'; "
-    #$conn.exec("delete from document where dh like '#{dh}'; ")
+    #delete any document connected to dh
+    #puts "delete from archive where dh like '#{dh}'; "
+    #$conn.exec("delete from archive where dh like '#{dh}'; ")
   
     outfile = rand(36**8).to_s(36)
-    decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
-    data = File.open("#{path}/#{outfile}").read
+    #puts "#{ifname}\t#{outfile}\t#{path}"
+    decode_file("#{ifname}", "#{outfile}", path)
+    data = File.open("#{path}/#{outfile}").read.gsub("\000","")
     #puts ActiveSupport::JSON.decode(data)
-    
-    set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
+    set_archive(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh, mlm)
     system ("rm #{path}/#{outfile}")
-  end
+  
+    if dalb != 24 && dalb!=25   && dalb!=28  && dalb!=29 && dalb!=18
+      #puts "delete from document where dh like '#{dh}'; "
+      #$conn.exec("delete from document where dh like '#{dh}'; ")
+  
+      outfile = rand(36**8).to_s(36)
+      decode_file("#{ifname.gsub('aj','jr')}", "#{outfile}", path)
+      data = File.open("#{path}/#{outfile}").read
+      #puts ActiveSupport::JSON.decode(data)
+      set_documents(ActiveSupport::JSON.decode(data), dwdm, qzh, dalb.to_i, mlh)
+      system ("rm #{path}/#{outfile}")
+    end
 
-  update_owner
+    update_owner
 
-  #生成q_qzxx
-  dh_prefix = "#{qzh}-#{dalb}-#{mlh}"
-  $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
-  $conn.exec("insert into q_qzxx(qzh, dalb, mlh, mlm, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{mlm}','#{dh_prefix}', '#{ifname}' );") 
-  qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}-%';")
-  $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
-  $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}-%') where dh_prefix='#{dh_prefix}';")
+    #生成q_qzxx
+    dh_prefix = "#{qzh}-#{dalb}-#{mlh}"
+    $conn.exec("delete from q_qzxx where dh_prefix='#{dh_prefix}';")
+    $conn.exec("insert into q_qzxx(qzh, dalb, mlh, mlm, dh_prefix, json) values (#{qzh}, #{dalb}, #{mlh}, '#{mlm}','#{dh_prefix}', '#{ifname}' );") 
+    qzjh = $conn.exec("select min(ajh), max(ajh), sum(ys) as ys from archive where dh like '#{dh_prefix}-%';")
+    $conn.exec("update q_qzxx set qajh=#{qzjh[0]['min'].to_i}, zajh=#{qzjh[0]['max'].to_i} where dh_prefix='#{dh_prefix}';")
+    $conn.exec("update q_qzxx set ajys=(select sum(ys) from archive where dh like '#{dh_prefix}-%') where dh_prefix='#{dh_prefix}';")
     
-  #生成timage_tj
-  #$conn.exec("delete from timage_tj where dh like '#{dh_prefix}-%';")
-  archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}-#{dalb}-#{mlh}-%' order by ajh;")
-  puts "generating timage_tj files ..."
-  for k in 0..archives.count-1
-    ar = archives[k]
-    $conn.exec("delete from timage_tj where dh = '#{ar['dh']}';")
-    $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{mlm}');")
+    #生成timage_tj
+    #$conn.exec("delete from timage_tj where dh like '#{dh_prefix}-%';")
+    archives = $conn.exec("select distinct dh, ajh, ys from archive where dh like '#{qzh}-#{dalb}-#{mlh}-%' order by ajh;")
+    puts "generating timage_tj files ..."
+    for k in 0..archives.count-1
+      ar = archives[k]
+      $conn.exec("delete from timage_tj where dh = '#{ar['dh']}';")
+      $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{mlm}');")
+    end
+    #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');
+  rescue Exception => e
+    puts ""
+    puts e.backtrace
+    puts ""
+    puts e.message
+
+    err=e.backtrace.to_s.gsub("'",'').gsub('"','') + e.message.to_s.gsub("'",'').gsub('"','')
+    $conn.exec("update q_status set zt='出错',err='#{err}' where id=#{statusid[1]};")
   end
-  #update q_qzxx set ajys=(select sum(ys) from archive where archive.dh like q_qzxx.dh_prefix||'_%');
 end 
 
 $conn.close

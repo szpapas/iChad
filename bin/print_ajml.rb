@@ -318,6 +318,58 @@ if size.to_i>0
          end
         end
         puts tm
+      when "26"
+        pdfsize=':at =>[-40,780], :width => 580, :height => 890'
+        intwidth<<340
+        intwidth<<539
+        intwidth<<725
+        intwidth<<887
+        intwidth<<1505
+        intwidth<<2428
+        intwidth<<2604
+        intwidth<<2751
+        intwidth<<2885
+        intwidth<<2927
+        intwidth<<3110
+        printfilename="ajml_jjda.jpg"
+        #intheight= i*160+684
+        intheight= i*160+688
+        puts intheight
+        user[i+k*10]['ajh']=user[i+k*10]['ajh'].to_i.to_s
+
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"    -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"   -pointsize 50  -draw \"text #{intwidth[5]}, #{intheight} '#{user[i+k*10]['nd']}'\" -pointsize 50  -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ys'].center 4}'\"  -pointsize 50  -draw \"text #{intwidth[7]}, #{intheight} '#{user[i+k*10]['bgqx'].center 4}'\""
+        intheight=intheight-60
+        if !(user[i+k*10]['jsdw'].nil?)
+          tm=split_string(user[i+k*10]['jsdw'],12)
+          strtm=tm.split("\n")
+          intheight1=0
+          #for j in 0..strtm.length-1
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        puts tm
+        if !(user[i+k*10]['xmmc'].nil?)
+          tm=split_string(user[i+k*10]['xmmc'],18)
+          strtm=tm.split("\n")
+          intheight1=0
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[4]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        if !(user[i+k*10]['bz'].nil?)
+          puts tm
+          tm=split_string(user[i+k*10]['bz'],9)
+          strtm=tm.split("\n")
+          intheight1=0
+          for j in 0..2
+            intheight1=intheight+ j*50
+            convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[8]}, #{intheight1} '#{strtm[j]}'\" "
+          end
+        end
+        puts tm
       when "35"
         pdfsize=':at =>[-40,780], :width => 580, :height => 890'
         intwidth<<205
@@ -426,7 +478,7 @@ if size.to_i>0
           tm=split_string(user[i+k*10]['zrr'],4)
           strtm=tm.split("\n")
           intheight1=0
-          for j in 0..strtm.length-1
+          for j in 0..4
             intheight1=intheight+ j*50
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[1]}, #{intheight1} '#{strtm[j]}'\" "
           end
@@ -436,7 +488,7 @@ if size.to_i>0
           tm=split_string(user[i+k*10]['wh'],4)
           strtm=tm.split("\n")
           intheight1=0
-          for j in 0..strtm.length-1
+          for j in 0..4
             intheight1=intheight+ j*50
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[2]}, #{intheight1} '#{strtm[j]}'\" "
           end
@@ -446,7 +498,7 @@ if size.to_i>0
           tm=split_string(user[i+k*10]['tm'],17)
           strtm=tm.split("\n")
           intheight1=0
-          for j in 0..strtm.length-1
+          for j in 0..4
             intheight1=intheight+ j*50
             convertstr =convertstr + " -pointsize 50  -draw \"text #{intwidth[3]}, #{intheight1} '#{strtm[j]}'\" "
           end
@@ -478,10 +530,11 @@ if size.to_i>0
         else
           sjsj=''
         end
-        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['bh'].center 5}'\"   -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ztxs']}'\" -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{sjsj}'\" "
+        #convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\" -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['bh'].center 5}'\"   -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ztxs']}'\" -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{sjsj}'\" "
+        convertstr=convertstr + " -font ./dady/STZHONGS.ttf  -pointsize 50 -draw \"text #{intwidth[8]}, #{intheight} '#{user[i+k*10]['mlh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[0]}, #{intheight} '#{user[i+k*10]['flh'].center 5}'\"  -pointsize 50 -draw \"text #{intwidth[1]}, #{intheight} '#{user[i+k*10]['ajh'].center 5}'\"    -pointsize 50 -draw \"text #{intwidth[6]}, #{intheight} '#{user[i+k*10]['ztxs']}'\" -pointsize 50 -draw \"text #{intwidth[5]}, #{intheight} '#{sjsj}'\" "
         intheight=intheight-60
-        if !(user[i+k*10]['tm'].nil?)
-          tm=split_string(user[i+k*10]['tm'],13)
+        if !(user[i+k*10]['mc'].nil?)
+          tm=split_string(user[i+k*10]['mc'],13)
           strtm=tm.split("\n")
           intheight1=0
           for j in 0..strtm.length-1

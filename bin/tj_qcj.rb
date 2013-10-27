@@ -17,7 +17,7 @@ ff.write('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><ta
 for j in 0..dwdm.count-1
   puts dwdm[j]['dwdm']
   ff.write("<tr><td>" + dwdm[j]['dwdm']  + "</td></tr>" )
-  mlhdata=$conn.exec("select distinct mlh,dalb from  archive where  qzh ='#{dwdm[j]['id']}' and dalb<>'24'   order by dalb,mlh;")
+  mlhdata=$conn.exec("select distinct mlh,dalb from  archive where  qzh ='#{dwdm[j]['id']}'   order by dalb,mlh;")
   for ii in 0..mlhdata.count-1
     xh=1
     if !mlhdata[ii]['mlh'].nil?

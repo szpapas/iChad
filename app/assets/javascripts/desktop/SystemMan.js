@@ -1064,6 +1064,7 @@ Ext.define('MyDesktop.SystemMan', {
 
       win.show();
     };
+
     var qz_setup = function(){
       var win = Ext.getCmp('qz_setup_win');
 
@@ -1213,6 +1214,8 @@ Ext.define('MyDesktop.SystemMan', {
 
       win.show();
     };  
+
+
     var qz_lb_setup = function(){
       var win = Ext.getCmp('qz_lb_setup_win');
 
@@ -2933,8 +2936,162 @@ Ext.define('MyDesktop.SystemMan', {
       win.show();
     };
 
+    var data_manage = function(){
+	//缺重卷检验
+      var win = Ext.getCmp('data_manage_win');
+	Ext.regModel('qzzt_model', {
+      fields: [
+        {name: 'id',       type: 'integer'},
+        {name: 'dhp',      type: 'string'},
+        {name: 'mlh',      type: 'integer'},
+        {name: 'cmd',      type: 'string'},
+        {name: 'fjcs',     type: 'string'},
+        {name: 'dqwz',     type: 'string'},
+        {name: 'zt',       type: 'string'}
+      ]
+    });
+	var qzzt_store =  Ext.create('Ext.data.Store', {
+      model : 'qzzt_model',
+      proxy: {
+        type: 'ajax',
+        url : '/desktop/get_qzzt_store',
+        extraParams: {qzh:""},
+        reader: {
+          type: 'json',
+          root: 'rows',
+          totalProperty: 'results'
+        }
+      }
+    });
+
+    qzzt_store.proxy.extraParams={qzh:'9'};
+    qzzt_store.load();
+	
+    var qzzt_grid = new Ext.grid.GridPanel({
+         // more config options clipped //,
+         store: qzzt_store,
+         id : 'qzzt_grid_id',
+         layout : 'fit',
+         //height : 350,
+         columns: [
+           { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+           { text : '说明',    align:"left",   width : 75, sortable : true, dataIndex: 'dhp'},
+           { text : '目录号',    align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
+           { text : '任务命令',   align:"left", width : 250, sortable : true, dataIndex: 'cmd'},
+           { text : '附加参数',   align:"left", width : 100, sortable : true, dataIndex: 'fjcs', hidden: true},
+           { text : '当前位置',   align:"center", width : 50, sortable : true, dataIndex: 'dqwz', hidden: true},
+           { text : '状态',     align:"center", flex : 1, sortable : true, dataIndex:   'zt'}
+         ],
+         //selModel : {selType:'cellmodel'},
+         selType:'checkboxmodel',
+         multiSelect:true,
+         viewConfig: {
+           stripeRows:true
+         },
+         tbar : [
+         {
+            text : '删除选择',
+            handler : function() {
+              items = Ext.getCmp('qzzt_grid_id').getSelectionModel().selected.items;
+              id_str = '';
+              for (var i=0; i < items.length; i ++) {
+                if (i==0) {
+                  id_str = id_str+items[i].data.id;
+                } else {
+                  id_str = id_str + ',' +items[i].data.id ;
+                }
+
+              };
+              pars = {id:id_str};
+              new Ajax.Request("/desktop/delete_qzzt_task", { 
+                method: "POST",
+                parameters: pars,
+                onComplete:  function(request) {
+                  qzzt_store.load();
+                }
+              });
+            }
+          },'-',{
+            text : '删除完成',
+            handler : function() {
+              pars = {};
+              new Ajax.Request("/desktop/delete_all_qzzt_task", { 
+                method: "POST",
+                parameters: pars,
+                onComplete:  function(request) {
+                  qzzt_store.load();
+                }
+              });
+            }
+          },
+          {
+            text: '执行',
+            handler: function() {
+              var pars={id:archive_id};
+              new Ajax.Request("/desktop/start_qzzt_task", {
+                method: "POST",
+                parameters: pars,
+                onComplete:  function(request) {
+                  qzzt_store.load();
+                }
+              });
+            }
+          },		  
+          {
+             text : '刷新',
+             iconCls : 'x-tbar-loading',
+             handler : function() {
+               qzzt_store.load();
+             }                                 
+          },
+		  {
+             text : '输档备份',
+             handler : function() {
+               data_bak();
+             }                                 
+          },
+		  {
+             text : '影像文件按目录号备份',
+             handler : function() {
+               yxdata_bak();
+             }                                 
+          },
+		  {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('data_manage_win').close();
+            }
+          }
+		]
+    });
+      
+      
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'data_manage_win',
+          title: '数据备份',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:qzzt_grid                                   
+        });
+      }
+      
+
+      win.show();
+    };
+
   var data_bak = function(){
-    var win = Ext.getCmp('dandtj_win');    
+    var win = Ext.getCmp('data_bak');    
     if (win==null) {
     win = new Ext.Window({
       id : 'data_bak',
@@ -3014,6 +3171,112 @@ Ext.define('MyDesktop.SystemMan', {
     win.show();
   };
 
+  var yxdata_bak = function(){
+    var win = Ext.getCmp('yxdata_bak'); 
+	//挂接路径
+      Ext.regModel('yxwz_model', {
+        fields: [
+          {name: 'id',       type: 'integer'},
+          {name: 'qzh',       type: 'string'},
+		  {name: 'dwdm',       type: 'string'},
+		  {name: 'dalb',       type: 'string'},
+		  {name: 'lbmc',       type: 'string'},
+          {name: 'mlh',      type: 'string'},
+          {name: 'yxwz',      type: 'string'}
+        ]
+      });
+
+      // 虚拟打印状态Grid
+      var yxwz_store =  Ext.create('Ext.data.Store', {
+        model : 'yxwz_model',
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_qzmlh_store',
+          extraParams: {qzh:""},
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+      
+      yxwz_store.load();
+      
+      var yxwz_grid = new Ext.grid.GridPanel({
+           store: yxwz_store,
+           id : 'yxwz_grid_id',
+           columns: [
+             { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
+             { text : 'qzh',    align:"left",   width : 50, sortable : true, dataIndex: 'qzh', hidden: true},
+			 { text : 'dalb',    align:"left",   width : 50, sortable : true, dataIndex: 'dabl', hidden: true},
+             { text : '单位名称',    align:"left",   width : 150, sortable : true, dataIndex: 'dwdm'},
+             { text : '档案类别',   align:"left",  width : 100, sortable : true, dataIndex: 'lbmc'},
+             { text : '目录号',   align:"left", width : 50, sortable : true, dataIndex: 'mlh'}
+           ],
+           selType:'checkboxmodel',
+           multiSelect:true,
+           viewConfig: {
+             stripeRows:true
+           },
+           tbar : [
+           {
+              text : '备份影像',
+              iconCls : 'import',
+              handler : function() {
+                items = Ext.getCmp('yxwz_grid_id').getSelectionModel().selected.items;
+                id_str = '';
+                for (var i=0; i < items.length; i ++) {
+                  if (i==0) {
+                    id_str = id_str+items[i].data.qzh + "$" + items[i].data.mlh + "$" + items[i].data.dalb;
+                  } else {
+                    id_str = id_str + ',' +items[i].data.qzh + "$" + items[i].data.mlh + "$" + items[i].data.dalb;
+                  }
+                };
+				if (id_str!=''){
+                	pars = {id:id_str};
+	                new Ajax.Request("/desktop/bak_selected_image", { 
+	                  method: "POST",
+	                  parameters: pars,
+	                  onComplete:  function(request) {	                    
+						Ext.getCmp('qzzt_grid_id').store.load();					
+						Ext.getCmp('yxdata_bak').close();
+	                  }
+	                });
+				}else{
+					alert("至少要选择一个目录号才能备份。");
+				}
+              }
+            }]
+      });   
+    if (win==null) {
+    win = new Ext.Window({
+      id : 'yxdata_bak',
+      title: '影像数据备份',
+      //closeAction: 'hide',
+      width: 370,
+      height: 410,      
+      //minHeight: 200,
+      layout: 'fit',
+      modal: true,
+      plain: true,
+      items:yxwz_grid,            
+      buttons:[
+        {
+        xtype: 'button',
+        iconCls: 'exit',
+        text:'退出',
+        handler: function() {
+          //this.up('window').hide();
+          Ext.getCmp('yxdata_bak').close();
+        }
+        
+      }]
+
+    });
+    }    
+    win.show();
+  };
 
 	var myuploadform= new Ext.FormPanel({
 	  id : 'my_upload_form',
@@ -3155,7 +3418,7 @@ Ext.define('MyDesktop.SystemMan', {
 			if (Ext.getCmp('tj_ysjs_win')!=undefined){Ext.getCmp('tj_ysjs_win').close();}
 			if (Ext.getCmp('rz_manage_win')!=undefined){Ext.getCmp('rz_manage_win').close();}
 			if (Ext.getCmp('data_bak')!=undefined){Ext.getCmp('data_bak').close();}
-			if (Ext.getCmp('data_bak')!=undefined){Ext.getCmp('data_bak').close();}
+			if (Ext.getCmp('data_manage_win')!=undefined){Ext.getCmp('data_manage_win').close();}
 			if (Ext.getCmp('program_updata')!=undefined){Ext.getCmp('program_updata').close();}
 			
             switch (node.data.id) { 
@@ -3191,7 +3454,7 @@ Ext.define('MyDesktop.SystemMan', {
 	            rz_manage();
                 break;
         	  case "21": 
-	            data_bak();
+	            data_manage();
 	            break;
 			  case "22": 
 	            program_updata();

@@ -4,7 +4,7 @@ class MapController < ApplicationController
     
     #render :text=>"{\"sd\":\"45\",\"wd\":\"25.6\"}"
     xzmc = params['xzmc']
-    conn = PGconn.open(:dbname=>'WSD', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+    conn = PGconn.open(:dbname=>'WSD', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
     user = conn.exec("select dqwd, dqsd, dqdl from d_wsd where xzmc = '#{xzmc}' ;")[0]
     conn.close
     
@@ -846,7 +846,7 @@ class MapController < ApplicationController
   end
   
   def set_device_hw   #{"device_id"=>"2", "username"=>"admin", "zt"=>"1"}
-      $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+      $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
       User.find_by_sql("update zn_sb set czzt='正在操作' where id =#{params['device_id']} ;")
       system ("ruby ./bin/ktcz_hw.rb #{params['device_id']} #{params['zt']}")
       for i in 0..10
@@ -865,21 +865,6 @@ class MapController < ApplicationController
       render :text => 'Success'
   end
    
-    
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   def get_archive_where
     tm, ajtm, wh = params['tm'], params['ajtm'], params['wh']
@@ -985,7 +970,7 @@ class MapController < ApplicationController
              User.find_by_sql("delete from qz_image where jyid=#{params['jyid']};")
              fo = File.open(filename).read
              edata=PGconn.escape_bytea(fo)
-             $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
+             $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'192.168.10.194', :port=>'5432')
              $conn.exec("set standard_conforming_strings = off")
              $conn.exec("insert into qz_image (jyid, data) values ( #{params['jyid']}, E'#{edata}');")
            end
@@ -1390,6 +1375,789 @@ class MapController < ApplicationController
     render :text => txt;
   end
 
+  def get_dw_xml
+    users = User.find_by_sql("select * from  d_dwdm order by id")
+    #<?xml version="1.0" encoding="utf-8"?>
+    txt='<root>'
+    for k in 0..users.size-1
+      txt=txt + "<dagl>"
+      txt=txt + "<dwdm>#{users[k]['id']}_#{users[k]['dwdm']}</dwdm>"
+      txt=txt + "</dagl>"
+    end
+    txt=txt + "</root>"
+    render :text => txt;
+  end
+  
+  def get_dalb_xml
+    qzh=params['dwdm'].split('_')
+    users = User.find_by_sql("select distinct cast(archive.dalb as integer), d_dalb.lbmc from archive, d_dalb where qzh='#{qzh[0]}' and d_dalb.id = cast(archive.dalb as integer)  order by dalb")
+    #<?xml version="1.0" encoding="utf-8"?>
+    txt='<root>'
+    for k in 0..users.size-1
+      txt=txt + "<dagl>"
+      txt=txt + "<dalb>#{qzh[0]}_#{users[k]['dalb']}</dalb>"
+      txt=txt + "<lbmc>#{users[k]['lbmc']}</lbmc>"
+      txt=txt + "</dagl>"
+    end
+    txt=txt + "<dagl>"
+    txt=txt + "<dalb>-1</dalb>"
+    txt=txt + "<lbmc></lbmc>"
+    txt=txt + "</dagl>"
+    txt=txt + "</root>"
+    render :text => txt;
+  end
+  
+  def get_ml_xml
+    qzh=params['dalb'].split('_')
+    users = User.find_by_sql("select distinct mlh from archive where qzh='#{qzh[0]}' and dalb='#{qzh[1]}'  order by mlh")
+    #<?xml version="1.0" encoding="utf-8"?>
+    txt='<root>'
+    for k in 0..users.size-1
+      txt=txt + "<dagl>"
+      txt=txt + "<qzh>#{qzh[0]}_#{qzh[1]}_#{users[k]['mlh']}</qzh>"
+      txt=txt + "<mlh>#{users[k]['mlh']}</mlh>"
+      txt=txt + "</dagl>"
+    end
+    txt=txt + "</root>"
+    render :text => txt;
+  end
+  
+  def get_mlh_xml
+    qzh=params['mlh'].split('_')
+    strwhere =" where qzh='#{qzh[0]}' and dalb='#{qzh[1]}' and mlh='#{qzh[2]}'  "
+    puts strwhere
+    case (qzh[1]) 
+      when "0"
+      	users = User.find_by_sql("select * from archive #{strwhere} order by ajh offset #{params['offset']} limit #{params['limit']};")
+      when "2"
+      	users = User.find_by_sql("select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid #{strwhere} order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "3","5","6","7"
+        puts "select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh ;"
+      	users =User.find_by_sql("select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "15"
+      	users =User.find_by_sql("select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "18"
+      	users = User.find_by_sql("select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "25"
+      	users = User.find_by_sql("select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "27"
+      	users = User.find_by_sql("select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid #{strwhere} order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "26"
+      	users = User.find_by_sql("select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "28"
+      	users = User.find_by_sql("select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxs from archive left join a_swda on archive.id=a_swda.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "29"
+      	users = User.find_by_sql("select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdm from archive left join a_zlxx on archive.id=a_zlxx.ownerid #{strwhere}  order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "30"
+      	users = User.find_by_sql("select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid #{strwhere}  order by djh  offset #{params['offset']} limit #{params['limit']};")
+      when "31"
+      	users = User.find_by_sql("select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid #{strwhere}  order by zt  offset #{params['offset']} limit #{params['limit']};")
+      when "32"
+      	users = User.find_by_sql("select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid #{strwhere}  order by jgmc  offset #{params['offset']} limit #{params['limit']};")
+      when "33"
+      	users = User.find_by_sql("select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid #{strwhere}   order by fsrq  offset #{params['offset']} limit #{params['limit']};")
+      when "34"
+      	users = User.find_by_sql("select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid where #{strwhere}   order by sj  offset #{params['offset']} limit #{params['limit']};")
+      when "35"
+      	users = User.find_by_sql("select archive.*,a_kyq.* from archive left join a_kyq on archive.id=a_kyq.ownerid  #{strwhere}   order by ajh  offset #{params['offset']} limit #{params['limit']};")
+      when "24"
+        #年度_机构问题号_保管期限  
+         users = User.find_by_sql("select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  #{strwhere}   order by nd,bgqx,jgwth,jh  offset #{params['offset']} limit #{params['limit']};")
+      else
+      	 users = User.find_by_sql("select * from archive  #{strwhere} order by ajh  offset #{params['offset']} limit #{params['limit']};")
+    end
+    #users = User.find_by_sql("select * from archive where qzh='#{qzh[0]}' and dalb='#{qzh[1]}' and mlh='#{qzh[2]}'  order by ajh")
+    #<?xml version="1.0" encoding="utf-8"?>
+    txt='<root>'
+    case (qzh[1])
+      when "3"
+        for k in 0..users.size-1
+          txt=txt + "<dagl>"
+          if !(users[k]['mlh'].nil?) 
+            txt=txt + "<目录号>#{users[k]['mlh'].gsub('<','《').gsub('>','》')}</目录号>"
+          else
+            txt=txt + "<目录号>#{users[k]['mlh']}</目录号>"
+          end
+          if !(users[k]['flh'].nil?) 
+            txt=txt + "<分类号>#{users[k]['flh'].gsub('<','《').gsub('>','》')}</分类号>"
+          else
+            txt=txt + "<分类号>#{users[k]['flh']}</分类号>"
+          end
+          if !(users[k]['ajh'].nil?) 
+            txt=txt + "<案卷号>#{users[k]['ajh'].gsub('<','《').gsub('>','》')}</案卷号>"
+          else
+            txt=txt + "<案卷号>#{users[k]['ajh']}</案卷号>"
+          end
+          if !(users[k]['nd'].nil?) 
+            txt=txt + "<年度>#{users[k]['nd'].gsub('<','《').gsub('>','》')}</年度>"
+          else
+            txt=txt + "<年度>#{users[k]['nd']}</年度>"
+          end
+          if !(users[k]['djh'].nil?) 
+            txt=txt + "<地籍号>#{users[k]['djh'].gsub('<','《').gsub('>','》')}</地籍号>"
+          else
+            txt=txt + "<地籍号>#{users[k]['djh']}</地籍号>"
+          end
+          if !(users[k]['qlrmc'].nil?) 
+            txt=txt + "<权利人名称>#{users[k]['qlrmc'].gsub('<','《').gsub('>','》')}</权利人名称>"
+          else
+            txt=txt + "<权利人名称>#{users[k]['qlrmc']}</权利人名称>"
+          end
+          if !(users[k]['tdzl'].nil?) 
+            txt=txt + "<土地坐落>#{users[k]['tdzl'].gsub('<','《').gsub('>','》')}</土地坐落>"
+          else
+            txt=txt + "<土地坐落>#{users[k]['tdzl']}</土地坐落>"
+          end
+          
+          if !(users[k]['qny'].nil?) 
+            txt=txt + "<起年月>#{users[k]['qny'].gsub('<','《').gsub('>','》')}</起年月>"
+          else
+            txt=txt + "<起年月>#{users[k]['qny']}</起年月>"
+          end
+          if !(users[k]['zny'].nil?) 
+            txt=txt + "<止年月>#{users[k]['zny'].gsub('<','《').gsub('>','》')}</止年月>"
+          else
+            txt=txt + "<止年月>#{users[k]['zny']}</止年月>"
+          end
+          if !(users[k]['js'].nil?) 
+            txt=txt + "<件数>#{users[k]['js'].gsub('<','《').gsub('>','》')}</件数>"
+          else
+            txt=txt + "<件数>#{users[k]['js']}</件数>"
+          end
+          if !(users[k]['ys'].nil?) 
+            txt=txt + "<页数>#{users[k]['ys'].gsub('<','《').gsub('>','》')}</页数>"
+          else
+            txt=txt + "<页数>#{users[k]['ys']}</页数>"
+          end
+          if !(users[k]['bgqx'].nil?) 
+            txt=txt + "<保管期限>#{users[k]['bgqx'].gsub('<','《').gsub('>','》')}</保管期限>"
+          else
+            txt=txt + "<保管期限>#{users[k]['bgqx']}</保管期限>"
+          end
+          if !(users[k]['bz'].nil?) 
+            txt=txt + "<备注>#{users[k]['bz'].gsub('<','《').gsub('>','》')}</备注>"
+          else
+            txt=txt + "<备注>#{users[k]['bz']}</备注>"
+          end   
+          if !(users[k]['qsxz'].nil?) 
+            txt=txt + "<权属性质>#{users[k]['qsxz'].gsub('<','《').gsub('>','》')}</权属性质>"
+          else
+            txt=txt + "<权属性质>#{users[k]['qsxz']}</权属性质>"
+          end
+          if !(users[k]['tdzh'].nil?) 
+            txt=txt + "<土地证号>#{users[k]['tdzh'].gsub('<','《').gsub('>','》')}</土地证号>"
+          else
+            txt=txt + "<土地证号>#{users[k]['tdzh']}</土地证号>"
+          end
+          txt=txt + "</dagl>"
+        end
+      when "24"
+        for k in 0..users.size-1
+          txt=txt + "<dagl>"
+          if !(users[k]['gbjh'].nil?) 
+            txt=txt + "<馆编件号>#{users[k]['gbjh'].gsub('<','《').gsub('>','》')}</馆编件号>"
+          else
+            txt=txt + "<馆编件号>#{users[k]['gbjh']}</馆编件号>"
+          end
+          if !(users[k]['jh'].nil?) 
+            txt=txt + "<件号>#{users[k]['jh'].gsub('<','《').gsub('>','》')}</件号>"
+          else
+            txt=txt + "<件号>#{users[k]['jh']}</件号>"
+          end
+          if !(users[k]['nd'].nil?) 
+            txt=txt + "<年度>#{users[k]['nd'].gsub('<','《').gsub('>','》')}</年度>"
+          else
+            txt=txt + "<年度>#{users[k]['nd']}</年度>"
+          end
+          if !(users[k]['jgwth'].nil?) 
+            txt=txt + "<机构问题号>#{users[k]['jgwth'].gsub('<','《').gsub('>','》')}</机构问题号>"
+          else
+            txt=txt + "<机构问题号>#{users[k]['jgwth']}</机构问题号>"
+          end
+          if !(users[k]['bgqx'].nil?) 
+            txt=txt + "<保管期限>#{users[k]['bgqx'].gsub('<','《').gsub('>','》')}</保管期限>"
+          else
+            txt=txt + "<保管期限>#{users[k]['bgqx']}</保管期限>"
+          end
+          if !(users[k]['wh'].nil?) 
+            txt=txt + "<文号>#{users[k]['wh'].gsub('<','《').gsub('>','》')}</文号>"
+          else
+            txt=txt + "<文号>#{users[k]['wh']}</文号>"
+          end
+          if !(users[k]['zrr'].nil?) 
+            txt=txt + "<责任者>#{users[k]['zrr'].gsub('<','《').gsub('>','》')}</责任者>"
+          else
+            txt=txt + "<责任者>#{users[k]['zrr']}</责任者>"
+          end
+          if !(users[k]['tm'].nil?) 
+            txt=txt + "<题名>#{users[k]['tm'].gsub('<','《').gsub('>','》')}</题名>"
+          else
+            txt=txt + "<题名>#{users[k]['tm']}</题名>"
+          end
+          if !(users[k]['ys'].nil?) 
+            txt=txt + "<页数>#{users[k]['ys'].gsub('<','《').gsub('>','》')}</页数>"
+          else
+            txt=txt + "<页数>#{users[k]['ys']}</页数>"
+          end
+          if !(users[k]['mlh'].nil?) 
+            txt=txt + "<目录号>#{users[k]['mlh'].gsub('<','《').gsub('>','》')}</目录号>"
+          else
+            txt=txt + "<目录号>#{users[k]['mlh']}</目录号>"
+          end
+          
+          if !(users[k]['flh'].nil?) 
+            txt=txt + "<分类号>#{users[k]['flh'].gsub('<','《').gsub('>','》')}</分类号>"
+          else
+            txt=txt + "<分类号>#{users[k]['flh']}</分类号>"
+          end
+          if !(users[k]['ajh'].nil?) 
+            txt=txt + "<案卷号>#{users[k]['ajh'].gsub('<','《').gsub('>','》')}</案卷号>"
+          else
+            txt=txt + "<案卷号>#{users[k]['ajh']}</案卷号>"
+          end
+          if !(users[k]['zwrq'].nil?) 
+            txt=txt + "<制文日期>#{users[k]['zwrq'].gsub('<','《').gsub('>','》')}</制文日期>"
+          else
+            txt=txt + "<制文日期>#{users[k]['zwrq']}</制文日期>"
+          end
+          
+          if !(users[k]['bz'].nil?) 
+            txt=txt + "<备注>#{users[k]['bz'].gsub('<','《').gsub('>','》')}</备注>"
+          else
+            txt=txt + "<备注>#{users[k]['bz']}</备注>"
+          end   
+          txt=txt + "</dagl>"
+        end
+          
+      else 
+        for k in 0..users.size-1
+          txt=txt + "<dagl>"
+          if !(users[k]['mlh'].nil?) 
+            txt=txt + "<目录号>#{users[k]['mlh'].gsub('<','《').gsub('>','》')}</目录号>"
+          else
+            txt=txt + "<目录号>#{users[k]['mlh']}</目录号>"
+          end
+          if !(users[k]['flh'].nil?) 
+            txt=txt + "<分类号>#{users[k]['flh'].gsub('<','《').gsub('>','》')}</分类号>"
+          else
+            txt=txt + "<分类号>#{users[k]['flh']}</分类号>"
+          end
+          if !(users[k]['ajh'].nil?) 
+            txt=txt + "<案卷号>#{users[k]['ajh'].gsub('<','《').gsub('>','》')}</案卷号>"
+          else
+            txt=txt + "<案卷号>#{users[k]['ajh']}</案卷号>"
+          end
+          if !(users[k]['nd'].nil?) 
+            txt=txt + "<年度>#{users[k]['nd'].gsub('<','《').gsub('>','》')}</年度>"
+          else
+            txt=txt + "<年度>#{users[k]['nd']}</年度>"
+          end
+          if !(users[k]['tm'].nil?) 
+            txt=txt + "<案卷标题>#{users[k]['tm'].gsub('<','《').gsub('>','》')}</案卷标题>"
+          else
+            txt=txt + "<案卷标题>#{users[k]['tm']}</案卷标题>"
+          end
+          if !(users[k]['qny'].nil?) 
+            txt=txt + "<起年月>#{users[k]['qny'].gsub('<','《').gsub('>','》')}</起年月>"
+          else
+            txt=txt + "<起年月>#{users[k]['qny']}</起年月>"
+          end
+          if !(users[k]['zny'].nil?) 
+            txt=txt + "<止年月>#{users[k]['zny'].gsub('<','《').gsub('>','》')}</止年月>"
+          else
+            txt=txt + "<止年月>#{users[k]['zny']}</止年月>"
+          end
+          if !(users[k]['js'].nil?) 
+            txt=txt + "<件数>#{users[k]['js'].gsub('<','《').gsub('>','》')}</件数>"
+          else
+            txt=txt + "<件数>#{users[k]['js']}</件数>"
+          end
+          if !(users[k]['ys'].nil?) 
+            txt=txt + "<页数>#{users[k]['ys'].gsub('<','《').gsub('>','》')}</页数>"
+          else
+            txt=txt + "<页数>#{users[k]['ys']}</页数>"
+          end
+          if !(users[k]['bgqx'].nil?) 
+            txt=txt + "<保管期限>#{users[k]['bgqx'].gsub('<','《').gsub('>','》')}</保管期限>"
+          else
+            txt=txt + "<保管期限>#{users[k]['bgqx']}</保管期限>"
+          end
+          if !(users[k]['bz'].nil?) 
+            txt=txt + "<备注>#{users[k]['bz'].gsub('<','《').gsub('>','》')}</备注>"
+          else
+            txt=txt + "<备注>#{users[k]['bz']}</备注>"
+          end   
+          txt=txt + "</dagl>"
+        end
+    
+    end
+    txt=txt + "</root>"
+    render :text => txt;
+  end
+  
+  def get_mlh_jr_xml
+    qzh=params['mlh'].split('_')
+    users = User.find_by_sql("select archive.mlh,archive.ajh,document.* from archive,document where document.ownerid=archive.id and qzh='#{qzh[0]}' and dalb='#{qzh[1]}' and mlh='#{qzh[2]}'   offset #{params['offset']} limit #{params['limit']}")
+    #<?xml version="1.0" encoding="utf-8"?>
+    txt='<root>'
+    for k in 0..users.size-1
+      txt=txt + "<dagl>"
+      if !(users[k]['mlh'].nil?) 
+        txt=txt + "<目录号>#{users[k]['mlh'].gsub('<','《').gsub('>','》')}</目录号>"
+      else
+        txt=txt + "<目录号>#{users[k]['mlh']}</目录号>"
+      end
+      if !(users[k]['ajh'].nil?) 
+        txt=txt + "<案卷号>#{users[k]['ajh'].gsub('<','《').gsub('>','》')}</案卷号>"
+      else
+        txt=txt + "<案卷号>#{users[k]['ajh']}</案卷号>"
+      end  
+      if !(users[k]['sxh'].nil?) 
+        txt=txt + "<顺序号>#{users[k]['sxh'].gsub('<','《').gsub('>','》')}</顺序号>"
+      else
+        txt=txt + "<顺序号>#{users[k]['sxh']}</顺序号>"
+      end  
+      if !(users[k]['wh'].nil?) 
+        txt=txt + "<文号>#{users[k]['wh'].gsub('<','《').gsub('>','》')}</文号>"
+      else
+        txt=txt + "<文号>#{users[k]['wh']}</文号>"
+      end  
+      if !(users[k]['zrz'].nil?) 
+        txt=txt + "<责任者>#{users[k]['zrz'].gsub('<','《').gsub('>','》')}</责任者>"
+      else
+        txt=txt + "<责任者>#{users[k]['zrz']}</责任者>"
+      end
+      if !(users[k]['tm'].nil?) 
+        txt=txt + "<题名>#{users[k]['tm'].gsub('<','《').gsub('>','》')}</题名>"
+      else
+        txt=txt + "<题名>#{users[k]['tm']}</题名>"
+      end
+      if !(users[k]['rq'].nil?) 
+        txt=txt + "<日期>#{users[k]['rq'].gsub('<','《').gsub('>','》')}</日期>"
+      else
+        txt=txt + "<日期>#{users[k]['rq']}</日期>"
+      end      
+      if !(users[k]['yh'].nil?) 
+        txt=txt + "<页号>#{users[k]['yh'].gsub('<','《').gsub('>','》')}</页号>"
+      else
+        txt=txt + "<页号>#{users[k]['yh']}</页号>"
+      end                       
+      if !(users[k]['bz'].nil?) 
+        txt=txt + "<备注>#{users[k]['bz'].gsub('<','《').gsub('>','》')}</备注>"  
+      else
+        txt=txt + "<备注>#{users[k]['bz']}</备注>"
+      end    
+      txt=txt + "</dagl>"
+    end
+    txt=txt + "</root>"
+    render :text => txt;
+  end
+  
+  def get_sql(dalb)
+    case (dalb) 
+			when "0"
+				user ="select * from archive "				 
+			when "2"
+				user = "select archive.*,a_jhcw.pzqh,a_jhcw.pzzh,a_jhcw.jnzs,a_jhcw.fjzs from archive left join a_jhcw on archive.id=a_jhcw.ownerid "
+				
+			when "3","5","6","7"
+				user = "select archive.*,a_tddj.djh,a_tddj.qlrmc,a_tddj.tdzl,a_tddj.qsxz,a_tddj.tdzh,a_tddj.tfh,a_tddj.ydjh from archive left join a_tddj on archive.id=a_tddj.ownerid "
+			when "15"
+				user = "select archive.*,a_sx.zl from archive left join a_sx on archive.id=a_sx.ownerid "
+      when "18"
+				user = "select archive.*,a_tjml.tfh,a_tjml.tgh from archive left join a_tjml on archive.id=a_tjml.ownerid "
+      when "25"
+				user = "select archive.*,a_dzda.tjr, a_dzda.rjhj, a_dzda.czxt, a_dzda.sl, a_dzda.bfs, a_dzda.ztbhdwjgs, a_dzda.yyrjpt, a_dzda.tjdw, a_dzda.wjzt, a_dzda.dzwjm, a_dzda.ztbh, a_dzda.xcbm, a_dzda.xcrq, a_dzda.jsr, a_dzda.jsdw, a_dzda.yjhj from archive left join a_dzda on archive.id=a_dzda.ownerid "
+      when "27"
+				user = "select archive.*,a_sbda.zcmc, a_sbda.gzsj, a_sbda.dw, a_sbda.sl, a_sbda.cfdd, a_sbda.sybgdw, a_sbda.sybgr, a_sbda.jh, a_sbda.zcbh, a_sbda.dj, a_sbda.je from archive left join a_sbda on archive.id=a_sbda.ownerid "
+      when "26"
+				user = "select archive.*,a_jjda.xmmc, a_jjda.jsdw from archive left join a_jjda on archive.id=a_jjda.ownerid "
+      when "28"
+				user = "select archive.*,a_swda.bh, a_swda.lb, a_swda.hjz, a_swda.sjsj, a_swda.sjdw, a_swda.mc, a_swda.ztxs from archive left join a_swda on archive.id=a_swda.ownerid "
+      when "29"
+				user = "select archive.*,a_zlxx.bh, a_zlxx.lb, a_zlxx.bzdm from archive left join a_zlxx on archive.id=a_zlxx.ownerid "
+      when "30"
+				user = "select archive.*,a_by_tszlhj.djh, a_by_tszlhj.kq, a_by_tszlhj.mc, a_by_tszlhj.fs, a_by_tszlhj.yfdw, a_by_tszlhj.cbrq, a_by_tszlhj.dj from archive left join a_by_tszlhj on archive.id=a_by_tszlhj.ownerid "
+      when "31"
+				user = "select archive.*,a_by_jcszhb.zt, a_by_jcszhb.qy, a_by_jcszhb.tjsj, a_by_jcszhb.sm from archive left join a_by_jcszhb on archive.id=a_by_jcszhb.ownerid "
+      when "32"
+				user = "select archive.*,a_by_zzjgyg.jgmc, a_by_zzjgyg.zzzc, a_by_zzjgyg.qzny from archive left join a_by_zzjgyg on archive.id=a_by_zzjgyg.ownerid "
+      when "33"
+				user = "select archive.*,a_by_dsj.dd, a_by_dsj.jlr, a_by_dsj.clly, a_by_dsj.fsrq, a_by_dsj.jlrq, a_by_dsj.rw, a_by_dsj.sy,a_by_dsj.yg from archive left join a_by_dsj on archive.id=a_by_dsj.ownerid "
+      when "34"
+				user = "select archive.*,a_by_qzsm.qzgcgjj, a_by_qzsm.sj from archive left join a_by_qzsm on archive.id=a_by_qzsm.ownerid "
+      when "35"
+				user = "select archive.*,a_kyq.xxkz, a_kyq.yxkz, a_kyq.kyqr, a_kyq.ksmc, a_kyq.ksbh, a_kyq.ksgm, a_kyq.xzqdm, a_kyq.kz, a_kyq.djlx, a_kyq.kswz, a_kyq.kqfw, a_kyq.mj as ksmj, a_kyq.cl, a_kyq.sjncl, a_kyq.clgm, a_kyq.yxqq, a_kyq.yxqz, a_kyq.yxqx, a_kyq.fzjg, a_kyq.mjdw, a_kyq.cldw, a_kyq.scgm, a_kyq.scldw, a_kyq.jjlx from archive left join a_kyq on archive.id=a_kyq.ownerid "
+			when "24"
+			  
+        user = "select archive.dwdm,archive.dh,archive.bz,archive.mlh,archive.flh,archive.id,archive.ys,archive.tm,archive.dalb,archive.qzh,a_wsda.jh,a_wsda.hh, a_wsda.zwrq, a_wsda.wh, a_wsda.zrr, a_wsda.gb, a_wsda.wz, a_wsda.ztgg, a_wsda.ztlx, a_wsda.ztdw, a_wsda.dagdh, a_wsda.dzwdh, a_wsda.swh, a_wsda.ztsl, a_wsda.qwbs, a_wsda.ztc, a_wsda.zbbm, a_wsda.ownerid, a_wsda.nd, a_wsda.jgwth, a_wsda.gbjh, a_wsda.xbbm, a_wsda.bgqx from archive left join a_wsda on archive.id=a_wsda.ownerid  "
+			when "19"
+			  user = "select * from archive "
+			else
+				user = "select * from archive "					
+		end
+		return user
+  end
 
 
+  def get_archivebyid
+    dh=params['dh'].split('-')
+    sql=get_sql(dh[1])
+    user = User.find_by_sql(" #{sql} where archive.id=#{params['id']};")    
+    size = user.size
+    if size > 0 
+     txt = "["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+
+  def get_documentbyajid
+    user = User.find_by_sql(" select * from document where ownerid=#{params['id']};")    
+    size = user.size
+    if size > 0 
+     txt = "["
+     for k in 0..user.size-1
+       txt = txt + user[k].to_json + ','
+     end
+     txt = txt[0..-2] + "]"
+    else
+     txt = "{results:0,rows:[]}"  
+    end  
+    render :text => txt
+  end
+  
+  def get_yx_tree
+    dh = params['dh']
+    text = []
+    node = params["node"]
+    if dh!=""       
+      if node == "root"
+        #system("ruby ./dady/bin/prepare_timage.rb #{params['dh']} &")
+        data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' and (yxbh like 'ML%') and not (yxbh like 'MLBK%') order by tag, yxbh;")
+        data.each do |dd|
+          if dd['yxbh'].include?"ML00"
+             nodeText = '封面' 
+           else 
+             if dd['yxbh'].include?"MLBK"
+               nodeText = '备考'
+             else
+               if dd['yxbh'].include?"ML"
+                 nodeText = '目录'  + dd['yxbh'][2..3]+ '页'
+               else
+                 nodeText = dd['yxbh'][0..3]
+               end
+             end
+           end
+           text << {:text => nodeText, :id => "#{dd['id']}|#{dd['yxmc']}|#{dd['tag']}",:checked=>false, :leaf => true, :cls => "file"}
+        end
+        data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' and (not(yxbh like 'JN%') and not(yxbh like 'ML%') or (yxbh like 'MLBK%'))  order by  yxbh;")
+      
+        data.each do |dd|
+        
+         # nodeText = ''
+         # case dd['tag'].to_i
+         # when 0
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '封面'
+         #   else 
+         #     nodeText = '旧封'
+         #   end     
+         # when 1
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '卷内' + dd['yxbh'][2..3]
+         #   else 
+         #     nodeText = '旧卷' + dd['yxbh'][2..3]
+         #   end           
+         # when 2
+           
+              if (dd['yxbh'].upcase.include?'JPG') || (dd['yxbh'].upcase.include?'TIF') || (dd['yxbh'].upcase.include?'TIFF') || (dd['yxbh'].upcase.include?'JPEG') 
+                   if dd['yxbh'].include?"ML00"
+                     nodeText = '封面' 
+                   else 
+                     if dd['yxbh'].include?"MLBK"
+                       nodeText = '备考'
+                     else
+                       if dd['yxbh'].include?"ML"
+                         nodeText = '目录'  + dd['yxbh'][2..3]+ '页'
+                       else
+                         nodeText = '第' + dd['yxbh'][0..3] + '页'
+                       end
+                     end
+                   end                  
+                #nodeText = '影像' + dd['yxbh'][0..3]
+              else
+                nodeText =  dd['yxbh']
+              end
+         # when 3
+         #   if dd['yxbh'].include?"ML"
+         #     nodeText = '备考'
+         #   else 
+         #     nodeText = '旧备'
+         #   end              
+         # end
+          text << {:text => nodeText, :id => "#{dd['id']}|#{dd['yxmc']}|#{dd['tag']}",:checked=>false, :leaf => true, :cls => "file"}
+        end
+        data = User.find_by_sql("select id, yxbh, yxmc, tag from timage where dh='#{params['dh']}' and (yxbh like 'JN%') order by tag, yxbh;")
+        data.each do |dd|
+          if dd['yxbh'].include?"JN00"
+             nodeText = '旧封' 
+           else 
+             if dd['yxbh'].include?"JNBK"
+               nodeText = '旧备'
+             else
+               if dd['yxbh'].include?"JN"
+                 nodeText = '旧目录'  + dd['yxbh'][2..3]+ '页'
+               else
+                 nodeText =  dd['yxbh'] 
+               end
+             end
+           end
+           text << {:text => nodeText, :id => "#{dd['id']}|#{dd['yxmc']}|#{dd['tag']}",:checked=>false, :leaf => true, :cls => "file"}
+        end
+        text=text.to_json
+        text="[{'text':'影像文件列表','id' :'root1','leaf':false,'checked':false,'expanded':true,'cls':'folder','children':" + text + "}]"
+      end
+    end
+    
+    render :text => text
+  end
+  
+  
+  def yun_get_timage_from_db
+    if (params['gid'].nil?)
+      txt = ""
+    else
+      user = User.find_by_sql("select id, dh, yxmc, jm_tag,width,height from timage where id=#{params['gid']};")
+      dh,width,height = user[0]['dh'], user[0]['width'], user[0]['height']
+
+      if !File.exists?("./dady/img_tmp/#{dh}/")
+        system"mkdir -p ./dady/img_tmp/#{dh}/"        
+      end
+      
+      convert_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-').gsub('TIF','JPG').gsub('tif','JPG')
+      local_filename = "./dady/img_tmp/#{dh}/"+user[0]["yxmc"].gsub('$', '-')
+
+      if !File.exists?(local_filename)
+        user = User.find_by_sql("select id, dh, yxmc, data, jm_tag from timage where id=#{params['gid']};")
+        
+        tmpfile = rand(36**10).to_s(36)
+        ff = File.open("./tmp/#{tmpfile}",'w')
+        ff.write(user[0]["data"])
+        ff.close
+        puts "./tmp/#{tmpfile} #{local_filename}"
+        if (user[0]['jm_tag'].to_i == 1)
+          system("decrypt ./tmp/#{tmpfile} #{local_filename}")
+        else
+          system("scp ./tmp/#{tmpfile} #{local_filename}")
+        end 
+        system("rm ./tmp/#{tmpfile}")
+      end
+      
+      system("convert '#{local_filename}' '#{convert_filename}'")
+      if (convert_filename.upcase.include?'JPG') || (convert_filename.upcase.include?'TIF') || (convert_filename.upcase.include?'TIFF') || (convert_filename.upcase.include?'JPEG') 
+        imagesize=FastImage.size convert_filename
+      
+        if imagesize[0].to_i > imagesize[1].to_i
+          txt = "/assets/#{convert_filename}?2"
+        else
+          txt = "/assets/#{convert_filename}?1"
+        end
+      else
+        txt = "/assets/#{convert_filename}?2"
+      end
+      #archive= User.find_by_sql("select * from archive where dh='#{dh}';")
+      #set_rz(archive[0]['mlh'],'','','','影像查看',params['userid'],user[0]["yxmc"],user[0]["yxmc"],dh)
+    end
+    render :text => txt
+  end
+  
+  
+  def  yun_archive_query_jygl
+    cx_tj=''
+    doc_tj=''
+    if params['userid']==nil
+      params['userid']=1
+    end
+    if !(params['mlh'].nil?)
+      cx_tj="archive.mlh='#{params['mlh']}'"
+    end
+    
+    if !(params['ajh'].nil?)
+      if params['ajh'].length>3
+        params['ajh']=params['ajh']
+      else
+        params['ajh']=sprintf("%04d", params['ajh'])
+      end
+      
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.ajh = '#{params['ajh']}'"
+      else
+        cx_tj=" archive.ajh = '#{params['ajh']}'"
+      end
+    end
+    
+    if !(params['dalb'].nil?)
+
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.dalb = '#{params['dalb']}'"
+      else
+        cx_tj=" archive.dalb = '#{params['dalb']}'"
+      end
+    end
+    if !(params['bz'].nil?)
+
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.bz like '%#{params['bz']}%'"
+      else
+        cx_tj=" archive.bz like '%#{params['bz']}%'"
+      end
+    end
+        
+    if !(params['ajtm'].nil?)
+      params['ajtm'] = params['ajtm'].gsub(' ','%')
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.tm like '%#{params['ajtm']}%'"
+      else
+        cx_tj="archive.tm like '%#{params['ajtm']}%'"
+      end
+    end
+    
+    if !(params['nd'].nil?)
+      if (cx_tj!='')
+        cx_tj=cx_tj + " and archive.nd like '%#{params['nd']}%'"
+      else
+        cx_tj="archive.nd like '%#{params['nd']}%'"
+      end
+    end
+    
+
+    
+    jn_cx_tj=''
+    if !(params['wh'].nil?)
+      params['wh'] = params['wh'].gsub(' ','%')
+      jn_cx_tj="wh like '%#{params['wh']}%'"
+      doc_tj="wh like '%#{params['wh']}%'"
+    end
+    if !(params['rzr'].nil?)
+
+      if (doc_tj!='')
+        doc_tj=doc_tj + " and zrr like '%#{params['rzr']}%'"
+      else
+        doc_tj=" zrr like '%#{params['rzr']}%'"
+      end
+      
+      if (jn_cx_tj!='')
+        jn_cx_tj=jn_cx_tj + " and zrz like '%#{params['rzr']}%'"
+      else
+        jn_cx_tj=" zrz like '%#{params['rzr']}%'"
+      end      
+    end
+    
+    if !(params['tm'].nil?)
+      if (jn_cx_tj!='')
+        jn_cx_tj=jn_cx_tj + " and tm like '%#{params['tm']}%'"
+      else
+        jn_cx_tj="tm like '%#{params['tm']}%'"
+      end
+      if (doc_tj!='')
+        doc_tj=doc_tj + " and tm like '%#{params['tm']}%'"
+      else
+        doc_tj="tm like '%#{params['tm']}%'"
+      end
+    end
+    
+    dj_cx_tj=''
+    if !(params['djh'].nil?)
+      dj_cx_tj="djh like '%#{params['djh']}%'"
+    end
+    
+    if !(params['tdzl'].nil?)
+      params['tdzl'] = params['tdzl'].gsub(' ','%')
+      if (dj_cx_tj!='')
+        dj_cx_tj=dj_cx_tj + " and tdzl like '%#{params['tdzl']}%'"
+      else
+        dj_cx_tj=" tdzl like '%#{params['tdzl']}%'"
+      end
+    end
+    
+    if !(params['tdzh'].nil?)
+      params['tdzh'] = params['tdzh'].gsub(' ','%')
+      if (dj_cx_tj!='')
+        dj_cx_tj=dj_cx_tj + " and tdzh like '%#{params['tdzh']}%'"
+      else
+        dj_cx_tj=" tdzh like '%#{params['tdzh']}%'"
+      end
+    end
+    
+    if !(params['qlr'].nil?)
+      params['qlr'] = params['qlr'].gsub(' ','%')
+      if (dj_cx_tj!='')
+        dj_cx_tj=dj_cx_tj + " and qlrmc like '%#{params['qlr']}%'"
+      else
+        dj_cx_tj="qlrmc like '%#{params['qlr']}%'"
+      end
+    end
+
+    jy_select=''
+    if (jn_cx_tj!='')
+      if (cx_tj!='')
+        if (dj_cx_tj!='')
+          jy_select="select * from archive where (id in (select ownerid from document where #{jn_cx_tj}) or id in (select ownerid from a_wsda where #{doc_tj})) and (id in (select ownerid from a_tddj where #{dj_cx_tj})) and #{cx_tj}"
+          #jy_select="select archive.* from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} and #{dj_cx_tj} "
+        else
+          jy_select="select * from archive where (id in (select ownerid from document where #{jn_cx_tj}) or id in (select ownerid from a_wsda where #{doc_tj}))  and #{cx_tj}"
+          #jy_select="select archive.* from document,archive WHERE document.ownerid = archive.id and #{cx_tj} and #{jn_cx_tj} "
+        end
+      else
+        if (dj_cx_tj!='')
+          jy_select="select * from archive where (id in (select ownerid from document where #{jn_cx_tj}) or id in (select ownerid from a_wsda where #{doc_tj})) and (id in (select ownerid from a_tddj where #{dj_cx_tj})) "
+          #jy_select="select archive.* from document,archive,a_tddj WHERE a_tddj.ownerid = archive.id AND document.ownerid = archive.id and #{jn_cx_tj} and #{dj_cx_tj} "
+        else
+          jy_select="select * from archive where (id in (select ownerid from document where #{jn_cx_tj}) or id in (select ownerid from a_wsda where #{doc_tj})) "
+          #jy_select="select archive.* from document,archive WHERE document.ownerid = archive.id and #{jn_cx_tj} "
+        end
+      end
+    else
+      if (cx_tj!='')
+        if (dj_cx_tj!='')
+          jy_select="select * from archive where  (id in (select ownerid from a_tddj where #{dj_cx_tj})) and #{cx_tj}"
+          #jy_select ="select archive.* from archive,a_tddj where a_tddj.ownerid = archive.id AND #{cx_tj} and #{dj_cx_tj} "
+        else
+          jy_select="select * from archive where  #{cx_tj}"
+          #jy_select ="select * from archive where #{cx_tj} "
+        end
+      else
+        if (dj_cx_tj!='')
+          jy_select="select * from archive where  (id in (select ownerid from a_tddj where #{dj_cx_tj})) "
+          #jy_select ="select archive.* from archive,a_tddj where a_tddj.ownerid = archive.id and #{dj_cx_tj} "
+        else
+          jy_select =''
+        end
+        
+      end
+    end
+    txt=""
+    if (jy_select!='')
+      rowcount= User.find_by_sql(" #{jy_select} ")
+      user = User.find_by_sql(" #{jy_select}  order by cast (qzh as integer),mlh,ajh  ")
+      size = user.size;
+      if size > 0        
+        for k in 0..user.size-1
+            txt = txt + user[k].to_json  + "$$"
+        end        
+      else
+        txt = ""
+      end
+    else
+      txt = ""
+    end
+    render:text=>txt
+  end
+  
 end

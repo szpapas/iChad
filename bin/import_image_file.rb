@@ -119,8 +119,8 @@ def save2timage(filename,dh,dh_prefix,czr,czrname)
   edata=PGconn.escape_bytea(fo)
   pp = filename.split("\/")
   file_title = pp[pp.size-1]
-  yxmc=pp[pp.size-1]
-  yxbh=pp[pp.size-1]
+  yxmc=pp[pp.size-1].gsub(' ','').gsub('(','').gsub(')','').gsub("'","")
+  yxbh=pp[pp.size-1].gsub(' ','').gsub('(','').gsub(')','').gsub("'","")
   rq=Time.now.strftime("%Y-%m-%d %H:%M:%S") 
   puts "delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';"  
   $conn.exec("delete from timage where dh = '#{dh}' and yxbh ='#{yxbh}';")
@@ -205,8 +205,10 @@ else
         end
       else
         puts filename
+        puts path
         puts (filename.upcase.include?'JPEG')
-        if (filename.upcase.include?'AVI') || (filename.upcase.include?'MOV') || (filename.upcase.include?'WMV') || (filename.upcase.include?'MP4') || (filename.upcase.include?'RMVB') || (filename.upcase.include?'PPT') || (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+        #if (filename.upcase.include?'AVI') || (filename.upcase.include?'MOV') || (filename.upcase.include?'WMV') || (filename.upcase.include?'MP4') || (filename.upcase.include?'RMVB') || (filename.upcase.include?'PPT') || (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (filename.upcase.include?'PDF') || (filename.upcase.include?'CEB')
+        if (path.upcase.include?'AVI') || (path.upcase.include?'MOV') || (path.upcase.include?'WMV') || (path.upcase.include?'MP4') || (path.upcase.include?'RMVB') || (path.upcase.include?'PPT') || (path.upcase.include?'JPG') || (path.upcase.include?'TIF') || (path.upcase.include?'TIFF') || (path.upcase.include?'JPEG') || (path.upcase.include?'DOC') || (path.upcase.include?'XLS') || (path.upcase.include?'XLSX') || (path.upcase.include?'DOCX') || (path.upcase.include?'PDF') || (path.upcase.include?'CEB')
           puts path
           save2timage(path,dh,dh_prefix,czr,czrname)
         end

@@ -33,6 +33,8 @@ def update_timage(dh_prefix)
         $conn.exec("insert into timage_tj(dh, dh_prefix, ajh, ajys, mlm) values ('#{ar['dh']}', '#{dh_prefix}', '#{ar['ajh']}', #{ar['ys']}, '#{ar['mlh']}');")
       end
   #end
+  $conn.close
+  $conn = PGconn.open(:dbname=>'JY1017', :user=>'postgres', :password=>'brightechs', :host=>'localhost', :port=>'5432')
   puts "update basic info for qz:#{qzh}, mlh:#{mlh}..."
   $conn.exec("update timage_tj set ajys=archive.ys from archive where timage_tj.dh=archive.dh and timage_tj.dh_prefix='#{dh_prefix}';")
   
@@ -136,4 +138,4 @@ end
 update_timage(dh)
 update_qzxx(dh)
 
-$conn
+$conn.close

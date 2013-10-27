@@ -17,7 +17,8 @@ while true do
       $conn.exec("update q_status set zt='开始执行' where id=#{data['id']};")
       $conn.exec("COMMIT;")  
       puts "#{cmd}"
-      system(cmd)
+      system(cmd + ' status-' + data['id'].to_s)
+      #system(cmd)
       $conn.exec("update q_status set zt='完成' where id=#{data['id']};")
     else
       $conn.exec("COMMIT;")  

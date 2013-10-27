@@ -969,7 +969,7 @@ var DispAj_zh = function(record,add_new,title){
 					});
 				}
 			},{
-				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',iconCls:'add',
+				xtype:'button',text:'以模板方式增加卷内目录',tooltip:'以模板方式增加卷内目录',id:'jrmbsave',iconCls:'add',
 		          handler: function() {
 					if (Ext.getCmp('zh_id').value!=undefined){
 						size=Ext.getCmp('com_document_grid').store.count();
@@ -1078,7 +1078,11 @@ var DispAj_zh = function(record,add_new,title){
 		          
 					if (Ext.getCmp('zh_dh').value!=undefined){
 		              var dh = Ext.getCmp('zh_dh').value;
-		              show_image(dh);	              
+					  if(add_new=='4'){
+						show_image(dh,record.data.ip,"1");	 
+					  }else{
+		              	show_image(dh);	  
+		              }
 		              set_image("/assets/dady/fm.jpg");
 		            }
 		          }    
@@ -1089,7 +1093,7 @@ var DispAj_zh = function(record,add_new,title){
 					text:'退出',
 					handler: function() {
 						//this.up('window').hide();
-						if (add_new!='3'){
+						if (add_new!='3' && add_new!='4'){
 							Ext.getCmp('archive_grid').store.load();
 						};						
 						Ext.getCmp('archive_detail_win').close();
@@ -1373,18 +1377,40 @@ var DispAj_zh = function(record,add_new,title){
 				}
 			}
 		}else{
-			requestdata='';
-			new Ajax.Request("/desktop/get_archivebyid", { 
-			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
-			    	onComplete:	 function(request) {
-			    		requestdata=eval('(' + request.responseText + ')');						
-						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
-			     	}
-			     });
-			//Ext.getCmp('button_aj_add').hidden=true;
-			com_document_store.proxy.extraParams.query=record.data.id;
-			com_document_store.load();
+			if(add_new=='4'){
+				Ext.getCmp('button_aj_add').setVisible(false);
+				Ext.getCmp('jrdelete').setVisible(false);
+				Ext.getCmp('jradd').setVisible(false);
+				Ext.getCmp('jrsave').setVisible(false);
+				Ext.getCmp('jrmbsave').setVisible(false);
+				
+				new Ajax.Request("/desktop/yun_get_archivebyid", { 
+ 
+				    	method: "POST",
+				    	parameters: {ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+							com_document_store.proxy.url="/desktop/yun_get_documentbyajid"
+							com_document_store.proxy.extraParams={ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id}
+							com_document_store.load();
+				     	}
+				});
+							
+			}else{
+				requestdata='';
+				new Ajax.Request("/desktop/get_archivebyid", { 
+				    	method: "POST",
+				    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+				     	}
+				     });
+				//Ext.getCmp('button_aj_add').hidden=true;
+				com_document_store.proxy.extraParams.query=record.data.id;
+				com_document_store.load();
+			}
 		}
 		
 		
@@ -2603,13 +2629,15 @@ var DispAj_tddj = function(record,add_new,title){
 			modal: true,
 			plain: true,
 			buttons:[
+					
 					{
 		          		text:'新增',
 			          	cls:'add',
+						id:'aj_add',
 			          	handler : function() {          
-							Ext.getCmp('tddj_djh').setValue('');
-							Ext.getCmp('tddj_qlrmc').setValue('');
-							Ext.getCmp('tddj_tdzl').setValue('');
+							//Ext.getCmp('tddj_djh').setValue('');
+							//Ext.getCmp('tddj_qlrmc').setValue('');
+							//Ext.getCmp('tddj_tdzl').setValue('');
 							Ext.getCmp('tddj_id').setValue('');
 							add_new=true;
 							Ext.getCmp('button_aj_add').setText('新增保存');
@@ -2650,24 +2678,49 @@ var DispAj_tddj = function(record,add_new,title){
 									}
 								});
 							}else{
-								new Ajax.Request("/desktop/insert_archive", { 
-									method: "POST",
-									parameters: pars,
-									onComplete:	 function(request) {
-										responseT=request.responseText.split(':');
-										if (responseT[0]=='success'){
-											alert("案卷新增成功。");
-											dh=responseT[1];
-											Ext.getCmp('button_aj_add').setText('修改保存');
-											Ext.getCmp('tddj_id').setValue(responseT[2]);
-											Ext.getCmp('tddj_dh').setValue(responseT[1]);
-											add_new=false;												
-										}else{
-											alert("案卷新增失败，请重新保存。"+request.responseText);
-										}
+								if(Ext.getCmp('sfdrjr').checked==true ){
+									if(Ext.getCmp('preajid').getValue()!=''){
+										new Ajax.Request("/desktop/insert_archive", { 
+											method: "POST",
+											parameters: pars,
+											onComplete:	 function(request) {
+												responseT=request.responseText.split(':');
+												if (responseT[0]=='success'){
+													alert("案卷新增成功。");
+													dh=responseT[1];
+													Ext.getCmp('button_aj_add').setText('修改保存');
+													Ext.getCmp('tddj_id').setValue(responseT[2]);
+													Ext.getCmp('tddj_dh').setValue(responseT[1]);
+													add_new=false;												
+												}else{
+													alert("案卷新增失败，请重新保存。"+request.responseText);
+												}
 									
+											}
+										});
+									}else{
+										alert("在进入案卷显示窗口前未选择一个案卷。");
 									}
-								});
+								}else{
+									new Ajax.Request("/desktop/insert_archive", { 
+										method: "POST",
+										parameters: pars,
+										onComplete:	 function(request) {
+											responseT=request.responseText.split(':');
+											if (responseT[0]=='success'){
+												alert("案卷新增成功。");
+												dh=responseT[1];
+												Ext.getCmp('button_aj_add').setText('修改保存');
+												Ext.getCmp('tddj_id').setValue(responseT[2]);
+												Ext.getCmp('tddj_dh').setValue(responseT[1]);
+												add_new=false;												
+											}else{
+												alert("案卷新增失败，请重新保存。"+request.responseText);
+											}
+								
+										}
+									});
+								}							
 							}
 						}
 					},
@@ -2678,7 +2731,11 @@ var DispAj_tddj = function(record,add_new,title){
 		          
 							if (Ext.getCmp('tddj_dh').value!=undefined){
 				              var dh = Ext.getCmp('tddj_dh').value;
-				              show_image(dh);	              
+							  if(add_new=='4'){
+								show_image(dh,record.data.ip,"1");	 
+							  }else{
+				              	show_image(dh);	  
+				              }	              
 				              set_image("/assets/dady/fm.jpg");
 				            }
 		          		}    
@@ -2689,7 +2746,7 @@ var DispAj_tddj = function(record,add_new,title){
 						text:'退出',
 						handler: function() {
 							//this.up('window').hide();
-							if (add_new!='3'){
+							if (add_new!='3' && add_new!='4'){
 								Ext.getCmp('archive_grid_tddj').store.load();
 							};						
 							Ext.getCmp('archive_detail_win').close();
@@ -2991,12 +3048,32 @@ var DispAj_tddj = function(record,add_new,title){
 								id: 'userid',
 			                    x: 10,
 			                    y: 190
-			                }
+			                },
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'preajid',
+								id: 'preajid',
+			                    x: 10,
+			                    y: 190
+			                },
+							{
+			            		xtype:'checkbox',boxLabel:'保存案卷时自动导入所选案卷的卷内',id:'sfdrjr',
+								name:'sfdrjr',
+								x: 10,
+			                    y: 210
+
+			          		},
 			            ]
 				   }]
 		});
 	}
 	Ext.getCmp('userid').setValue(currentUser.id);
+	if (record!=undefined){
+		Ext.getCmp('preajid').setValue(record.data.id);
+	}else{
+		Ext.getCmp('preajid').setValue('');
+	}
 	if(add_new==false){
 	//设置数据
 		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
@@ -3033,18 +3110,41 @@ var DispAj_tddj = function(record,add_new,title){
 				Ext.getCmp('tddj_qsxz').setValue(record.data.qsxz);
 			}
 		}else{
-			requestdata='';
-			new Ajax.Request("/desktop/get_archivebyid", { 
-			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
-			    	onComplete:	 function(request) {
-			    		requestdata=eval('(' + request.responseText + ')');						
-						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
-			     	}
-			     });
-			//Ext.getCmp('button_aj_add').hidden=true;
-			com_document_store.proxy.extraParams.query=record.data.id;
-			com_document_store.load();
+			if(add_new=='4'){
+				Ext.getCmp('button_aj_add').setVisible(false);
+				Ext.getCmp('aj_add').setVisible(false);
+				Ext.getCmp('jrdelete').setVisible(false);
+				Ext.getCmp('jradd').setVisible(false);
+				Ext.getCmp('jrsave').setVisible(false);
+				//Ext.getCmp('jrmbsave').setVisible(false);
+				
+				new Ajax.Request("/desktop/yun_get_archivebyid", { 
+					//new Ajax.Request("/map/get_archivebyid", { 
+				    	method: "POST",
+				    	parameters: {ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+							com_document_store.proxy.url="/desktop/yun_get_documentbyajid"
+							com_document_store.proxy.extraParams={ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id}
+							com_document_store.load();
+				     	}
+				});
+				//Ext.getCmp('button_aj_add').hidden=true;								
+			}else{
+				requestdata='';
+				new Ajax.Request("/desktop/get_archivebyid", { 
+				    	method: "POST",
+				    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+				     	}
+				     });
+				//Ext.getCmp('button_aj_add').hidden=true;
+				com_document_store.proxy.extraParams.query=record.data.id;
+				com_document_store.load();
+			}
 		}
 		
 		
@@ -3889,7 +3989,7 @@ var DispAj_kyq = function(record,add_new,title){
 };
 
 
-var DispAj_wsda = function(record,add_new,title){
+var DispAj_wsda1 = function(record,add_new,title){
 	var win = Ext.getCmp('archive_detail_win');
 	function getbh() {
 		if (add_new==true){
@@ -4598,20 +4698,780 @@ var DispAj_wsda = function(record,add_new,title){
 				Ext.getCmp('wsda_zrr').setValue(record.data.zrr);
 			}
 		}else{
-			requestdata='';
-			new Ajax.Request("/desktop/get_archivebyid", { 
-			    	method: "POST",
-			    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
-			    	onComplete:	 function(request) {
-			    		requestdata=eval('(' + request.responseText + ')');						
-						Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
-						var datazwrq=requestdata[0]['zwrq'].split(" ");
-						var dateArr = datazwrq[0].split("-");
-						var stateDate = new Date(dateArr[0]-0, dateArr[1]-1, dateArr[2]);
-						//var stateDate = new Date(2012,1,12);
-						Ext.getCmp('wsda_zwrq').setValue(stateDate);
-			     	}
-			     });
+			
+				requestdata='';
+				new Ajax.Request("/desktop/get_archivebyid", { 
+				    	method: "POST",
+				    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+							var datazwrq=requestdata[0]['zwrq'].split(" ");
+							var dateArr = datazwrq[0].split("-");
+							var stateDate = new Date(dateArr[0]-0, dateArr[1]-1, dateArr[2]);
+							//var stateDate = new Date(2012,1,12);
+							Ext.getCmp('wsda_zwrq').setValue(stateDate);
+				     	}
+				     });
+			}
+			//Ext.getCmp('button_aj_add').hidden=true;
+		
+	
+		
+		
+	}
+	//设置数据
+	
+	win.show();
+};
+
+var DispAj_wsda = function(record,add_new,title){
+	var win = Ext.getCmp('archive_detail_win');
+	function getbh() {
+		if (add_new==true){
+			if (Ext.getCmp('wsda_bgqx').rawValue=='' || Ext.getCmp('wsda_jgwth').rawValue=='' || Ext.getCmp('wsda_nd').rawValue==''){
+				Ext.getCmp('wsda_jh').setValue("0");
+			}else{
+				new Ajax.Request("/desktop/get_doc_main", { 
+					   	method: "POST",
+				    	parameters: {qzh:Ext.getCmp('wsda_qzh').rawValue,nd:Ext.getCmp('wsda_nd').rawValue,jgwth:Ext.getCmp('wsda_jgwth').rawValue,bgqx:Ext.getCmp('wsda_bgqx').rawValue},
+				    	onComplete:	 function(request) {
+				    		Ext.getCmp('wsda_jh').setValue(request.responseText);
+				     	}
+					});
+			};	
+		}	
+    };
+	Ext.regModel('com_document_model', {
+		fields: [
+				{name: 'id',		type: 'integer'},
+				{name: 'tm',		type: 'string'},
+				{name: 'sxh',		type: 'string'},
+				{name: 'yh',		type: 'string'},
+				{name: 'wh',		type: 'string'},
+				{name: 'zrz',		type: 'string'},
+				{name: 'rq',		type: 'string',	 type: 'date',	dateFormat: 'Y-m-d H:i:s'},
+				{name: 'bz',		type: 'string'},
+				{name: 'dh',		type: 'string'},
+				{name: 'ownerid',		type: 'integer'}
+		]
+	});
+
+	var com_document_store = Ext.create('Ext.data.Store', {
+		model : 'com_document_model',
+		proxy: {
+			type: 'ajax',
+			url : '/desktop/get_document',
+			extraParams: {query:""},
+			reader: {
+				type: 'json',
+				root: 'rows',
+				totalProperty: 'results'
+			}
+		}
+	});
+
+	var documentGrid = new Ext.grid.GridPanel({
+		//id: title,
+		id : 'com_document_grid',
+		store: com_document_store,
+	 //  tbar:[
+	 //  	{xtype:'button',text:'添加',tooltip:'添加卷内目录',id:'jradd',iconCls:'add',
+	 //  		handler: function() {
+	 //  			var grid = Ext.getCmp('archive_grid_wsda');
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var record = records[0];
+	 //  			DispJr(record,true);
+     //
+	 //  		}
+	 //  	},
+	 //  	{xtype:'button',text:'删除',tooltip:'删除卷内目录',id:'jrdelete',iconCls:'remove',
+	 //  		handler: function() {
+     //
+	 //  			var grid = Ext.getCmp('com_document_grid');
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var record = records[0];
+     //
+	 //  			var pars="id="+record.data.id;
+	 //  			Ext.Msg.confirm("提示信息","是否要删除档号为：！"+record.data.dh+";顺序号为："+record.data.sxh+"卷内目录？",function callback(id){
+	 //  						if(id=="yes"){
+	 //  							new Ajax.Request("/desktop/delete_document", { 
+	 //  								method: "POST",
+	 //  								parameters: pars,
+	 //  								onComplete:	 function(request) {
+	 //  									Ext.getCmp('com_document_grid').store.load();
+     //
+	 //  								}
+	 //  							});
+	 //  						}else{
+	 //  							//alert('O,no');
+	 //  						}
+     //
+	 //  				});
+     //
+	 //  		}},
+	 //  	{xtype:'button',text:'修改',tooltip:'显示或修改卷内目录',id:'jrsave',iconCls:'option',
+	 //  	handler: function() {
+	 //  		var grid  = this.ownerCt.ownerCt;
+	 //  		//alert(grid);
+	 //  			var store = grid.getStore(); 
+	 //  			var records = grid.getSelectionModel().getSelection();
+	 //  			var data = [];
+	 //  			Ext.Array.each(records,function(model){
+	 //  				data.push(Ext.JSON.encode(model.get('id')));
+	 //  				DispJr(model,false);
+	 //  			});
+	 //  		}
+	 //  	}
+     //
+	 //  ],
+		columns: [
+			{ text : 'id',	width : 0, sortable : true, dataIndex: 'id'},
+			{ text : '档号',	width : 75, sortable : true, dataIndex: 'dh'},
+			{ text : '顺序号',	 width : 30, sortable : true, dataIndex: 'sxh'},
+			{ text : '文号',	width : 105, sortable : true, dataIndex: 'wh'},
+			{ text : '责任者',	 width : 75, sortable : true, dataIndex: 'zrz'},
+			{ text : '题名',	width : 175, sortable : true, dataIndex: 'tm'},
+			{ text : '页号',	width : 75, sortable : true, dataIndex: 'yh'},
+
+			{ text : '日期',	width : 75, sortable : true, dataIndex: 'rq',renderer: Ext.util.Format.dateRenderer('Y-m-d')},
+			{ text : '备注',	width : 75, sortable : true, dataIndex: 'bz'},
+			{ text : 'ownerid',	 flex : 1, sortable : true, dataIndex: 'ownerid'}
+			],
+		listeners:{
+				itemdblclick:{
+					fn:function(v,r,i,n,e,b){
+						var tt=r.get("zrq");
+						//showContactForm();
+						DispJr(r,false);
+						//alert(tt);
+					}
+				}
+			},
+		//width : 800,
+		//height : 300,
+		viewConfig: {
+			stripeRows:true
+		}
+	});
+	if (win==null) {
+		win = new Ext.Window({
+			id : 'archive_detail_win',
+			title: '案卷详细信息',
+			//closeAction: 'hide',
+			width: 688,
+			height: 450,
+			minHeight: 450,
+			layout: 'border',
+			modal: true,
+			plain: true,
+			buttons:[
+					{
+			          text:'转至发文',
+					  id:'aj_zzfw',
+			          iconCls:'refresh',
+			          handler : function() {
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
+						if(Ext.getCmp('wsda_bgqx').rawValue=='' || Ext.getCmp('wsda_jgwth').rawValue=='' || Ext.getCmp('wsda_nd').rawValue=='' || Ext.getCmp('wsda_jh').rawValue==''){
+							alert("机构问题，保管期限，归档年度，件号不能为空。");
+						}else{
+							if(add_new==false || add_new=='3'){
+								new Ajax.Request("/desktop/docmain_fw", { 
+									method: "POST",
+									parameters: pars,
+									onComplete:	 function(request) {
+										responseT=request.responseText.split(':');										
+										if (responseT[0]=='success'){
+											alert("转至发文成功。");
+										}else{
+											alert("转至发文失败。"+request.responseText);
+										}
+
+									}
+								});
+							}else{
+								alert('请先保存，再转至发文。');
+							}
+						}
+						
+			          }    
+			        },
+					{
+					xtype: 'button',
+					iconCls: 'option',
+					id:'button_aj_add',
+					text:'修改保存',
+					handler: function() {
+						var pars=Ext.getCmp('daglaj_form').getForm().getValues();
+						if(Ext.getCmp('wsda_bgqx').rawValue=='' || Ext.getCmp('wsda_jgwth').rawValue=='' || Ext.getCmp('wsda_nd').rawValue=='' || Ext.getCmp('wsda_jh').rawValue==''){
+							alert("机构问题，保管期限，归档年度，件号不能为空。");
+						}else{
+							if(add_new==false || add_new=='3'){
+								new Ajax.Request("/desktop/update_flow", { 
+									method: "POST",
+									parameters: pars,
+									onComplete:	 function(request) {
+										responseT=request.responseText.split(':');										
+										if (responseT[0]=='success'){
+											alert("案卷修改成功。");
+											Ext.getCmp('archive_grid_wsda').store.load();
+											Ext.getCmp('archive_detail_win').close();												
+										}else{
+											alert("案卷修改失败，请重新修改。"+request.responseText);
+										}
+									
+									}
+								});
+							}else{
+								new Ajax.Request("/desktop/insert_archive", { 
+									method: "POST",
+									parameters: pars,
+									onComplete:	 function(request) {
+										responseT=request.responseText.split(':');
+										if (responseT[0]=='success'){
+											alert("案卷新增成功。");
+											Ext.getCmp('archive_grid_wsda').store.load();
+											//Ext.getCmp('archive_tree').store.load();
+											Ext.getCmp('archive_detail_win').close();												
+										}else{
+											alert("案卷新增失败，请重新保存。"+request.responseText);
+										}
+									
+									}
+								});
+							}
+						}
+					}
+				},
+				{
+		          text:'查看图像或附件',
+		          iconCls:'',
+		          handler : function() {
+		          
+					if (Ext.getCmp('wsda_dh').value!=undefined){
+		              var dh = Ext.getCmp('wsda_dh').value;
+		              if(add_new=='4'){
+						show_image(dh,record.data.ip,"1");	 
+					  }else{
+		              	show_image(dh);	  
+		              }	              
+		              set_image("/assets/dady/fm.jpg");
+		            }
+		          }    
+		        },
+				{
+					xtype: 'button',
+					iconCls: 'exit',
+					text:'退出',
+					handler: function() {
+						//this.up('window').hide();
+						Ext.getCmp('archive_detail_win').close();
+					}
+				}],
+			items: [{
+				width: 688,
+				height: 256,
+				region: 'center',
+				xtype:'form',
+				layout: 'absolute',
+				id : 'daglaj_form',
+				items: [
+	                {
+	                    xtype: 'numberfield',
+	                    width: 160,
+	                    fieldLabel: '年 度',
+	                    labelWidth: 60,
+						name: 'nd',
+						id: 'wsda_nd',
+	                    x: 10,
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									getbh();									
+						       }
+						}
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '保管期限',
+	                    labelWidth: 60,
+						name: 'bgqx',
+						id: 'wsda_bgqx',
+						name: 'bgqx',
+						store: doc_bgqx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+	                    x: 175,
+	                    y: 10,
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									getbh();									
+						       }
+						}
+	                },
+				 //  {
+	             //      xtype: 'combobox',  //机构问题号下拉框
+	             //      width: 100,
+	             //      fieldLabel: '',
+	             //      x: 410,
+	             //      y: 10,
+				 //  	listeners : {
+				 //  	       select: function(f,r,i){
+				 //  			if (i == 0){
+				 //  				Ext.Msg.prompt('New Genre','Name',Ext.emptyFn);
+				 //  				}
+				 //  			}
+				 //  				
+				 //  	       
+				 //  	}
+	             //  },					
+	                {
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '机构问题',
+	                    labelWidth: 60,
+						name: 'jgwth',
+						id: 'wsda_jgwth',
+	                    x: 345,
+	                    y: 10,
+						store: jgwt_store,
+						emptyText:'请选择',
+						mode: 'remote', 
+						valueField:'jgwth',
+						displayField:'jgwth',
+						triggerAction:'all',
+						listeners : {
+						       change : function(field,newValue,oldValue){
+									getbh();
+									new Ajax.Request("/desktop/get_doc_jgwtmc", { 
+										   	method: "POST",
+									    	parameters: {jgwth:Ext.getCmp('wsda_jgwth').rawValue},
+									    	onComplete:	 function(request) {
+									    		Ext.getCmp('wsda_jgwtmc').setValue(request.responseText);
+									     	}
+										});
+																		
+						       }
+						}
+	                },
+					
+					{
+	                    xtype: 'textfield',
+	                    width: 100,
+	                    fieldLabel: '',
+	                    labelWidth: 60,
+						name: 'jgwtmc',
+						id: 'wsda_jgwtmc',
+	                    x: 510,
+	                    y: 10
+	                },
+					{
+						xtype: 'button',
+						x: 610,
+	                    y: 10,
+						width: 55,
+						text:'设置',
+						handler: function() {
+							//this.up('window').hide();
+							//Ext.getCmp('archive_detail_win').close();
+							doc_jgwt_setup();
+						}
+					},
+	                {
+	                    xtype: 'numberfield',
+	                    width: 160,
+	                    fieldLabel: '件号',
+	                    labelWidth: 60,
+						name: 'jh',
+						id: 'wsda_jh',
+	                    x: 10,
+	                    y: 40
+	                },
+					{
+	                    xtype: 'datefield',
+						format: 'Y-m-d',
+	                    width: 165,
+	                    fieldLabel: '制文日期',
+	                    labelWidth: 60,
+						name: 'zwrq',
+						id: 'wsda_zwrq',
+	                    x: 175,
+	                    y: 40
+	                },
+					{
+	                    xtype: 'numberfield',
+	                    width: 165,
+	                    fieldLabel: '页数',
+	                    labelWidth: 60,
+						name: 'ys',
+						id: 'wsda_ys',
+	                    x: 345,
+	                    y: 40
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '密级',
+	                    labelWidth: 60,
+						name: 'mj',
+						id: 'wsda_mj',
+						
+						store: mj_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						
+	                    x: 520,
+	                    y: 40
+	                },
+					
+					{
+	                    xtype: 'textfield',
+	                    width: 330,
+	                    fieldLabel: '文 号',
+	                    labelWidth: 60,
+						name: 'wh',
+						id: 'wsda_wh',
+	                    x: 10,
+	                    y: 70
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '责任者',
+	                    labelWidth: 60,
+						name: 'zrr',
+						id: 'wsda_zrr',
+	                    x: 345,
+	                    y: 70
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 655,
+	                    fieldLabel: '题 名',
+						name: 'tm',
+						id: 'wsda_tm',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 100
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '馆编件号',
+	                    labelWidth: 60,
+						name: 'gbjh',
+						id: 'wsda_gbjh',
+	                    x: 10,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '稿本',
+	                    labelWidth: 60,
+						name: 'gb',
+						id: 'wsda_gb',
+						store: gb_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+	                    x: 180,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '盒号',
+	                    labelWidth: 60,
+						name: 'hh',
+						id: 'wsda_hh',
+	                    x: 345,
+	                    y: 130
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '文种',
+	                    labelWidth: 60,
+						store: wz_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						name: 'wz',
+						id: 'wsda_wz',
+	                    x: 10,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 160,
+	                    fieldLabel: '载体类型',
+	                    labelWidth: 60,
+						store: ztlx_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						name: 'ztlx',
+						id: 'wsda_ztlx',
+	                    x: 180,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 165,
+	                    fieldLabel: '载体规格',
+	                    labelWidth: 60,
+						store: ztgg_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						name: 'ztgg',
+						id: 'wsda_ztgg',
+	                    x: 345,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'combobox',
+	                    width: 145,
+	                    fieldLabel: '载体单位',
+	                    labelWidth: 60,
+						store: ztdw_store,
+						emptyText:'请选择',
+						mode: 'remote',
+						minChars : 2,
+						valueField:'text',
+						displayField:'text',
+						triggerAction:'all',
+						name: 'ztdw',
+						id: 'wsda_ztdw',
+	                    x: 520,
+	                    y: 160
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '分类号',
+	                    labelWidth: 60,
+						name: 'flh',
+						id: 'wsda_flh',
+	                    x: 10,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '档案馆代号',
+	                    labelWidth: 65,
+						name: 'dagdh',
+						id: 'wsda_dagdh',
+	                    x: 180,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 165,
+	                    fieldLabel: '电子文档号',
+	                    labelWidth: 65,
+						name: 'dzwdh',
+						id: 'wsda_dzwdh',
+	                    x: 345,
+	                    y: 190
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '缩 微 号',
+	                    labelWidth: 60,
+						name: 'swh',
+						id: 'wsda_swh',
+	                    x: 520,
+	                    y: 190
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '载体数量',
+						name: 'ztsl',
+						id: 'wsda_ztsl',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 160,
+	                    fieldLabel: '全文标识',
+	                    labelWidth: 60,
+						name: 'qwbs',
+						id: 'wsda_qwbs',
+	                    x: 180,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '主题词',
+	                    labelWidth: 60,
+						name: 'ztc',
+						id: 'wsda_ztc',
+	                    x: 345,
+	                    y: 220
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 330,
+	                    fieldLabel: '主办部门',
+						name: 'zbbm',
+						id: 'wsda_zbbm',
+	                    labelWidth: 60,
+	                    x: 10,
+	                    y: 250
+	                },
+	                {
+	                    xtype: 'textfield',
+	                    width: 320,
+	                    fieldLabel: '协办部门',
+	                    labelWidth: 60,
+						name: 'xbbm',
+						id: 'wsda_xbbm',
+	                    x: 345,
+	                    y: 250
+	                },	                
+	                {
+	                    xtype: 'textfield',
+	                    width: 500,
+	                    fieldLabel: '备 注',
+	                    labelWidth: 60,
+						name: 'bz',
+						id: 'wsda_bz',
+	                    x: 10,
+	                    y: 280
+	                },
+					{
+	                    xtype: 'textfield',
+	                    width: 145,
+	                    fieldLabel: '目录号',
+						hidden:true,
+	                    labelWidth: 60,
+						name: 'mlh',
+						id: 'wsda_mlh',
+	                    x: 520,
+	                    y: 280
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'id',
+						id: 'wsda_id',
+	                    x: 520,
+	                    y: 280
+	                },{
+		                xtype: 'textfield',
+	                    hidden : true,
+						name: 'qzh',
+						id: 'wsda_qzh',
+	                    x: 10,
+	                    y: 190
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dalb',
+						id: 'wsda_dalb',
+	                    x: 10,
+	                    y: 190
+	                },{
+	                    xtype: 'textfield',
+	                    hidden : true,
+						name: 'dh',
+						id: 'wsda_dh',
+	                    x: 10,
+	                    y: 190
+	                }		,
+							{
+			                    xtype: 'textfield',
+			                    hidden : true,
+								name: 'userid',
+								id: 'userid',
+			                    x: 10,
+			                    y: 190
+			                }
+	            ]
+			}]
+		});
+	}
+	Ext.getCmp('userid').setValue(currentUser.id);
+	if(add_new==false){
+	//设置数据
+		Ext.getCmp('daglaj_form').getForm().setValues(record.data);
+		com_document_store.proxy.extraParams.query=record.data.id;
+		com_document_store.load();
+		
+	}else{
+		if(add_new==true){
+			Ext.getCmp('button_aj_add').text="新增保存";
+			ss=title.split('_');
+			Ext.getCmp('wsda_dalb').setValue(ss[1]);			
+			Ext.getCmp('wsda_qzh').setValue(ss[0]);
+			if (record!=undefined){
+				Ext.getCmp('wsda_nd').setValue(record.data.nd);			
+				Ext.getCmp('wsda_jgwth').setValue(record.data.jgwth);
+				Ext.getCmp('wsda_bgqx').setValue(record.data.bgqx);			
+				Ext.getCmp('wsda_zrr').setValue(record.data.zrr);
+			}
+		}else{
+			if(add_new=='4'){
+				Ext.getCmp('button_aj_add').setVisible(false);
+				Ext.getCmp('aj_zzfw').setVisible(false);
+				
+				new Ajax.Request("/desktop/yun_get_archivebyid", { 
+ 
+				    	method: "POST",
+				    	parameters: {ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+							com_document_store.proxy.url="/desktop/yun_get_documentbyajid"
+							com_document_store.proxy.extraParams={ip:record.data.ip,dh:record.data.dh,id:record.data.daid,userid:currentUser.id}
+							com_document_store.load();
+				     	}
+				});
+							
+			}else{
+				requestdata='';
+				new Ajax.Request("/desktop/get_archivebyid", { 
+				    	method: "POST",
+				    	parameters: {dh:record.data.dh,id:record.data.id,userid:currentUser.id},
+				    	onComplete:	 function(request) {
+				    		requestdata=eval('(' + request.responseText + ')');						
+							Ext.getCmp('daglaj_form').getForm().setValues(requestdata[0]);
+							var datazwrq=requestdata[0]['zwrq'].split(" ");
+							var dateArr = datazwrq[0].split("-");
+							var stateDate = new Date(dateArr[0]-0, dateArr[1]-1, dateArr[2]);
+							//var stateDate = new Date(2012,1,12);
+							Ext.getCmp('wsda_zwrq').setValue(stateDate);
+				     	}
+				     });
+			}
 			//Ext.getCmp('button_aj_add').hidden=true;
 		}
 	
@@ -6084,11 +6944,11 @@ var doc_dagl = function(title){
 		      { text : '备注',  flex : 1, sortable : true, dataIndex: 'bz'}
           
 		],
-          //selType:'checkboxmodel',
-          //multiSelect:true,
-          selModel: {
-            selType: 'cellmodel'
-          },
+          selType:'checkboxmodel',
+          multiSelect:true,
+          //selModel: {
+          //  selType: 'cellmodel'
+          //},
         viewConfig: {
             trackOver: false
         },
@@ -6166,6 +7026,17 @@ var doc_dagl = function(title){
 				
             }
           },
+		  {
+            xtype: 'button',
+            iconCls: 'delete',
+            text:'从临时库中删除',
+            handler: function() {
+              //this.up('window').hide();
+
+
+              Ext.getCmp('doc_dagl_win').close();
+            }
+		  },
           
           {
             xtype: 'button',
@@ -13043,8 +13914,8 @@ var DispJr_model = function(jr_aj_ownerid,jr_dh,aj_add_new){
               xtype: 'datefield',
               format: 'y-m-d',
               //minValue: '2012-01-01',
-              disabledDays: [0, 6],
-              disabledDaysText: 'Plants are not available on the weekends'
+              //disabledDays: [0, 6],
+              //disabledDaysText: 'Plants are not available on the weekends'
           	}
 		  },
 		  { text : '页号',  width : 150, sortable : true, dataIndex: 'yh',	
@@ -13246,7 +14117,7 @@ var draw_new = function(scale, translatePos, imageObj){
 }
 
 
-var show_image = function(dh) {
+var show_image = function(dh,ip,lb) {
 	var path='';
 	var print_id=''
   	//var canvas_string =
@@ -13335,7 +14206,37 @@ var show_image = function(dh) {
       data = node.selected.items[0].data;  // data.id, data.parent, data.text, data.leaf
       ss=data.id.split('|');
 	  if (ss[0]!='root1'){
-      	var pars={gid:ss[0],userid:currentUser.id};
+      	var pars={ip:ip,gid:ss[0],userid:currentUser.id};
+		if(lb=='1'){
+			new Ajax.Request("/desktop/yun_get_timage_from_db", {
+	        	method: "POST",
+		        parameters: pars,
+		        onComplete:  function(request) {
+		          path = request.responseText;
+		          if (path != '') { 
+					if(lb=='1'){
+						path="http://" + ip + ":3000/" +  path 
+					};
+					if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
+						ifx=path.split('?');
+						var number = Math.random(); 
+						imagefx=ifx[1];
+			            imageObj.src = path +'?' + number;
+						//imageObj.src ="http://" + ip + ":3000/" +  path +'?' + number;
+						scale=1;
+						translatePos.x = 0;
+					    translatePos.y = 0;
+			            draw(scale, translatePos,imageObj);
+					}else{				
+						//location.href= path;
+						window.open(path,'','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+						imageObj.src = '';
+			            draw(scale, translatePos,imageObj);
+					}
+		          }
+		        }
+	      	});
+		}else{
 	      new Ajax.Request("/desktop/get_timage_from_db", {
 	        method: "POST",
 	        parameters: pars,
@@ -13343,11 +14244,15 @@ var show_image = function(dh) {
 	          path = request.responseText;
 	          if (path != '') { 
 				//set_image("/assets/dady/fm.jpg");
+				if(lb=='1'){
+					path="http://" + ip + ":3000/" +  path 
+				};
 				if (path.toUpperCase().include('JPG') || path.toUpperCase().include('TIF') || path.toUpperCase().include('JPEG') || path.toUpperCase().include('TIFF')) { 
 					ifx=path.split('?');
 					var number = Math.random(); 
 					imagefx=ifx[1];
 		            imageObj.src = path +'?' + number;
+					//imageObj.src ="http://" + ip + ":3000/" +  path +'?' + number;
 					scale=1;
 					translatePos.x = 0;
 				    translatePos.y = 0;
@@ -13362,8 +14267,8 @@ var show_image = function(dh) {
 	        }
 	      });
 
-
-		};
+		}
+	  };
     });
 
   var yxxs_win = new Ext.Window({
@@ -13421,7 +14326,7 @@ var show_image = function(dh) {
            var next_node = node.nextSibling;
            yxtree_panel.selModel.select(next_node);
          }
-      },
+       },
 		{
           text: '打印图像',
 		  id:'image_print',
@@ -13547,7 +14452,7 @@ var show_image = function(dh) {
 				        }
 				    });
 			 }	          
-	     }
+	    }
 		,
 		{
 	          text: '退出',
@@ -13555,7 +14460,8 @@ var show_image = function(dh) {
 	          handler : function() {
 				Ext.getCmp('yxxs_win').close();
 			 }	          
-	     }],
+	    }
+	  ],
       items:[{
           xtype: 'panel', //或者xtype: 'component',
 		  layout:'fit',
@@ -13582,10 +14488,18 @@ var show_image = function(dh) {
         parameters: eval("({userid:" + currentUser.id + ",qxdm:'i',qxlb:1,dh:'" + dh + "'})"),
         onComplete:  function(request) {
           if (request.responseText=='success'){
-            var yxtree_store = Ext.getCmp('yx_show_tree').store;
-		    yxtree_store.clearOnLoad = false;
-		    yxtree_store.getRootNode().removeAll() ;
-		    yxtree_store.proxy.extraParams = {node:"root", dh:dh};
+			if(lb=='1'){
+				var yxtree_store = Ext.getCmp('yx_show_tree').store;
+			    yxtree_store.clearOnLoad = false;
+			    yxtree_store.getRootNode().removeAll() ;
+			    yxtree_store.proxy.extraParams = {ip:ip,node:"root", dh:dh};
+				yxtree_store.proxy.url="desktop/yun_get_yx_tree"
+			}else{							
+            	var yxtree_store = Ext.getCmp('yx_show_tree').store;
+			    yxtree_store.clearOnLoad = false;
+			    yxtree_store.getRootNode().removeAll() ;
+			    yxtree_store.proxy.extraParams = {node:"root", dh:dh};
+			}
 		    yxtree_store.load();
 		  	yxxs_win.show();
 			set_image("/assets/dady/fm.jpg");
@@ -13608,6 +14522,7 @@ var set_image = function(photoURL) {
  //scale = 1.0;
  translatePos =  { x: 0,y: 0};
  imageObj.src = photoURL;
+//imageObj.src = "http://127.0.0.1:3000/" + photoURL;
 
  // add event listeners to handle screen drag
  canvas.addEventListener("mousedown", function(evt){
@@ -13641,7 +14556,7 @@ var set_image = function(photoURL) {
 
 
 //add by liujun showAdvancedSearch()
-  var showAdvancedSearch = function(fields,grid,dh,doc_dagl,jr,rz) {
+var showAdvancedSearch = function(fields,grid,dh,doc_dagl,jr,rz) {
     
     var panel = new Ext.Panel({  
       title : '高级查询',  
@@ -13746,7 +14661,7 @@ var set_image = function(photoURL) {
       }]
     });
     advanced_search_win.show();
-  };
+};
 
 //设备正在操作窗口
 var sb_cz_msg = function(sbid){
@@ -13948,3 +14863,90 @@ var cz_msg = function(czid){
 	win.show();
 	
 };
+
+var yun_cz_msg = function(czid){
+	var win = Ext.getCmp('yun_cz_msg_win');
+	if (win==null) {
+		loopable=false;
+		i =0;
+		sb_name='';
+		czdz=['正在操作','完成操作'];
+		sbname=[];
+		strdisp='';
+		//sb_id=sbid.split(';');
+		new Ajax.Request("/desktop/yun_get_cz_zt", { 
+			method: "POST",
+			parameters: {czid:czid},
+			onComplete:	 function(request) {
+				text=request.responseText.split(':');
+				if (text[0]=='success'){				
+					Ext.getCmp('yun_cz_msg_win').close();											
+				}else{
+					loopCheck(text[1],true);
+				}				
+			}
+		});
+	
+		function loopCheck(sb,lp) {
+			loopable=false;
+				//Ext.getCmp('cz_disp').getEl().dom.innerHTML = Ext.getCmp('cz_disp').initialConfig.html + sb;
+			Ext.getCmp('cz_disp').getEl().dom.innerHTML =  "正在查询，请稍等。。。。。。";
+			new Ajax.Request("/desktop/yun_get_cz_zt", { 
+				method: "POST",
+				parameters: {czid:czid},
+				onComplete:	 function(request) {
+					text=request.responseText.split(':');
+					if (text[0]=='success'){						
+						Ext.getCmp('yun_cz_msg_win').close();
+					}else{
+						loopable=false;
+						if (loopable==false){
+								sf = 0;
+					            td = 3*1000 ; //60s 
+					            var f = function() { loopCheck(sb,loopable); };
+					            var t = setTimeout(f,td);
+						};
+					}
+				}
+			});
+        };
+		
+		win = new Ext.Window({
+			id : 'yun_cz_msg_win',
+			title: '正在查询',
+			//closeAction: 'hide',
+			width: 270,
+			height: 100,
+			layout: 'fit',
+			//modal: true,
+			plain: true,
+			items:[{	//title:'情景模式树',
+				//region:'west',
+				//iconCls:'users',
+				xtype:'panel',
+				margins:'0 0 0 0',
+				width: 200,
+				//collapsible:true,//可以被折叠							
+				layout:'fit',
+				autoscroll:true,
+				split:true,
+				items:[{
+					xtype: 'box',
+					autoscroll:true,
+					html:"<img src='/assets/zzcz.gif' />",
+					x:10,
+					y:10,
+					width: 8,
+					height:8,
+					id:'cz_disp'
+				}]
+
+			}]
+		})
+	
+	}
+	
+	win.show();
+	
+};
+

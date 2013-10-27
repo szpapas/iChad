@@ -1112,7 +1112,14 @@ Ext.define('MyDesktop.SystemStatus', {
 		                 });
 
 		         	 }    
-				}]
+				},{
+			         text : '新增统计',
+		             iconCls : '',
+		             handler : function() {
+		                 xztj();
+		         	 }    
+				}
+			 ]
            }
 		},'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
            xtype:"textfield",
@@ -1434,7 +1441,7 @@ Ext.define('MyDesktop.SystemStatus', {
 	             handler : function() {
 
 	                 
-	                     	window.open('assets/dady/qztj.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+	                     	window.open('assets/dady/qztj.xls','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
 						
 
 	         	}    
@@ -1448,7 +1455,18 @@ Ext.define('MyDesktop.SystemStatus', {
 						
 
 	         	}    
-			}]
+			},{
+		         text : '提取新增全宗表',
+	             iconCls : '',
+	             handler : function() {
+
+
+	                     	window.open('assets/dady/add_qztj.xls','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+
+
+	         	}    
+			}
+		]
     }); 
     
     Ext.regModel('mulu_qz_model', {
@@ -1927,8 +1945,349 @@ Ext.define('MyDesktop.SystemStatus', {
           items: [qzgl_grid,mulu_qz_grid,qzzt_grid]
       }]        
     });
-    
-    
+
+    var xztj_disp = function(record,add_new){
+      var win = Ext.getCmp('xztj_disp_win');
+      
+      //qz_store.load();
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'xztj_disp_win',
+          title: '修改新增目录',
+          //closeAction: 'hide',
+          width: 370,
+          height: 200,
+          //minHeight: 200,
+          layout: 'fit',
+          modal: true,
+          plain: true,
+          //items:user_setup_grid,          
+          items: [{
+            width: 370,
+            height: 140,
+            xtype:'form',
+            layout: 'absolute',
+            id : 'xztj_form',
+            items: [
+              {
+                xtype: 'label',
+                text: '目录号：',
+                x: 10,
+                y: 10,
+                width: 100
+              },
+              {
+                xtype: 'label',
+                text: '起案卷号：',
+                x: 10,
+                y: 40,
+                width: 100
+              },
+              {
+                xtype: 'label',
+                text: '止案卷号：',
+                x: 10,
+                y: 70,
+                width: 100
+              },
+              {
+                xtype: 'label',
+                text: '所属全宗：',
+                x: 10,
+                y: 100,
+                width: 100
+              },
+              {
+                xtype: 'textfield',
+                hidden : true,
+                name : 'id' ,
+                id:'qz_id'                    
+              },
+              
+              {
+                xtype: 'textfield',
+                x: 130,
+                y: 10,
+                width: 200,
+                name: 'mlh',
+                id:'qz_mlh'
+              },
+              {
+                xtype: 'numberfield',
+                x: 130,
+                y: 40,
+                width: 200,
+                name: 'qajh',
+                id:'qz_qajh'
+              },
+              {
+                xtype: 'numberfield',
+                x: 130,
+                y: 70,
+                width: 200,                
+                name: 'zajh',
+                id:'qz_zajh'
+              },
+              {
+                xtype: 'combobox',
+                x: 130,
+                y: 100,
+                width: 200,
+                store: qz_store,
+                emptyText:'请选择',
+                mode: 'remote',
+                minChars : 2,
+                valueField:'id',
+                displayField:'dwdm',
+                triggerAction:'all',
+                name: 'ssss',
+                id:'qz_owner_id'
+              }
+            ],
+            buttons:[{
+                xtype: 'button',
+                iconCls: 'option',
+                id:'button_qz_add',
+                text:'修改',
+                handler: function() {
+                  var pars=this.up('panel').getForm().getValues();
+                  if(pars['mlh']!=''){
+                    if(pars['qajh']!='' || pars['zajh']!=''){
+                      if(add_new==false){
+                        new Ajax.Request("/desktop/update_add_mlh", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            if (request.responseText=='success') {
+                              
+                              Ext.getCmp('xztj_disp_win').close();
+                              
+                              Ext.getCmp('xztj_grid').store.url='/desktop/get_add_mlh_grid';
+                              Ext.getCmp('xztj_grid').store.load();
+                            }else{
+                              alert(request.responseText);
+                            }
+                          
+                          }
+                        });
+                      }else{
+                        new Ajax.Request("/desktop/insert_add_mlh", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){                              
+                              Ext.getCmp('xztj_disp_win').close();
+                              Ext.getCmp('xztj_grid').store.url='/desktop/get_add_mlh_grid';
+                              Ext.getCmp('xztj_grid').store.load();
+                            }else{
+                              alert(request.responseText);
+                            }
+                          }
+                        });
+                      }
+                    }else{
+                      alert("目录号不能为空。");
+                    }
+                  }else{
+                    alert("起止案卷号c不能为空。");
+                  }
+                }
+              },
+              {
+                xtype: 'button',
+                iconCls: 'exit',
+                text:'退出',
+                handler: function() {
+                  //this.up('window').hide();
+                  Ext.getCmp('xztj_disp_win').close();
+                }
+              }]
+          }]
+          
+        });
+      }
+      if(add_new==false){
+      //设置数据
+        Ext.getCmp('xztj_form').getForm().setValues(record.data);
+        
+      }else{
+        Ext.getCmp('xztj_win').title="新增新增目录";
+        Ext.getCmp('button_qz_add').text="新增";
+        Ext.getCmp('button_qz_add').iconCls="add";
+      }
+
+      win.show();
+    };
+
+
+	var xztj = function(){
+      var win = Ext.getCmp('xztj_win');
+
+      Ext.regModel('xztj_model', {
+        fields: [
+          {name: 'id',    type: 'integer'},
+          {name: 'mlh',    type: 'string'},
+          {name: 'qajh',    type: 'integer'},
+          {name: 'zajh',    type: 'integer'},
+		  {name: 'dalb',    type: 'string'},
+          {name: 'ssss',    type: 'string'}
+        ]
+      });
+
+      var xztj_store = Ext.create('Ext.data.Store', {
+        id:'xztj_store',
+        model : 'xztj_model',
+        autoLoad: true,
+        proxy: {
+          type: 'ajax',
+          url : '/desktop/get_add_mlh_grid',
+          //extraParams: cx_tj,
+          reader: {
+            type: 'json',
+            root: 'rows',
+            totalProperty: 'results'
+          }
+        }
+      });
+      var xztj_grid = new Ext.grid.GridPanel({
+        id : 'xztj_grid',
+        store: xztj_store,        
+        columns: [
+          { text : 'id',  width : 0, sortable : true, dataIndex: 'id'},
+          { text : '目录号',  width : 150, sortable : true, dataIndex: 'mlh'},
+          { text : '起案卷号',  width : 70, sortable : true, dataIndex: 'qajh'},
+          { text : '止案卷号',  width : 70, sortable : true, dataIndex: 'zajh'},
+		  //{ text : '档案类别',  width : 70, sortable : true, dataIndex: 'dalb'},
+          { text : '所属全宗',  width : 150, sortable : true, dataIndex: 'ssss'}
+          ],
+          selType:'checkboxmodel',
+          //multiSelect:true,
+          listeners:{
+            itemdblclick:{
+              fn:function(v,r,i,n,e,b){
+                var tt=r.get("zrq");
+
+                //DispAj(r,false);
+              }
+            }
+          },
+
+        viewConfig: {
+          stripeRows:true
+        }
+      });
+      if (win==null) {
+        win = new Ext.Window({
+          id : 'xztj_win',
+          title: '新增目录设置',
+          //closeAction: 'hide',
+          width: 570,
+          x : 300,
+          y : 50,
+          height: 500,
+          minHeight: 500,
+          layout: 'fit',
+          //modal: true,
+          plain: true,
+          items:xztj_grid,          
+          tbar:[{
+            xtype: 'button',
+            iconCls: 'add',
+            text:'新增',
+            handler: function() {
+              //this.up('window').hide();
+              xztj_disp("record",true);
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'option',
+            text:'修改',
+            handler: function() {
+              //this.up('window').hide();
+
+              var grid = Ext.getCmp('xztj_grid');
+              var records = grid.getSelectionModel().getSelection();
+              if (records.length==1){
+                var record = records[0];
+                xztj_disp(record,false);
+              }else{
+                alert("请选择一个用户进行修改。");
+              }
+            }
+          },
+          {
+            xtype: 'button',
+            iconCls: 'delete',
+            text:'删除',
+            handler: function() {
+              var grid = Ext.getCmp('xztj_grid');
+              var records = grid.getSelectionModel().getSelection();
+              if (records.length==0){
+                alert("请选择一个用户进行修改。");
+
+              }else{
+                var record = records[0];
+                var pars="id="+record.data.id;
+                Ext.Msg.confirm("提示信息","是否要删除全宗名称为：！"+record.data.dwdm+"的全宗？",function callback(id){
+                      if(id=="yes"){
+                        new Ajax.Request("/desktop/delete_add_mlh", { 
+                          method: "POST",
+                          parameters: pars,
+                          onComplete:  function(request) {
+                            if (request.responseText=='success'){
+                              Ext.getCmp('xztj_grid').store.url='/desktop/get_add_mlh_grid';
+                              Ext.getCmp('xztj_grid').store.load();
+                            }else{
+                              alert("删除失败。");
+                            }
+                          }
+                        });
+                      }else{
+                        //alert('O,no');
+                      }
+
+                  }); 
+              }
+            }
+          },
+		  {
+              xtype: 'button',
+			  iconCls:'tj',
+              text: '生成新增全宗表',
+				handler: function() {
+					new Ajax.Request("/desktop/print_add_qz_jsys", { 
+	                   method: "POST",
+	                   //parameters: pars,
+	                   onComplete:  function(request) {
+							if(request.responseText=='Success'){
+								qzzt_store.load();
+								alert('命令发送成功');
+		                     	//window.open('assets/dady/qztj.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
+							}else{
+								alert('生成失败' +request.responseText);
+							}
+	                   }
+	                 });
+				}
+          },
+          {
+            xtype: 'button',
+            iconCls: 'exit',
+            text:'退出',
+            handler: function() {
+              //this.up('window').hide();
+              Ext.getCmp('xztj_win').close();
+            }
+          }]
+
+        });
+      }
+
+
+      win.show();
+	}
+
     if(!win){
       win = desktop.createWindow({
         id: 'systemstatus',
