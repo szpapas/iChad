@@ -1,4 +1,4 @@
-o: ActiveSupport::Cache::Entry	:@expires_in0:@value{"_version"%46dde6621c301f4928e3b34efee9e3b5"	body"]óvar currentUser={};
+o: ActiveSupport::Cache::Entry	:@expires_in0:@value{"	body"Àñvar currentUser={};
 var archive_id=0;
 var archive_data={};
 var tree_id=0;
@@ -14120,11 +14120,6 @@ var draw_new = function(scale, translatePos, imageObj){
 var show_image = function(dh,ip,lb) {
 	var path='';
 	var print_id=''
-  	//var canvas_string =
-    //'<div id="wrapper">'
-    //+' <canvas id="myCanvas" width="600" height="800">'
-    //+' </canvas>'
-    //+'</div>';
 	var canvas_string =
 	    '<div id="wrapper" oncontextmenu="return false">'
 	    +' <canvas id="myCanvas" width="600" height="800">'
@@ -14550,7 +14545,7 @@ var set_image = function(photoURL) {
      draw(scale, translatePos, imageObj);
    }
  });
-
+ 
  draw(scale, translatePos,imageObj);
 };
 
@@ -14950,7 +14945,7 @@ var yun_cz_msg = function(czid){
 	
 };
 
-"
-mtime"2013-10-20T19:20:49+08:00"asset_paths["3$root/app/assets/javascripts/desktop/common.js"pathname"3$root/app/assets/javascripts/desktop/common.js"id"%082f96d7b6db50b557809c7f9f78aeed"
+"_version"%46dde6621c301f4928e3b34efee9e3b5"content_type"application/javascript"
+mtime"2013-10-27T15:12:00+08:00"asset_paths["3$root/app/assets/javascripts/desktop/common.js"pathname"3$root/app/assets/javascripts/desktop/common.js"logical_path"desktop/common.js"
 class"BundledAsset"dependency_paths[{"
-mtimeu:	TimeãfÄ  S"hexdigest"%b340be5719dffccb486de4aa3d6185f8"	path"3$root/app/assets/javascripts/desktop/common.js"logical_path"desktop/common.js"content_type"application/javascript:@created_atf1382268051.306464 ù:@compressedF
+mtimeu:	TimeggÄ   0"hexdigest"%49f8cad99dabefc1dc10fc1b116765e2"	path"3$root/app/assets/javascripts/desktop/common.js"id"%45a8bdd6fcad68835cdd1fdeb4d0bf93:@created_atf1382859686.2477 ⁄Q:@compressedF

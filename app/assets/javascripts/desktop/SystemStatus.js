@@ -1111,270 +1111,6 @@ Ext.define('MyDesktop.SystemStatus', {
                     tag: 'a',
                     html: 'Please wait'
                   }
-<<<<<<< HEAD
-                };
-                
-                var zt = Ext.getCmp('qzsz_combo').rawValue;
-                
-                if (items.length > 0) {
-                   pars = {id:id_str, zt:zt};
-                   new Ajax.Request("/desktop/set_qzxx_selected", { 
-                     method: "POST",
-                     parameters: pars,
-                     onComplete:  function(request) {
-                       qzgl_store.load();
-                     }
-                   });
-                 }
-             }
-           },{
-              xtype: 'combo',
-              x: 130,
-              y: 190,
-              width: 80,
-              text:'著录',
-              name: 'qzsz',
-              id: 'qzsz_combo',
-              store: ajzt_store,
-              emptyText:'请选择',
-              mode: 'local',
-              minChars : 2,
-              value:'著录',
-              valueField:'text',
-              displayField:'text',
-              triggerAction:'all',
-          }, '-', {
-			 text : '系统工具',
-             iconCls : '',
-             split:true,
-             menu: {
-	            width:100,
-	            items:[{
-             		text : '重新统计',
-	            	iconCls : 'x-tbar-loading',
-	            	handler : function() {
-	               	items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-		               id_str = '';
-		               for (var i=0; i < items.length; i ++) {
-		                 if (i==0) {
-		                   id_str = id_str+items[i].data.id ;
-		                 } else {
-		                   id_str = id_str + ',' +items[i].data.id ;
-		                 }
-		               };
-               
-		               if (items.length > 0) {
-		                 pars = {id:id_str};
-		                 new Ajax.Request("/desktop/update_qzxx_selected", { 
-		                   method: "POST",
-		                   parameters: pars,
-		                   onComplete:  function(request) {
-		                     qzgl_store.load();
-		                   }
-		                 });
-		               } else {
-		                 qzgl_store.load();
-		               }
-                 
-		            }
-				},{
-		             text : '删除',
-		             iconCls : '',
-		             handler : function() {
-		               items = Ext.getCmp('qzgl_grid_id').getSelectionModel().selected.items;
-		               id_str = '';
-		               for (var i=0; i < items.length; i ++) {
-		                 if (i==0) {
-		                   id_str = id_str+items[i].data.id ;
-		                 } else {
-		                   id_str = id_str + ',' +items[i].data.id ;
-		                 }
-		               };
-
-		               if (items.length > 0) {
-		                 pars = {id:id_str};
-		                 new Ajax.Request("/desktop/delete_qzxx_selected", { 
-		                   method: "POST",
-		                   parameters: pars,
-		                   onComplete:  function(request) {
-		                     qzgl_store.load();
-		                   }
-		                 });
-		               } else {
-		                 qzgl_store.load();
-		               }
-
-		             }
-				},{
-			         text : '生成缺重卷',
-		             iconCls : '',
-		             handler : function() {
-
-		                 pars = {id:''};
-		                 new Ajax.Request("/desktop/print_tj_qcj", { 
-		                   method: "POST",
-		                   parameters: pars,
-		                   onComplete:  function(request) {
-
-						    	if(request.responseText=='Success'){
-									qzzt_store.load();
-									alert('命令发送成功');
-			                     	//window.open('assets/dady/tj_qcj.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-							    }else{
-							    	alert('生成失败' +request.responseText);
-							    }
-		                   }
-		                 });
-
-		         	 }    
-				},{
-			         text : '生成全宗表',
-		             iconCls : '',
-		             handler : function() {
-		                 pars = {id:''};
-		                 new Ajax.Request("/desktop/print_qz_jsys", { 
-		                   method: "POST",
-		                   parameters: pars,
-		                   onComplete:  function(request) {
-								if(request.responseText=='Success'){
-									qzzt_store.load();
-									alert('命令发送成功');
-			                     	//window.open('assets/dady/qztj.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-								}else{
-									alert('生成失败' +request.responseText);
-								}
-		                   }
-		                 });
-
-		         	 }
-				},{
-			         text : '生成备份报表',
-		             iconCls : '',
-		             handler : function() {
-		                 pars = {id:''};
-		                 new Ajax.Request("/desktop/print_tj_back", { 
-		                   method: "POST",
-		                   parameters: pars,
-		                   onComplete:  function(request) {
-								if(request.responseText=='Success'){
-									qzzt_store.load();
-									alert('命令发送成功');
-			                     	//window.open('assets/dady/tj_back.txt','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-								}else{
-									alert('生成失败' +request.responseText);
-								}
-			               }
-			
-		                 });
-
-		         	 }    
-				},{
-			         text : '新增统计',
-		             iconCls : '',
-		             handler : function() {
-		                 xztj();
-		         	 }    
-				}
-			 ]
-           }
-		},'<span style=" font-size:12px;font-weight:600;color:#3366FF;">类别</span>:&nbsp;&nbsp;',{
-           xtype:"textfield",
-           id : 'lb_field',
-           width: 40,
-           value: '',
-           listeners:{
-             'blur': function(field){
-               qzgl_store.proxy.extraParams.dalb=field.getValue();
-               qzgl_store.load();
-             }
-           }
-         },
-         '<span style=" font-size:12px;font-weight:600;color:#3366FF;">过滤</span>:&nbsp;&nbsp;',{
-           xtype: 'combo',
-           text:'过滤',
-           x: 130,
-           y: 190,
-           width: 100,
-           name: 'yxbh',
-           id: 'qzzt_combo',
-           store: ajzt_store,
-           emptyText:'请选择',
-           mode: 'local',
-           minChars : 2,
-           valueField:'text',
-           displayField:'text',
-           triggerAction:'all',
-           listeners:{
-             select:function(combo, records, index) {
-               qzgl_store.proxy.extraParams.filter=records[0].data.text;
-               qzgl_store.load();
-             }
-           }
-         },{
-           text:'打印',
-           handler : function() {
-             
-             var runner = new Ext.util.TaskRunner();
-             
-             var modi_win = new Ext.Window({
-               id : 'print_monitor_win',
-               iconCls : 'add',
-               title: '案卷修改',
-               floating: true,
-               shadow: true,
-               draggable: true,
-               closable: true,
-               modal: true,
-               width: 300,
-               height: 200,
-               layout: 'fit',
-               plain: true,
-               items:[{
-                 xtype : 'panel',
-                 items : [{
-                     xtype: 'box',
-                     id : 'wait_box_id',
-                     autoEl: {
-                         tag: 'a',
-                         html: 'Please wait'
-                     }
-                  }]
-               }],
-               buttons: [{
-                   text: '取消',
-                   handler: function() {
-                     Ext.getCmp('print_monitor_win').close();
-                   }
-                 },{
-                   text: '检查',
-                   handler: function() {
-                     var el = Ext.get("wait_box_id");
-                     el.dom.innerHTML='new string'; 
-                   }
-               }]
-             });
-             
-             var check_print_task = function() {
-                 var el = Ext.get("wait_box_id");
-                 if (el == null) {
-                   runner.stopAll();
-                 } else { 
-                   el.dom.innerHTML=el.dom.innerHTML+"<br />new string";
-                }   
-             };
-             
-             var task = {
-                 run: check_print_task,
-                 interval: 10000 //1 second
-             };
-             
-             runner.start(task);
-             
-             modi_win.show();
-
-           }
-         }]
-=======
                 }]
               }],
               buttons: [{
@@ -1407,7 +1143,6 @@ Ext.define('MyDesktop.SystemStatus', {
             modi_win.show();
         }
       }]
->>>>>>> eebc0d3f4e698270d817825725a506dffe18f4e3
     }); 
     
     qzgl_grid.on('itemdblclick', function(grid, item, r){
@@ -1536,7 +1271,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }
       return val;                          
     };
-<<<<<<< HEAD
+
 
     var qzzt_grid = new Ext.grid.GridPanel({
          // more config options clipped //,
@@ -1658,104 +1393,7 @@ Ext.define('MyDesktop.SystemStatus', {
 	         	}    
 			}
 		]
-=======
-    
-    var qzzt_grid = new Ext.grid.GridPanel({
-      title: '任务状态',
-      store: qzzt_store,
-      id : 'qzzt_grid_id',
-      iconCls:'task16',
-      layout : 'fit',
-      columns: [
-        { text : 'id',    align:"center", width : 15, sortable : true, dataIndex: 'id', hidden: true},
-        { text : '档号',    align:"left",   width : 50, sortable : true, dataIndex: 'dhp'},
-        { text : '目录号',    align:"left",  width : 50, sortable : true, dataIndex: 'mlh'},
-        { text : '任务命令',   align:"left", width : 250, sortable : true, dataIndex: 'cmd'},
-        { text : '附加参数',   align:"left", width : 100, sortable : true, dataIndex: 'fjcs'},
-        { text : '当前位置',   align:"center", width : 50, sortable : true, dataIndex: 'dqwz'},
-        { text : '状态',     align:"center", flex : 1, sortable : true, dataIndex:   'zt', renderer:ztRenderer}
-      ],
-      //selModel : {selType:'cellmodel'},
-      selType:'checkboxmodel',
-      multiSelect:true,
-      viewConfig: {
-        stripeRows:true
-      },
-      tbar : [{
-          text : '删除选择',
-          handler : function() {
-            items = Ext.getCmp('qzzt_grid_id').getSelectionModel().selected.items;
-            id_str = '';
-            for (var i=0; i < items.length; i ++) {
-              if (i==0) {
-                id_str = id_str+items[i].data.id;
-              } else {
-                id_str = id_str + ',' +items[i].data.id ;
-              }
-
-            };
-            pars = {id:id_str};
-            new Ajax.Request("/desktop/delete_qzzt_task", { 
-              method: "POST",
-              parameters: pars,
-              onComplete:  function(request) {
-                qzzt_store.load();
-              }
-            });
-          }
-        },'-',{
-          text : '删除完成',
-          handler : function() {
-            pars = {};
-            new Ajax.Request("/desktop/delete_all_qzzt_task", { 
-              method: "POST",
-              parameters: pars,
-              onComplete:  function(request) {
-                qzzt_store.load();
-              }
-            });
-          }
-        },
-        {
-          text: '执行',
-          handler: function() {
-            var pars={id:archive_id};
-            new Ajax.Request("/desktop/start_qzzt_task", {
-              method: "POST",
-              parameters: pars,
-              onComplete:  function(request) {
-                qzzt_store.load();
-              }
-            });
-          }
-        },
-        {
-          text : '刷新',
-          iconCls : 'x-tbar-loading',
-          handler : function() {
-            qzzt_store.load();
-          }                                 
-        },{
-          text : '提取缺重卷表',
-          iconCls : '',
-          handler : function() {
-            window.open('assets/dady/tj_qcj.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-          }    
-        },{
-          text : '提取全宗表',
-          iconCls : '',
-          handler : function() {
-            window.open('assets/dady/qztj.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-          }    
-        },{
-          text : '提取备份报表',
-          iconCls : '',
-          handler : function() {
-            window.open('assets/dady/tj_back.html','','height=500,width=800,top=150, left=100,scrollbars=yes,status=yes');
-          }    
-      }]
->>>>>>> eebc0d3f4e698270d817825725a506dffe18f4e3
-    }); 
+	});
 
     
     
@@ -2617,7 +2255,7 @@ Ext.define('MyDesktop.SystemStatus', {
       }]        
     });
 
-<<<<<<< HEAD
+
     var xztj_disp = function(record,add_new){
       var win = Ext.getCmp('xztj_disp_win');
       
@@ -2960,10 +2598,7 @@ Ext.define('MyDesktop.SystemStatus', {
       win.show();
 	}
 
-=======
-    
-    
->>>>>>> eebc0d3f4e698270d817825725a506dffe18f4e3
+
     if(!win){
       win = desktop.createWindow({
         id: 'systemstatus',

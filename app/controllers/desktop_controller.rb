@@ -11284,7 +11284,7 @@ class DesktopController < ApplicationController
       render :text =>  text
     end
     
-<<<<<<< HEAD
+
     def get_qzmlh_store  
        
       user = User.find_by_sql(" select distinct qzh, dwdm,dalb, mlh from archive where  dalb<>'24' order by qzh,dalb,mlh;")    
@@ -11654,7 +11654,7 @@ class DesktopController < ApplicationController
       User.find_by_sql("insert into q_status (dhp, mlh, cmd, fjcs, dqwz, zt) values ('生成新增全宗表','', 'ruby ./dady/bin/add_qz_jsys.rb', '', '', '未开始');")
       render :text => 'Success'
     end
-=======
+
   
   def get_bfzt_store
     if params['qzh'].nil?
@@ -11815,6 +11815,5 @@ class DesktopController < ApplicationController
     system("ruby ./dady/bin/import_dhp_temp.rb #{f_name} &")
     render :text => 'Success'
   end    
->>>>>>> eebc0d3f4e698270d817825725a506dffe18f4e3
     
 end

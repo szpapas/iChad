@@ -1,4 +1,4 @@
-o: ActiveSupport::Cache::Entry	:@expires_in0:@value{	"_version"%082f96d7b6db50b557809c7f9f78aeed"lengthi]—"source"]—var currentUser={};
+o: ActiveSupport::Cache::Entry	:@expires_in0:@value{	"lengthiË–"_version"%45a8bdd6fcad68835cdd1fdeb4d0bf93"digest"%49f8cad99dabefc1dc10fc1b116765e2"source"Ë–var currentUser={};
 var archive_id=0;
 var archive_data={};
 var tree_id=0;
@@ -14120,11 +14120,6 @@ var draw_new = function(scale, translatePos, imageObj){
 var show_image = function(dh,ip,lb) {
 	var path='';
 	var print_id=''
-  	//var canvas_string =
-    //'<div id="wrapper">'
-    //+' <canvas id="myCanvas" width="600" height="800">'
-    //+' </canvas>'
-    //+'</div>';
 	var canvas_string =
 	    '<div id="wrapper" oncontextmenu="return false">'
 	    +' <canvas id="myCanvas" width="600" height="800">'
@@ -14550,7 +14545,7 @@ var set_image = function(photoURL) {
      draw(scale, translatePos, imageObj);
    }
  });
-
+ 
  draw(scale, translatePos,imageObj);
 };
 
@@ -14950,4 +14945,4 @@ var yun_cz_msg = function(czid){
 	
 };
 
-"digest"%b340be5719dffccb486de4aa3d6185f8:@created_atf1382268051.313714 ä:@compressedF
+:@created_atf1382859686.251878 Å:@compressedF
